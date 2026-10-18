@@ -31,6 +31,12 @@ const expectedRoutes = [
   'works/04-explain-your-major/index.html',
 ];
 
+// 术语页由 src/content/glossary/*.md 驱动，新增术语不需要改这里。
+const glossarySource = path.join(root, 'src/content/glossary');
+const glossaryFiles = (await readdir(glossarySource)).filter((file) => file.endsWith('.md')).sort();
+const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
+for (const slug of glossarySlugs) expectedRoutes.push('glossary/' + slug + '/index.html');
+
 async function read(relPath) {
   return readFile(path.join(dist, relPath), 'utf8');
 }
@@ -186,10 +192,50 @@ test('术语表内容与来源标注存在', async () => {
   assert.match(glossary, /AI 术语表/);
   assert.match(glossary, /VibeHub/);
   assert.match(glossary, /id="ai-hallucination"/);
-  assert.match(glossary, /内容参考 VibeHub（vibe-hub\.org）的 AI 术语/);
+  assert.match(glossary, /参考 VibeHub（vibe-hub\.org）的 AI 术语图鉴/);
   assert.doesNotMatch(glossary, /href="https:\/\/vibe-hub\.org/);
   const termCount = (glossary.match(/class="glossary-term"/g) || []).length;
   assert.equal(termCount, 38, '术语表条目数量不符');
+  for (const slug of glossarySlugs) {
+    assert.ok(glossary.includes('href="/glossary/' + slug + '/"'), '术语卡片缺少详情链接：' + slug);
+  }
+});
+
+test('每个术语都有可读的详情页与结构化数据', async () => {
+  const search = JSON.parse(await read('search-index.json'));
+  for (const file of glossaryFiles) {
+    const slug = file.replace(/\.md$/, '');
+    const raw = await readFile(path.join(glossarySource, file), 'utf8');
+    const fields = frontmatterFields(raw, file);
+    assert.ok(fields.term, slug + ' 缺少 term');
+    assert.ok(fields.en, slug + ' 缺少 en');
+    assert.ok(['basics', 'context', 'agents', 'config', 'runtime'].includes(fields.category), slug + ' 分类不合法');
+    assert.match(fields.updated, /^\d{4}-\d{2}-\d{2}$/, slug + ' 的 updated 不合法');
+
+    const html = await read('glossary/' + slug + '/index.html');
+    assert.match(html, /<h1[ >]/, slug + ' 缺少 h1');
+    assert.match(html, /term-example/, slug + ' 缺少校园场景');
+    assert.match(html, /一句话说清/, slug + ' 缺少一句话说清');
+    assert.match(html, /常见误解/, slug + ' 缺少常见误解');
+    assert.match(html, /application\/ld\+json/, slug + ' 缺少结构化数据');
+    assert.match(html, /href="\/glossary\/"/, slug + ' 缺少返回术语表的入口');
+
+    assert.ok(
+      search.some((item) => item.type === '术语' && item.href === '/glossary/' + slug + '/'),
+      '搜索索引缺少术语详情：' + slug,
+    );
+  }
+});
+
+test('术语数据自身保持完整（分类、排序、相关词、来源）', async () => {
+  const seen = new Map();
+  for (const file of glossaryFiles) {
+    const raw = await readFile(path.join(glossarySource, file), 'utf8');
+    const fields = frontmatterFields(raw, file);
+    const key = fields.category + '#' + fields.order;
+    assert.ok(!seen.has(key), '同一分类内 order 重复：' + file);
+    seen.set(key, file);
+  }
 });
 
 test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () => {

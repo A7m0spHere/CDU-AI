@@ -1,16 +1,26 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
-import { glossaryCategories, glossaryTerms } from '../../data/glossary';
+import { getCollection } from 'astro:content';
+import { glossaryCategories } from '../../data/glossary';
 import { repository } from '../../data/site';
+import '../../styles/glossary.css';
 
-const categoryCount = (id: string) => glossaryTerms.filter((term) => term.category === id).length;
-const total = glossaryTerms.length;
+const categoryOrder = new Map(glossaryCategories.map((item, index) => [item.id, index]));
+const terms = (await getCollection('glossary')).sort(
+  (a, b) =>
+    (categoryOrder.get(a.data.category) ?? 0) - (categoryOrder.get(b.data.category) ?? 0) ||
+    a.data.order - b.data.order,
+);
+
+const categoryCount = (id: string) => terms.filter((term) => term.data.category === id).length;
+const total = terms.length;
+const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1) ?? '2026-10-18';
 ---
 
 <BaseLayout
   title="AI 术语表"
-  description="把常见 AI 术语讲清楚：幻觉、提示词、上下文、RAG、Agent、MCP 等概念与校园场景示例。"
+  description="把常见 AI 术语讲清楚：每个词一篇白话解释，配校园场景示例，点进去看完整说明。"
 >
   <div class="wiki-shell">
     <div class="container">
@@ -24,7 +34,7 @@ const total = glossaryTerms.length;
         <p class="eyebrow">术语表 · {total} 条</p>
         <h1>AI 术语表</h1>
         <p class="wiki-lede">
-          把常见的 AI 术语讲清楚。用一句话解释概念，再给一个校园或学习场景示例。可以按分类浏览，也可以用上面的搜索框查词。
+          把常见的 AI 术语讲清楚。每个词都有一篇白话解释：先打个比方，再说它怎么运作、什么时候会碰到、哪些地方容易误解。点开卡片就能看全文。
         </p>
       </header>
 
@@ -78,42 +88,47 @@ const total = glossaryTerms.length;
               <section
                 class="glossary-group"
                 data-filter-group
-                id={`glossary-${category.id}`}
-                aria-labelledby={`glossary-${category.id}-title`}
+                id={'glossary-' + category.id}
+                aria-labelledby={'glossary-' + category.id + '-title'}
               >
                 <div class="glossary-group__head">
-                  <h2 id={`glossary-${category.id}-title`}>{category.name}</h2>
+                  <h2 id={'glossary-' + category.id + '-title'}>{category.name}</h2>
                   <span>{categoryCount(category.id)} 条</span>
                 </div>
                 <p class="glossary-group__desc">{category.description}</p>
 
                 <div class="glossary-grid">
-                  {glossaryTerms.filter((term) => term.category === category.id).map((term) => {
+                  {terms.filter((term) => term.data.category === category.id).map((term) => {
                     const searchText = [
-                      term.term,
-                      term.en,
-                      ...term.aliases,
-                      term.definition,
-                      term.example,
+                      term.data.term,
+                      term.data.en,
+                      ...term.data.aliases,
+                      term.data.definition,
+                      term.data.example,
                       category.name,
                     ].join(' ').toLowerCase();
                     return (
-                      <article
+                      <a
                         class="glossary-term"
+                        href={'/glossary/' + term.id + '/'}
                         id={term.id}
                         data-filter-card
-                        data-category={term.category}
+                        data-category={term.data.category}
                         data-search={searchText}
                       >
                         <div class="glossary-term__head">
-                          <h3>{term.term}<span>{term.en}</span></h3>
+                          <h3>{term.data.term}<span>{term.data.en}</span></h3>
                         </div>
-                        <p class="glossary-term__definition">{term.definition}</p>
-                        <p class="glossary-term__example"><span>例子</span>{term.example}</p>
-                        {term.aliases.length > 0 && (
-                          <p class="glossary-term__aliases">也常叫：{term.aliases.join(' / ')}</p>
+                        <p class="glossary-term__definition">{term.data.definition}</p>
+                        <p class="glossary-term__example"><span>例子</span>{term.data.example}</p>
+                        {term.data.aliases.length > 0 && (
+                          <p class="glossary-term__aliases">也常叫：{term.data.aliases.join(' / ')}</p>
                         )}
-                      </article>
+                        <span class="glossary-term__more">
+                          查看详解
+                          <Icon name="arrow-right" size={13} />
+                        </span>
+                      </a>
                     );
                   })}
                 </div>
@@ -130,8 +145,8 @@ const total = glossaryTerms.length;
       </div>
 
       <div class="page-meta">
-        <span><Icon name="clock" size={14} />最后更新：2026-10-18</span>
-        <a href={`${repository.url}/edit/${repository.branch}/src/data/glossary.ts`} target="_blank" rel="noopener noreferrer">
+        <span><Icon name="clock" size={14} />最后更新：{lastUpdated}</span>
+        <a href={repository.url + '/tree/' + repository.branch + '/src/content/glossary'} target="_blank" rel="noopener noreferrer">
           <Icon name="pen" size={14} />在 GitHub 编辑术语表
           <Icon name="arrow-up-right" size={13} />
         </a>
@@ -140,8 +155,9 @@ const total = glossaryTerms.length;
       <footer class="glossary-source">
         <span class="glossary-source__label">来源</span>
         <p>
-          内容参考 VibeHub（vibe-hub.org）的 AI 术语；中文释义与校园场景示例由本站整理改写。
-          本文档不设置站外跳转，术语定义以实际产品和官方文档为准。
+          词条清单、别名与一句话释义参考 VibeHub（vibe-hub.org）的 AI 术语图鉴，中文表述由本站改写；
+          详情页的类比、步骤与「常见误解」为本站撰写（AI 协助初稿，尚未逐条人工核校）。
+          术语卡片不设置站外跳转，定义以实际产品和官方文档为准。
         </p>
       </footer>
     </div>

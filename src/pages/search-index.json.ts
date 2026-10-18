@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { tools, toolCategories } from '../data/tools';
-import { glossaryTerms } from '../data/glossary';
+import { glossaryCategoryName } from '../data/glossary';
 
 interface SearchItem {
   type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
@@ -48,6 +48,7 @@ function splitSections(body: string): { title: string; text: string }[] {
 export const GET: APIRoute = async () => {
   const guides = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
   const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
+  const glossary = await getCollection('glossary');
   const categoryName = (id: string) => toolCategories.find((category) => category.id === id)?.name ?? '';
 
   const items: SearchItem[] = [
@@ -128,12 +129,12 @@ export const GET: APIRoute = async () => {
       href: `/tools/?q=${encodeURIComponent(tool.name)}`,
       keywords: [categoryName(tool.category), ...tool.tags, tool.difficulty, tool.pricing].join(' '),
     })),
-    ...glossaryTerms.map((term) => ({
+    ...glossary.map((term) => ({
       type: '术语' as const,
-      title: term.term,
-      description: `${term.definition} ${term.example}`,
-      href: `/glossary/#${term.id}`,
-      keywords: [term.en, ...term.aliases, categoryNameForGlossary(term.category)].join(' '),
+      title: term.data.term,
+      description: `${term.data.definition} ${term.data.example}`,
+      href: `/glossary/${term.id}/`,
+      keywords: [term.data.en, ...term.data.aliases, glossaryCategoryName(term.data.category)].join(' '),
     })),
   ];
 
@@ -168,12 +169,3 @@ export const GET: APIRoute = async () => {
   });
 };
 
-function categoryNameForGlossary(id: string): string {
-  const labels: Record<string, string> = {
-    basics: 'AI 基础',
-    context: '提示词与上下文',
-    agents: 'Agent 与工具',
-    safety: '成本与安全',
-  };
-  return labels[id] ?? '';
-}

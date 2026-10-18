@@ -10,7 +10,8 @@
 | 指南阶段名称、阶段说明 | [`src/data/site.ts`](src/data/site.ts) 中的 `guideStages` |
 | 指南排序与分级 | 指南 frontmatter 中的 `stage` 与 `order` |
 | 作品示例 | [`src/content/works/`](src/content/works/) |
-| AI 术语与分类 | [`src/data/glossary.ts`](src/data/glossary.ts) |
+| AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
+| 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |
 | 工具目录 | [`src/data/tools.ts`](src/data/tools.ts) |
 | 社区、活动、首页入口 | `src/data/community.ts`、`events.ts`、`home.ts` |
 | 指南正文与文档页视觉 | [`src/styles/notion.css`](src/styles/notion.css) |
@@ -69,13 +70,18 @@ updated: "2026-10-18"
 
 ### 术语
 
-在 `src/data/glossary.ts` 的 `glossaryTerms` 中新增一条：
+在 `src/content/glossary/` 新建 Markdown，文件名（去掉 .md）就是 URL 与锚点。frontmatter 保持与现有词条一致：
 
-- `id` 是稳定锚点；
-- `definition` 一句话解释；
-- `example` 给校园或学习场景示例；
-- `aliases` 写常见别名；
-- 分类使用已有 `glossaryCategories`。
+- `term` / `en`：中文名与英文名；
+- `category`：必须使用已有分类 id；
+- `definition`：一句话释义，列表卡片与搜索结果会直接用它；
+- `example`：校园或学习场景示例；
+- `aliases`：常见别名，参与搜索匹配；
+- `order`：同一分类内的排序，从 1 连续；
+- `related`：相关词条的 id，详情页会渲染成「接着看」；
+- `updated`：最后核对日期。
+
+正文用二级标题分成固定几节：`一句话说清`、`打个比方`、`它是怎么运作的`、`你会碰到它的场景`、`常见误解`，需要时再加 `想再深入一点`。面向零基础读者，不堆术语；必须出现的术语要能讲清或指向本表另一条。
 
 术语表来源统一写在页面末尾，卡片内不放站外跳转链接；释义要以官方文档和产品说明为准。
 

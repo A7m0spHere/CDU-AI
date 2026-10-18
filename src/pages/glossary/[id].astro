@@ -1,0 +1,157 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { glossaryCategories, glossaryCategoryName } from '../../data/glossary';
+import { repository } from '../../data/site';
+import '../../styles/glossary.css';
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection('glossary');
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+
+const category = glossaryCategories.find((item) => item.id === entry.data.category);
+const categoryOrder = new Map(glossaryCategories.map((item, index) => [item.id, index]));
+const terms = (await getCollection('glossary')).sort(
+  (a, b) =>
+    (categoryOrder.get(a.data.category) ?? 0) - (categoryOrder.get(b.data.category) ?? 0) ||
+    a.data.order - b.data.order,
+);
+
+const related = entry.data.related
+  .map((id) => terms.find((term) => term.id === id))
+  .filter((term): term is (typeof terms)[number] => Boolean(term));
+
+const siblings = terms.filter((term) => term.data.category === entry.data.category);
+const index = siblings.findIndex((term) => term.id === entry.id);
+const previous = index > 0 ? siblings[index - 1] : undefined;
+const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
+const { Content } = await render(entry);
+
+const editUrl = `${repository.url}/edit/${repository.branch}/src/content/glossary/${entry.id}.md`;
+const termUrl = `/glossary/${entry.id}/`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTerm',
+  name: entry.data.term,
+  alternateName: [entry.data.en, ...entry.data.aliases],
+  description: entry.data.definition,
+  url: termUrl,
+  inDefinedTermSet: {
+    '@type': 'DefinedTermSet',
+    name: 'CDU AI 术语表',
+    url: '/glossary/',
+  },
+};
+---
+
+<BaseLayout title={`${entry.data.term} 是什么意思`} description={entry.data.definition} ogType="article">
+  <div class="wiki-shell term-shell">
+    <div class="container term-container">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href="/">首页</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+        <a href="/glossary/">术语表</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+        <a href={`/glossary/?category=${entry.data.category}`}>{category?.name ?? '术语'}</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+        <span aria-current="page">{entry.data.term}</span>
+      </nav>
+
+      <header class="term-head">
+        <p class="term-head__eyebrow">
+          <a href={`/glossary/?category=${entry.data.category}`}>{category?.name ?? '术语表'}</a>
+        </p>
+        <h1 class="term-title">
+          {entry.data.term}
+          {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
+            <span class="term-title__en">{entry.data.en}</span>
+          )}
+        </h1>
+        <p class="term-lede">{entry.data.definition}</p>
+        {entry.data.aliases.length > 0 && (
+          <p class="term-aliases">
+            <span>也常叫</span>
+            {entry.data.aliases.map((alias) => <span class="term-alias">{alias}</span>)}
+          </p>
+        )}
+        <div class="term-example">
+          <span class="term-example__label">校园里的样子</span>
+          <p>{entry.data.example}</p>
+        </div>
+      </header>
+
+      <div class="term-body prose">
+        <Content />
+      </div>
+
+      {related.length > 0 && (
+        <section class="term-related" aria-labelledby="term-related-title">
+          <h2 class="term-related__title" id="term-related-title">接着看</h2>
+          <div class="term-related__grid">
+            {related.map((item) => (
+              <a class="term-related__card" href={`/glossary/${item.id}/`}>
+                <span class="term-related__cat">{glossaryCategoryName(item.data.category)}</span>
+                <strong>{item.data.term}</strong>
+                <span class="term-related__desc">{item.data.definition}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <nav class="wiki-pager term-pager" aria-label="同分类术语">
+        {previous ? (
+          <a class="wiki-pager__link" href={`/glossary/${previous.id}/`}>
+            <span>上一个</span>
+            <strong>{previous.data.term}</strong>
+          </a>
+        ) : (
+          <a class="wiki-pager__link" href={`/glossary/?category=${entry.data.category}`}>
+            <span>返回</span>
+            <strong>{category?.name ?? '术语表'}</strong>
+          </a>
+        )}
+        {next ? (
+          <a class="wiki-pager__link wiki-pager__link--next" href={`/glossary/${next.id}/`}>
+            <span>下一个</span>
+            <strong>{next.data.term}</strong>
+          </a>
+        ) : (
+          <a class="wiki-pager__link wiki-pager__link--next" href="/glossary/">
+            <span>继续</span>
+            <strong>全部术语</strong>
+          </a>
+        )}
+      </nav>
+
+      <div class="page-meta">
+        <span><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
+        <a href={editUrl} target="_blank" rel="noopener noreferrer">
+          <Icon name="pen" size={14} />在 GitHub 编辑这一条
+          <Icon name="arrow-up-right" size={13} />
+        </a>
+      </div>
+
+      {!entry.data.reviewed && (
+        <p class="term-review">
+          <Icon name="info" size={13} />
+          <span>
+            本页解释由 AI 协助撰写，尚未人工核校；词条与一句话释义参考 VibeHub 的术语图鉴。
+            发现错误请<a href={repository.url + '/issues'} target="_blank" rel="noopener noreferrer">在 GitHub 提 issue</a>。
+          </span>
+        </p>
+      )}
+    </div>
+  </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+</BaseLayout>
