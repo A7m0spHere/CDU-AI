@@ -409,3 +409,14 @@
     height: 32px;
   }
 }
+.breadcrumb__stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (max-width: 600px) {
+  .breadcrumb__stage {
+    display: none;
+  }
+}

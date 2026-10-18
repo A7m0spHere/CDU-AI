@@ -57,15 +57,15 @@ const firstModule = modules[0];
               <tbody>
                 <tr>
                   <td>第一次接触 AI</td>
-                  <td><a href="#stage-start">先建立判断 · 3 篇<Icon name="arrow-right" size={14} /></a></td>
+                  <td><a href="#stage-start">先建立判断<Icon name="arrow-right" size={14} /></a></td>
                 </tr>
                 <tr>
                   <td>想动手做一个实际的小东西</td>
-                  <td><a href="#stage-make">动手做出东西 · 3 篇<Icon name="arrow-right" size={14} /></a></td>
+                  <td><a href="#stage-make">动手做出东西<Icon name="arrow-right" size={14} /></a></td>
                 </tr>
                 <tr>
                   <td>想整理作品与经验</td>
-                  <td><a href="#stage-share">整理与分享 · 2 篇<Icon name="arrow-right" size={14} /></a></td>
+                  <td><a href="#stage-share">整理与分享<Icon name="arrow-right" size={14} /></a></td>
                 </tr>
                 <tr>
                   <td>想先找一个能用的工具</td>
@@ -88,7 +88,6 @@ const firstModule = modules[0];
                   <h2 id={`stage-${stage.id}-title`}>{stage.title}</h2>
                   <p>{stage.description}</p>
                 </div>
-                <span class="wiki-stage__count">{stage.modules.length} 篇</span>
               </header>
 
               <ol class="wiki-module-list">
@@ -97,7 +96,6 @@ const firstModule = modules[0];
                     <a href={`/guide/${slugOf(module.id)}/`}>
                       <span class="mono">{String(module.data.order).padStart(2, '0')}</span>
                       <span class="wiki-module-list__title">{module.data.title}</span>
-                      <span class="wiki-module-list__meta">{module.data.duration}</span>
                       <Icon name="arrow-right" size={15} />
                     </a>
                   </li>

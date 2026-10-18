@@ -175,7 +175,7 @@ test('学习指南详情采用 Notion 文档结构', async () => {
   const guide = await read('guide/02-first-conversation/index.html');
   assert.match(guide, /notion-page/);
   assert.match(guide, /notion-page-head/);
-  assert.match(guide, /notion-page-properties/);
+  assert.doesNotMatch(guide, /notion-page-properties/);
   assert.match(guide, /notion-prose/);
   assert.match(guide, /本页内容/);
   assert.doesNotMatch(guide, /wiki-heading--article/);

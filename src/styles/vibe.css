@@ -1978,7 +1978,7 @@ body.search-open {
 
 .wiki-stage__head {
   display: grid;
-  grid-template-columns: 1.8rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.8rem minmax(0, 1fr);
   align-items: start;
   gap: 0.9rem;
   padding-bottom: 0.75rem;
@@ -2026,7 +2026,7 @@ body.search-open {
 
 .wiki-module-list a {
   display: grid;
-  grid-template-columns: 1.7rem minmax(0, 1fr) auto auto;
+  grid-template-columns: 1.7rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.6rem;
   min-height: 44px;

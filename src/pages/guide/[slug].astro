@@ -24,8 +24,6 @@ const index = modules.findIndex((module) => module.id === entry.id);
 const previous = index > 0 ? modules[index - 1] : undefined;
 const next = index >= 0 && index < modules.length - 1 ? modules[index + 1] : undefined;
 const stage = guideStages.find((item) => item.id === entry.data.stage);
-const stageModules = modules.filter((module) => module.data.stage === entry.data.stage);
-const stagePosition = stageModules.findIndex((module) => module.id === entry.id) + 1;
 
 const { Content, headings } = await render(entry);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
@@ -49,27 +47,19 @@ const relatedTools = entry.data.tools
           <span class="breadcrumb__sep" aria-hidden="true">/</span>
           <a href="/guide/">学习指南</a>
           <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <span class="breadcrumb__stage">
+            <span>{stage?.label ?? '学习路径'}</span>
+            <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          </span>
           <span aria-current="page">{entry.data.title}</span>
         </nav>
 
         <header class="notion-page-head">
           <div class="notion-page-head__title-row">
             <span class="notion-page-head__icon" aria-hidden="true"><Icon name="book-open" size={20} /></span>
-            <div class="notion-page-head__title-copy">
-              <p class="notion-page-head__eyebrow">
-            <span>{stage?.index ?? '学习指南'} · {stage?.label ?? '零基础'}</span>
-            <span aria-hidden="true">/</span>
-              <span>第 {stagePosition} / {stageModules.length} 篇</span>
-              </p>
-              <h1>{entry.data.title}</h1>
-            </div>
+            <h1>{entry.data.title}</h1>
           </div>
           <p class="notion-page-head__summary">{entry.data.summary}</p>
-          <div class="notion-page-properties">
-            <span><Icon name="clock" size={14} />{entry.data.duration}</span>
-            <span><Icon name="target" size={14} />{entry.data.level}</span>
-            <span><Icon name="layers" size={14} />{stage?.title ?? '学习指南'}</span>
-          </div>
         </header>
 
         <div class="prose wiki-prose notion-prose">
@@ -78,12 +68,12 @@ const relatedTools = entry.data.tools
 
         <div class="wiki-takeaway">
           <Icon name="check" size={18} />
-          <p><strong>读完之后：</strong>{entry.data.outcome}</p>
+          <p><strong>读完这一篇：</strong>{entry.data.outcome}</p>
         </div>
 
         {relatedTools.length > 0 && (
           <div class="wiki-tool-links">
-            <span>本模块提到的工具：</span>
+            <span>这篇用到的工具：</span>
             {relatedTools.map((tool) => (
               <a href={tool.url} target="_blank" rel="noopener noreferrer">
                 {tool.name}
@@ -157,10 +147,6 @@ const relatedTools = entry.data.tools
             </ol>
           </nav>
         )}
-        <div class="wiki-toc__meta">
-          <p><strong>{entry.data.duration}</strong><span>{entry.data.level}</span></p>
-          <p>{entry.data.forWho}</p>
-        </div>
         </aside>
       </div>
     </div>
