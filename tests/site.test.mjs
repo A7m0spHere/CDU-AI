@@ -147,9 +147,10 @@ test('术语表内容与来源标注存在', async () => {
   assert.match(glossary, /AI 术语表/);
   assert.match(glossary, /VibeHub/);
   assert.match(glossary, /id="ai-hallucination"/);
-  assert.match(glossary, /来源 · VibeHub/);
+  assert.match(glossary, /内容参考 VibeHub（vibe-hub\.org）的 AI 术语/);
+  assert.doesNotMatch(glossary, /href="https:\/\/vibe-hub\.org/);
   const termCount = (glossary.match(/class="glossary-term"/g) || []).length;
-  assert.equal(termCount, 24, '术语表条目数量不符');
+  assert.equal(termCount, 38, '术语表条目数量不符');
 });
 
 test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () => {

@@ -90,7 +90,7 @@ status: "example" # M0 只能是 example
 编辑 `src/data/glossary.ts`：
 
 - 一条术语包含中文名、英文名、分类、一句话释义、校园/学习场景示例、别名和来源 URL。
-- 释义参考 VibeHub 的 AI 术语时，保留 `sourceUrl`，并改写成适合本校同学理解的例子；不要整段复制没有来源的内容。
+- 释义参考 VibeHub 的 AI 术语时，改写成适合本校同学理解的例子；术语表页面末尾统一标注来源，术语卡片不设置站外跳转。
 - 新增术语要同时加入一个已有分类；分类在 `glossaryCategories` 中维护。
 - 改动后运行 `npm run verify`，检查术语条目、筛选和搜索索引是否正常生成。
 

@@ -107,6 +107,4 @@ export interface GlossaryTerm {
   definition: string;
   example: string;
   aliases: string[];
-  /** 参考来源页面，用于回到原文核对。 */
-  sourceUrl: string;
 }

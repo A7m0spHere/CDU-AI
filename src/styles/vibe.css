@@ -2485,20 +2485,31 @@ body.search-open {
   line-height: 1.6;
 }
 
-.glossary-term__source {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  align-self: flex-start;
-  margin-top: auto;
-  padding-top: 0.25rem;
-  color: var(--brand);
-  font-size: 0.65rem;
+.glossary-source {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  max-width: 760px;
+  margin-top: 1.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--faint);
+  font-size: 0.7rem;
+  line-height: 1.75;
 }
 
-.glossary-term__source:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+.glossary-source__label {
+  flex: none;
+  padding: 0.08rem 0.34rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+}
+
+.glossary-source p {
+  margin: 0;
 }
 
 @media (max-width: 760px) {
@@ -2571,9 +2582,6 @@ body.search-open {
   gap: 0.3rem;
   color: var(--brand);
   font-size: 0.76rem;
-}
-.glossary-source-link {
-  white-space: nowrap;
 }
 
 /* Team docs inside the learning guide */

@@ -1,8 +1,8 @@
 import type { GlossaryCategory, GlossaryTerm } from './types';
 
 /**
- * 术语表：中文释义与校园场景示例根据 VibeHub（vibe-hub.org）的 AI 术语整理并改写。
- * 每个条目保留原站链接，方便回到来源核对；如与官方文档不一致，以官方说明为准。
+ * 术语表：内容参考 VibeHub（vibe-hub.org）的 AI 术语，中文释义和校园场景示例
+ * 由本站整理改写。来源统一标注在页面末尾，不在术语卡片中跳转站外。
  */
 export const glossaryCategories: GlossaryCategory[] = [
   {
@@ -13,7 +13,7 @@ export const glossaryCategories: GlossaryCategory[] = [
   {
     id: 'context',
     name: '提示词与上下文',
-    description: '一次请求里，模型实际能看到和参考什么。',
+    description: '一次请求里，模型实际能看到、保留和参考什么。',
   },
   {
     id: 'agents',
@@ -21,13 +21,16 @@ export const glossaryCategories: GlossaryCategory[] = [
     description: '从一次回答到多步执行，需要哪些部件。',
   },
   {
-    id: 'safety',
-    name: '成本与安全',
-    description: '密钥、费用、速率和外部内容带来的风险。',
+    id: 'config',
+    name: '连接与配置',
+    description: '把工具接到模型服务上时，地址、密钥和配置文件分别管什么。',
+  },
+  {
+    id: 'runtime',
+    name: '安全、权限与成本',
+    description: '权限、沙箱、费用和速率：用起来之后要守的边界。',
   },
 ];
-
-const vibeUrl = (slug: string) => `https://vibe-hub.org/${slug}`;
 
 export const glossaryTerms: GlossaryTerm[] = [
   {
@@ -38,7 +41,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'AI 应用是把模型接进网页或软件，让用户用自然语言完成任务的工具。',
     example: '在校园应用里问「明天下午有空吗」，需要读取真实日历，而不是只靠模型猜。',
     aliases: ['生成式 AI 基础', 'LLM 应用基础'],
-    sourceUrl: vibeUrl('ai-basics'),
   },
   {
     id: 'ai-hallucination',
@@ -48,7 +50,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'AI 幻觉是模型生成看似可信、但没有依据或与事实不符的内容。',
     example: '它可能编出不存在的文献或过期校历；语气流畅不能当作证据。',
     aliases: ['模型幻觉', 'Hallucination'],
-    sourceUrl: vibeUrl('ai-hallucination'),
   },
   {
     id: 'multimodal',
@@ -58,7 +59,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '多模态 AI 能在同一个任务中同时理解文字、图片、音频或视频。',
     example: '把选课页面截图和「这个按钮为什么点不了」一起发给 AI。',
     aliases: ['多模态 AI', '多模态模型'],
-    sourceUrl: vibeUrl('multimodal'),
   },
   {
     id: 'rag',
@@ -68,7 +68,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'RAG 先从指定资料中检索相关片段，再让模型依据这些片段回答。',
     example: '让课程助手依据课程大纲回答，而不是只靠模型的旧记忆。',
     aliases: ['检索增强生成'],
-    sourceUrl: vibeUrl('rag'),
   },
   {
     id: 'fine-tuning',
@@ -78,7 +77,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '微调用任务示例继续训练已有模型，使它在特定任务上更贴近示例。',
     example: '社团希望通知都按固定格式写，可以用历史通知示例训练或约束输出。',
     aliases: ['微调模型', 'Fine tuning'],
-    sourceUrl: vibeUrl('fine-tuning'),
   },
   {
     id: 'reasoning-model',
@@ -88,7 +86,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '推理模型会为复杂问题投入更多内部计算，再给出结果。',
     example: '让它逐步排查实验数据为什么对不上，但仍要回到原始数据核对。',
     aliases: ['思考模型'],
-    sourceUrl: vibeUrl('reasoning-model'),
   },
   {
     id: 'prompt',
@@ -98,7 +95,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '提示词是输入给模型的指令与上下文，决定它这次要做什么。',
     example: '与其说「帮我写作业」，不如写清课程、材料、字数和评分要求。',
     aliases: ['Prompt', '提示词模板'],
-    sourceUrl: vibeUrl('prompt'),
   },
   {
     id: 'system-prompt',
@@ -108,7 +104,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '系统提示词是 AI 产品预先交给模型的规则，例如语气与不能处理的问题。',
     example: '校园助手被要求「涉及成绩必须引导到教务系统」，而不是自行回答。',
     aliases: ['系统指令', 'System Instructions'],
-    sourceUrl: vibeUrl('system-prompt'),
   },
   {
     id: 'token',
@@ -118,7 +113,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'Token 是模型读取和生成文字、标点或代码时使用的计数单位。',
     example: '一个汉字不一定正好等于一个 Token；用量会影响上下文长度、速度和费用。',
     aliases: ['词元', '文本令牌'],
-    sourceUrl: vibeUrl('token'),
   },
   {
     id: 'context-window',
@@ -128,7 +122,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '上下文窗口是一次回答能同时参考的资料和输出内容的总量上限。',
     example: '对话太长时，最早的要求可能已经不在本次请求里。',
     aliases: ['上下文长度', 'Context Length'],
-    sourceUrl: vibeUrl('context-window'),
   },
   {
     id: 'context-engineering',
@@ -138,7 +131,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '上下文工程是系统化筛选、组织并放入模型上下文的做法。',
     example: '续做任务时带上报错、相关文件和最新决定，把较旧的日志压缩成摘要。',
     aliases: ['上下文管理', 'Context Management'],
-    sourceUrl: vibeUrl('context-engineering'),
   },
   {
     id: 'conversation-history',
@@ -148,7 +140,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '对话历史是产品保存的旧消息，其中一部分会在后续请求中再次交给模型。',
     example: '界面里还显示前文，不代表模型这次一定收到了全部内容。',
     aliases: ['聊天记录', '消息历史'],
-    sourceUrl: vibeUrl('conversation-history'),
   },
   {
     id: 'temperature',
@@ -158,7 +149,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '温度是在支持该参数的接口中，控制生成随机程度的设置。',
     example: '写正式邮件时调低，头脑风暴时调高；它不能保证逐字相同。',
     aliases: ['Temperature', '随机性参数'],
-    sourceUrl: vibeUrl('temperature'),
   },
   {
     id: 'structured-output',
@@ -168,7 +158,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '结构化输出是让模型按约定字段和格式返回结果的方式。',
     example: '把课程通知整理成日期、地点、截止时间三项，方便放进日历。',
     aliases: ['响应格式'],
-    sourceUrl: vibeUrl('structured-output'),
   },
   {
     id: 'streaming-response',
@@ -178,7 +167,24 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '流式响应是模型一边生成，界面一边逐段显示内容的方式。',
     example: '回复像打字一样出现，但首段可见不代表整份回答已经完成。',
     aliases: ['Streaming', '流式输出'],
-    sourceUrl: vibeUrl('streaming-response'),
+  },
+  {
+    id: 'agent-memory',
+    term: 'Agent 记忆',
+    en: 'Agent Memory',
+    category: 'context',
+    definition: 'Agent 记忆是 Agent 保存并在后续请求中取回部分信息的机制。',
+    example: '你希望助手记住社团通知的固定格式；新会话是否还知道，要看产品有没有保存并重新提供这段记忆。',
+    aliases: ['记忆', '跨会话记忆'],
+  },
+  {
+    id: 'stateless-request',
+    term: '无状态请求',
+    en: 'Stateless Request',
+    category: 'context',
+    definition: '无状态请求是一次模型调用只依据本次请求内容，不会自动保留上一轮输入和结果。',
+    example: '上一轮生成了表格，下一轮只说「继续」，模型并不知道要继续哪张表。',
+    aliases: ['无状态 API'],
   },
   {
     id: 'ai-agent',
@@ -188,7 +194,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'AI Agent 是能围绕目标规划、调用工具并多步执行的 AI 系统。',
     example: '让它整理会议记录、提取待办并写入文档；权限和确认节点仍由应用控制。',
     aliases: ['智能体', 'Agent'],
-    sourceUrl: vibeUrl('ai-agent'),
   },
   {
     id: 'tool-calling',
@@ -198,7 +203,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '工具调用是模型请求应用执行操作，再读取真实结果的方式。',
     example: 'Agent 请求查询日历，应用校验权限后才返回真实日程。',
     aliases: ['Function Calling', '函数调用'],
-    sourceUrl: vibeUrl('tool-calling'),
   },
   {
     id: 'react-pattern',
@@ -208,7 +212,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'ReAct 是让模型根据当前证据选择动作、读取结果、再决定下一步的方式。',
     example: '先查课程网站，再根据实际返回决定是否继续查找。',
     aliases: ['ReAct 机制', '推理行动模式'],
-    sourceUrl: vibeUrl('react-pattern'),
   },
   {
     id: 'human-in-the-loop',
@@ -218,7 +221,6 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: '人在回路是在关键判断或高风险动作前暂停，让人确认后再继续。',
     example: 'AI 可以整理报名信息，但提交或付款前必须由你确认。',
     aliases: ['HITL', '人工介入'],
-    sourceUrl: vibeUrl('human-in-the-loop'),
   },
   {
     id: 'mcp',
@@ -228,46 +230,149 @@ export const glossaryTerms: GlossaryTerm[] = [
     definition: 'MCP 是让模型与外部数据源和工具互相调用的开放协议。',
     example: '通过 MCP 连接社团文档库，让助手查询公开资料；权限仍由系统控制。',
     aliases: ['模型上下文协议', 'MCP Server'],
-    sourceUrl: vibeUrl('mcp'),
+  },
+  {
+    id: 'harness-engineering',
+    term: 'Agent 运行框架工程',
+    en: 'Harness Engineering',
+    category: 'agents',
+    definition: 'Agent 运行框架工程是把项目知识、工具、状态、权限和检查组织成 Agent 可工作环境的实践。',
+    example: '给 Agent 准备可运行的项目、检查脚本和失败反馈，比只把提示词写长更有效。',
+    aliases: ['Agent Harness', '运行框架工程'],
+  },
+  {
+    id: 'sub-agent',
+    term: 'Sub-agent',
+    en: 'Sub-agent',
+    category: 'agents',
+    definition: 'Sub-agent 是由主 Agent 调度、专门处理一个独立子任务的执行单元。',
+    example: '让一个子 Agent 检查页面文字，另一个检查手机布局，再汇总两边结果。',
+    aliases: ['子 Agent', '子智能体', 'Worker Agent'],
+  },
+  {
+    id: 'agent-loop',
+    term: 'Agent 循环',
+    en: 'Agent Loop',
+    category: 'agents',
+    definition: 'Agent 循环是应用反复调用模型和工具，并根据检查结果决定继续、暂停或结束的机制。',
+    example: '检查失败就继续修；同类问题连续失败或涉及共享设置时暂停确认。',
+    aliases: ['Agentic Loop', '智能体循环'],
+  },
+  {
+    id: 'provider',
+    term: '模型提供方',
+    en: 'Provider',
+    category: 'config',
+    definition: 'Provider 是提供模型访问的平台或基础设施，可能负责凭证、限流或计费。',
+    example: '同一模型可能由模型厂商、云平台或本地服务提供，要结合 Base URL、Key 和账单判断请求经过谁。',
+    aliases: ['Provider', '服务提供方'],
+  },
+  {
+    id: 'base-url',
+    term: '服务基准地址',
+    en: 'Base URL',
+    category: 'config',
+    definition: 'Base URL 是一组 API 请求共同使用的地址前缀。',
+    example: '客户端会把 Base URL 和接口路径拼成完整地址；配置时同时核对两边的官方文档。',
+    aliases: ['Base URL', '基准地址'],
   },
   {
     id: 'api-key',
     term: 'API 密钥',
     en: 'API Key',
-    category: 'safety',
+    category: 'config',
     definition: 'API Key 是应用访问接口服务时使用的身份凭证。',
     example: '要放进环境变量，不能写进代码、仓库或聊天记录。',
     aliases: ['接口密钥', 'Access Key'],
-    sourceUrl: vibeUrl('api-key'),
+  },
+  {
+    id: 'api-proxy',
+    term: 'API 代理 / 中转站',
+    en: 'API Proxy',
+    category: 'config',
+    definition: 'API 代理是客户端与上游 API 之间代为接收、转发请求和响应的中间服务。',
+    example: '中转站不等于模型运行在这里；提示词、文件和 Key 可能经过它，使用前要核对运营主体与隐私政策。',
+    aliases: ['API Proxy', '中转站'],
+  },
+  {
+    id: 'openai-compatible-api',
+    term: 'OpenAI 兼容 API',
+    en: 'OpenAI-Compatible API',
+    category: 'config',
+    definition: 'OpenAI 兼容 API 是请求和响应格式与 OpenAI 接口相近、可让兼容客户端切换模型服务的接口。',
+    example: '换 Base URL、Key 和模型名可以接入另一家服务，但工具调用、图片和流式能力不一定完全一致。',
+    aliases: ['OpenAI-Compatible', '兼容接口'],
+  },
+  {
+    id: 'config-file',
+    term: '配置文件',
+    en: 'Configuration File',
+    category: 'config',
+    definition: '配置文件是用文件保存的软件设置，程序启动或运行时读取。',
+    example: '模型、连接地址和超时可以写进配置；真实密钥放环境变量，别提交到 Git。',
+    aliases: ['设置文件', 'config.json'],
+  },
+  {
+    id: 'profile',
+    term: '配置档案',
+    en: 'Profile',
+    category: 'config',
+    definition: '配置档案是一组命名保存的配置集合，用于在工作、个人或不同服务环境之间切换。',
+    example: 'work 和 personal 可以分别保存 Provider、Base URL 和密钥变量名；切 Profile 不会切项目或对话历史。',
+    aliases: ['Profile', '配置方案'],
   },
   {
     id: 'prompt-injection',
     term: '提示词注入',
     en: 'Prompt Injection',
-    category: 'safety',
+    category: 'runtime',
     definition: '提示词注入是输入中的隐藏指令让模型偏离任务或越权操作的安全问题。',
     example: '一封邮件里可能藏着「把附件转发出去」的指令；只靠提示词挡不住，需要工具权限和审批。',
     aliases: ['提示注入'],
-    sourceUrl: vibeUrl('prompt-injection'),
+  },
+  {
+    id: 'permission-mode',
+    term: '权限模式',
+    en: 'Permission Mode',
+    category: 'runtime',
+    definition: '权限模式是规范 Agent 可访问范围和审批设置的预设。',
+    example: '工作区内常规读写可自动继续，越界访问或联网前必须问你；不同工具的规则并不通用。',
+    aliases: ['审批模式', '权限策略'],
+  },
+  {
+    id: 'sandbox',
+    term: '沙箱',
+    en: 'Sandbox',
+    category: 'runtime',
+    definition: '沙箱是限制不受信任代码或自动化任务访问宿主文件、网络与系统调用的隔离环境。',
+    example: '让 AI 命令只在当前项目目录读写并限制联网；已挂载的敏感目录仍需要检查。',
+    aliases: ['Sandbox', '隔离环境'],
   },
   {
     id: 'token-cost',
     term: 'Token 用量与成本',
     en: 'Token Usage & Cost',
-    category: 'safety',
+    category: 'runtime',
     definition: '每轮请求消耗的 Token 会累加，并按所用模型的价格计费。',
     example: '系统规则、历史对话、附件和输出都会计入；长对话不等于免费。',
     aliases: ['Token 费用', '模型调用成本'],
-    sourceUrl: vibeUrl('token-cost'),
   },
   {
     id: 'rate-limit',
     term: '速率限制',
     en: 'Rate Limit',
-    category: 'safety',
+    category: 'runtime',
     definition: '速率限制是服务在单位时间内允许的请求数、处理量或并发上限。',
     example: '调用太快可能排队、变慢或返回 429；具体额度以服务商说明为准。',
     aliases: ['限流', '请求频率限制'],
-    sourceUrl: vibeUrl('rate-limit'),
+  },
+  {
+    id: 'response-speed',
+    term: 'TTFT / TPS',
+    en: 'TTFT / TPS',
+    category: 'runtime',
+    definition: 'TTFT 是出现第一段回答前的等待时间，TPS 是开始回答后每秒生成的内容量。',
+    example: '首字快不代表整段回答快；长回答还要看总时长和生成速度。',
+    aliases: ['首 Token 延迟', '生成速度'],
   },
 ];
