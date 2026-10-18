@@ -7,7 +7,10 @@ definition: "温度是在支持该参数的接口中，控制生成随机程度�
 example: "写正式邮件时调低，头脑风暴时调高；它不能保证逐字相同。"
 order: 7
 related: ["prompt", "structured-output"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OpenAI · Chat Completions 参数：temperature 与 top_p"
+    url: "https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create"
 ---
 
 ## 一句话说清

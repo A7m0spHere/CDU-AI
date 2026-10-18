@@ -7,7 +7,10 @@ definition: "RAG 先从指定资料中检索相关片段，再让模型依据这
 example: "让课程助手依据课程大纲回答，而不是只靠模型的旧记忆。"
 order: 4
 related: ["ai-hallucination", "fine-tuning", "context-window"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "Lewis 等 · Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"
+    url: "https://arxiv.org/abs/2005.11401"
 ---
 
 ## 一句话说清

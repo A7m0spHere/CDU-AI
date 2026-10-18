@@ -7,7 +7,10 @@ definition: "MCP 是让模型与外部数据源和工具互相调用的开放协
 example: "通过 MCP 连接社团文档库，让助手查询公开资料；权限仍由系统控制。"
 order: 5
 related: ["tool-calling", "permission-mode"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "Model Context Protocol · Architecture overview"
+    url: "https://modelcontextprotocol.io/docs/learn/architecture"
 ---
 
 ## 一句话说清

@@ -7,7 +7,10 @@ definition: "沙箱是限制不受信任代码或自动化任务访问宿主文�
 example: "让 AI 命令只在当前项目目录读写并限制联网；已挂载的敏感目录仍需要检查。"
 order: 3
 related: ["permission-mode", "human-in-the-loop"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OpenAI · Agent approvals and security"
+    url: "https://learn.chatgpt.com/docs/agent-approvals-security"
 ---
 
 ## 一句话说清

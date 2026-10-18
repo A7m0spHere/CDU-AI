@@ -7,7 +7,10 @@ definition: "提示词注入是输入中的隐藏指令让模型偏离任务或�
 example: "一封邮件里可能藏着「把附件转发出去」的指令；只靠提示词挡不住，需要工具权限和审批。"
 order: 1
 related: ["system-prompt", "permission-mode", "sandbox"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OWASP · LLM Prompt Injection Prevention Cheat Sheet"
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
 ---
 
 ## 一句话说清

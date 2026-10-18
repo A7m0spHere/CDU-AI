@@ -227,7 +227,7 @@ test('每个术语都有可读的详情页与结构化数据', async () => {
   }
 });
 
-test('术语数据自身保持完整（分类、排序、相关词、来源）', async () => {
+test('术语数据自身保持完整（分类、排序、相关词）', async () => {
   const seen = new Map();
   for (const file of glossaryFiles) {
     const raw = await readFile(path.join(glossarySource, file), 'utf8');
@@ -235,6 +235,37 @@ test('术语数据自身保持完整（分类、排序、相关词、来源）',
     const key = fields.category + '#' + fields.order;
     assert.ok(!seen.has(key), '同一分类内 order 重复：' + file);
     seen.set(key, file);
+    const related = JSON.parse(fields.related || '[]');
+    for (const slug of related) {
+      assert.ok(glossarySlugs.includes(slug), file + ' 的相关词不存在：' + slug);
+    }
+  }
+});
+
+test('术语来源展示真实链接，并保留未人工核校提示', async () => {
+  const prioritySlugs = [
+    'token', 'temperature', 'rag', 'mcp', 'prompt-injection', 'response-speed',
+    'stateless-request', 'conversation-history', 'context-window', 'sandbox',
+    'permission-mode', 'structured-output',
+  ];
+  for (const file of glossaryFiles) {
+    const slug = file.replace(/\.md$/, '');
+    const raw = await readFile(path.join(glossarySource, file), 'utf8');
+    const fields = frontmatterFields(raw, file);
+    const frontmatter = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)[1];
+    const urls = Array.from(frontmatter.matchAll(/^\s+url:\s*"([^"]+)"\s*$/gm), (match) => match[1]);
+    const html = await read('glossary/' + slug + '/index.html');
+
+    if (prioritySlugs.includes(slug)) assert.ok(urls.length > 0, slug + ' 缺少事实来源');
+    if (urls.length > 0) {
+      assert.match(html, /aria-label="参考来源"/, slug + ' 缺少参考来源区');
+      for (const url of urls) {
+        assert.ok(html.includes('href="' + url.replace(/&/g, '&amp;') + '"'), slug + ' 未显示来源链接：' + url);
+      }
+    } else {
+      assert.doesNotMatch(html, /aria-label="参考来源"/, slug + ' 不应显示空来源区');
+    }
+    if (!fields.reviewed) assert.match(html, /尚未人工核校/, slug + ' 丢失核校状态说明');
   }
 });
 

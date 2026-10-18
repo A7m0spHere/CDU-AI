@@ -7,7 +7,10 @@ definition: "权限模式是规范 Agent 可访问范围和审批设置的预设
 example: "工作区内常规读写可自动继续，越界访问或联网前必须问你；不同工具的规则并不通用。"
 order: 2
 related: ["sandbox", "human-in-the-loop", "prompt-injection"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OpenAI · Agent approvals and security"
+    url: "https://learn.chatgpt.com/docs/agent-approvals-security"
 ---
 
 ## 一句话说清

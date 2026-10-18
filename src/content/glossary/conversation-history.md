@@ -7,7 +7,12 @@ definition: "对话历史是产品保存的旧消息，其中一部分会在后�
 example: "界面里还显示前文，不代表模型这次一定收到了全部内容。"
 order: 6
 related: ["context-window", "agent-memory", "stateless-request"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OpenAI · Conversation state"
+    url: "https://developers.openai.com/api/docs/guides/conversation-state"
+  - title: "Anthropic · 对话删除与数据留存"
+    url: "https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-organization-s-data"
 ---
 
 ## 一句话说清
@@ -22,7 +27,7 @@ updated: "2026-10-18"
 
 1. 你每发一条，产品把它存进这个会话。
 2. 下次请求时，把最近若干条（有时是它们的摘要）一起发过去。
-3. 超过长度上限就截断或摘要，最早的内容会消失。
+3. 超过长度上限，提供给模型的历史可能被截断或摘要；界面和服务端保存的原始记录不一定被删除。
 
 ## 你会碰到它的场景
 
@@ -38,4 +43,4 @@ updated: "2026-10-18"
 
 ## 想再深入一点
 
-涉及隐私的内容，别长期留在对话里，用完就清空或开新会话。这是比任何提示词都可靠的保护。
+开新会话只改变后续对话使用的上下文，不会自动删除旧会话、上传文件或服务端日志。要管理已提交的材料，请使用产品提供的删除与数据控制功能，并核对官方留存政策；删除是否立即生效、哪些数据仍会保留，以对应产品说明为准。

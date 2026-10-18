@@ -7,7 +7,10 @@ definition: "Token 是模型读取和生成文字、标点或代码时使用的�
 example: "一个汉字不一定正好等于一个 Token；用量会影响上下文长度、速度和费用。"
 order: 3
 related: ["context-window", "token-cost", "streaming-response"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "阿里云 · Token 计算"
+    url: "https://help.aliyun.com/zh/open-search/search-platform/developer-reference/token-calculation"
 ---
 
 ## 一句话说清
@@ -32,10 +35,10 @@ updated: "2026-10-18"
 
 ## 常见误解
 
-- 以为一个字就是一个 Token。一个汉字常被切成 1 到 2 个，英文单词常被切成多个片段，不同模型切法不同。
+- 以为一个字就是一个 Token。一个 Token 可能对应一个或多个汉字，一个汉字也可能被拆成多个 Token；不同模型和文本的切法不同。
 - 以为 Token 就是字数。它是处理单位，不是字数。
 - 以为看不见就不用管。长对话的费用就是这样涨上去的。
 
 ## 想再深入一点
 
-估算中文时可以按「1 个汉字约 1.5 个 Token」留余量，比按字数算更接近实际。
+中文没有适用于所有模型的「汉字数换算 Token」固定比例。估算长度时，使用目标模型的 tokenizer（把文本切成 Token 的工具）或官方计数接口；核对实际用量时查看服务返回的 usage（用量）字段。换模型后要重新估算，不能把某个模型的经验比例当作通用余量。

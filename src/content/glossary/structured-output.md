@@ -7,7 +7,10 @@ definition: "结构化输出是让模型按约定字段和格式返回结果的�
 example: "把课程通知整理成日期、地点、截止时间三项，方便放进日历。"
 order: 8
 related: ["temperature", "tool-calling"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OpenAI · Structured model outputs"
+    url: "https://developers.openai.com/api/docs/guides/structured-outputs"
 ---
 
 ## 一句话说清

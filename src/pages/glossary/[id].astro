@@ -93,6 +93,22 @@ const jsonLd = {
         <Content />
       </div>
 
+      {entry.data.sources.length > 0 && (
+        <section class="page-sources term-sources" aria-label="参考来源">
+          <p>参考来源</p>
+          <ul>
+            {entry.data.sources.map((source) => (
+              <li>
+                <a href={source.url} target="_blank" rel="noopener noreferrer">
+                  {source.title}
+                  <Icon name="arrow-up-right" size={13} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {related.length > 0 && (
         <section class="term-related" aria-labelledby="term-related-title">
           <h2 class="term-related__title" id="term-related-title">接着看</h2>

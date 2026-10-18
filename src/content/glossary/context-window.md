@@ -7,7 +7,10 @@ definition: "上下文窗口是一次回答能同时参考的资料和输出内�
 example: "对话太长时，最早的要求可能已经不在本次请求里。"
 order: 4
 related: ["context-engineering", "token", "conversation-history"]
-updated: "2026-10-18"
+updated: "2026-10-19"
+sources:
+  - title: "OpenAI · Managing the context window"
+    url: "https://developers.openai.com/api/docs/guides/conversation-state"
 ---
 
 ## 一句话说清
