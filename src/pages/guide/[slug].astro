@@ -36,11 +36,12 @@ const relatedTools = entry.data.tools
 ---
 
 <BaseLayout title={entry.data.title} description={entry.data.summary}>
-  <div class="wiki-shell">
-    <div class="container wiki-layout wiki-layout--article">
+  <div class="wiki-shell guide-doc-shell">
+    <div class="container guide-doc-layout">
       <GuideSidebar currentId={slug} />
 
-      <div class="wiki-main wiki-article notion-page">
+      <div class="guide-paper">
+        <div class="wiki-main wiki-article notion-page">
         <GuideMobileNav currentId={slug} />
 
         <nav class="breadcrumb" aria-label="面包屑">
@@ -52,12 +53,17 @@ const relatedTools = entry.data.tools
         </nav>
 
         <header class="notion-page-head">
-          <p class="notion-page-head__eyebrow">
+          <div class="notion-page-head__title-row">
+            <span class="notion-page-head__icon" aria-hidden="true"><Icon name="book-open" size={20} /></span>
+            <div class="notion-page-head__title-copy">
+              <p class="notion-page-head__eyebrow">
             <span>{stage?.index ?? '学习指南'} · {stage?.label ?? '零基础'}</span>
             <span aria-hidden="true">/</span>
-            <span>第 {stagePosition} / {stageModules.length} 篇</span>
-          </p>
-          <h1>{entry.data.title}</h1>
+              <span>第 {stagePosition} / {stageModules.length} 篇</span>
+              </p>
+              <h1>{entry.data.title}</h1>
+            </div>
+          </div>
           <p class="notion-page-head__summary">{entry.data.summary}</p>
           <div class="notion-page-properties">
             <span><Icon name="clock" size={14} />{entry.data.duration}</span>
@@ -136,9 +142,9 @@ const relatedTools = entry.data.tools
             </a>
           )}
         </nav>
-      </div>
+        </div>
 
-      <aside class="wiki-toc" aria-label="本页内容">
+        <aside class="wiki-toc" aria-label="本页内容">
         <p class="wiki-toc__label">本页内容</p>
         {toc.length > 0 && (
           <nav>
@@ -155,7 +161,8 @@ const relatedTools = entry.data.tools
           <p><strong>{entry.data.duration}</strong><span>{entry.data.level}</span></p>
           <p>{entry.data.forWho}</p>
         </div>
-      </aside>
+        </aside>
+      </div>
     </div>
   </div>
 </BaseLayout>

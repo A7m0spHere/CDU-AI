@@ -296,3 +296,116 @@
     font-size: 1.08rem;
   }
 }
+
+/* Docs-center style canvas and paper card */
+.guide-doc-shell {
+  border-top: 1px solid var(--line);
+  background: #f7f7f5;
+  padding-block: 1.2rem clamp(2.4rem, 4vw, 3.5rem);
+}
+
+:root[data-theme='dark'] .guide-doc-shell {
+  background: #111113;
+}
+
+.guide-doc-layout {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.4rem, 2.6vw, 2rem);
+  max-width: var(--container-wide);
+}
+
+.guide-doc-shell .guide-sidebar {
+  border-right: 0;
+  padding-right: 0;
+}
+
+.guide-paper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 11rem;
+  align-items: start;
+  gap: clamp(1.3rem, 2.2vw, 2rem);
+  min-height: 65vh;
+  padding: clamp(1.4rem, 2.8vw, 2.5rem);
+  border: 1px solid var(--notion-line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.guide-paper--index {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.guide-paper .wiki-main {
+  min-width: 0;
+}
+
+.guide-paper .wiki-toc {
+  top: calc(var(--header-h) + 2rem);
+  border-left-color: var(--notion-line);
+}
+
+.notion-page-head__title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.notion-page-head__icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--notion-line);
+  border-radius: 7px;
+  background: var(--notion-bg-soft);
+  color: var(--notion-muted);
+}
+
+.notion-page-head__title-copy {
+  min-width: 0;
+}
+
+.notion-page-head__eyebrow {
+  margin-top: 0.1rem;
+}
+
+.notion-page-head__icon + .notion-page-head__title-copy h1 {
+  margin-top: 0.1rem;
+}
+
+@media (max-width: 1100px) {
+  .guide-paper {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .guide-doc-layout {
+    display: block;
+  }
+
+  .guide-doc-shell {
+    padding-top: 0.8rem;
+  }
+
+  .guide-paper {
+    min-height: 0;
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .guide-paper {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .notion-page-head__icon {
+    width: 32px;
+    height: 32px;
+  }
+}

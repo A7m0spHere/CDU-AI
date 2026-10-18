@@ -5,6 +5,7 @@ import Icon from '../../components/Icon.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import { guideStages } from '../../data/site';
+import '../../styles/notion.css';
 
 const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
 const slugOf = (id: string) => id.replace(/\.md$/, '');
@@ -19,11 +20,12 @@ const firstModule = modules[0];
   title="学习指南"
   description="面向所有专业、零基础可读的 AI 学习路线。3 个阶段，8 个模块，每篇 15–20 分钟。"
 >
-  <div class="wiki-shell">
-    <div class="container wiki-layout">
+  <div class="wiki-shell guide-doc-shell">
+    <div class="container guide-doc-layout">
       <GuideSidebar />
 
-      <div class="wiki-main">
+      <div class="guide-paper guide-paper--index">
+        <div class="wiki-main">
         <GuideMobileNav />
 
         <nav class="breadcrumb" aria-label="面包屑">
@@ -121,6 +123,7 @@ const firstModule = modules[0];
             <a class="btn btn--soft" href="/tools/">浏览工具</a>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </div>
