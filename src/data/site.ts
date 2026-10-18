@@ -89,7 +89,6 @@ export const footerGroups = [
     links: [
       { label: '社区版块', href: '/community/' },
       { label: '活动形式', href: '/events/' },
-      { label: '团队文档', href: '/guide/docs/' },
       { label: '共建方式', href: '/about/#contribute' },
     ],
   },

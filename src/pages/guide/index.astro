@@ -5,7 +5,6 @@ import Icon from '../../components/Icon.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import { guideStages } from '../../data/site';
-import { docsPages } from '../../data/docs';
 
 const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
 const slugOf = (id: string) => id.replace(/\.md$/, '');
@@ -104,25 +103,6 @@ const firstModule = modules[0];
               </ol>
             </section>
           ))}
-        </section>
-
-        <section class="wiki-section" aria-labelledby="team-docs-title">
-          <h2 id="team-docs-title">团队文档</h2>
-          <p class="guide-doc-links__intro">
-            计划、任务、协作边界和新建入口也在学习指南里。参与共建的成员可以从这里进入，不需要另找文档站。
-          </p>
-          <div class="guide-doc-links">
-            {docsPages.map((page) => (
-              <a class="guide-doc-link" href={page.href}>
-                <span class="guide-doc-link__icon" aria-hidden="true"><Icon name={page.icon} size={18} /></span>
-                <span class="guide-doc-link__body">
-                  <strong>{page.title}</strong>
-                  <span>{page.description}</span>
-                </span>
-                <Icon name="arrow-right" size={15} />
-              </a>
-            ))}
-          </div>
         </section>
 
         <div class="wiki-next">

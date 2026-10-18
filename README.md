@@ -10,11 +10,10 @@
 
 M0 先交付可持续迭代的框架，而不是堆功能：
 
-- 全局搜索：顶栏搜索框 / Ctrl·Cmd + K，支持页面、文档、指南章节、术语、工具和作品；结果可直达正文锚点
+- 全局搜索：顶栏搜索框 / Ctrl·Cmd + K，支持页面、指南章节、术语、工具和作品；结果可直达正文锚点
 - 首页：定位、入口、学习路径、工具与作品预览、社区与活动预告
-- 学习指南：三阶段、8 个模块；每页显示最后更新时间、参考来源和 GitHub 编辑入口
+- 学习指南：三阶段、8 个模块；正文采用 Notion 风格排版，每页显示最后更新时间、参考来源和 GitHub 编辑入口
 - 术语表：38 个零基础 AI 术语，按分类筛选，含校园场景示例；来源统一标注在页面末尾
-- 团队文档：学习指南内的公开协作区，以 Notion 式侧栏和分区组织阅读计划、任务看板、发布流程与技术资料；新建内容通过 GitHub 完成
 - 工具资源：按真实使用场景分类、可搜索筛选的工具目录
 - 作品广场：明确标注的「策划示例」，展示未来投稿作品会如何被组织
 - 社区：版块设计、讨论起点、社区公约与参与路径（M0 不开放真实发帖）
@@ -35,9 +34,6 @@ M0 先交付可持续迭代的框架，而不是堆功能：
 | --- | --- |
 | ![AI 术语表](docs/screenshots/glossary.png) | ![内容元信息](docs/screenshots/guide-meta.png) |
 
-| 团队文档（学习指南内） | 新建内容入口 |
-| --- | --- |
-| ![团队文档](docs/screenshots/docs-overview.png) | ![新建内容入口](docs/screenshots/docs-new-menu.png) |
 
 ## 技术栈
 
@@ -79,19 +75,17 @@ src/
 ├── content/
 │   ├── guide/           # 学习指南：一篇 Markdown = 一个模块
 │   └── works/           # 作品广场：示例提案 / 未来真实投稿
-├── data/                # 工具、术语、文档、社区、活动、首页入口等结构化内容
+├── data/                # 工具、术语、社区、活动、首页入口等结构化内容
 │   ├── types.ts         # 内容类型约束
 │   ├── site.ts          # 站点名、导航、页脚与透明说明
 │   ├── home.ts          # 首页入口与学习地图
-│   ├── glossary.ts      # AI 术语表（含来源链接）
-│   ├── docs.ts          # 团队文档目录与新内容入口
+│   ├── glossary.ts      # AI 术语表
 │   ├── tools.ts         # 工具目录
 │   ├── community.ts     # 社区版块、话题、公约
 │   └── events.ts        # 活动形式与项目路线
 ├── layouts/             # 全局页面骨架
 ├── pages/               # 路由页面 + 构建时搜索索引 search-index.json
-│   └── docs/            # 学习指南内的团队文档
-├── scripts/             # 全局交互、筛选与文档菜单等渐进增强脚本
+├── scripts/             # 全局交互与筛选等渐进增强脚本
 ├── styles/              # 设计令牌、基础/组件/页面样式与视觉收口
 └── content.config.ts    # 内容集合 frontmatter 校验
 tests/site.test.mjs      # 构建产物的结构与内容边界测试
@@ -109,8 +103,7 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 2. 学习指南：在 `src/content/guide/` 新建 `.md`，按指定 frontmatter 填写；页面自动生成并排序。
 3. 作品示例：在 `src/content/works/` 新建 `.md`。M0 必须保持 `status: example`。
 4. 工具 / 术语 / 社区 / 活动：编辑 `src/data/*.ts` 中对应数组，不改页面结构。
-5. 团队文档：页面模板在 `src/pages/guide/docs/`，左侧文档组在 `src/components/GuideNav.astro`，目录与新内容入口在 `src/data/docs.ts`。
-6. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。
+5. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。
 
 > 不要在没有来源的情况下写「官方合作」「学校认证」「已有 XX 名同学」「某月某日举办」等事实性表述。
 

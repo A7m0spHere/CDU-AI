@@ -4,17 +4,16 @@ import Icon from './Icon.astro';
 
 interface Props {
   currentId?: string;
-  currentDoc?: string;
 }
 
-const { currentId, currentDoc } = Astro.props;
+const { currentId } = Astro.props;
 ---
 
 <details class="guide-mobile-nav">
   <summary>
     <span>目录</span>
-    <span class="guide-mobile-nav__hint">3 个阶段 · 8 个模块 · 团队文档</span>
+    <span class="guide-mobile-nav__hint">3 个阶段 · 8 个模块</span>
     <Icon name="chevron-down" size={16} />
   </summary>
-  <GuideNav currentId={currentId} currentDoc={currentDoc} />
+  <GuideNav currentId={currentId} />
 </details>

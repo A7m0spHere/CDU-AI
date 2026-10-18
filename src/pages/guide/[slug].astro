@@ -7,6 +7,7 @@ import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import { guideStages, repository } from '../../data/site';
 import { tools } from '../../data/tools';
+import '../../styles/notion.css';
 
 export const getStaticPaths = (async () => {
   const modules = await getCollection('guide');
@@ -39,7 +40,7 @@ const relatedTools = entry.data.tools
     <div class="container wiki-layout wiki-layout--article">
       <GuideSidebar currentId={slug} />
 
-      <div class="wiki-main wiki-article">
+      <div class="wiki-main wiki-article notion-page">
         <GuideMobileNav currentId={slug} />
 
         <nav class="breadcrumb" aria-label="面包屑">
@@ -50,19 +51,22 @@ const relatedTools = entry.data.tools
           <span aria-current="page">{entry.data.title}</span>
         </nav>
 
-        <header class="wiki-heading wiki-heading--article">
-          <p class="eyebrow">
-            {stage?.index ?? '学习指南'} · {stage?.label ?? '零基础'} · 第 {stagePosition} / {stageModules.length} 篇
+        <header class="notion-page-head">
+          <p class="notion-page-head__eyebrow">
+            <span>{stage?.index ?? '学习指南'} · {stage?.label ?? '零基础'}</span>
+            <span aria-hidden="true">/</span>
+            <span>第 {stagePosition} / {stageModules.length} 篇</span>
           </p>
           <h1>{entry.data.title}</h1>
-          <p class="wiki-lede">{entry.data.summary}</p>
-          <div class="wiki-meta">
+          <p class="notion-page-head__summary">{entry.data.summary}</p>
+          <div class="notion-page-properties">
             <span><Icon name="clock" size={14} />{entry.data.duration}</span>
             <span><Icon name="target" size={14} />{entry.data.level}</span>
+            <span><Icon name="layers" size={14} />{stage?.title ?? '学习指南'}</span>
           </div>
         </header>
 
-        <div class="prose wiki-prose">
+        <div class="prose wiki-prose notion-prose">
           <Content />
         </div>
 

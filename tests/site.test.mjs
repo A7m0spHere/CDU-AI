@@ -12,11 +12,6 @@ const expectedRoutes = [
   '404.html',
   'about/index.html',
   'community/index.html',
-  'guide/docs/index.html',
-  'guide/docs/reading/index.html',
-  'guide/docs/tasks/index.html',
-  'guide/docs/workflow/index.html',
-  'guide/docs/technical/index.html',
   'events/index.html',
   'guide/index.html',
   'glossary/index.html',
@@ -81,7 +76,7 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   assert.ok(Array.isArray(data), '搜索索引应为数组');
   assert.ok(data.length >= 80, '搜索索引条目过少');
   const types = new Set(data.map((item) => item.type));
-  for (const type of ['页面', '文档', '指南', '章节', '工具', '作品', '术语']) {
+  for (const type of ['页面', '指南', '章节', '工具', '作品', '术语']) {
     assert.ok(types.has(type), '搜索索引缺少类型：' + type);
   }
   for (const item of data) {
@@ -108,38 +103,14 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
     assert.ok(html.includes(`id="${hash}"`), '搜索锚点不存在：' + item.href);
   }
 });
-test('文档区包含目录、阅读计划、任务和新建入口', async () => {
-  const overview = await read('guide/docs/index.html');
-  assert.match(overview, /文档概览/);
-  assert.match(overview, /新成员阅读计划/);
-  assert.match(overview, /新建内容/);
-  assert.match(overview, /文档原则/);
-  assert.match(overview, /aria-current="page"/);
-  assert.match(overview, /class="guide-sidebar"/);
-  assert.match(overview, /guide-nav__group--docs/);
-  assert.match(overview, /data-docs-menu/);
-  assert.doesNotMatch(overview, /class="guide-nav__home is-active"/);
-
-  const reading = await read('guide/docs/reading/index.html');
-  assert.match(reading, /30 分钟入门路线/);
-  assert.match(reading, /新成员阅读计划/);
-
-  const tasks = await read('guide/docs/tasks/index.html');
-  assert.match(tasks, /公开任务快照/);
-  assert.match(tasks, /已完成/);
-  assert.match(tasks, /下一步/);
-  assert.match(tasks, /不是实时看板/);
-  assert.match(tasks, /github\.com\/A7m0spHere\/CDU-AI\/issues\/new/);
-
-  const workflow = await read('guide/docs/workflow/index.html');
-  assert.match(workflow, /没有后台编辑器/);
-  assert.match(workflow, /新建内容/);
-  assert.match(workflow, /npm run verify/);
-
-  const technical = await read('guide/docs/technical/index.html');
-  assert.match(technical, /docs\/ARCHITECTURE\.md/);
-  assert.match(technical, /docs\/CONTENT-GUIDE\.md/);
-  assert.match(technical, /GitHub Actions/);
+test('学习指南详情采用 Notion 文档结构', async () => {
+  const guide = await read('guide/02-first-conversation/index.html');
+  assert.match(guide, /notion-page/);
+  assert.match(guide, /notion-page-head/);
+  assert.match(guide, /notion-page-properties/);
+  assert.match(guide, /notion-prose/);
+  assert.match(guide, /本页内容/);
+  assert.doesNotMatch(guide, /wiki-heading--article/);
 });
 
 test('术语表内容与来源标注存在', async () => {
