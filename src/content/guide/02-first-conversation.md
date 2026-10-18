@@ -9,6 +9,10 @@ outcome: "你能用「角色、材料、任务、标准」四句话，把一件�
 forWho: "第一次用对话式 AI、经常得到「正确但没用」回答的同学。"
 tools: ["DeepSeek", "豆包"]
 tags: ["提示词", "表达", "对话技巧"]
+sources:
+  - title: "Anthropic · Prompt engineering overview"
+    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview"
+updated: "2026-10-18"
 ---
 
 ## 为什么第一句话决定回答质量

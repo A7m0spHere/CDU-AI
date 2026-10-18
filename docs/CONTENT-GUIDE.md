@@ -30,6 +30,10 @@ duration: "12 分钟"
 level: "零基础"
 outcome: "读完后你能做到的一件具体小事。"
 forWho: "最适合哪类同学，避免写给所有人。"
+updated: "2026-10-18" # 必填，ISO 日期；页面显示“最后更新”
+sources: # 可选；有外部依据时填写，必须可打开
+  - title: "Anthropic · Prompt engineering overview"
+    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview"
 tools: ["DeepSeek", "Kimi"] # 可留空，但必须是工具目录里已有的名字
 tags: ["AI 素养", "安全"]
 ---
@@ -67,6 +71,7 @@ prompt: "可以复制给 AI 的第一条提示词。"
 effort: "一个下午"
 level: "零基础"
 order: 1
+updated: "2026-10-18" # 必填，ISO 日期；页面显示“最后更新”
 status: "example" # M0 只能是 example
 ---
 ```
@@ -80,7 +85,16 @@ status: "example" # M0 只能是 example
 
 必须使用「可以做」「适合从这里开始」等设计语气，不能写成「我们已经完成」「同学们已经投稿」。UI 会统一展示「策划示例」。
 
-## 5. 工具数据
+## 5. 术语表
+
+编辑 `src/data/glossary.ts`：
+
+- 一条术语包含中文名、英文名、分类、一句话释义、校园/学习场景示例、别名和来源 URL。
+- 释义参考 VibeHub 的 AI 术语时，保留 `sourceUrl`，并改写成适合本校同学理解的例子；不要整段复制没有来源的内容。
+- 新增术语要同时加入一个已有分类；分类在 `glossaryCategories` 中维护。
+- 改动后运行 `npm run verify`，检查术语条目、筛选和搜索索引是否正常生成。
+
+## 6. 工具数据
 
 编辑 `src/data/tools.ts`：
 
@@ -91,13 +105,13 @@ status: "example" # M0 只能是 example
 - `caution` 提醒隐私、版权、幻觉或需要登录等真实限制。
 - 收录 ≠ 推荐。测试时用真实官网核对链接与名称。
 
-## 6. 社区与活动数据
+## 7. 社区与活动数据
 
 - 社区版块、话题均为「设计稿 / 发起人拟定」，必须保留 `status` 字段的「筹备中 / M1 开放」等标注。
 - 活动只写形式与流程蓝图，不写日期、地点、嘉宾、报名方式，除非负责人已确认并同步给维护者。
 - 社区公约应具体可执行，避免口号。
 
-## 7. 提交前检查
+## 8. 提交前检查
 
 ```bash
 npm run verify
@@ -110,5 +124,6 @@ npm run verify
 - 是否有真实姓名、联系方式、学号、聊天记录等隐私？
 - 移动端阅读是否一屏内出现过多并列信息？
 - 外部链接是否可打开、是否指向官网？
+- 指南的 `updated` 和 `sources` 是否准确？页面底部的编辑链接是否指向正确文件？
 
 提交时说明改了什么、依据是什么、哪些内容还需要核实。

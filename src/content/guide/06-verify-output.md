@@ -9,6 +9,10 @@ outcome: "你能对一段 AI 给出的结论做一次最低成本的核查，并
 forWho: "已经把 AI 内容用进作业、通知或汇报，但还没形成核对习惯的同学。"
 tools: ["秘塔搜索", "DeepSeek"]
 tags: ["信息验证", "事实核查", "严谨"]
+sources:
+  - title: "OpenAI · Why language models hallucinate"
+    url: "https://openai.com/index/why-language-models-hallucinate/"
+updated: "2026-10-18"
 ---
 
 ## 为什么「读起来很顺」不是证据

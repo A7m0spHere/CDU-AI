@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { glossaryCategories, glossaryTerms } from '../../data/glossary';
+import { repository } from '../../data/site';
+
+const categoryCount = (id: string) => glossaryTerms.filter((term) => term.category === id).length;
+const total = glossaryTerms.length;
+---
+
+<BaseLayout
+  title="AI 术语表"
+  description="面向零基础同学的 AI 术语速查：幻觉、提示词、上下文、RAG、Agent、MCP 等常见概念与校园场景示例。"
+>
+  <div class="wiki-shell">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href="/">首页</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+        <span aria-current="page">术语表</span>
+      </nav>
+
+      <header class="wiki-heading">
+        <p class="eyebrow">术语表 · {total} 条</p>
+        <h1>AI 术语表</h1>
+        <p class="wiki-lede">
+          面向零基础的常见 AI 术语。用一句话解释概念，再给一个校园或学习场景示例。可以按分类浏览，也可以用上面的搜索框查词。
+        </p>
+      </header>
+
+      <div class="notice">
+        <Icon name="info" size={17} />
+        <p>
+          术语释义与示例参考
+          <a class="text-link glossary-source-link" href="https://vibe-hub.org/topics/ai" target="_blank" rel="noopener noreferrer">VibeHub 的 AI 术语<Icon name="arrow-up-right" size={13} /></a>
+          整理，并改写为校园/学习场景；每个条目保留原站链接。若与官方文档或服务商说明不一致，以后者为准。
+        </p>
+      </div>
+
+      <div class="catalog-layout glossary-layout" data-filter-root>
+        <aside class="catalog-sidebar glossary-sidebar" aria-label="术语筛选">
+          <label class="sr-only" for="glossary-search">搜索术语、别名或场景</label>
+          <div class="search-field">
+            <Icon name="search" size={18} />
+            <input
+              id="glossary-search"
+              type="search"
+              placeholder="搜索术语或场景…"
+              autocomplete="off"
+              data-filter-search
+            />
+          </div>
+
+          <nav class="catalog-nav" aria-label="按分类筛选">
+            <div class="catalog-nav__head">
+              <span>分类</span>
+              <span class="filter-count">{total} 条</span>
+            </div>
+            <div class="filter-chips filter-chips--vertical" role="group" aria-label="按分类筛选">
+              <button class="filter-chip" type="button" data-filter-value="all" aria-pressed="true">
+                全部术语
+                <span class="filter-chip__count">{total}</span>
+              </button>
+              {glossaryCategories.map((category) => (
+                <button class="filter-chip" type="button" data-filter-value={category.id} aria-pressed="false">
+                  {category.name}
+                  <span class="filter-chip__count">{categoryCount(category.id)}</span>
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          <p class="catalog-sidebar__note">
+            <Icon name="info" size={14} />
+            同一个概念可能有多个叫法；以实际产品与官方文档为准。
+          </p>
+        </aside>
+
+        <div class="catalog-main glossary-main">
+          <div class="results-bar">
+            <p aria-live="polite">显示 <strong data-filter-count>{total}</strong> 个术语</p>
+            <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
+          </div>
+
+          <div class="glossary-groups">
+            {glossaryCategories.map((category) => (
+              <section
+                class="glossary-group"
+                data-filter-group
+                id={`glossary-${category.id}`}
+                aria-labelledby={`glossary-${category.id}-title`}
+              >
+                <div class="glossary-group__head">
+                  <h2 id={`glossary-${category.id}-title`}>{category.name}</h2>
+                  <span>{categoryCount(category.id)} 条</span>
+                </div>
+                <p class="glossary-group__desc">{category.description}</p>
+
+                <div class="glossary-grid">
+                  {glossaryTerms.filter((term) => term.category === category.id).map((term) => {
+                    const searchText = [
+                      term.term,
+                      term.en,
+                      ...term.aliases,
+                      term.definition,
+                      term.example,
+                      category.name,
+                    ].join(' ').toLowerCase();
+                    return (
+                      <article
+                        class="glossary-term"
+                        id={term.id}
+                        data-filter-card
+                        data-category={term.category}
+                        data-search={searchText}
+                      >
+                        <div class="glossary-term__head">
+                          <h3>{term.term}<span>{term.en}</span></h3>
+                        </div>
+                        <p class="glossary-term__definition">{term.definition}</p>
+                        <p class="glossary-term__example"><span>例子</span>{term.example}</p>
+                        {term.aliases.length > 0 && (
+                          <p class="glossary-term__aliases">也常叫：{term.aliases.join(' / ')}</p>
+                        )}
+                        <a
+                          class="glossary-term__source"
+                          href={term.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          来源 · VibeHub
+                          <Icon name="arrow-up-right" size={13} />
+                        </a>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div class="empty-state" data-empty-state hidden>
+            <Icon name="search" size={28} />
+            <h2>没有找到匹配的术语</h2>
+            <p>换个更短的关键词，或点击「清除筛选」查看全部。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-meta">
+        <span><Icon name="clock" size={14} />最后更新：2026-10-18</span>
+        <a href={`${repository.url}/edit/${repository.branch}/src/data/glossary.ts`} target="_blank" rel="noopener noreferrer">
+          <Icon name="pen" size={14} />在 GitHub 编辑术语表
+          <Icon name="arrow-up-right" size={13} />
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initFilter } from '../../scripts/filter';
+  initFilter();
+</script>

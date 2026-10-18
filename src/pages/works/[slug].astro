@@ -6,6 +6,7 @@ import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
 import WorkArt from '../../components/WorkArt.astro';
 import { tools } from '../../data/tools';
+import { repository } from '../../data/site';
 
 export const getStaticPaths = (async () => {
   const works = await getCollection('works');
@@ -22,6 +23,8 @@ const relatedTools = toolNames
   .map((name) => tools.find((tool) => tool.name === name))
   .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
 const isExample = status === 'example';
+const updated = entry.data.updated;
+const editUrl = `${repository.url}/edit/${repository.branch}/src/content/works/${entry.id}.md`;
 ---
 
 <BaseLayout title={title} description={summary}>
@@ -97,6 +100,16 @@ const isExample = status === 'example';
                 : '页面内容由作者提供并经维护者审核，具体事实与授权信息以作者声明为准。'}
             </p>
           </div>
+
+          {updated && (
+            <div class="page-meta">
+              <span><Icon name="clock" size={14} />最后更新：{updated}</span>
+              <a href={editUrl} target="_blank" rel="noopener noreferrer">
+                <Icon name="pen" size={14} />在 GitHub 编辑本页
+                <Icon name="arrow-up-right" size={13} />
+              </a>
+            </div>
+          )}
 
           <nav class="work-detail__nav" aria-label="作品页导航">
             <a class="link-arrow" href="/works/"><Icon name="arrow-left" size={15} />回到作品广场</a>

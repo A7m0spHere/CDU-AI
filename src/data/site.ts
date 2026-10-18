@@ -14,6 +14,11 @@ export const site = {
   stageNote: '本站当前为 M0 基础版，部分栏目仍在搭建中。',
 } as const;
 
+export const repository = {
+  url: 'https://github.com/A7m0spHere/CDU-AI',
+  branch: 'main',
+} as const;
+
 export interface NavItem {
   label: string;
   href: string;
@@ -22,6 +27,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { label: '学习指南', href: '/guide/', description: '从零开始的三阶段路线' },
+  { label: '术语表', href: '/glossary/', description: '零基础 AI 术语速查' },
   { label: '工具资源', href: '/tools/', description: '按真实场景整理的工具索引' },
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
   { label: '社区', href: '/community/', description: '版块、公约与讨论起点' },
@@ -73,6 +79,7 @@ export const footerGroups = [
     title: '探索',
     links: [
       { label: '学习指南', href: '/guide/' },
+      { label: '术语表', href: '/glossary/' },
       { label: '工具资源', href: '/tools/' },
       { label: '作品广场', href: '/works/' },
     ],
@@ -112,10 +119,4 @@ export const transparencyItems = [
     title: '不收集访客信息',
     text: '当前没有登录、评论、投稿表单、广告或第三方统计脚本。未来引入相关能力时会先说明数据用途。',
   },
-];
-
-export const globalChecks = [
-  '所有专业都能从自己的问题出发',
-  '不需要先会编程、数学或买设备',
-  '内容持续共建，欢迎纠错与补充',
 ];

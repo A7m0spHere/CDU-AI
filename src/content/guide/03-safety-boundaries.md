@@ -9,6 +9,10 @@ outcome: "你能在提交信息、引用生成内容、完成课程作业三个�
 forWho: "习惯把整段材料直接粘进对话框、或想用 AI 帮忙完成课程作业的同学。"
 tools: ["DeepSeek", "秘塔搜索"]
 tags: ["隐私", "版权", "学术诚信"]
+sources:
+  - title: "NIST · AI Risk Management Framework"
+    url: "https://www.nist.gov/itl/ai-risk-management-framework"
+updated: "2026-10-18"
 ---
 
 ## 底线一：能说出去的，才交给 AI

@@ -10,9 +10,10 @@
 
 M0 先交付可持续迭代的框架，而不是堆功能：
 
-- 全局搜索：顶栏搜索框 / Ctrl·Cmd + K，检索页面、指南、工具与作品示例
-- 首页：定位、入口、学习路径、工具与作品预览、社区与活动预告、路线图
-- 学习指南：面向零基础的三阶段学习路径与可独立阅读的 Markdown 模块
+- 全局搜索：顶栏搜索框 / Ctrl·Cmd + K，支持页面、指南章节、术语、工具和作品；结果可直达正文锚点
+- 首页：定位、入口、学习路径、工具与作品预览、社区与活动预告
+- 学习指南：三阶段、8 个模块；每页显示最后更新时间、参考来源和 GitHub 编辑入口
+- 术语表：24 个零基础 AI 术语，按分类筛选，含校园场景示例与原始来源链接
 - 工具资源：按真实使用场景分类、可搜索筛选的工具目录
 - 作品广场：明确标注的「策划示例」，展示未来投稿作品会如何被组织
 - 社区：版块设计、讨论起点、社区公约与参与路径（M0 不开放真实发帖）
@@ -28,6 +29,10 @@ M0 先交付可持续迭代的框架，而不是堆功能：
 | 学习指南 | 全局搜索（Ctrl/Cmd + K） |
 | --- | --- |
 | ![学习指南](docs/screenshots/guide.png) | ![全局搜索](docs/screenshots/search.png) |
+
+| AI 术语表 | 内容元信息 |
+| --- | --- |
+| ![AI 术语表](docs/screenshots/glossary.png) | ![内容元信息](docs/screenshots/guide-meta.png) |
 
 ## 技术栈
 
@@ -69,10 +74,11 @@ src/
 ├── content/
 │   ├── guide/           # 学习指南：一篇 Markdown = 一个模块
 │   └── works/           # 作品广场：示例提案 / 未来真实投稿
-├── data/                # 工具、社区、活动、首页入口等结构化内容
+├── data/                # 工具、术语、社区、活动、首页入口等结构化内容
 │   ├── types.ts         # 内容类型约束
 │   ├── site.ts          # 站点名、导航、页脚与透明说明
 │   ├── home.ts          # 首页入口与学习地图
+│   ├── glossary.ts      # AI 术语表（含来源链接）
 │   ├── tools.ts         # 工具目录
 │   ├── community.ts     # 社区版块、话题、公约
 │   └── events.ts        # 活动形式与项目路线
@@ -96,7 +102,7 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 2. 学习指南：在 `src/content/guide/` 新建 `.md`，按指定 frontmatter 填写；页面自动生成并排序。
 3. 作品示例：在 `src/content/works/` 新建 `.md`。M0 必须保持 `status: example`。
 4. 工具 / 社区 / 活动：编辑 `src/data/*.ts` 中对应数组，不改页面结构。
-5. 本地跑 `npm run verify`，通过后提交。
+5. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。
 
 > 不要在没有来源的情况下写「官方合作」「学校认证」「已有 XX 名同学」「某月某日举办」等事实性表述。
 
@@ -108,7 +114,7 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 npm run verify
 ```
 
-它会依次执行类型检查、生产构建、页面结构与事实边界测试、站内链接检查。CI 使用同一命令。
+它会依次执行类型检查、生产构建、页面结构与事实边界测试、章节锚点检查、站内链接检查。CI 使用同一命令。
 
 ## 参考与致谢
 
@@ -117,5 +123,5 @@ npm run verify
 - [AI 科研入门指南](https://github.com/Takamatsu-Hikaru/AI-Research-Guide)：按阶段组织长文、内容清单与阅读路径
 - [AI Demo 作品集](https://github.com/deepdemos/ds-demos-showcase)：作品广场的分类、状态标注与「过程即内容」思路
 - [WayToAGI](https://github.com/WayToAGI)：按工具与场景组织的目录型入口
-- [VibeHub](https://vibe-hub.org/)：白底、蓝色交互色、全局搜索与目录侧栏的产品化浏览体验
+- [VibeHub](https://vibe-hub.org/)：白底、蓝色交互色、全局搜索与目录侧栏的产品化浏览体验；术语表释义参考其 AI 术语并改写，页内保留来源
 

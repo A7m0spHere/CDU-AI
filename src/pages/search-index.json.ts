@@ -1,13 +1,48 @@
 import type { APIRoute } from 'astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import { tools, toolCategories } from '../data/tools';
+import { glossaryTerms } from '../data/glossary';
 
 interface SearchItem {
-  type: '指南' | '工具' | '作品' | '页面';
+  type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
   title: string;
   description: string;
   href: string;
   keywords: string;
+}
+
+const normalizeMarkdown = (markdown: string): string =>
+  markdown
+    .replace(/\`\`\`[^\n]*\n?/g, ' ')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_`~|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+function splitSections(body: string): { title: string; text: string }[] {
+  const result: { title: string; text: string }[] = [];
+  let currentTitle = '';
+  let currentLines: string[] = [];
+
+  const flush = () => {
+    if (!currentTitle) return;
+    result.push({ title: currentTitle, text: normalizeMarkdown(currentLines.join('\n')) });
+  };
+
+  for (const line of body.split(/\r?\n/)) {
+    const heading = line.match(/^##\s+(.+?)\s*$/);
+    if (heading) {
+      flush();
+      currentTitle = heading[1].trim();
+      currentLines = [];
+    } else if (currentTitle) {
+      currentLines.push(line);
+    }
+  }
+  flush();
+  return result;
 }
 
 export const GET: APIRoute = async () => {
@@ -36,6 +71,13 @@ export const GET: APIRoute = async () => {
       description: '按场景分类的 AI 工具索引。',
       href: '/tools/',
       keywords: '工具 资源 目录 AI 软件 选型',
+    },
+    {
+      type: '页面',
+      title: 'AI 术语表',
+      description: '面向零基础的 AI 常用术语与校园场景示例。',
+      href: '/glossary/',
+      keywords: '术语 词表 名词 概念 速查',
     },
     {
       type: '页面',
@@ -86,7 +128,37 @@ export const GET: APIRoute = async () => {
       href: `/tools/?q=${encodeURIComponent(tool.name)}`,
       keywords: [categoryName(tool.category), ...tool.tags, tool.difficulty, tool.pricing].join(' '),
     })),
+    ...glossaryTerms.map((term) => ({
+      type: '术语' as const,
+      title: term.term,
+      description: `${term.definition} ${term.example}`,
+      href: `/glossary/#${term.id}`,
+      keywords: [term.en, ...term.aliases, categoryNameForGlossary(term.category)].join(' '),
+    })),
   ];
+
+  // 章节级记录：指南和作品的长文按二级标题切分，结果直接跳到锚点。
+  async function appendSections<C extends 'guide' | 'works'>(entries: CollectionEntry<C>[], basePath: string) {
+    for (const entry of entries) {
+      const { headings } = await render(entry);
+      const h2 = headings.filter((heading) => heading.depth === 2);
+      const sections = splitSections(entry.body ?? '');
+      for (const [index, section] of sections.entries()) {
+        const anchor = h2[index]?.slug;
+        if (!anchor || section.text.length < 20) continue;
+        items.push({
+          type: '章节',
+          title: section.title,
+          description: `${entry.data.title}：${section.text.slice(0, 180)}`,
+          href: `${basePath}/${entry.id.replace(/\.md$/, '')}/#${anchor}`,
+          keywords: [entry.data.title, section.title, section.text].join(' '),
+        });
+      }
+    }
+  }
+
+  await appendSections(guides, '/guide');
+  await appendSections(works, '/works');
 
   return new Response(JSON.stringify(items), {
     headers: {
@@ -95,3 +167,13 @@ export const GET: APIRoute = async () => {
     },
   });
 };
+
+function categoryNameForGlossary(id: string): string {
+  const labels: Record<string, string> = {
+    basics: 'AI 基础',
+    context: '提示词与上下文',
+    agents: 'Agent 与工具',
+    safety: '成本与安全',
+  };
+  return labels[id] ?? '';
+}

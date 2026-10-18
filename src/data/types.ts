@@ -93,3 +93,20 @@ export interface Pathway {
   label: string;
   accent: 'green' | 'orange' | 'blue';
 }
+export interface GlossaryCategory {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface GlossaryTerm {
+  id: string;
+  term: string;
+  en: string;
+  category: string;
+  definition: string;
+  example: string;
+  aliases: string[];
+  /** 参考来源页面，用于回到原文核对。 */
+  sourceUrl: string;
+}

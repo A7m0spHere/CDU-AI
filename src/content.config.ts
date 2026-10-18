@@ -16,6 +16,15 @@ const guide = defineCollection({
     level: z.string().default('零基础'),
     outcome: z.string(),
     forWho: z.string(),
+    updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    sources: z
+      .array(
+        z.object({
+          title: z.string(),
+          url: z.string().url(),
+        }),
+      )
+      .default([]),
     tools: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
   }),
@@ -38,6 +47,7 @@ const works = defineCollection({
     effort: z.string(),
     level: z.string().default('零基础'),
     order: z.number().int().positive(),
+    updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     status: z.enum(['example', 'community']).default('example'),
   }),
 });

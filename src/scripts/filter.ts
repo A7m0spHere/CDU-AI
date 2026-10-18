@@ -33,6 +33,7 @@ export function initFilter(options: FilterOptions = {}): void {
   const count = root.querySelector<HTMLElement>(countSelector);
   const empty = root.querySelector<HTMLElement>(emptySelector);
   const clear = root.querySelector<HTMLButtonElement>(clearSelector);
+  const groups = Array.from(root.querySelectorAll<HTMLElement>('[data-filter-group]'));
 
   let activeCategory = 'all';
   let query = '';
@@ -52,6 +53,13 @@ export function initFilter(options: FilterOptions = {}): void {
     if (count) count.textContent = String(visible);
     if (empty) empty.hidden = visible !== 0;
     if (clear) clear.hidden = activeCategory === 'all' && query.length === 0;
+
+    groups.forEach((group) => {
+      const hasVisibleCard = Array.from(group.querySelectorAll<HTMLElement>(cardSelector)).some(
+        (card) => !card.hidden,
+      );
+      group.hidden = !hasVisibleCard;
+    });
 
     chips.forEach((chip) => {
       chip.setAttribute('aria-pressed', chip.dataset.filterValue === activeCategory ? 'true' : 'false');

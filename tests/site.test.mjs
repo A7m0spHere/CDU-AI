@@ -14,6 +14,7 @@ const expectedRoutes = [
   'community/index.html',
   'events/index.html',
   'guide/index.html',
+  'glossary/index.html',
   'tools/index.html',
   'works/index.html',
   'guide/01-ai-capability-map/index.html',
@@ -70,18 +71,67 @@ test('所有页面具备基本文档结构与唯一 h1', async () => {
   }
 });
 
-test('站内搜索索引可构建且覆盖全部内容类型', async () => {
+test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   const data = JSON.parse(await read('search-index.json'));
   assert.ok(Array.isArray(data), '搜索索引应为数组');
-  assert.ok(data.length >= 30, '搜索索引条目过少');
+  assert.ok(data.length >= 80, '搜索索引条目过少');
   const types = new Set(data.map((item) => item.type));
-  for (const type of ['页面', '指南', '工具', '作品']) {
+  for (const type of ['页面', '指南', '章节', '工具', '作品', '术语']) {
     assert.ok(types.has(type), '搜索索引缺少类型：' + type);
   }
   for (const item of data) {
     assert.ok(item.title && item.description && item.href, '搜索索引条目字段不完整');
     assert.ok(item.href.startsWith('/'), '搜索索引链接应站内相对路径');
   }
+
+  const sectionItems = data.filter((item) => item.type === '章节');
+  assert.ok(sectionItems.length >= 40, '章节级搜索记录过少');
+  assert.ok(sectionItems.some((item) => item.href.includes('/guide/') && item.href.includes('#')), '缺少指南章节锚点');
+  assert.ok(sectionItems.some((item) => item.href.includes('/works/') && item.href.includes('#')), '缺少作品章节锚点');
+
+  // 搜索索引的每个锚点都必须真实存在于构建产物中。
+  for (const item of data) {
+    if (!item.href.includes('#')) continue;
+    const [pathname, rawHash] = item.href.split('#');
+    const target = pathname === '/'
+      ? 'index.html'
+      : pathname.endsWith('/')
+        ? pathname.slice(1) + 'index.html'
+        : pathname.slice(1) + '.html';
+    const html = await read(target);
+    const hash = decodeURIComponent(rawHash);
+    assert.ok(html.includes(`id="${hash}"`), '搜索锚点不存在：' + item.href);
+  }
+});
+test('术语表内容与来源标注存在', async () => {
+  const glossary = await read('glossary/index.html');
+  assert.match(glossary, /AI 术语表/);
+  assert.match(glossary, /VibeHub/);
+  assert.match(glossary, /id="ai-hallucination"/);
+  assert.match(glossary, /来源 · VibeHub/);
+  const termCount = (glossary.match(/class="glossary-term"/g) || []).length;
+  assert.equal(termCount, 24, '术语表条目数量不符');
+});
+
+test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () => {
+  const contentRoutes = expectedRoutes.filter((route) =>
+    (route.startsWith('guide/') && route !== 'guide/index.html') ||
+    (route.startsWith('works/') && route !== 'works/index.html'),
+  );
+  for (const route of contentRoutes) {
+    const html = await read(route);
+    assert.match(html, /最后更新：\d{4}-\d{2}-\d{2}/, route + ' 缺少更新时间');
+    assert.match(html, /在 GitHub 编辑本页/, route + ' 缺少编辑入口');
+    assert.match(html, /github\.com\/A7m0spHere\/CDU-AI\/edit\/main\//, route + ' 编辑链接错误');
+  }
+
+  const sourcedGuide = await read('guide/02-first-conversation/index.html');
+  assert.match(sourcedGuide, /参考来源/);
+  assert.match(sourcedGuide, /platform\.claude\.com/);
+
+  const glossary = await read('glossary/index.html');
+  assert.match(glossary, /最后更新：\d{4}-\d{2}-\d{2}/);
+  assert.match(glossary, /在 GitHub 编辑术语表/);
 });
 
 test('M0 的示例、社区与活动状态都有明确标注', async () => {

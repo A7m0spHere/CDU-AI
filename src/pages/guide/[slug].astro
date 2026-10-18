@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
-import { guideStages } from '../../data/site';
+import { guideStages, repository } from '../../data/site';
 import { tools } from '../../data/tools';
 
 export const getStaticPaths = (async () => {
@@ -28,6 +28,7 @@ const stagePosition = stageModules.findIndex((module) => module.id === entry.id)
 
 const { Content, headings } = await render(entry);
 const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const editUrl = `${repository.url}/edit/${repository.branch}/src/content/guide/${entry.id}.md`;
 const relatedTools = entry.data.tools
   .map((name) => tools.find((tool) => tool.name === name))
   .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
@@ -82,6 +83,30 @@ const relatedTools = entry.data.tools
             <a class="text-link" href="/tools/">工具资源</a>
           </div>
         )}
+
+        {entry.data.sources.length > 0 && (
+          <div class="page-sources">
+            <p>参考来源</p>
+            <ul>
+              {entry.data.sources.map((source) => (
+                <li>
+                  <a href={source.url} target="_blank" rel="noopener noreferrer">
+                    {source.title}
+                    <Icon name="arrow-up-right" size={13} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div class="page-meta">
+          <span><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
+          <a href={editUrl} target="_blank" rel="noopener noreferrer">
+            <Icon name="pen" size={14} />在 GitHub 编辑本页
+            <Icon name="arrow-up-right" size={13} />
+          </a>
+        </div>
 
         <nav class="wiki-pager" aria-label="模块翻页">
           {previous ? (

@@ -10,6 +10,7 @@ effort: "一个下午"
 level: "零基础"
 order: 1
 status: "example"
+updated: "2026-10-18"
 ---
 
 ## 它回应的问题
