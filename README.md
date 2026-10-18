@@ -99,6 +99,8 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 
 ## 内容怎么维护
 
+完整文件地图、写作流程和提交检查见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
+
 1. 阅读 [`docs/CONTENT-GUIDE.md`](docs/CONTENT-GUIDE.md)，确认字段、语气与事实边界。
 2. 学习指南：在 `src/content/guide/` 新建 `.md`，按指定 frontmatter 填写；页面自动生成并排序。
 3. 作品示例：在 `src/content/works/` 新建 `.md`。M0 必须保持 `status: example`。
@@ -115,7 +117,7 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 npm run verify
 ```
 
-它会依次执行类型检查、生产构建、页面结构与事实边界测试、章节锚点检查、站内链接检查。CI 使用同一命令。
+它会依次执行类型检查、生产构建、内容清单与搜索覆盖测试、章节锚点检查、站内链接检查。CI 使用同一命令。
 
 ## 提交信息
 
@@ -134,7 +136,7 @@ npm run verify
 
 信息架构和交互借鉴了以下开放项目的组织方式，正文、示例与实现均为本项目原创，不复制其代码、品牌或视觉资产：
 
-- [AI 科研入门指南](https://github.com/Takamatsu-Hikaru/AI-Research-Guide)：按阶段组织长文、内容清单与阅读路径
+- [AI 科研入门指南](https://github.com/Takamatsu-Hikaru/AI-Research-Guide)：按阶段组织长文、内容清单、构建时生成导航与校验；我们借鉴其内容管理方式，但保留 Astro 实现
 - [AI Demo 作品集](https://github.com/deepdemos/ds-demos-showcase)：作品广场的分类、状态标注与「过程即内容」思路
 - [WayToAGI](https://github.com/WayToAGI)：按工具与场景组织的目录型入口
 - [VibeHub](https://vibe-hub.org/)：白底、蓝色交互色、全局搜索与目录侧栏的产品化浏览体验；术语表释义参考其 AI 术语并改写，页面末尾统一标注来源

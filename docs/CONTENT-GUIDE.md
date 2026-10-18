@@ -1,6 +1,6 @@
 # 内容维护规范
 
-> 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。
+> 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。完整文件地图和新增流程见 [`CONTRIBUTING.md`](https://github.com/A7m0spHere/CDU-AI/blob/main/CONTRIBUTING.md)。
 
 ## 1. 三条底线
 

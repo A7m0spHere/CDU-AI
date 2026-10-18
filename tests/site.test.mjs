@@ -46,6 +46,18 @@ async function walk(dir) {
   return files;
 }
 
+function frontmatterFields(text, file) {
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  assert.ok(match, file + ' 缺少 frontmatter');
+  const fields = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const item = line.match(/^([a-zA-Z][\w-]*):\s*(.*)$/);
+    if (!item) continue;
+    fields[item[1]] = item[2].replace(/^\"|\"$/g, '');
+  }
+  return fields;
+}
+
 test('生产构建包含 M0 全部页面', async () => {
   for (const route of expectedRoutes) {
     const html = await read(route);
@@ -71,6 +83,52 @@ test('所有页面具备基本文档结构与唯一 h1', async () => {
   }
 });
 
+test('指南内容清单驱动导航与搜索覆盖', async () => {
+  const guideSource = path.join(root, 'src/content/guide');
+  const files = (await readdir(guideSource)).filter((file) => file.endsWith('.md')).sort();
+  assert.equal(files.length, 8, '指南模块数量与预期不符');
+
+  const entries = [];
+  for (const file of files) {
+    const raw = await readFile(path.join(guideSource, file), 'utf8');
+    const fields = frontmatterFields(raw, file);
+    const slug = file.replace(/\.md$/, '');
+    entries.push({
+      slug,
+      title: fields.title,
+      stage: fields.stage,
+      order: Number(fields.order),
+      updated: fields.updated,
+    });
+  }
+
+  const orders = entries.map((entry) => entry.order).sort((a, b) => a - b);
+  assert.equal(new Set(entries.map((entry) => entry.slug)).size, entries.length, '指南 slug 重复');
+  assert.deepEqual(orders, Array.from({ length: entries.length }, (_, index) => index + 1), '指南 order 必须从 1 连续且不重复');
+  for (const entry of entries) {
+    assert.ok(entry.title, entry.slug + ' 缺少标题');
+    assert.ok(['start', 'make', 'share'].includes(entry.stage), entry.slug + ' 的 stage 不合法');
+    assert.match(entry.updated, /^\d{4}-\d{2}-\d{2}$/, entry.slug + ' 的 updated 不合法');
+  }
+  assert.deepEqual(
+    entries.reduce((counts, entry) => {
+      counts[entry.stage] = (counts[entry.stage] ?? 0) + 1;
+      return counts;
+    }, {}),
+    { start: 3, make: 3, share: 2 },
+    '阶段内指南数量与预期不符',
+  );
+
+  const search = JSON.parse(await read('search-index.json'));
+  const guideIndex = await read('guide/index.html');
+  for (const entry of entries) {
+    const href = '/guide/' + entry.slug + '/';
+    assert.ok(search.some((item) => item.type === '指南' && item.href === href), '搜索索引缺少指南：' + entry.slug);
+    assert.ok(guideIndex.includes('href="' + href + '"'), '指南首页缺少入口：' + entry.slug);
+    assert.match(await read('guide/' + entry.slug + '/index.html'), /notion-page/, entry.slug + ' 缺少 Notion 文档结构');
+  }
+});
+
 test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   const data = JSON.parse(await read('search-index.json'));
   assert.ok(Array.isArray(data), '搜索索引应为数组');
@@ -83,6 +141,16 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
     assert.ok(item.title && item.description && item.href, '搜索索引条目字段不完整');
     assert.ok(item.href.startsWith('/'), '搜索索引链接应站内相对路径');
   }
+
+  const countByType = data.reduce((counts, item) => {
+    counts[item.type] = (counts[item.type] ?? 0) + 1;
+    return counts;
+  }, {});
+  assert.equal(countByType['指南'], 8, '搜索索引中的指南数量不符');
+  assert.equal(countByType['作品'], 4, '搜索索引中的作品数量不符');
+  assert.equal(countByType['工具'], 15, '搜索索引中的工具数量不符');
+  assert.equal(countByType['术语'], 38, '搜索索引中的术语数量不符');
+  assert.ok(countByType['章节'] >= 40, '搜索索引中的章节数量过少');
 
   const sectionItems = data.filter((item) => item.type === '章节');
   assert.ok(sectionItems.length >= 40, '章节级搜索记录过少');
