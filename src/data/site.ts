@@ -26,8 +26,8 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { label: '学习指南', href: '/guide/', description: '从零开始的三阶段路线' },
-  { label: '术语表', href: '/glossary/', description: '零基础 AI 术语速查' },
+  { label: '学习指南', href: '/guide/', description: '先判断，再动手的学习路线' },
+  { label: '术语表', href: '/glossary/', description: 'AI 术语速查' },
   { label: '工具资源', href: '/tools/', description: '按真实场景整理的工具索引' },
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
   { label: '社区', href: '/community/', description: '版块、公约与讨论起点' },

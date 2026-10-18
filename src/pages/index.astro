@@ -38,7 +38,7 @@ const categoryLabel = (categoryId: string) =>
         <h1 id="hero-title">{site.name}</h1>
 
         <p class="hero__lede">
-          面向所有专业、尤其是零基础同学的 AI 学习与交流社区。由成都大学计算机协会 AI 方向发起，内容持续建设中。
+          面向所有专业同学的 AI 学习与交流社区。先判断 AI 能做什么，再从真实问题出发做一点自己的东西。由成都大学计算机协会 AI 方向发起，内容持续建设中。
         </p>
 
         <div class="hero__actions">
@@ -54,7 +54,7 @@ const categoryLabel = (categoryId: string) =>
 
         <ul class="hero__notes" aria-label="站点特点">
           <li><Icon name="check" size={15} />所有专业</li>
-          <li><Icon name="check" size={15} />零基础友好</li>
+          <li><Icon name="check" size={15} />按自己的节奏</li>
           <li><Icon name="check" size={15} />开放共建</li>
         </ul>
       </div>
@@ -97,7 +97,7 @@ const categoryLabel = (categoryId: string) =>
           </nav>
 
           <div class="map-card__footer">
-            <span>{guideModules.length} 篇指南 · {tools.length} 个工具 · {works.length} 个示例</span>
+            <span>从一篇指南开始</span>
             <a class="link-arrow" href="/guide/">
               开始阅读
               <Icon name="arrow-right" size={15} />
@@ -112,8 +112,8 @@ const categoryLabel = (categoryId: string) =>
     <div class="container">
       <SectionHead
         eyebrow="学习指南"
-        title="三阶段学习路线"
-        description="从建立判断到整理分享。共 8 个模块，每篇 15–20 分钟，可分阶段阅读。"
+        title="学习路线"
+        description="从判断 AI 能做什么，到动手完成一件小事，再到整理分享。按自己的节奏读。"
         link="/guide/"
         linkLabel="全部模块"
       />
@@ -133,13 +133,11 @@ const categoryLabel = (categoryId: string) =>
                 <li>
                   <a href={`/guide/${module.id.replace(/\.md$/, '')}/`}>
                     <span>{module.data.title}</span>
-                    <span class="learning-stage__duration">{module.data.duration}</span>
                   </a>
                 </li>
               ))}
             </ul>
             <div class="learning-stage__foot">
-              <span class="mono">{stage.modules.length} 个模块</span>
               <a class="link-arrow" href="/guide/">
                 进入阶段
                 <Icon name="arrow-right" size={15} />

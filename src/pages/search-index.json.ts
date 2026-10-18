@@ -60,10 +60,10 @@ export const GET: APIRoute = async () => {
     },
     {
       type: '页面',
-      title: '零基础学习指南',
-      description: '3 个阶段、8 个模块的零基础 AI 学习路线。',
+      title: 'AI 学习指南',
+      description: '先看清 AI 能做什么，再动手完成一件小事的学习路线。',
       href: '/guide/',
-      keywords: '学习 指南 教程 入门 零基础 路线',
+      keywords: '学习 指南 教程 入门 路线 AI',
     },
     {
       type: '页面',
@@ -75,7 +75,7 @@ export const GET: APIRoute = async () => {
     {
       type: '页面',
       title: 'AI 术语表',
-      description: '面向零基础的 AI 常用术语与校园场景示例。',
+      description: '常见 AI 术语与校园场景示例。',
       href: '/glossary/',
       keywords: '术语 词表 名词 概念 速查',
     },

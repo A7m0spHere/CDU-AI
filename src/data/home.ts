@@ -1,7 +1,7 @@
 export const guideTips = [
   {
     title: '一次读一个模块',
-    text: '每篇 15–20 分钟，读完立刻试用一次。',
+    text: '一次读一篇，遇到具体问题时再回来查。',
   },
   {
     title: '带着真实问题',
