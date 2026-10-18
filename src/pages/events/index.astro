@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import Roadmap from '../../components/Roadmap.astro';
+import { eventFormats, activityBlueprint, roadmap } from '../../data/events';
+
+const eventIcons = {
+  workshop: 'presentation',
+  clinic: 'wrench',
+  build: 'hammer',
+  stage: 'mic',
+} as const;
+---
+
+<BaseLayout
+  title="活动"
+  description="新手工作坊、工具诊所、48 小时共创与作品开放麦。当前没有已确认的活动排期。"
+>
+  <PageHero
+    eyebrow="活动 · 形式蓝图"
+    title="活动"
+    description="活动形式与流程设计中。当前没有已确认的日期、场地或报名方式。"
+    crumbs={[{ label: '活动' }]}
+    tone="warm"
+  >
+    <Fragment slot="aside">
+      <div class="aside-card aside-card--brand">
+        <div class="aside-card__head"><Icon name="calendar" size={17} />本页没有活动日历</div>
+        <h2>暂无已确认活动</h2>
+        <p>以下均为形式设计，不含真实日期、地点、嘉宾或报名入口。</p>
+        <div class="status-row"><span class="status-dot" aria-hidden="true"></span><span>形式筹备中</span></div>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--flush-top">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__copy">
+          <p class="eyebrow">活动形式</p>
+          <h2>活动形式</h2>
+          <p class="section-head__desc">工作坊、工具诊所、48 小时共创与作品开放麦。</p>
+        </div>
+        <span class="pill">全部为形式构想</span>
+      </div>
+
+      <div class="event-format-grid">
+        {eventFormats.map((format, index) => (
+          <article class="event-format-card card">
+            <div class="event-format-card__top">
+              <span class="event-format-card__icon"><Icon name={eventIcons[format.icon]} size={22} /></span>
+              <span class="mono">0{index + 1}</span>
+            </div>
+            <p class="event-format-card__subtitle">{format.subtitle}</p>
+            <h3>{format.title}</h3>
+            <p class="event-format-card__desc">{format.description}</p>
+            <div class="event-format-card__best"><span>适合</span>{format.goodFor}</div>
+            <div class="event-format-card__foot">
+              <span class="badge">{format.status}</span>
+              <span class="mono">无具体排期</span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="blueprint-block">
+        <div class="blueprint-block__copy">
+          <p class="eyebrow">流程蓝图</p>
+          <h2>两小时工作坊流程</h2>
+          <p>以下为流程设计，不代表已经举办过。设备、网络与账号条件需在活动确认时评估。</p>
+        </div>
+        <ol class="blueprint-steps">
+          {activityBlueprint.map((step, index) => (
+            <li>
+              <span class="blueprint-steps__marker">{step.label}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+              <span class="mono">{String(index + 1).padStart(2, '0')}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="roadmap-block" id="roadmap">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <p class="eyebrow">项目路线</p>
+            <h2>项目路线</h2>
+            <p class="section-head__desc">先有内容、规则和负责人，再安排活动。不承诺未确认的时间表。</p>
+          </div>
+          <a class="link-arrow section-head__link" href="/about/#roadmap">在关于页看完整路线<Icon name="arrow-right" size={15} /></a>
+        </div>
+        <Roadmap phases={roadmap} />
+      </div>
+
+      <div class="events-cta">
+        <div>
+          <p class="eyebrow">想参与或发起？</p>
+          <h2>参与活动筹备</h2>
+          <p>M0 暂不开放线上报名。想参与策划、场地或内容准备，请先看共建说明。</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="/about/#contribute">了解共建方式<Icon name="arrow-right" size={16} /></a>
+          <a class="btn btn--soft" href="/community/">看看社区版块</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

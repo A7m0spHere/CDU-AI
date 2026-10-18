@@ -1,0 +1,19 @@
+---
+import GuideNav from './GuideNav.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  currentId?: string;
+}
+
+const { currentId } = Astro.props;
+---
+
+<details class="guide-mobile-nav">
+  <summary>
+    <span>目录</span>
+    <span class="guide-mobile-nav__hint">3 个阶段 · 8 个模块</span>
+    <Icon name="chevron-down" size={16} />
+  </summary>
+  <GuideNav currentId={currentId} />
+</details>

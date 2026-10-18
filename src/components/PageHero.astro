@@ -1,0 +1,67 @@
+---
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  titleLines?: string[];
+  description?: string;
+  crumbs?: Crumb[];
+  tone?: 'sage' | 'warm' | 'sky';
+}
+
+const { eyebrow, title, titleLines, description, crumbs = [], tone = 'sage' } = Astro.props;
+const hasAside = Astro.slots.has('aside');
+const hasActions = Astro.slots.has('actions');
+---
+
+<section class:list={['page-hero', `page-hero--${tone}`]}>
+  <div class="container">
+    {crumbs.length > 0 && (
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href="/">首页</a>
+        {crumbs.map((crumb) => (
+          <Fragment>
+            <span class="breadcrumb__sep" aria-hidden="true">/</span>
+            {crumb.href ? (
+              <a href={crumb.href}>{crumb.label}</a>
+            ) : (
+              <span aria-current="page">{crumb.label}</span>
+            )}
+          </Fragment>
+        ))}
+      </nav>
+    )}
+
+    <div class="page-hero__inner">
+      <div class="page-hero__copy">
+        {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+        <h1>
+          {titleLines && titleLines.length > 0
+            ? titleLines.map((line, index) => (
+                <Fragment>
+                  {line}
+                  {index < titleLines.length - 1 && <br class="title-br" />}
+                </Fragment>
+              ))
+            : title}
+        </h1>
+        {description && <p class="page-hero__lede">{description}</p>}
+        {hasActions && (
+          <div class="page-hero__actions">
+            <slot name="actions" />
+          </div>
+        )}
+      </div>
+
+      {hasAside && (
+        <div class="page-hero__aside">
+          <slot name="aside" />
+        </div>
+      )}
+    </div>
+  </div>
+</section>

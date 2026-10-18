@@ -1,0 +1,154 @@
+/**
+ * 设计令牌
+ * 参考 VibeHub 的克制、清晰、工具型界面：白底、细边框、蓝色交互色、系统字体。
+ * 颜色通过语义命名使用；换主题只改这一层。
+ */
+:root {
+  color-scheme: light;
+
+  /* surfaces */
+  --bg: #ffffff;
+  --bg-soft: #f8f8fa;
+  --surface: #ffffff;
+  --surface-strong: #ffffff;
+  --surface-muted: #f4f4f5;
+  --bg-inverse: #18181b;
+  --ink-on-inverse: #fafafa;
+
+  /* text */
+  --ink: #18181b;
+  --ink-soft: #3f3f46;
+  --muted: #52525b;
+  --faint: #64646d;
+
+  /* lines */
+  --line: #e4e4e7;
+  --line-strong: #d4d4d8;
+
+  /* brand */
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-soft: #eff6ff;
+  --brand-tint: #f7faff;
+  --on-brand: #ffffff;
+
+  /* accents */
+  --accent: #2563eb;
+  --accent-vivid: #60a5fa;
+  --accent-soft: #eff6ff;
+  --sky: #0e7490;
+  --sky-soft: #ecfeff;
+  --sun: #a16207;
+  --sun-soft: #fefce8;
+  --ok: #15803d;
+  --danger: #dc2626;
+
+  /* states */
+  --focus: #2563eb;
+  --backdrop: rgba(9, 9, 11, 0.48);
+  --header-bg: rgba(255, 255, 255, 0.86);
+
+  /* code */
+  --code-bg: #18181b;
+  --code-fg: #f4f4f5;
+  --code-muted: #a1a1aa;
+
+  /* decorative */
+  --grid-dot: transparent;
+  --glow-a: transparent;
+  --glow-b: transparent;
+
+  /* shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 10px 24px -18px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 8px 30px -22px rgba(0, 0, 0, 0.28);
+  --shadow-float: 0 18px 50px -24px rgba(0, 0, 0, 0.32);
+
+  /* type */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+  --font-mono: "SFMono-Regular", "Cascadia Code", "JetBrains Mono", "Roboto Mono", Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --display-1: clamp(2.55rem, 4.8vw, 3.9rem);
+  --display-2: clamp(2rem, 3.6vw, 2.8rem);
+  --heading-2: clamp(1.55rem, 2.7vw, 2.1rem);
+  --heading-3: clamp(1.05rem, 1.5vw, 1.25rem);
+
+  /* layout */
+  --container: 1200px;
+  --container-wide: 1280px;
+  --gutter: clamp(1.15rem, 4vw, 2.5rem);
+  --header-h: 64px;
+  --section-y: clamp(3.4rem, 6vw, 5.2rem);
+
+  /* shape */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #09090b;
+  --bg-soft: #111113;
+  --surface: #141416;
+  --surface-strong: #18181b;
+  --surface-muted: #1f1f23;
+  --bg-inverse: #f4f4f5;
+  --ink-on-inverse: #18181b;
+
+  --ink: #fafafa;
+  --ink-soft: #d4d4d8;
+  --muted: #a1a1aa;
+  --faint: #8b8b94;
+
+  --line: #27272a;
+  --line-strong: #3f3f46;
+
+  --brand: #60a5fa;
+  --brand-strong: #93c5fd;
+  --brand-soft: #172554;
+  --brand-tint: #0f172a;
+  --on-brand: #0b1220;
+
+  --accent: #60a5fa;
+  --accent-vivid: #3b82f6;
+  --accent-soft: #172554;
+  --sky: #7dd3fc;
+  --sky-soft: #082f49;
+  --sun: #fde047;
+  --sun-soft: #422006;
+  --ok: #86efac;
+  --danger: #fca5a5;
+
+  --focus: #93c5fd;
+  --backdrop: rgba(0, 0, 0, 0.7);
+  --header-bg: rgba(9, 9, 11, 0.86);
+
+  --code-bg: #09090b;
+  --code-fg: #e4e4e7;
+  --code-muted: #a1a1aa;
+
+  --grid-dot: transparent;
+  --glow-a: transparent;
+  --glow-b: transparent;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 10px 24px -18px rgba(0, 0, 0, 0.7);
+  --shadow-card: 0 8px 30px -22px rgba(0, 0, 0, 0.8);
+  --shadow-float: 0 18px 50px -24px rgba(0, 0, 0, 0.9);
+}

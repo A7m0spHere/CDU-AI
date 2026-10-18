@@ -1,0 +1,243 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import SectionHead from '../components/SectionHead.astro';
+import ToolCard from '../components/ToolCard.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { site, guideStages } from '../data/site';
+import { tools, toolCategories } from '../data/tools';
+
+const guideModules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
+const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
+
+const featuredTools = tools.filter((tool) => tool.featured).slice(0, 3);
+const toolsToShow = featuredTools.length > 0 ? featuredTools : tools.slice(0, 3);
+const firstModule = guideModules[0];
+const stageModules = guideStages.map((stage) => ({
+  ...stage,
+  modules: guideModules.filter((module) => module.data.stage === stage.id).sort((a, b) => a.data.order - b.data.order),
+}));
+
+const categoryLabel = (categoryId: string) =>
+  toolCategories.find((category) => category.id === categoryId)?.name ?? '工具';
+---
+
+<BaseLayout>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero__grid">
+      <div class="hero__copy">
+        <div class="hero__eyebrow">
+          <span class="hero__eyebrow-line">
+            <span class="status-dot" aria-hidden="true"></span>
+            成都大学 · 跨专业 AI 学习社区
+          </span>
+          <span class="pill pill--brand">{site.stage}</span>
+        </div>
+
+        <h1 id="hero-title">{site.name}</h1>
+
+        <p class="hero__lede">
+          面向所有专业、尤其是零基础同学的 AI 学习与交流社区。由成都大学计算机协会 AI 方向发起，内容持续建设中。
+        </p>
+
+        <div class="hero__actions">
+          <a class="btn btn--primary btn--lg" href="/guide/">
+            学习指南
+            <Icon name="arrow-right" size={18} />
+          </a>
+          <a class="btn btn--soft btn--lg" href="/tools/">
+            工具资源
+            <Icon name="arrow-up-right" size={17} />
+          </a>
+        </div>
+
+        <ul class="hero__notes" aria-label="站点特点">
+          <li><Icon name="check" size={15} />所有专业</li>
+          <li><Icon name="check" size={15} />零基础友好</li>
+          <li><Icon name="check" size={15} />开放共建</li>
+        </ul>
+      </div>
+
+      <div class="hero__visual">
+        <div class="map-card">
+          <div class="map-card__head">
+            <div>
+              <span class="map-card__label">从哪里开始</span>
+              <p>按你想做的事选择入口</p>
+            </div>
+            <span class="map-card__stamp">M0</span>
+          </div>
+
+          <nav class="quick-index" aria-label="快速入口">
+            <a href="/guide/">
+              <span>第一次接触 AI</span>
+              <span>学习指南 <Icon name="arrow-right" size={14} /></span>
+            </a>
+            <a href="/tools/">
+              <span>想找一个顺手的工具</span>
+              <span>工具资源 <Icon name="arrow-right" size={14} /></span>
+            </a>
+            <a href="/works/">
+              <span>想看看能做成什么</span>
+              <span>作品广场 <Icon name="arrow-right" size={14} /></span>
+            </a>
+            <a href="/community/">
+              <span>想参与交流</span>
+              <span>社区 <Icon name="arrow-right" size={14} /></span>
+            </a>
+            <a href="/events/">
+              <span>想了解活动</span>
+              <span>活动 <Icon name="arrow-right" size={14} /></span>
+            </a>
+          </nav>
+
+          <div class="map-card__footer">
+            <span>{guideModules.length} 篇指南 · {tools.length} 个工具 · {works.length} 个示例</span>
+            <a class="link-arrow" href="/guide/">
+              开始阅读
+              <Icon name="arrow-right" size={15} />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="path-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="学习指南"
+        title="三阶段学习路线"
+        description="从建立判断到整理分享。共 8 个模块，每篇 15–20 分钟，可分阶段阅读。"
+        link="/guide/"
+        linkLabel="全部模块"
+      />
+
+      <ol class="learning-path">
+        {stageModules.map((stage) => (
+          <li class="learning-stage">
+            <div class="learning-stage__top">
+              <span class="learning-stage__index">{stage.index}</span>
+              <span class={`stage-icon stage-icon--${stage.tone}`}><Icon name={stage.icon} size={20} /></span>
+            </div>
+            <p class="learning-stage__label">{stage.label}</p>
+            <h3>{stage.title}</h3>
+            <p class="learning-stage__desc">{stage.description}</p>
+            <ul class="learning-stage__modules">
+              {stage.modules.map((module) => (
+                <li>
+                  <a href={`/guide/${module.id.replace(/\.md$/, '')}/`}>
+                    <span>{module.data.title}</span>
+                    <span class="learning-stage__duration">{module.data.duration}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div class="learning-stage__foot">
+              <span class="mono">{stage.modules.length} 个模块</span>
+              <a class="link-arrow" href="/guide/">
+                进入阶段
+                <Icon name="arrow-right" size={15} />
+              </a>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div class="path-note">
+        <span class="path-note__icon"><Icon name="info" size={18} /></span>
+        <p>
+          不知道从哪开始，可以先读
+          {firstModule && <a class="text-link" href={`/guide/${firstModule.id.replace(/\.md$/, '')}/`}>「{firstModule.data.title}」</a>}。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="tools-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="工具资源"
+        title="按场景查找工具"
+        description="15 个常用工具，标注上手门槛、费用模式与使用限制。"
+        link="/tools/"
+        linkLabel="全部工具"
+      />
+
+      <div class="tool-grid tool-grid--home">
+        {toolsToShow.map((tool) => (
+          <ToolCard tool={tool} categoryLabel={categoryLabel(tool.category)} />
+        ))}
+      </div>
+
+      <p class="section-footnote">
+        <Icon name="info" size={15} />
+        收录不等于推荐，也不是广告。工具能力与价格会变化，请以官网为准。
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="works-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="作品广场"
+        title="策划示例"
+        description="4 个示例，展示问题、做法与提示词。不是真实学生投稿。"
+        link="/works/"
+        linkLabel="全部示例"
+      />
+
+      <div class="works-preview-grid">
+        {works.slice(0, 3).map((work) => <WorkCard work={work} />)}
+      </div>
+
+      <div class="works-note">
+        <Icon name="info" size={16} />
+        <p>本页条目均为策划示例，没有对应的已发布成品。真实投稿流程将在 M1 设计。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="status-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="社区与活动"
+        title="筹备中"
+        description="交流区与活动尚未开放，以下为已规划的版块与形式。"
+      />
+
+      <div class="status-link-grid">
+        <a class="status-link-card card card--lift" href="/community/">
+          <div class="status-link-card__head">
+            <span class="status-link-card__icon"><Icon name="users" size={20} /></span>
+            <span class="badge">M1 试运行</span>
+          </div>
+          <h3>社区</h3>
+          <p>4 个版块、3 个讨论起点和 6 条公约。当前不开放注册、发帖或评论。</p>
+          <span class="link-arrow">查看社区<Icon name="arrow-right" size={15} /></span>
+        </a>
+
+        <a class="status-link-card card card--lift" href="/events/">
+          <div class="status-link-card__head">
+            <span class="status-link-card__icon"><Icon name="calendar" size={20} /></span>
+            <span class="badge">筹备中</span>
+          </div>
+          <h3>活动</h3>
+          <p>新手工作坊、工具诊所、48 小时共创与作品开放麦。暂无排期。</p>
+          <span class="link-arrow">查看活动形式<Icon name="arrow-right" size={15} /></span>
+        </a>
+
+        <a class="status-link-card card card--lift" href="/about/#roadmap">
+          <div class="status-link-card__head">
+            <span class="status-link-card__icon"><Icon name="map" size={20} /></span>
+            <span class="badge">M0 进行中</span>
+          </div>
+          <h3>项目状态</h3>
+          <p>基础框架、内容与测试已完成；下一阶段为内容共建与投稿闭环。</p>
+          <span class="link-arrow">查看项目路线<Icon name="arrow-right" size={15} /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

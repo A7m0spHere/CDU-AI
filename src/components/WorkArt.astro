@@ -1,0 +1,142 @@
+---
+interface Props {
+  category: '校园生活' | '学习效率' | '创意表达' | '跨专业实验';
+}
+
+const { category } = Astro.props;
+
+const art: Record<Props['category'], string> = {
+  '校园生活': `
+    <rect width="640" height="400" fill="#ECDCC4"/>
+    <circle cx="556" cy="54" r="138" fill="#D98A54" opacity=".82"/>
+    <circle cx="60" cy="350" r="150" fill="#8FAF98" opacity=".55"/>
+    <path d="M0 316C112 270 196 322 316 292S504 268 640 318V400H0Z" fill="#2A553F"/>
+    <path d="M30 346c92-34 170 12 270-8s188-12 310 16" fill="none" stroke="#F6EEDF" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 12" opacity=".65"/>
+    <g transform="translate(120 70)">
+      <rect x="86" y="24" width="244" height="158" rx="22" fill="#8FAF98" transform="rotate(-13 208 103)"/>
+      <rect x="66" y="42" width="244" height="158" rx="22" fill="#D98A54" transform="rotate(6 188 120)"/>
+      <rect x="92" y="58" width="250" height="166" rx="22" fill="#FFF9ED" stroke="#1D2A22" stroke-width="3"/>
+      <circle cx="137" cy="104" r="19" fill="#2A553F"/>
+      <path d="M130 104h14M137 97v14" stroke="#FFF9ED" stroke-width="2" stroke-linecap="round"/>
+      <rect x="170" y="92" width="86" height="9" rx="4.5" fill="#1D2A22" opacity=".72"/>
+      <rect x="170" y="110" width="58" height="7" rx="3.5" fill="#1D2A22" opacity=".26"/>
+      <rect x="120" y="143" width="188" height="26" rx="13" fill="#F4E9D7"/>
+      <circle cx="135" cy="156" r="6" fill="#D98A54"/>
+      <rect x="149" y="152" width="90" height="7" rx="3.5" fill="#1D2A22" opacity=".3"/>
+      <rect x="120" y="179" width="188" height="26" rx="13" fill="#F4E9D7"/>
+      <circle cx="135" cy="192" r="6" fill="#8FAF98"/>
+      <rect x="149" y="188" width="64" height="7" rx="3.5" fill="#1D2A22" opacity=".3"/>
+      <circle cx="316" cy="202" r="27" fill="#D98A54" stroke="#1D2A22" stroke-width="2.5"/>
+      <path d="M308 195c0-8 14-8 14 0 0 5-6 6-6 11" fill="none" stroke="#1D2A22" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="316" cy="215" r="2.2" fill="#1D2A22"/>
+    </g>
+    <g fill="#FFF9ED" opacity=".8">
+      <path d="M105 62 109 72 119 76 109 80 105 90 101 80 91 76 101 72Z"/>
+      <path d="M520 250 523 258 531 261 523 264 520 272 517 264 509 261 517 258Z"/>
+      <circle cx="84" cy="195" r="4"/>
+    </g>
+  `,
+  '学习效率': `
+    <rect width="640" height="400" fill="#DEE8D9"/>
+    <circle cx="540" cy="70" r="150" fill="#E7A56D" opacity=".9"/>
+    <circle cx="70" cy="360" r="170" fill="#A9C3AC" opacity=".55"/>
+    <path d="M0 310c120-46 214 6 324-22s218-10 316 42v70H0Z" fill="#2A553F" opacity=".14"/>
+    <g transform="translate(118 64)">
+      <rect x="28" y="44" width="250" height="168" rx="18" fill="#A9C3AC" transform="rotate(-9 153 128)"/>
+      <rect x="48" y="58" width="250" height="168" rx="18" fill="#FFF9ED" stroke="#1D2A22" stroke-width="2.5" transform="rotate(4 173 142)"/>
+      <rect x="70" y="50" width="260" height="180" rx="18" fill="#FFF9ED" stroke="#1D2A22" stroke-width="3"/>
+      <rect x="96" y="78" width="122" height="9" rx="4.5" fill="#1D2A22" opacity=".75"/>
+      <path d="M96 112h28M96 139h28M96 166h28" stroke="#1D2A22" stroke-width="2" stroke-linecap="round" opacity=".25"/>
+      <rect x="136" y="104" width="142" height="16" rx="8" fill="#E9EEE3"/>
+      <rect x="136" y="131" width="112" height="16" rx="8" fill="#E9EEE3"/>
+      <rect x="136" y="158" width="156" height="16" rx="8" fill="#E9EEE3"/>
+      <circle cx="100" cy="120" r="9" fill="#2A553F"/><path d="m96 120 3 3 6-6" stroke="#FFF9ED" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+      <circle cx="100" cy="147" r="9" fill="#2A553F"/><path d="m96 147 3 3 6-6" stroke="#FFF9ED" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+      <circle cx="100" cy="174" r="9" fill="#FFF9ED" stroke="#1D2A22" stroke-width="2"/>
+      <circle cx="252" cy="196" r="44" fill="#D98A54"/>
+      <path d="M252 166a30 30 0 0 1 0 60" fill="none" stroke="#1D2A22" stroke-width="2.2" stroke-dasharray="3 6" opacity=".35"/>
+      <path d="M252 174v24l15 9" fill="none" stroke="#1D2A22" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(430 210)">
+      <rect width="132" height="98" rx="16" fill="#2A553F"/>
+      <rect x="18" y="23" width="70" height="8" rx="4" fill="#FFF9ED" opacity=".9"/>
+      <rect x="18" y="41" width="48" height="7" rx="3.5" fill="#FFF9ED" opacity=".45"/>
+      <circle cx="103" cy="68" r="13" fill="#E7A56D"/>
+      <path d="m98 68 3 3 6-6" stroke="#1D2A22" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>
+    <g fill="#2A553F" opacity=".55">
+      <path d="M76 94 80 104 90 108 80 112 76 122 72 112 62 108 72 104Z"/>
+      <circle cx="586" cy="296" r="5"/>
+    </g>
+  `,
+  '创意表达': `
+    <rect width="640" height="400" fill="#E8DFF0"/>
+    <path d="M0 280c78-42 148-28 220-6s150 42 230 4 132-38 190-6v128H0Z" fill="#C8B5DE" opacity=".55"/>
+    <circle cx="72" cy="70" r="122" fill="#A9C3AC" opacity=".7"/>
+    <circle cx="574" cy="324" r="144" fill="#D98A54" opacity=".65"/>
+    <g transform="translate(156 66) rotate(-5 164 134)">
+      <rect x="0" y="0" width="328" height="252" rx="18" fill="#FFF9ED" stroke="#1D2A22" stroke-width="3"/>
+      <rect x="24" y="24" width="280" height="162" rx="10" fill="#F0E3CE"/>
+      <path d="M92 132c0-34 27-61 61-61s61 27 61 61" fill="none" stroke="#2A553F" stroke-width="14" stroke-linecap="round"/>
+      <circle cx="188" cy="132" r="35" fill="#D98A54"/>
+      <path d="M24 170c42-42 82-42 118 0s80 42 122 0 74-42 104 0v16H24Z" fill="#8FAF98"/>
+      <path d="M24 186v0" stroke="#1D2A22"/>
+      <rect x="24" y="208" width="92" height="10" rx="5" fill="#1D2A22" opacity=".75"/>
+      <rect x="24" y="228" width="56" height="7" rx="3.5" fill="#1D2A22" opacity=".3"/>
+      <circle cx="277" cy="219" r="13" fill="#E8DFF0" stroke="#1D2A22" stroke-width="2"/>
+      <path d="M270 219h14M277 212v14" stroke="#1D2A22" stroke-width="1.7" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(422 64)">
+      <rect x="24" y="118" width="112" height="26" rx="13" fill="#D98A54" transform="rotate(-11 80 131)"/>
+      <rect x="44" y="154" width="112" height="26" rx="13" fill="#2A553F" transform="rotate(7 100 167)"/>
+      <circle cx="96" cy="72" r="34" fill="#D98A54" opacity=".85"/>
+    </g>
+    <g fill="#2A553F" opacity=".6">
+      <path d="M592 98 596 108 606 112 596 116 592 126 588 116 578 112 588 108Z"/>
+      <path d="M76 302 79 309 86 312 79 315 76 322 73 315 66 312 73 309Z"/>
+    </g>
+  `,
+  '跨专业实验': `
+    <rect width="640" height="400" fill="#DDE7F0"/>
+    <circle cx="570" cy="70" r="158" fill="#9EB8D4" opacity=".65"/>
+    <circle cx="42" cy="334" r="172" fill="#D98A54" opacity=".24"/>
+    <g stroke="#2A553F" stroke-width="1" opacity=".16">
+      <path d="M0 100h640M0 180h640M0 260h640M0 340h640"/>
+      <path d="M100 0v400M220 0v400M340 0v400M460 0v400M580 0v400"/>
+    </g>
+    <g transform="translate(86 74)">
+      <rect x="0" y="0" width="280" height="238" rx="18" fill="#FFF9ED" stroke="#1D2A22" stroke-width="3"/>
+      <path d="M40 172h200M40 172V56" fill="none" stroke="#1D2A22" stroke-width="2" opacity=".3" stroke-linecap="round"/>
+      <rect x="62" y="130" width="28" height="42" rx="6" fill="#8FAF98"/>
+      <rect x="104" y="106" width="28" height="66" rx="6" fill="#D98A54"/>
+      <rect x="146" y="84" width="28" height="88" rx="6" fill="#2A553F"/>
+      <rect x="188" y="118" width="28" height="54" rx="6" fill="#9EB8D4"/>
+      <path d="M62 88c46-20 84-10 120-31s58-8 74-18" fill="none" stroke="#D98A54" stroke-width="2.5" stroke-dasharray="4 6" stroke-linecap="round"/>
+      <circle cx="62" cy="88" r="5" fill="#D98A54"/><circle cx="182" cy="57" r="5" fill="#D98A54"/><circle cx="256" cy="39" r="5" fill="#D98A54"/>
+      <rect x="48" y="196" width="80" height="8" rx="4" fill="#1D2A22" opacity=".7"/>
+      <rect x="48" y="212" width="124" height="7" rx="3.5" fill="#1D2A22" opacity=".25"/>
+    </g>
+    <g transform="translate(394 102)">
+      <path d="M0 34A34 34 0 0 1 34 0h104a34 34 0 0 1 34 34v68a34 34 0 0 1-34 34H58L18 162v-26H34A34 34 0 0 1 0 102Z" fill="#2A553F"/>
+      <rect x="28" y="28" width="96" height="9" rx="4.5" fill="#FFF9ED" opacity=".9"/>
+      <rect x="28" y="48" width="118" height="8" rx="4" fill="#FFF9ED" opacity=".45"/>
+      <rect x="28" y="66" width="80" height="8" rx="4" fill="#FFF9ED" opacity=".45"/>
+      <circle cx="142" cy="120" r="22" fill="#D98A54" stroke="#FFF9ED" stroke-width="3"/>
+      <path d="M142 108v12l8 5" fill="none" stroke="#FFF9ED" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <g fill="#FFF9ED">
+      <circle cx="424" cy="58" r="5"/><circle cx="452" cy="58" r="5"/><circle cx="480" cy="58" r="5"/>
+    </g>
+    <path d="M526 64 530 74 540 78 530 82 526 92 522 82 512 78 522 74Z" fill="#2A553F" opacity=".55"/>
+  `,
+};
+---
+
+<svg
+  class="work-art"
+  viewBox="0 0 640 400"
+  preserveAspectRatio="xMidYMid slice"
+  role="img"
+  aria-label={`${category}·概念视觉`}
+  set:html={art[category]}
+/>

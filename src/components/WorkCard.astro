@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import WorkArt from './WorkArt.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  work: CollectionEntry<'works'>;
+}
+
+const { work } = Astro.props;
+const { title, summary, category, format, level, tags, status } = work.data;
+const isExample = status === 'example';
+---
+
+<a class="work-card card card--lift" href={`/works/${work.id}/`}>
+  <div class="work-card__art">
+    <WorkArt category={category} />
+    <span class="badge badge--example work-card__status">
+      {isExample ? '策划示例' : '社区作品'}
+    </span>
+    <span class="work-card__category">{category}</span>
+  </div>
+  <div class="work-card__body">
+    <div class="work-card__meta">
+      <span>{format}</span>
+      <span class="meta-divider" aria-hidden="true"></span>
+      <span>{level}</span>
+    </div>
+    <h3>{title}</h3>
+    <p class="work-card__summary">{summary}</p>
+    <div class="work-card__foot">
+      <ul class="tag-list" aria-label="标签">
+        {tags.slice(0, 3).map((tag) => <li class="tag">{tag}</li>)}
+      </ul>
+      <span class="work-card__link">
+        看拆解
+        <Icon name="arrow-up-right" size={15} />
+      </span>
+    </div>
+  </div>
+</a>

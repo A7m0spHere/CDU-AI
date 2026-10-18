@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<BaseLayout
+  title="页面未找到"
+  description="你访问的页面不存在，或还没有长出来。"
+  noIndex
+>
+  <section class="error-page">
+    <div class="container">
+      <div class="error-page__panel">
+        <div class="error-page__art" aria-hidden="true">
+          <span class="error-page__code">404</span>
+          <span class="error-page__seed"><Icon name="sprout" size={28} /></span>
+        </div>
+        <p class="eyebrow">页面未找到</p>
+        <h1>这个页面还没长出来。</h1>
+        <p class="error-page__lede">
+          可能是链接写错了，也可能是这个栏目还在 M0 的施工清单里。
+          先回到已有的内容，或者从学习指南重新出发。
+        </p>
+        <div class="error-page__links">
+          <a class="btn btn--primary" href="/">回到首页<Icon name="arrow-right" size={16} /></a>
+          <a class="btn btn--soft" href="/guide/">去学习指南</a>
+          <a class="btn btn--ghost" href="/tools/">逛工具资源</a>
+        </div>
+        <div class="error-page__sitemap">
+          <span>也可以直接去：</span>
+          <a href="/works/">作品广场</a>
+          <a href="/community/">社区</a>
+          <a href="/events/">活动</a>
+          <a href="/about/">关于</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import Icon from './Icon.astro';
+---
+
+<dialog class="search-dialog" data-search-dialog aria-labelledby="search-dialog-title">
+  <div class="search-dialog__inner">
+    <h2 class="sr-only" id="search-dialog-title">站内搜索</h2>
+    <div class="search-dialog__head">
+      <Icon name="search" size={18} />
+      <label class="sr-only" for="global-search">搜索学习指南、工具、作品或页面</label>
+      <input
+        id="global-search"
+        type="search"
+        placeholder="搜索学习指南、工具、作品或页面…"
+        autocomplete="off"
+        spellcheck="false"
+        data-search-input
+        aria-controls="search-results"
+      />
+      <button class="search-dialog__close" type="button" data-search-close>
+        <Icon name="close" size={16} />
+        <span class="sr-only">关闭搜索</span>
+        <kbd>Esc</kbd>
+      </button>
+    </div>
+    <div class="search-dialog__status" data-search-status aria-live="polite">输入关键词开始搜索</div>
+    <div class="search-dialog__results" id="search-results" data-search-results></div>
+    <div class="search-dialog__foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 移动 · <kbd>Enter</kbd> 打开 · <kbd>Esc</kbd> 关闭</span>
+      <span>搜索范围：指南 · 工具 · 作品 · 页面</span>
+    </div>
+  </div>
+</dialog>

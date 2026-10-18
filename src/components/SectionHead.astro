@@ -1,0 +1,39 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  titleLines?: string[];
+  description?: string;
+  link?: string;
+  linkLabel?: string;
+  centered?: boolean;
+  id?: string;
+}
+
+const { eyebrow, title, titleLines, description, link, linkLabel = '查看全部', centered = false, id } = Astro.props;
+---
+
+<div class:list={['section-head', { 'section-head--center': centered }]} id={id}>
+  <div class="section-head__copy">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h2>
+      {titleLines && titleLines.length > 0
+        ? titleLines.map((line, index) => (
+            <Fragment>
+              {line}
+              {index < titleLines.length - 1 && <br class="title-br" />}
+            </Fragment>
+          ))
+        : title}
+    </h2>
+    {description && <p class="section-head__desc">{description}</p>}
+  </div>
+  {link && (
+    <a class="link-arrow section-head__link" href={link}>
+      {linkLabel}
+      <Icon name="arrow-right" size={16} />
+    </a>
+  )}
+</div>

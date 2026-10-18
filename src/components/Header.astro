@@ -1,0 +1,88 @@
+---
+import { site, navItems } from '../data/site';
+import Icon from './Icon.astro';
+import LogoMark from './LogoMark.astro';
+
+const rawPath = Astro.url.pathname;
+const currentPath = rawPath.endsWith('/') ? rawPath : rawPath + '/';
+
+function isActive(href: string) {
+  return currentPath === href || currentPath.startsWith(href);
+}
+---
+
+<header class="site-header" data-site-header data-scrolled="false">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <LogoMark />
+      <span class="brand-text">
+        <strong>{site.name}</strong>
+        <small>{site.englishName}</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="主导航">
+      {navItems.map((item) => (
+        <a
+          class="nav-link"
+          href={item.href}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <button class="search-trigger" type="button" data-search-open>
+        <Icon name="search" size={16} />
+        <span class="search-trigger__label">搜索指南、工具或作品</span>
+        <span class="sr-only">打开站内搜索</span>
+        <kbd class="search-trigger__kbd" aria-hidden="true">Ctrl K</kbd>
+      </button>
+
+      <button
+        class="icon-button theme-toggle"
+        type="button"
+        data-theme-toggle
+        aria-label="切换深浅色主题"
+        title="切换深浅色主题"
+      >
+        <span class="theme-icon theme-icon--moon"><Icon name="moon" size={18} /></span>
+        <span class="theme-icon theme-icon--sun"><Icon name="sun" size={18} /></span>
+      </button>
+
+
+      <details class="mobile-menu" data-mobile-menu>
+        <summary class="icon-button" aria-label="打开导航菜单">
+          <Icon name="menu" size={20} />
+        </summary>
+        <div class="mobile-menu__panel">
+          <nav aria-label="移动端导航">
+            <div class="mobile-nav-list">
+              {navItems.map((item) => (
+                <a
+                  class="mobile-nav-link"
+                  href={item.href}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                >
+                  <span>
+                    <span class="mobile-nav-link__label">{item.label}</span>
+                    <span class="mobile-nav-link__desc">{item.description}</span>
+                  </span>
+                  <Icon name="chevron-right" size={16} />
+                </a>
+              ))}
+            </div>
+          </nav>
+          <div class="mobile-menu__cta">
+            <a class="btn btn--primary" href="/guide/">
+              从零开始学习
+              <Icon name="arrow-right" size={16} />
+            </a>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>

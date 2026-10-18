@@ -1,0 +1,29 @@
+---
+import type { RoadmapPhase } from '../data/types';
+
+interface Props {
+  phases: RoadmapPhase[];
+}
+
+const { phases } = Astro.props;
+---
+
+<ol class="roadmap">
+  {phases.map((phase) => (
+    <li class:list={['roadmap__item', { 'roadmap__item--current': phase.status === '当前阶段' }]}>
+      <div class="roadmap__marker" aria-hidden="true">
+        <span>{phase.phase}</span>
+      </div>
+      <div class="roadmap__body">
+        <div class="roadmap__head">
+          <h3>{phase.title}</h3>
+          <span class:list={['badge', phase.status === '当前阶段' ? 'badge--brand' : '']}>{phase.status}</span>
+        </div>
+        <p>{phase.description}</p>
+        <ul class="roadmap__list">
+          {phase.items.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </li>
+  ))}
+</ol>

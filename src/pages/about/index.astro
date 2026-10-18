@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import Roadmap from '../../components/Roadmap.astro';
+import { site, transparencyItems } from '../../data/site';
+import { contributionPaths } from '../../data/home';
+import { roadmap } from '../../data/events';
+
+const whatItIs = [
+  '面向成都大学所有专业同学的开放 AI 学习与交流入口',
+  '由成都大学计算机协会 AI 方向发起的学生共建项目',
+  '以真实需求、工具使用、创意实践与社区交流为核心',
+  '内容与代码尽量开放维护，不以付费墙或焦虑营销驱动',
+];
+
+const whatItIsNot = [
+  '不是成都大学官方平台，也不代表学校或任何学院的立场',
+  '不是 AI 课程售卖页、工具推广页或流量生意',
+  '不是已经拥有大量用户和内容的成熟社区',
+  '不是替代专业意见的医疗、法律或财务顾问',
+];
+
+const standards = [
+  {
+    icon: 'alert-triangle' as const,
+    title: '不编事实',
+    text: '没有确认的活动、授权、合作与数据不写。示例必须标注为示例。',
+  },
+  {
+    icon: 'book-open' as const,
+    title: '信息优先于推广',
+    text: '写清场景、门槛与限制，不写「最强」「必备」。收录不等于推荐。',
+  },
+  {
+    icon: 'heart' as const,
+    title: '不制造焦虑',
+    text: '不用「再不学就被淘汰」换点击，也不降低准确性。',
+  },
+];
+
+const maintainSteps = [
+  {
+    title: '内容用 Markdown',
+    text: '指南和作品示例是独立文件，新增内容不需要改页面。',
+  },
+  {
+    title: '信息用数据文件',
+    text: '工具、社区与活动由独立数据模块维护。',
+  },
+  {
+    title: '构建时检查',
+    text: 'frontmatter 由 schema 校验，构建后检查站内链接。',
+  },
+];
+
+const processSteps = [
+  { number: '01', title: '选一个小任务', text: '写一篇指南、复核一个工具链接、补一个示例的边界说明，或者改进一处可访问性。' },
+  { number: '02', title: '按规范提交', text: '内容注明场景、依据和不确定处；代码保持小步修改，提交前在本地跑一次验证。' },
+  { number: '03', title: '由维护者审核', text: '事实、授权、语气与链接都需要人工确认。M0 阶段通过协会内部渠道组织，不开放匿名投稿。' },
+];
+---
+
+<BaseLayout
+  title="关于与共建"
+  description="项目定位、内容标准、共建方式与透明说明。由成都大学计算机协会 AI 方向发起，非学校官方平台。"
+>
+  <PageHero
+    eyebrow="项目说明"
+    title="关于与共建"
+    description="由成都大学计算机协会 AI 方向发起的学生开放学习项目，非学校官方平台。"
+    crumbs={[{ label: '关于与共建' }]}
+    tone="sage"
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href="#contribute">看如何参与<Icon name="arrow-right" size={16} /></a>
+      <a class="btn btn--soft" href="#transparency">透明说明</a>
+    </Fragment>
+
+    <Fragment slot="aside">
+      <div class="aside-card">
+        <div class="aside-card__head"><Icon name="users" size={17} />发起与阶段</div>
+        <dl class="meta-rows">
+          <div><dt>发起</dt><dd>{site.organizer}</dd></div>
+          <div><dt>阶段</dt><dd>{site.stage}</dd></div>
+          <div><dt>性质</dt><dd>学生发起的开放学习项目</dd></div>
+          <div><dt>授权</dt><dd>非学校官方平台</dd></div>
+        </dl>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--flush-top" id="what">
+    <div class="container">
+      <div class="about-split">
+        <div class="about-list-card card">
+          <div class="about-list-card__head">
+            <span class="about-list-card__icon"><Icon name="check" size={19} /></span>
+            <h2>它是</h2>
+          </div>
+          <ul class="check-list">
+            {whatItIs.map((item) => <li><Icon name="check" size={15} /><span>{item}</span></li>)}
+          </ul>
+        </div>
+        <div class="about-list-card about-list-card--muted card">
+          <div class="about-list-card__head">
+            <span class="about-list-card__icon"><Icon name="close" size={19} /></span>
+            <h2>它不是</h2>
+          </div>
+          <ul class="check-list check-list--cross">
+            {whatItIsNot.map((item) => <li><Icon name="close" size={14} /><span>{item}</span></li>)}
+          </ul>
+        </div>
+      </div>
+
+      <div class="about-maintenance" id="how">
+        <div class="about-maintenance__copy">
+          <p class="eyebrow">怎么维护</p>
+          <h2>内容、数据和页面分离</h2>
+          <p>Astro 生成静态页面；内容用 Markdown，工具与活动用类型化数据文件。更新内容不需要服务器。</p>
+        </div>
+        <div class="maintenance-grid">
+          {maintainSteps.map((step, index) => (
+            <article>
+              <span class="mono">0{index + 1}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="standards-block" id="standards">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <p class="eyebrow">内容标准</p>
+            <h2>内容标准</h2>
+            <p class="section-head__desc">适用于全站内容与未来投稿。</p>
+          </div>
+          <a class="link-arrow section-head__link" href="/community/#principles">同时阅读社区公约<Icon name="arrow-right" size={15} /></a>
+        </div>
+        <div class="standards-grid">
+          {standards.map((standard) => (
+            <article class="standard-card card">
+              <span class="standard-card__icon"><Icon name={standard.icon} size={20} /></span>
+              <h3>{standard.title}</h3>
+              <p>{standard.text}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="contribute-block" id="contribute">
+        <div class="contribute-block__copy">
+          <p class="eyebrow">参与共建</p>
+          <h2>参与共建</h2>
+          <p>写指南、复核工具、做设计或组织活动都可以参与。M0 暂不开放匿名投稿，请通过协会内部渠道联系维护组。</p>
+        </div>
+        <div class="contribution-grid">
+          {contributionPaths.map((path) => (
+            <article class="contribution-card card">
+              <span class="badge">{path.tag}</span>
+              <h3>{path.title}</h3>
+              <p>{path.text}</p>
+            </article>
+          ))}
+        </div>
+
+        <div class="process">
+          <h3>贡献流程</h3>
+          <ol class="process-steps">
+            {processSteps.map((step) => (
+              <li>
+                <span class="process-steps__number">{step.number}</span>
+                <div><strong>{step.title}</strong><p>{step.text}</p></div>
+              </li>
+            ))}
+          </ol>
+          <div class="notice">
+            <Icon name="info" size={17} />
+            <p>投稿邮箱、群号与表单均未确认。请不要向任何自称本站官方的账号发送个人信息。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="roadmap-block about-roadmap" id="roadmap">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <p class="eyebrow">路线图</p>
+            <h2>项目路线</h2>
+            <p class="section-head__desc">阶段状态为项目规划，不承诺具体日期。</p>
+          </div>
+        </div>
+        <Roadmap phases={roadmap} />
+      </div>
+
+      <div class="transparency-block" id="transparency">
+        <div class="transparency-block__intro">
+          <p class="eyebrow">透明说明</p>
+          <h2>透明说明</h2>
+          <p>以下内容适用于全站，变化时会在本页更新。</p>
+        </div>
+        <div class="transparency-grid">
+          {transparencyItems.map((item, index) => (
+            <article class="transparency-item">
+              <span class="mono">0{index + 1}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+        <p class="transparency-block__foot">
+          <Icon name="shield-check" size={16} />
+          当前站点没有接入登录、评论、投稿表单或第三方统计。未来引入时会先更新本页说明，并明确数据用途与退出方式。
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

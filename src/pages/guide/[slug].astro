@@ -1,0 +1,132 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import GuideSidebar from '../../components/GuideSidebar.astro';
+import GuideMobileNav from '../../components/GuideMobileNav.astro';
+import { guideStages } from '../../data/site';
+import { tools } from '../../data/tools';
+
+export const getStaticPaths = (async () => {
+  const modules = await getCollection('guide');
+  return modules.map((entry) => ({
+    params: { slug: entry.id.replace(/\.md$/, '') },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
+const slug = entry.id.replace(/\.md$/, '');
+const index = modules.findIndex((module) => module.id === entry.id);
+const previous = index > 0 ? modules[index - 1] : undefined;
+const next = index >= 0 && index < modules.length - 1 ? modules[index + 1] : undefined;
+const stage = guideStages.find((item) => item.id === entry.data.stage);
+const stageModules = modules.filter((module) => module.data.stage === entry.data.stage);
+const stagePosition = stageModules.findIndex((module) => module.id === entry.id) + 1;
+
+const { Content, headings } = await render(entry);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const relatedTools = entry.data.tools
+  .map((name) => tools.find((tool) => tool.name === name))
+  .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.summary}>
+  <div class="wiki-shell">
+    <div class="container wiki-layout wiki-layout--article">
+      <GuideSidebar currentId={slug} />
+
+      <div class="wiki-main wiki-article">
+        <GuideMobileNav currentId={slug} />
+
+        <nav class="breadcrumb" aria-label="面包屑">
+          <a href="/">首页</a>
+          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <a href="/guide/">学习指南</a>
+          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <span aria-current="page">{entry.data.title}</span>
+        </nav>
+
+        <header class="wiki-heading wiki-heading--article">
+          <p class="eyebrow">
+            {stage?.index ?? '学习指南'} · {stage?.label ?? '零基础'} · 第 {stagePosition} / {stageModules.length} 篇
+          </p>
+          <h1>{entry.data.title}</h1>
+          <p class="wiki-lede">{entry.data.summary}</p>
+          <div class="wiki-meta">
+            <span><Icon name="clock" size={14} />{entry.data.duration}</span>
+            <span><Icon name="target" size={14} />{entry.data.level}</span>
+          </div>
+        </header>
+
+        <div class="prose wiki-prose">
+          <Content />
+        </div>
+
+        <div class="wiki-takeaway">
+          <Icon name="check" size={18} />
+          <p><strong>读完之后：</strong>{entry.data.outcome}</p>
+        </div>
+
+        {relatedTools.length > 0 && (
+          <div class="wiki-tool-links">
+            <span>本模块提到的工具：</span>
+            {relatedTools.map((tool) => (
+              <a href={tool.url} target="_blank" rel="noopener noreferrer">
+                {tool.name}
+                <Icon name="arrow-up-right" size={14} />
+              </a>
+            ))}
+            <a class="text-link" href="/tools/">工具资源</a>
+          </div>
+        )}
+
+        <nav class="wiki-pager" aria-label="模块翻页">
+          {previous ? (
+            <a class="wiki-pager__link" href={`/guide/${previous.id.replace(/\.md$/, '')}/`}>
+              <span>上一篇</span>
+              <strong>{previous.data.title}</strong>
+            </a>
+          ) : (
+            <a class="wiki-pager__link" href="/guide/">
+              <span>返回</span>
+              <strong>学习指南首页</strong>
+            </a>
+          )}
+          {next ? (
+            <a class="wiki-pager__link wiki-pager__link--next" href={`/guide/${next.id.replace(/\.md$/, '')}/`}>
+              <span>下一篇</span>
+              <strong>{next.data.title}</strong>
+            </a>
+          ) : (
+            <a class="wiki-pager__link wiki-pager__link--next" href="/works/">
+              <span>继续</span>
+              <strong>作品广场</strong>
+            </a>
+          )}
+        </nav>
+      </div>
+
+      <aside class="wiki-toc" aria-label="本页内容">
+        <p class="wiki-toc__label">本页内容</p>
+        {toc.length > 0 && (
+          <nav>
+            <ol>
+              {toc.map((heading) => (
+                <li class:list={`wiki-toc__depth-${heading.depth}`}>
+                  <a href={`#${heading.slug}`}>{heading.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+        <div class="wiki-toc__meta">
+          <p><strong>{entry.data.duration}</strong><span>{entry.data.level}</span></p>
+          <p>{entry.data.forWho}</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

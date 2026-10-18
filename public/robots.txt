@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# 部署后补充真实域名和 sitemap 地址。

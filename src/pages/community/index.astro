@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import {
+  communityChannels,
+  starterTopics,
+  communityPrinciples,
+  joiningSteps,
+} from '../../data/community';
+---
+
+<BaseLayout
+  title="社区"
+  description="4 个版块、3 个讨论起点与 6 条社区公约。交流区暂未开放。"
+>
+  <PageHero
+    eyebrow="社区 · 版块与规则"
+    title="社区"
+    description="交流区尚未开放。以下为版块、讨论起点与公约设计，M1 起小范围试运行。"
+    crumbs={[{ label: '社区' }]}
+    tone="sky"
+  >
+    <Fragment slot="aside">
+      <div class="aside-card aside-card--brand">
+        <div class="aside-card__head"><Icon name="alert-triangle" size={17} />当前状态</div>
+        <h2>交流区尚未开放</h2>
+        <p>当前没有注册、发帖或评论入口，也不会收集账号信息。以下版块与话题均为设计稿。</p>
+        <div class="status-row">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>筹备中 · M1 小范围试运行</span>
+        </div>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--flush-top">
+    <div class="container">
+      <div class="notice notice--warm">
+        <Icon name="info" size={17} />
+        <p><strong>当前为设计稿：</strong>不含真实帖子、用户、点赞或回复。</p>
+      </div>
+
+      <div class="section-head community-section-head">
+        <div class="section-head__copy">
+          <p class="eyebrow">四个版块</p>
+          <h2>版块</h2>
+          <p class="section-head__desc">不同问题放到不同版块。当前仅为设计。</p>
+        </div>
+      </div>
+
+      <div class="channel-grid">
+        {communityChannels.map((channel, index) => (
+          <article class="channel-card card">
+            <div class="channel-card__top">
+              <span class="channel-card__icon"><Icon name={channel.icon} size={21} /></span>
+              <span class="mono">0{index + 1}</span>
+            </div>
+            <h3>{channel.title}</h3>
+            <p class="channel-card__subtitle">{channel.subtitle}</p>
+            <p class="channel-card__desc">{channel.description}</p>
+            <div class="channel-card__best">
+              <span>适合</span>
+              {channel.goodFor}
+            </div>
+            <div class="channel-card__foot">
+              <span class="badge">{channel.status}</span>
+              <span class="mono">尚未开放</span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="community-topics">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <p class="eyebrow">讨论起点</p>
+            <h2>讨论起点</h2>
+            <p class="section-head__desc">发起人拟定的开场问题，不是真实帖子。</p>
+          </div>
+          <span class="pill">发起人拟定 · 非真实帖子</span>
+        </div>
+
+        <div class="topic-grid">
+          {starterTopics.map((topic) => (
+            <article class="topic-card card">
+              <div class="topic-card__head">
+                <span class="badge badge--brand">讨论起点</span>
+                <span class="mono">{topic.status}</span>
+              </div>
+              <p class="topic-card__question">“{topic.question}”</p>
+              <p class="topic-card__context">{topic.context}</p>
+              <ul class="tag-list">{topic.tags.map((tag) => <li class="tag">{tag}</li>)}</ul>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="principles-block" id="principles">
+        <div class="principles-block__intro">
+          <p class="eyebrow">社区公约</p>
+          <h2>社区公约</h2>
+          <p>试运行期间继续修订。</p>
+          <div class="principles-block__note">
+            <Icon name="shield-check" size={17} />
+            <span>违规处理与申诉机制正在设计中，开放前会一并公布。</span>
+          </div>
+        </div>
+        <ol class="principle-list">
+          {communityPrinciples.map((principle, index) => (
+            <li>
+              <span class="principle-list__number">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h3>{principle.title}</h3>
+                <p>{principle.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="join-block" id="join">
+        <div class="join-block__copy">
+          <p class="eyebrow">如何参与</p>
+          <h2>参与路径</h2>
+          <p>M0 先读指南、试用工具；M1 从协会内部与邀请用户开始试运行。</p>
+          <a class="btn btn--primary" href="/about/#contribute">看看共建方式<Icon name="arrow-right" size={16} /></a>
+        </div>
+        <ol class="join-steps">
+          {joiningSteps.map((step) => (
+            <li>
+              <span class="join-steps__step">{step.step}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="notice">
+        <Icon name="info" size={17} />
+        <p>遇到医疗、法律、财务等高风险问题，请咨询有资质的专业人士；AI 和社区回答不能替代专业意见。</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

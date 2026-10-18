@@ -1,0 +1,127 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import GuideSidebar from '../../components/GuideSidebar.astro';
+import GuideMobileNav from '../../components/GuideMobileNav.astro';
+import { guideStages } from '../../data/site';
+
+const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
+const slugOf = (id: string) => id.replace(/\.md$/, '');
+const groupedStages = guideStages.map((stage) => ({
+  ...stage,
+  modules: modules.filter((module) => module.data.stage === stage.id).sort((a, b) => a.data.order - b.data.order),
+}));
+const firstModule = modules[0];
+---
+
+<BaseLayout
+  title="学习指南"
+  description="面向所有专业、零基础可读的 AI 学习路线。3 个阶段，8 个模块，每篇 15–20 分钟。"
+>
+  <div class="wiki-shell">
+    <div class="container wiki-layout">
+      <GuideSidebar />
+
+      <div class="wiki-main">
+        <GuideMobileNav />
+
+        <nav class="breadcrumb" aria-label="面包屑">
+          <a href="/">首页</a>
+          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <span aria-current="page">学习指南</span>
+        </nav>
+
+        <header class="wiki-heading">
+          <p class="eyebrow">学习指南</p>
+          <h1>零基础学习指南</h1>
+          <p class="wiki-lede">
+            面向所有专业、零基础同学的 AI 学习路线，共 3 个阶段、8 个模块。每篇 15–20 分钟，可以按顺序读，也可以直接跳到需要的一篇。
+          </p>
+        </header>
+
+        <div class="wiki-note">
+          <Icon name="shield-check" size={17} />
+          <p>开始前：AI 会出错，结论自己核对；不上传个人隐私；作业与论文按课程规则声明 AI 使用。</p>
+        </div>
+
+        <section class="wiki-section" aria-labelledby="start-title">
+          <h2 id="start-title">从哪里开始</h2>
+          <div class="wiki-table-wrap">
+            <table class="wiki-table">
+              <thead>
+                <tr><th scope="col">如果你想……</th><th scope="col">可以看</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>第一次接触 AI</td>
+                  <td><a href="#stage-start">先建立判断 · 3 篇<Icon name="arrow-right" size={14} /></a></td>
+                </tr>
+                <tr>
+                  <td>想动手做一个实际的小东西</td>
+                  <td><a href="#stage-make">动手做出东西 · 3 篇<Icon name="arrow-right" size={14} /></a></td>
+                </tr>
+                <tr>
+                  <td>想整理作品与经验</td>
+                  <td><a href="#stage-share">整理与分享 · 2 篇<Icon name="arrow-right" size={14} /></a></td>
+                </tr>
+                <tr>
+                  <td>想先找一个能用的工具</td>
+                  <td><a href="/tools/">AI 工具资源<Icon name="arrow-right" size={14} /></a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="wiki-section wiki-outline" aria-labelledby="outline-title">
+          <h2 id="outline-title">学习路线</h2>
+
+          {groupedStages.map((stage) => (
+            <section class="wiki-stage" id={`stage-${stage.id}`} aria-labelledby={`stage-${stage.id}-title`}>
+              <header class="wiki-stage__head">
+                <div class="wiki-stage__index mono">{stage.index}</div>
+                <div>
+                  <p class="eyebrow">{stage.label}</p>
+                  <h2 id={`stage-${stage.id}-title`}>{stage.title}</h2>
+                  <p>{stage.description}</p>
+                </div>
+                <span class="wiki-stage__count">{stage.modules.length} 篇</span>
+              </header>
+
+              <ol class="wiki-module-list">
+                {stage.modules.map((module) => (
+                  <li>
+                    <a href={`/guide/${slugOf(module.id)}/`}>
+                      <span class="mono">{String(module.data.order).padStart(2, '0')}</span>
+                      <span class="wiki-module-list__title">{module.data.title}</span>
+                      <span class="wiki-module-list__meta">{module.data.duration}</span>
+                      <Icon name="arrow-right" size={15} />
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </section>
+
+        <div class="wiki-next">
+          <div>
+            <p class="eyebrow">下一步</p>
+            <h2>从第一篇开始</h2>
+            <p>先建立判断，再决定要不要把任务交给 AI。</p>
+          </div>
+          <div class="btn-row">
+            {firstModule && (
+              <a class="btn btn--primary" href={`/guide/${slugOf(firstModule.id)}/`}>
+                阅读第一篇
+                <Icon name="arrow-right" size={16} />
+              </a>
+            )}
+            <a class="btn btn--soft" href="/tools/">浏览工具</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

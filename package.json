@@ -1,0 +1,28 @@
+{
+  "name": "cdu-ai-commons",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "成大 AI 共学 —— 面向成都大学全校同学的开放 AI 学习与交流社区（M0 基础框架）",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:links": "node scripts/check-links.mjs",
+    "test": "node --test tests/site.test.mjs",
+    "verify": "npm run check && npm run build && npm run test && npm run check:links",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "5.9.3"
+  }
+}

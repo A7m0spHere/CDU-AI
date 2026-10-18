@@ -1,0 +1,78 @@
+---
+import type { Tool } from '../data/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  tool: Tool;
+  categoryLabel: string;
+}
+
+const { tool, categoryLabel } = Astro.props;
+
+const toneByCategory: Record<string, string> = {
+  dialog: 'sage',
+  search: 'sky',
+  write: 'sand',
+  visual: 'rose',
+  build: 'violet',
+  study: 'sage',
+};
+
+const tone = toneByCategory[tool.category] ?? 'sage';
+const initial = tool.name.trim().slice(0, 1).toUpperCase();
+const searchText = [tool.name, tool.summary, tool.description, tool.bestFor, categoryLabel, ...tool.tags]
+  .join(' ')
+  .toLowerCase();
+---
+
+<article
+  class="tool-card card"
+  data-filter-card
+  data-category={tool.category}
+  data-search={searchText}
+>
+  <div class="tool-card__top">
+    <span class={`tool-mark tool-mark--${tone}`} aria-hidden="true">{initial}</span>
+    <div class="tool-card__identity">
+      <h3>
+        <a href={tool.url} target="_blank" rel="noopener noreferrer">
+          {tool.name}
+          <Icon name="external-link" size={15} />
+        </a>
+      </h3>
+      <p>{categoryLabel}</p>
+    </div>
+    {tool.featured && <span class="badge badge--brand">新手先试</span>}
+  </div>
+
+  <p class="tool-card__summary">{tool.summary}</p>
+  <p class="tool-card__description">{tool.description}</p>
+
+  <div class="tool-card__best">
+    <span>适合</span>
+    {tool.bestFor}
+  </div>
+
+  <div class="tool-card__meta">
+    <span class="badge">{tool.pricing}</span>
+    <span class="badge">{tool.difficulty}</span>
+    <ul class="tag-list" aria-label="标签">
+      {tool.tags.slice(0, 3).map((tag) => <li class="tag">{tag}</li>)}
+    </ul>
+  </div>
+
+  {tool.caution && (
+    <p class="tool-card__caution">
+      <Icon name="alert-triangle" size={14} />
+      {tool.caution}
+    </p>
+  )}
+
+  <div class="tool-card__foot">
+    <a class="link-arrow" href={tool.url} target="_blank" rel="noopener noreferrer">
+      打开官网
+      <Icon name="arrow-up-right" size={15} />
+    </a>
+    <span class="mono">{tool.pricing}</span>
+  </div>
+</article>

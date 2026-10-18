@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import { guideStages } from '../data/site';
+import Icon from './Icon.astro';
+
+interface Props {
+  currentId?: string;
+}
+
+const { currentId } = Astro.props;
+const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
+const slugOf = (id: string) => id.replace(/\.md$/, '');
+const currentModule = currentId ? modules.find((module) => slugOf(module.id) === currentId) : undefined;
+const activeStage = currentModule?.data.stage;
+const groupedStages = guideStages.map((stage) => ({
+  ...stage,
+  modules: modules.filter((module) => module.data.stage === stage.id),
+}));
+---
+
+<nav class="guide-nav" aria-label="学习指南目录">
+  <a class:list={['guide-nav__home', { 'is-active': !currentId }]} href="/guide/">
+    指南首页
+  </a>
+
+  {groupedStages.map((stage) => {
+    const isActiveStage = Boolean(activeStage && stage.id === activeStage);
+    const shouldOpen = !currentId || !activeStage || isActiveStage;
+    return (
+      <details
+        class:list={['guide-nav__group', `guide-nav__group--${stage.id}`, { 'is-active-stage': isActiveStage }]}
+        open={shouldOpen}
+      >
+        <summary class="guide-nav__summary">
+          <span class="guide-nav__index mono">{stage.index}</span>
+          <span class="guide-nav__name">{stage.label}</span>
+          <span class="guide-nav__count">{stage.modules.length}</span>
+          <Icon name="chevron-down" size={14} />
+        </summary>
+        <ul>
+          {stage.modules.map((module) => {
+            const slug = slugOf(module.id);
+            return (
+              <li>
+                <a
+                  class:list={{ 'is-active': currentId === slug }}
+                  href={`/guide/${slug}/`}
+                  aria-current={currentId === slug ? 'page' : undefined}
+                >
+                  {module.data.title}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </details>
+    );
+  })}
+</nav>
