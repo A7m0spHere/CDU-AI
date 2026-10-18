@@ -43,7 +43,8 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 /
 ├── guide/                  学习指南
 │   └── [slug]/             单个学习模块（Markdown + 更新时间 / 来源 / 编辑入口）
-├── glossary/               术语表（分类筛选，38 条）
+├── glossary/               术语表（分类筛选，38 条；每个词一张卡片）
+│   └── [id]/               单个术语的白话详解（类比 / 运作 / 场景 / 误解）
 ├── tools/                  工具资源（侧栏筛选 + 目录搜索）
 ├── works/                  作品广场（示例提案，类别筛选）
 │   └── [slug]/             示例作品详情
@@ -80,7 +81,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 ### 结构化数据
 
-`src/data/*.ts` 承载工具、术语、社区、活动、导航等短内容，由 `src/data/types.ts` 约束。术语表条目包含释义、别名和场景示例，来源在页面末尾统一标注。未来接 CMS 或 API 时，页面只改数据获取层，UI 不动。
+`src/data/*.ts` 承载工具、社区、活动、导航等短内容，由 `src/data/types.ts` 约束。术语的词条正文改为 content collection（`src/content/glossary/*.md`）：frontmatter 存结构、别名和一句话释义，正文写白话详解；分类仍由 `src/data/glossary.ts` 维护，搜索索引与详情页都从同一份内容生成。未来接 CMS 或 API 时，页面只改数据获取层，UI 不动。
 
 ### 内容与页面解耦的边界
 
@@ -151,7 +152,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 1. `astro check`：Astro/TypeScript 类型与内容 schema 检查。
 2. `astro build`：static 生产构建。
-3. `node --test tests/site.test.mjs`：检查 21 个页面存在、文档结构、唯一 h1、页面更新时间与编辑入口、学习指南 Notion 文档结构、指南内容清单与排序、搜索索引覆盖与锚点、M0 示例/筹备状态标注、非官方声明、术语条目与外链安全属性。
+3. `node --test tests/site.test.mjs`：检查全部页面（含每个术语详情页）存在、文档结构、唯一 h1、页面更新时间与编辑入口、学习指南 Notion 文档结构、指南内容清单与排序、搜索索引覆盖与锚点、M0 示例/筹备状态标注、非官方声明、术语条目与详情页结构、外链安全属性。
 4. `scripts/check-links.mjs`：扫描构建后的 HTML，检查站内链接与锚点是否存在。
 
 视觉验收另外在 320 / 390 / 768 / 1024 / 1440px 下用 Playwright 检查；可访问性用 axe-core 在浅色/深色主题以及搜索弹层打开状态下扫描 WCAG A/AA 与 best-practice 规则。M0 最终扫描为零违规；真实浏览器截图与脚本不进入代码仓库（`work/` 已忽略）。
