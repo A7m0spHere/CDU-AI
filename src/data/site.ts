@@ -4,8 +4,8 @@
  */
 
 export const site = {
-  name: '成大 AI 共学',
-  englishName: 'CDU AI COMMONS',
+  name: 'CDU AI',
+  englishName: 'AI 学习与交流社区',
   tagline: '从好奇开始，把 AI 用进真实生活',
   description:
     '面向成都大学全校学生的 AI 学习与交流社区。不要求先会编程，从真实问题、顺手工具和一个小作品开始。',

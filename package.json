@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "成大 AI 共学 —— 面向成都大学全校同学的开放 AI 学习与交流社区（M0 基础框架）",
+  "description": "CDU AI —— 面向成都大学全校同学的开放 AI 学习与交流社区（M0 基础框架）",
   "license": "MIT",
   "engines": {
     "node": ">=22.0.0"

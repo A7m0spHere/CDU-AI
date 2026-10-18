@@ -1,7 +1,7 @@
 {
-  "name": "成大 AI 共学",
-  "short_name": "AI 共学",
-  "description": "面向成都大学全校学生的开放 AI 学习与交流社区",
+  "name": "CDU AI",
+  "short_name": "CDU AI",
+  "description": "CDU AI：面向成都大学全校学生的开放 AI 学习与交流社区",
   "start_url": "/",
   "display": "browser",
   "background_color": "#ffffff",

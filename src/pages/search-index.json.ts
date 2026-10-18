@@ -53,7 +53,7 @@ export const GET: APIRoute = async () => {
   const items: SearchItem[] = [
     {
       type: '页面',
-      title: '首页 · 成大 AI 共学',
+      title: '首页 · CDU AI',
       description: '面向所有专业的 AI 学习与交流社区，由成都大学计算机协会 AI 方向发起。',
       href: '/',
       keywords: '首页 首页 导航 开始 社区 学习',

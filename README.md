@@ -1,8 +1,16 @@
-# 成大 AI 共学
+# CDU AI
 
 > 面向成都大学全校学生的开源 AI 学习与交流社区。  
 > **项目阶段：M0 · 基础框架**，由成都大学计算机协会 AI 方向发起，非学校官方平台。  
 > [GitHub 仓库](https://github.com/A7m0spHere/CDU-AI) · [MIT License](LICENSE)
+
+## 品牌与占位素材
+
+站点名称为 **CDU AI**。当前的 LogoMark、favicon 和作品封面仍使用占位图形，正式标识与主视觉可以后续替换；组件尺寸和替换位置已经保留。
+
+- Logo：[src/components/LogoMark.astro](src/components/LogoMark.astro)
+- Favicon：[public/favicon.svg](public/favicon.svg)
+- 作品封面：[src/components/WorkArt.astro](src/components/WorkArt.astro)
 
 ## 这是什么
 
