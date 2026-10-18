@@ -32,7 +32,6 @@ export const navItems: NavItem[] = [
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
   { label: '社区', href: '/community/', description: '版块、公约与讨论起点' },
   { label: '活动', href: '/events/', description: '一起工作坊、共创与开放麦' },
-  { label: '文档', href: '/docs/', description: '团队计划、任务与内容协作文档' },
 ];
 
 export interface GuideStageMeta {
@@ -90,7 +89,7 @@ export const footerGroups = [
     links: [
       { label: '社区版块', href: '/community/' },
       { label: '活动形式', href: '/events/' },
-      { label: '团队文档', href: '/docs/' },
+      { label: '团队文档', href: '/guide/docs/' },
       { label: '共建方式', href: '/about/#contribute' },
     ],
   },

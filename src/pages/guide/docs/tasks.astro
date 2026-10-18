@@ -1,7 +1,7 @@
 ---
-import DocsLayout from '../../layouts/DocsLayout.astro';
-import Icon from '../../components/Icon.astro';
-import { repository } from '../../data/site';
+import GuideDocsLayout from '../../../layouts/GuideDocsLayout.astro';
+import Icon from '../../../components/Icon.astro';
+import { repository } from '../../../data/site';
 
 const issueUrl = repository.url + '/issues/new';
 
@@ -15,7 +15,7 @@ const columns = [
       { title: 'AI 术语表', note: '24 条术语，含释义、校园场景示例和来源链接。', tags: ['M0', '内容'] },
       { title: '内容元信息', note: '指南与作品显示更新时间、参考来源和 GitHub 编辑入口。', tags: ['M0', '内容'] },
       { title: 'GitHub 仓库与 CI', note: 'MIT 协议、公开仓库，推送后自动执行验证。', tags: ['M0', '工程'] },
-      { title: '团队文档区', note: '阅读计划、任务看板、内容流程和技术资料入口。', tags: ['M0', '文档'] },
+      { title: '团队文档（学习指南内）', note: '阅读计划、任务看板、内容流程和技术资料入口。', tags: ['M0', '文档'] },
     ],
   },
   {
@@ -41,7 +41,7 @@ const columns = [
 ];
 ---
 
-<DocsLayout current="tasks">
+<GuideDocsLayout current="tasks">
   <div class="doc-callout">
     <Icon name="info" size={16} />
     <p>
@@ -88,7 +88,11 @@ const columns = [
   </ol>
 
   <a class="doc-link-card" href={issueUrl} target="_blank" rel="noopener noreferrer">
-    <strong>＋ 新建任务 issue</strong>
+    <span class="doc-link-card__top">
+      <span class="doc-link-card__icon"><Icon name="plus" size={16} /></span>
+      <strong>新建任务 issue</strong>
+      <Icon name="arrow-up-right" size={13} />
+    </span>
     <span>在 GitHub 打开新 issue，写清背景、范围和验收标准。</span>
     <em>github.com/A7m0spHere/CDU-AI/issues</em>
   </a>
@@ -99,4 +103,4 @@ const columns = [
       不要把「讨论过」写成「已经完成」，也不要把待定事项包装成正在推进。任务看板宁可少一条，也不要虚构一条。
     </p>
   </div>
-</DocsLayout>
+</GuideDocsLayout>

@@ -134,7 +134,7 @@ export const GET: APIRoute = async () => {
       title: page.title,
       description: page.description,
       href: page.href,
-      keywords: ['团队文档', page.group, page.emoji, page.title, page.description].join(' '),
+      keywords: ['团队文档', page.group, page.icon, page.title, page.description].join(' '),
     })),
     ...glossaryTerms.map((term) => ({
       type: '术语' as const,

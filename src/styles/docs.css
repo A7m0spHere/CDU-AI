@@ -1102,3 +1102,245 @@
     right: -0.2rem;
   }
 }
+
+/* ---------------------------------------------------------
+   学习指南内的团队文档
+   复用指南三栏骨架；文档块只负责内容层。
+   --------------------------------------------------------- */
+.guide-doc-main {
+  --docs-border: #e6e6e2;
+  --docs-border-strong: #d6d6d1;
+  --docs-hover: #f1f1ee;
+  --docs-active: #e5e5e1;
+  --docs-card: #fbfbfa;
+  --docs-code-bg: #ececea;
+  --docs-muted: #5d5d58;
+  --docs-menu-shadow: 0 12px 32px -20px rgba(23, 23, 23, 0.28);
+}
+
+:root[data-theme='dark'] .guide-doc-main {
+  --docs-border: #29292c;
+  --docs-border-strong: #3b3b3f;
+  --docs-hover: #202024;
+  --docs-active: #28282c;
+  --docs-card: #18181b;
+  --docs-code-bg: #27272a;
+  --docs-muted: #a1a1aa;
+  --docs-menu-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.8);
+}
+
+.guide-doc-heading {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.guide-doc-heading__icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--docs-border);
+  border-radius: 8px;
+  background: var(--docs-card);
+  color: var(--brand);
+}
+
+.guide-doc-heading__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.guide-doc-heading__copy .eyebrow {
+  margin-bottom: 0.25rem;
+}
+
+.guide-doc-heading h1 {
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.guide-doc-heading .wiki-lede {
+  max-width: 62ch;
+  margin-top: 0.45rem;
+}
+
+.guide-doc-heading__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.guide-doc-heading__actions .docs-new__trigger {
+  width: auto;
+  min-height: 32px;
+  padding: 0.35rem 0.6rem;
+  border-color: var(--docs-border);
+  background: var(--surface);
+}
+
+.guide-doc-heading__actions .docs-new__menu {
+  right: 0;
+  left: auto;
+}
+
+.guide-doc-heading__actions .docs-actions > summary {
+  border: 1px solid var(--docs-border);
+  background: var(--surface);
+}
+
+.guide-doc-heading__actions .docs-actions > summary:hover,
+.guide-doc-heading__actions .docs-actions[open] > summary {
+  background: var(--docs-hover);
+}
+
+.guide-doc-content {
+  max-width: 700px;
+  margin-top: 1.2rem;
+}
+
+.guide-doc-content > :first-child {
+  margin-top: 0;
+}
+
+.guide-doc-pager {
+  max-width: 700px;
+  margin-top: 2.2rem !important;
+}
+
+.guide-doc-aside {
+  padding-top: 0.2rem;
+}
+
+.guide-doc-aside__meta {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.9rem 0 1rem;
+}
+
+.guide-doc-aside__meta > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.guide-doc-aside__meta dt {
+  color: var(--faint);
+  font-size: 0.62rem;
+}
+
+.guide-doc-aside__meta dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  text-align: right;
+}
+
+.guide-doc-aside__links {
+  display: grid;
+  gap: 0.45rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+}
+
+.guide-doc-aside__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--brand);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.guide-doc-aside__note {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+
+.doc-link-card__top {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.doc-link-card__top strong {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-link-card__top > svg:last-child {
+  flex: none;
+  color: var(--docs-muted);
+  opacity: 0.7;
+}
+
+.doc-link-card__icon {
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--docs-border);
+  border-radius: 4px;
+  color: var(--brand);
+  background: var(--surface);
+}
+
+.docs-menu__icon {
+  display: grid;
+  width: 1.2rem;
+  flex: none;
+  place-items: center;
+  color: var(--docs-muted);
+}
+
+.docs-new__trigger > svg {
+  color: var(--brand);
+}
+
+@media (max-width: 760px) {
+  .guide-doc-heading {
+    gap: 0.55rem;
+  }
+
+  .guide-doc-heading__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+  }
+
+  .guide-doc-heading h1 {
+    font-size: 1.55rem;
+  }
+
+  .guide-doc-heading__actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 0.1rem;
+    margin-left: 0;
+  }
+
+  .guide-doc-content,
+  .guide-doc-pager {
+    max-width: none;
+  }
+
+  .docs-menu {
+    width: min(278px, calc(100vw - 2rem));
+  }
+
+  .guide-doc-heading__actions .docs-new__menu {
+    right: 0;
+  }
+}

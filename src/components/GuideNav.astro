@@ -1,13 +1,15 @@
 ---
 import { getCollection } from 'astro:content';
 import { guideStages } from '../data/site';
+import { docsPages } from '../data/docs';
 import Icon from './Icon.astro';
 
 interface Props {
   currentId?: string;
+  currentDoc?: string;
 }
 
-const { currentId } = Astro.props;
+const { currentId, currentDoc } = Astro.props;
 const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
 const slugOf = (id: string) => id.replace(/\.md$/, '');
 const currentModule = currentId ? modules.find((module) => slugOf(module.id) === currentId) : undefined;
@@ -16,16 +18,17 @@ const groupedStages = guideStages.map((stage) => ({
   ...stage,
   modules: modules.filter((module) => module.data.stage === stage.id),
 }));
+const isGuideHome = !currentId && !currentDoc;
 ---
 
 <nav class="guide-nav" aria-label="学习指南目录">
-  <a class:list={['guide-nav__home', { 'is-active': !currentId }]} href="/guide/">
+  <a class:list={['guide-nav__home', { 'is-active': !currentId && !currentDoc }]} href="/guide/">
     指南首页
   </a>
 
   {groupedStages.map((stage) => {
     const isActiveStage = Boolean(activeStage && stage.id === activeStage);
-    const shouldOpen = !currentId || !activeStage || isActiveStage;
+    const shouldOpen = isGuideHome || isActiveStage;
     return (
       <details
         class:list={['guide-nav__group', `guide-nav__group--${stage.id}`, { 'is-active-stage': isActiveStage }]}
@@ -56,4 +59,27 @@ const groupedStages = guideStages.map((stage) => ({
       </details>
     );
   })}
+
+  <details class="guide-nav__group guide-nav__group--docs" open={Boolean(currentDoc)}>
+    <summary class="guide-nav__summary">
+      <span class="guide-nav__index guide-nav__index--icon" aria-hidden="true"><Icon name="file-text" size={13} /></span>
+      <span class="guide-nav__name">团队文档</span>
+      <span class="guide-nav__count">{docsPages.length}</span>
+      <Icon name="chevron-down" size={14} />
+    </summary>
+    <ul>
+      {docsPages.map((page) => (
+        <li>
+          <a
+            class:list={['guide-nav__doc-link', { 'is-active': currentDoc === page.id }]}
+            href={page.href}
+            aria-current={currentDoc === page.id ? 'page' : undefined}
+          >
+            <Icon name={page.icon} size={14} />
+            <span>{page.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </details>
 </nav>

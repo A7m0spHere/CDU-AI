@@ -1,9 +1,9 @@
 ---
-import DocsLayout from '../../layouts/DocsLayout.astro';
-import Icon from '../../components/Icon.astro';
+import GuideDocsLayout from '../../../layouts/GuideDocsLayout.astro';
+import Icon from '../../../components/Icon.astro';
 ---
 
-<DocsLayout current="overview">
+<GuideDocsLayout current="overview">
   <div class="doc-callout">
     <Icon name="book-open" size={16} />
     <p>
@@ -14,31 +14,43 @@ import Icon from '../../components/Icon.astro';
 
   <h2>从哪里开始</h2>
   <div class="doc-card-grid">
-    <a class="doc-link-card" href="/docs/reading/">
-      <strong>🗺️ 新成员阅读计划</strong>
+    <a class="doc-link-card" href="/guide/docs/reading/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="map" size={16} /></span>
+        <strong>新成员阅读计划</strong>
+      </span>
       <span>用 30 分钟认识项目定位、学习资料、工具和内容边界。</span>
       <em>第一次来，先读这页</em>
     </a>
-    <a class="doc-link-card" href="/docs/tasks/">
-      <strong>✅ 任务看板</strong>
+    <a class="doc-link-card" href="/guide/docs/tasks/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="check" size={16} /></span>
+        <strong>任务看板</strong>
+      </span>
       <span>看看现在完成了什么、下一步准备做什么。</span>
       <em>公开任务快照</em>
     </a>
-    <a class="doc-link-card" href="/docs/workflow/">
-      <strong>✍️ 新建与发布</strong>
+    <a class="doc-link-card" href="/guide/docs/workflow/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="pen" size={16} /></span>
+        <strong>新建与发布</strong>
+      </span>
       <span>从 GitHub 新建文件到 CI 发布，一步步写清楚。</span>
       <em>内容贡献入口</em>
     </a>
-    <a class="doc-link-card" href="/docs/technical/">
-      <strong>🛠️ 技术文档</strong>
+    <a class="doc-link-card" href="/guide/docs/technical/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="code" size={16} /></span>
+        <strong>技术文档</strong>
+      </span>
       <span>架构、内容规范、设计系统和常用命令。</span>
       <em>给维护者</em>
     </a>
   </div>
 
-  <h2>文档区解决什么</h2>
+  <h2>团队文档解决什么</h2>
   <p>
-    项目越往前走，越容易只剩下「谁在群里说过什么」。文档区把这些需要长期保存的信息放到固定位置：
+    项目越往前走，越容易只剩下「谁在群里说过什么」。团队文档把这些需要长期保存的信息放到固定位置：
   </p>
   <ul>
     <li><strong>计划</strong>：当前阶段要做什么，为什么先做这些。</li>
@@ -54,8 +66,8 @@ import Icon from '../../components/Icon.astro';
       <span>文档本身就是工作区；装饰服务于阅读，不抢内容。</span>
     </li>
     <li>
-      <strong>Emoji 只做轻量图标</strong>
-      <span>用于识别页面和分类，但状态、按钮和关键信息仍使用清楚的文字。</span>
+      <strong>图标只做轻量识别</strong>
+      <span>使用统一的线性 SVG 图标帮助识别页面和分类，状态、按钮和关键信息仍使用清楚的文字。</span>
     </li>
     <li>
       <strong>次要操作按需出现</strong>
@@ -73,7 +85,7 @@ import Icon from '../../components/Icon.astro';
 
   <h2>最近更新</h2>
   <ul class="doc-updates">
-    <li><time datetime="2026-10-18">2026-10-18</time><span>文档中心上线，加入阅读计划、任务看板和技术资料索引。</span></li>
+    <li><time datetime="2026-10-18">2026-10-18</time><span>团队文档并入学习指南，加入阅读计划、任务看板和技术资料索引。</span></li>
     <li><time datetime="2026-10-18">2026-10-18</time><span>站点新增章节级搜索、AI 术语表与指南页面元信息。</span></li>
     <li><time datetime="2026-10-18">2026-10-18</time><span>GitHub 仓库与 CI 验证流程建立。</span></li>
   </ul>
@@ -81,7 +93,7 @@ import Icon from '../../components/Icon.astro';
   <div class="doc-callout doc-callout--warm">
     <Icon name="info" size={16} />
     <p>
-      这仍是 M0 的公开文档区：没有真实成员账号，也不会展示未经确认的排期或任务分配。需要新增或调整内容时，请先通过 GitHub issue 或 PR 讨论。
+      这仍是 M0 的公开文档页：没有真实成员账号，也不会展示未经确认的排期或任务分配。需要新增或调整内容时，请先通过 GitHub issue 或 PR 讨论。
     </p>
   </div>
-</DocsLayout>
+</GuideDocsLayout>

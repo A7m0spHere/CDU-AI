@@ -3,9 +3,10 @@ import GuideNav from './GuideNav.astro';
 
 interface Props {
   currentId?: string;
+  currentDoc?: string;
 }
 
-const { currentId } = Astro.props;
+const { currentId, currentDoc } = Astro.props;
 ---
 
 <aside class="guide-sidebar" aria-label="学习指南目录">
@@ -13,7 +14,7 @@ const { currentId } = Astro.props;
     <span class="mono">学习指南</span>
     <a href="/guide/">零基础 AI 学习</a>
   </div>
-  <GuideNav currentId={currentId} />
+  <GuideNav currentId={currentId} currentDoc={currentDoc} />
   <div class="guide-sidebar__foot">
     <a href="/glossary/">AI 术语表</a>
     <a href="/tools/">工具资源</a>

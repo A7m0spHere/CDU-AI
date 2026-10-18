@@ -1,32 +1,32 @@
 ---
-import DocsLayout from '../../layouts/DocsLayout.astro';
-import Icon from '../../components/Icon.astro';
-import { repository } from '../../data/site';
+import GuideDocsLayout from '../../../layouts/GuideDocsLayout.astro';
+import Icon from '../../../components/Icon.astro';
+import { repository } from '../../../data/site';
 
 const fileUrl = (path: string) => repository.url + '/blob/' + repository.branch + '/' + path;
 const actionsUrl = repository.url + '/actions';
 
 const technicalDocs = [
   {
-    emoji: '🏗️',
+    icon: 'layers' as const,
     title: '架构说明',
     path: 'docs/ARCHITECTURE.md',
     summary: '技术选型、信息架构、内容模型、扩展路径和已知限制。',
   },
   {
-    emoji: '📝',
+    icon: 'file-text' as const,
     title: '内容规范',
     path: 'docs/CONTENT-GUIDE.md',
     summary: '指南、作品、术语的字段、语气、来源和禁写事项。',
   },
   {
-    emoji: '🎨',
+    icon: 'palette' as const,
     title: '设计系统',
     path: 'docs/DESIGN-SYSTEM.md',
     summary: '颜色、排版、组件、响应式、可访问性与文档区约定。',
   },
   {
-    emoji: '📦',
+    icon: 'book-open' as const,
     title: '项目说明',
     path: 'README.md',
     summary: '项目定位、功能清单、本地命令、目录结构与协作方式。',
@@ -38,7 +38,7 @@ npm run dev       # http://localhost:4321
 npm run verify    # 类型 + 构建 + 测试 + 链接检查`;
 ---
 
-<DocsLayout current="technical">
+<GuideDocsLayout current="technical">
   <div class="doc-callout">
     <Icon name="code" size={16} />
     <p>
@@ -50,9 +50,13 @@ npm run verify    # 类型 + 构建 + 测试 + 链接检查`;
   <div class="doc-card-grid">
     {technicalDocs.map((doc) => (
       <a class="doc-link-card" href={fileUrl(doc.path)} target="_blank" rel="noopener noreferrer">
-        <strong>{doc.emoji} {doc.title}</strong>
+        <span class="doc-link-card__top">
+          <span class="doc-link-card__icon"><Icon name={doc.icon} size={16} /></span>
+          <strong>{doc.title}</strong>
+          <Icon name="arrow-up-right" size={13} />
+        </span>
         <span>{doc.summary}</span>
-        <em>{doc.path} ↗</em>
+        <em>{doc.path}</em>
       </a>
     ))}
   </div>
@@ -83,7 +87,7 @@ npm run verify    # 类型 + 构建 + 测试 + 链接检查`;
       <tr><td><code>src/content/guide/</code></td><td>学习指南 Markdown，一篇一个模块。</td></tr>
       <tr><td><code>src/content/works/</code></td><td>作品示例 / 未来投稿。</td></tr>
       <tr><td><code>src/data/glossary.ts</code></td><td>术语、分类和来源链接。</td></tr>
-      <tr><td><code>src/pages/docs/</code></td><td>当前这个团队文档区的页面模板。</td></tr>
+      <tr><td><code>src/pages/guide/docs/</code></td><td>学习指南中的团队文档页面模板。</td></tr>
       <tr><td><code>src/styles/</code></td><td>设计令牌、基础样式、组件与页面样式。</td></tr>
       <tr><td><code>docs/</code></td><td>架构、内容规范和设计系统等长期技术文档。</td></tr>
     </tbody>
@@ -105,6 +109,6 @@ npm run verify    # 类型 + 构建 + 测试 + 链接检查`;
   </div>
 
   <p>
-    查看自动化验证结果：<a href={actionsUrl} target="_blank" rel="noopener noreferrer">GitHub Actions ↗</a>
+    查看自动化验证结果：<a href={actionsUrl} target="_blank" rel="noopener noreferrer">GitHub Actions <Icon name="arrow-up-right" size={13} /></a>
   </p>
-</DocsLayout>
+</GuideDocsLayout>

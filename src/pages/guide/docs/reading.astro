@@ -1,9 +1,9 @@
 ---
-import DocsLayout from '../../layouts/DocsLayout.astro';
-import Icon from '../../components/Icon.astro';
+import GuideDocsLayout from '../../../layouts/GuideDocsLayout.astro';
+import Icon from '../../../components/Icon.astro';
 ---
 
-<DocsLayout current="reading">
+<GuideDocsLayout current="reading">
   <div class="doc-callout">
     <Icon name="info" size={16} />
     <p>
@@ -33,23 +33,35 @@ import Icon from '../../components/Icon.astro';
 
   <h2>按你的分工继续读</h2>
   <div class="doc-card-grid">
-    <a class="doc-link-card" href="/docs/workflow/">
-      <strong>✍️ 我想贡献内容</strong>
+    <a class="doc-link-card" href="/guide/docs/workflow/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="pen" size={16} /></span>
+        <strong>我想贡献内容</strong>
+      </span>
       <span>看新建与发布流程、可写的类型，以及提交前要做的检查。</span>
       <em>内容贡献者</em>
     </a>
-    <a class="doc-link-card" href="/docs/technical/">
-      <strong>🛠️ 我想维护站点</strong>
+    <a class="doc-link-card" href="/guide/docs/technical/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="code" size={16} /></span>
+        <strong>我想维护站点</strong>
+      </span>
       <span>从架构说明、设计系统和验证命令开始。</span>
       <em>技术维护</em>
     </a>
-    <a class="doc-link-card" href="/docs/tasks/">
-      <strong>✅ 我想看看还缺什么</strong>
+    <a class="doc-link-card" href="/guide/docs/tasks/">
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="check" size={16} /></span>
+        <strong>我想看看还缺什么</strong>
+      </span>
       <span>任务看板列出已完成、下一步和待定事项，认领前先讨论。</span>
       <em>协作与任务</em>
     </a>
     <a class="doc-link-card" href="/community/">
-      <strong>💬 我想参与讨论</strong>
+      <span class="doc-link-card__top">
+        <span class="doc-link-card__icon"><Icon name="message-circle" size={16} /></span>
+        <strong>我想参与讨论</strong>
+      </span>
       <span>社区版块仍是设计稿；先看看讨论起点和公约。</span>
       <em>社区参与</em>
     </a>
@@ -59,11 +71,11 @@ import Icon from '../../components/Icon.astro';
   <ul class="doc-checklist">
     <li>
       <span class="doc-check" aria-hidden="true">✓</span>
-      <div><a href="/docs/workflow/">挑一种内容类型，尝试在 GitHub 新建一个草稿</a>；不确定就先开 issue 问。</div>
+      <div><a href="/guide/docs/workflow/">挑一种内容类型，尝试在 GitHub 新建一个草稿</a>；不确定就先开 issue 问。</div>
     </li>
     <li>
       <span class="doc-check" aria-hidden="true">✓</span>
-      <div><a href="/docs/tasks/">在任务看板找一个下一步事项</a>，确认范围和边界后再动手。</div>
+      <div><a href="/guide/docs/tasks/">在任务看板找一个下一步事项</a>，确认范围和边界后再动手。</div>
     </li>
     <li>
       <span class="doc-check" aria-hidden="true">✓</span>
@@ -79,4 +91,4 @@ import Icon from '../../components/Icon.astro';
       本地至少跑通一次 <code>npm run verify</code>，再改页面或内容。
     </p>
   </details>
-</DocsLayout>
+</GuideDocsLayout>

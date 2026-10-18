@@ -1,7 +1,7 @@
 ---
-import DocsLayout from '../../layouts/DocsLayout.astro';
-import Icon from '../../components/Icon.astro';
-import { newContentActions } from '../../data/docs';
+import GuideDocsLayout from '../../../layouts/GuideDocsLayout.astro';
+import Icon from '../../../components/Icon.astro';
+import { newContentActions } from '../../../data/docs';
 
 const frontmatterExample = `---
 title: "你的标题"
@@ -18,7 +18,7 @@ git commit -m "feat: 新增某某指南"
 git push origin content/your-topic`;
 ---
 
-<DocsLayout current="workflow">
+<GuideDocsLayout current="workflow">
   <div class="doc-callout">
     <Icon name="info" size={16} />
     <p>
@@ -31,9 +31,13 @@ git push origin content/your-topic`;
   <div class="doc-card-grid">
     {newContentActions.map((action) => (
       <a class="doc-link-card" href={action.href} target="_blank" rel="noopener noreferrer">
-        <strong>{action.emoji} 新建{action.label}</strong>
+        <span class="doc-link-card__top">
+          <span class="doc-link-card__icon"><Icon name={action.icon} size={16} /></span>
+          <strong>新建{action.label}</strong>
+          <Icon name="arrow-up-right" size={13} />
+        </span>
         <span>{action.description}</span>
-        <em>{action.hint} ↗</em>
+        <em>{action.hint}</em>
       </a>
     ))}
   </div>
@@ -87,4 +91,4 @@ git push origin content/your-topic`;
       这个页面只是流程说明，不提供在线编辑。涉及隐私、版权、学校政策或真实人物的内容，先不要提交到公开仓库；先和负责人确认。
     </p>
   </div>
-</DocsLayout>
+</GuideDocsLayout>
