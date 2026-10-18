@@ -3,9 +3,10 @@ import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { tools, toolCategories } from '../data/tools';
 import { glossaryTerms } from '../data/glossary';
+import { docsPages } from '../data/docs';
 
 interface SearchItem {
-  type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
+  type: '指南' | '章节' | '工具' | '作品' | '术语' | '文档' | '页面';
   title: string;
   description: string;
   href: string;
@@ -127,6 +128,13 @@ export const GET: APIRoute = async () => {
       description: `${tool.summary} ${tool.bestFor}`,
       href: `/tools/?q=${encodeURIComponent(tool.name)}`,
       keywords: [categoryName(tool.category), ...tool.tags, tool.difficulty, tool.pricing].join(' '),
+    })),
+    ...docsPages.map((page) => ({
+      type: '文档' as const,
+      title: page.title,
+      description: page.description,
+      href: page.href,
+      keywords: ['团队文档', page.group, page.emoji, page.title, page.description].join(' '),
     })),
     ...glossaryTerms.map((term) => ({
       type: '术语' as const,

@@ -1,0 +1,82 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<DocsLayout current="reading">
+  <div class="doc-callout">
+    <Icon name="info" size={16} />
+    <p>
+      这是一份自定进度的阅读清单，不需要打卡，也没有后台记录。建议第一次参与项目的成员按顺序读完前四步，大约 30 分钟。
+    </p>
+  </div>
+
+  <h2>30 分钟入门路线</h2>
+  <ol class="doc-steps">
+    <li>
+      <strong><a href="/about/">先知道这是什么</a></strong>
+      <p>了解项目由谁发起、不是学校官方平台，以及哪些内容现在还没有。约 5 分钟。</p>
+    </li>
+    <li>
+      <strong><a href="/guide/">翻一遍学习指南</a></strong>
+      <p>不用一次读完 8 篇。先看三阶段路线和「从哪里开始」，知道一个零基础同学会怎样使用这个站。约 10 分钟。</p>
+    </li>
+    <li>
+      <strong><a href="/tools/">看看工具资源怎么组织</a></strong>
+      <p>挑一个你熟悉的工具，检查它的适用场景、限制和官网链接是否可信。约 5 分钟。</p>
+    </li>
+    <li>
+      <strong><a href="https://github.com/A7m0spHere/CDU-AI/blob/main/docs/CONTENT-GUIDE.md" target="_blank" rel="noopener noreferrer">读内容规范</a></strong>
+      <p>了解哪些话不能写、示例必须怎么标注、指南和作品的 frontmatter 长什么样。约 10 分钟。</p>
+    </li>
+  </ol>
+
+  <h2>按你的分工继续读</h2>
+  <div class="doc-card-grid">
+    <a class="doc-link-card" href="/docs/workflow/">
+      <strong>✍️ 我想贡献内容</strong>
+      <span>看新建与发布流程、可写的类型，以及提交前要做的检查。</span>
+      <em>内容贡献者</em>
+    </a>
+    <a class="doc-link-card" href="/docs/technical/">
+      <strong>🛠️ 我想维护站点</strong>
+      <span>从架构说明、设计系统和验证命令开始。</span>
+      <em>技术维护</em>
+    </a>
+    <a class="doc-link-card" href="/docs/tasks/">
+      <strong>✅ 我想看看还缺什么</strong>
+      <span>任务看板列出已完成、下一步和待定事项，认领前先讨论。</span>
+      <em>协作与任务</em>
+    </a>
+    <a class="doc-link-card" href="/community/">
+      <strong>💬 我想参与讨论</strong>
+      <span>社区版块仍是设计稿；先看看讨论起点和公约。</span>
+      <em>社区参与</em>
+    </a>
+  </div>
+
+  <h2>读完之后可以做什么</h2>
+  <ul class="doc-checklist">
+    <li>
+      <span class="doc-check" aria-hidden="true">✓</span>
+      <div><a href="/docs/workflow/">挑一种内容类型，尝试在 GitHub 新建一个草稿</a>；不确定就先开 issue 问。</div>
+    </li>
+    <li>
+      <span class="doc-check" aria-hidden="true">✓</span>
+      <div><a href="/docs/tasks/">在任务看板找一个下一步事项</a>，确认范围和边界后再动手。</div>
+    </li>
+    <li>
+      <span class="doc-check" aria-hidden="true">✓</span>
+      <div><a href="/guide/">完整读一篇和你专业相关的学习指南</a>，记录哪里看不懂、哪里需要更多例子。</div>
+    </li>
+  </ul>
+
+  <details class="doc-toggle">
+    <summary>技术维护还应该读什么？</summary>
+    <p>
+      先读 <a href="https://github.com/A7m0spHere/CDU-AI/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noopener noreferrer">架构说明</a>，再看
+      <a href="https://github.com/A7m0spHere/CDU-AI/blob/main/docs/DESIGN-SYSTEM.md" target="_blank" rel="noopener noreferrer">设计系统</a>。
+      本地至少跑通一次 <code>npm run verify</code>，再改页面或内容。
+    </p>
+  </details>
+</DocsLayout>

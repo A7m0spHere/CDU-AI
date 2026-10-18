@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import { newContentActions } from '../data/docs';
+---
+
+<details class="docs-new" data-docs-menu>
+  <summary class="docs-new__trigger">
+    <span class="docs-new__plus" aria-hidden="true">+</span>
+    新建内容
+  </summary>
+  <div class="docs-menu docs-new__menu">
+    <p class="docs-menu__label">通过 GitHub 新建</p>
+    {newContentActions.map((action) => (
+      <a href={action.href} target="_blank" rel="noopener noreferrer">
+        <span class="docs-menu__emoji" aria-hidden="true">{action.emoji}</span>
+        <span class="docs-menu__copy">
+          <strong>{action.label}</strong>
+          <small>{action.hint}</small>
+        </span>
+        <Icon name="arrow-up-right" size={13} />
+      </a>
+    ))}
+    <a class="docs-menu__link" href="/docs/workflow/">
+      <span class="docs-menu__emoji" aria-hidden="true">↳</span>
+      查看完整发布流程
+    </a>
+  </div>
+</details>

@@ -1,0 +1,110 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { repository } from '../../data/site';
+
+const fileUrl = (path: string) => repository.url + '/blob/' + repository.branch + '/' + path;
+const actionsUrl = repository.url + '/actions';
+
+const technicalDocs = [
+  {
+    emoji: '🏗️',
+    title: '架构说明',
+    path: 'docs/ARCHITECTURE.md',
+    summary: '技术选型、信息架构、内容模型、扩展路径和已知限制。',
+  },
+  {
+    emoji: '📝',
+    title: '内容规范',
+    path: 'docs/CONTENT-GUIDE.md',
+    summary: '指南、作品、术语的字段、语气、来源和禁写事项。',
+  },
+  {
+    emoji: '🎨',
+    title: '设计系统',
+    path: 'docs/DESIGN-SYSTEM.md',
+    summary: '颜色、排版、组件、响应式、可访问性与文档区约定。',
+  },
+  {
+    emoji: '📦',
+    title: '项目说明',
+    path: 'README.md',
+    summary: '项目定位、功能清单、本地命令、目录结构与协作方式。',
+  },
+];
+
+const commands = `npm install
+npm run dev       # http://localhost:4321
+npm run verify    # 类型 + 构建 + 测试 + 链接检查`;
+---
+
+<DocsLayout current="technical">
+  <div class="doc-callout">
+    <Icon name="code" size={16} />
+    <p>
+      技术文档的正文放在仓库的 <code>docs/</code> 目录，避免站内和仓库出现两份会漂移的内容。这里提供入口、技术栈摘要和维护约定。
+    </p>
+  </div>
+
+  <h2>仓库文档</h2>
+  <div class="doc-card-grid">
+    {technicalDocs.map((doc) => (
+      <a class="doc-link-card" href={fileUrl(doc.path)} target="_blank" rel="noopener noreferrer">
+        <strong>{doc.emoji} {doc.title}</strong>
+        <span>{doc.summary}</span>
+        <em>{doc.path} ↗</em>
+      </a>
+    ))}
+  </div>
+
+  <h2>技术栈摘要</h2>
+  <table class="doc-table">
+    <thead>
+      <tr><th>选择</th><th>用途</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Astro 5 + TypeScript</td><td>静态输出；Markdown 内容集合与页面分离。</td></tr>
+      <tr><td>原生 CSS</td><td>设计令牌、分层样式；不引入 UI 框架。</td></tr>
+      <tr><td>少量原生脚本</td><td>主题、搜索、筛选和文档区菜单；无 JS 时核心阅读仍可用。</td></tr>
+      <tr><td>Content Collections</td><td>指南与作品 frontmatter 由 Zod 校验。</td></tr>
+      <tr><td>GitHub Actions</td><td>每次推送执行类型检查、构建、测试和链接检查。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>常用命令</h2>
+  <pre><code>{commands}</code></pre>
+
+  <h2>关键目录</h2>
+  <table class="doc-table">
+    <thead>
+      <tr><th>路径</th><th>放什么</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>src/content/guide/</code></td><td>学习指南 Markdown，一篇一个模块。</td></tr>
+      <tr><td><code>src/content/works/</code></td><td>作品示例 / 未来投稿。</td></tr>
+      <tr><td><code>src/data/glossary.ts</code></td><td>术语、分类和来源链接。</td></tr>
+      <tr><td><code>src/pages/docs/</code></td><td>当前这个团队文档区的页面模板。</td></tr>
+      <tr><td><code>src/styles/</code></td><td>设计令牌、基础样式、组件与页面样式。</td></tr>
+      <tr><td><code>docs/</code></td><td>架构、内容规范和设计系统等长期技术文档。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>维护约定</h2>
+  <ul>
+    <li>改内容字段、搜索索引或构建脚本时，同步更新 <code>docs/</code> 中的对应文档。</li>
+    <li>涉及视觉的改动，先在 320 / 390 / 768 / 1024 / 1440px 下检查，再跑 <code>npm run verify</code>。</li>
+    <li>新功能先加到任务看板或 issue，不在一个 PR 里同时重做首页、内容和基础设施。</li>
+    <li>静态站没有后端；需要登录、评论或表单时，先单独讨论数据与审核边界。</li>
+  </ul>
+
+  <div class="doc-callout doc-callout--warm">
+    <Icon name="info" size={16} />
+    <p>
+      技术文档以仓库中的 Markdown 为准。如果这里和仓库描述不一致，以 <code>docs/</code> 下的文档为准，并提 PR 修复入口或说明。
+    </p>
+  </div>
+
+  <p>
+    查看自动化验证结果：<a href={actionsUrl} target="_blank" rel="noopener noreferrer">GitHub Actions ↗</a>
+  </p>
+</DocsLayout>

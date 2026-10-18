@@ -1,0 +1,42 @@
+---
+import Icon from './Icon.astro';
+import { docsGroups } from '../data/docs';
+
+interface Props {
+  current: string;
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="docs-nav" aria-label="文档目录">
+  {docsGroups.map((group) => (
+    <details class="docs-nav__group" open>
+      <summary>
+        <span>{group.title}</span>
+        <span class="docs-nav__count">{group.pages.length}</span>
+        <Icon name="chevron-down" size={12} />
+      </summary>
+      <ul>
+        {group.pages.map((page) => (
+          <li>
+            <a
+              href={page.href}
+              aria-current={page.id === current ? 'page' : undefined}
+              title={page.description}
+            >
+              <span class="docs-nav__emoji" aria-hidden="true">{page.emoji}</span>
+              <span>{page.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  ))}
+
+  <div class="docs-nav__related">
+    <p class="docs-nav__related-label">站内资料</p>
+    <a href="/guide/"><span aria-hidden="true">📖</span>学习指南</a>
+    <a href="/glossary/"><span aria-hidden="true">🔤</span>AI 术语表</a>
+  </div>
+</nav>
