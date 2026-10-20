@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
   { label: '术语表', href: '/glossary/', description: 'AI 术语速查' },
   { label: '工具资源', href: '/tools/', description: '按真实场景整理的工具索引' },
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
-  { label: '社区', href: '/community/', description: '版块、公约与讨论起点' },
+  { label: '社区', href: '/community/', description: '暂不开放' },
   { label: '活动', href: '/events/', description: '一起工作坊、共创与开放麦' },
 ];
 
@@ -87,7 +87,7 @@ export const footerGroups = [
   {
     title: '参与',
     links: [
-      { label: '社区版块', href: '/community/' },
+      { label: '社区（暂不开放）', href: '/community/' },
       { label: '活动形式', href: '/events/' },
       { label: '共建方式', href: '/about/#contribute' },
       { label: '纠错与贡献', href: `${repository.url}/blob/main/CONTRIBUTING.md` },

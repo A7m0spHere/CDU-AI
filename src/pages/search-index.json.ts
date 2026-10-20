@@ -90,9 +90,9 @@ export const GET: APIRoute = async () => {
     {
       type: '页面',
       title: '社区',
-      description: '版块、讨论起点与公约；交流区暂未开放。',
+      description: '社区功能暂不开放。',
       href: '/community/',
-      keywords: '社区 论坛 讨论 提问 公约',
+      keywords: '社区 论坛 讨论 暂不开放',
     },
     {
       type: '页面',

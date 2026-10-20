@@ -57,7 +57,7 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
 | 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |
 | 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)（后续会迁移为 Markdown，见 [#8](https://github.com/A7m0spHere/CDU-AI/issues/8)） |
-| 社区、活动、首页入口 | `src/data/community.ts`、`events.ts`、`home.ts` |
+| 活动、首页入口 | `src/data/events.ts`、`home.ts` |
 | 全站搜索索引 | [`src/pages/search-index.json.ts`](src/pages/search-index.json.ts)，构建时生成，不要手工编辑 |
 | 技术文档 | [`docs/`](docs/)：架构、内容规范、设计系统 |
 | 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
@@ -135,12 +135,13 @@ updated: "2026-10-18"
 
 正文用二级标题分成固定几节：`一句话说清`、`打个比方`、`它是怎么运作的`、`你会碰到它的场景`、`常见误解`，需要时再加 `想再深入一点`。面向零基础读者，不堆术语；必须出现的术语要当场讲清或指向本表另一条。
 
-### 工具与社区内容
+### 工具内容
 
 - 工具只收录官方入口，不写聚合站、网盘和邀请码；
 - 价格、额度、可用性会变化，不写死具体数字；收录不等于推荐；
 - 活动只写已确认的形式和流程，不虚构日期、场地、嘉宾和人数；
-- 作品示例与社区内容要有明确状态标注。
+- 作品示例要有明确状态标注。
+- 社区功能已关闭，不再维护社区数据；如需重启，先走设计/内容评审。
 
 ## 6. 本地开发与验证（可选）
 

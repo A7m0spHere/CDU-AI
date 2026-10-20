@@ -8,7 +8,6 @@ import ToolCard from '../components/ToolCard.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { site, guideStages } from '../data/site';
 import { tools, toolCategories } from '../data/tools';
-import { communityChannels, starterTopics, communityPrinciples } from '../data/community';
 import '../styles/home-v2.css';
 
 const guideModules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
@@ -253,19 +252,18 @@ const heroLinks = [
           eyebrow="社区与活动"
           title="筹备中"
           headingId="status-title"
-          description="交流区与活动尚未开放，以下为已规划的版块与形式。"
+          description="社区暂不开放；活动与项目状态如下。"
         />
 
         <div class="home-status-grid">
-          <a class="card card--lift home-status-card" href="/community/">
+          <article class="card home-status-card" data-community-closed>
             <div class="home-status-card__head">
               <span class="home-status-card__icon"><Icon name="users" size={20} /></span>
-              <span class="badge">M1 试运行</span>
+              <span class="badge">暂不开放</span>
             </div>
             <h3>社区</h3>
-            <p>{communityChannels.length} 个版块、{starterTopics.length} 个讨论起点和 {communityPrinciples.length} 条公约。当前不开放注册、发帖或评论。</p>
-            <span class="link-arrow">查看社区<Icon name="arrow-right" size={15} /></span>
-          </a>
+            <p>社区暂不开放：交流区未开放注册、发帖或评论，开放时间确定后另行公布。</p>
+          </article>
 
           <a class="card card--lift home-status-card" href="/events/">
             <div class="home-status-card__head">
