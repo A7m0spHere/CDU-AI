@@ -154,9 +154,10 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 `npm run verify` 是统一入口，包含：
 
 1. `astro check`：Astro/TypeScript 类型与内容 schema 检查。
-2. `astro build`：static 生产构建。
-3. `node --test tests/site.test.mjs`：检查全部页面（含每个术语详情页）存在、文档结构、唯一 h1、页面更新时间与编辑入口、学习指南 Notion 文档结构、指南内容清单与排序、搜索索引覆盖与锚点、M0 示例/筹备状态标注、非官方声明、术语条目与详情页结构、外链安全属性。
-4. `scripts/check-links.mjs`：扫描构建后的 HTML，检查站内链接与锚点是否存在。
+2. `scripts/check-content.mjs`：文件级内容一致性检查——必填字段、日期格式、order 唯一性、工具 / 术语引用完整性、内容状态字段组合；`tests/fixtures/content/` 提供新增合法 / 错误条目的样例供检查器自测。
+3. `astro build`：static 生产构建。
+4. `node --test tests/site.test.mjs`：页面清单与数量从内容目录推导，检查文档结构、唯一 h1、更新时间与编辑入口、Notion 文档结构、搜索索引覆盖与锚点、M0 状态标注、内容状态展示、外链安全属性；新增/删除内容不需要改测试。
+5. `scripts/check-links.mjs`：扫描构建后的 HTML，检查站内链接与锚点是否存在。
 
 视觉验收另外在 320 / 390 / 768 / 1024 / 1440px 下用 Playwright 检查；可访问性用 axe-core 在浅色/深色主题以及搜索弹层打开状态下扫描 WCAG A/AA 与 best-practice 规则。M0 最终扫描为零违规；真实浏览器截图与脚本不进入代码仓库（`work/` 已忽略）。
 
