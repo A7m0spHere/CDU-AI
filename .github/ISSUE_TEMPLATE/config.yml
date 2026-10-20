@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 先看贡献指南（推荐）
+    url: https://github.com/A7m0spHere/CDU-AI/blob/main/CONTRIBUTING.md
+    about: 只在网页上改几个字，不需要命令行：找页面 → 点页面底部的「在 GitHub 编辑本页」→ 提交 PR。
+  - name: 项目说明与内容边界
+    url: https://github.com/A7m0spHere/CDU-AI#readme
+    about: 了解项目定位、M0 边界与「不编事实、收录不等于推荐」的内容原则。

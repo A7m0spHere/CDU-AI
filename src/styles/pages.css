@@ -3017,6 +3017,10 @@
   line-height: 1.85;
 }
 
+.contribute-actions {
+  margin-top: 1.2rem;
+}
+
 .contribution-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

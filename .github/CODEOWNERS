@@ -1,0 +1,7 @@
+# 默认审阅人：内容与协作相关改动。
+# 注意：CODEOWNERS 只在仓库开启「Require review from Code Owners」后才强制；
+# 单人维护阶段请保持非强制，或确保有第二位维护者后再开启（见 CONTRIBUTING.md 第 9 节）。
+*              @A7m0spHere
+/.github/      @A7m0spHere
+/docs/         @A7m0spHere
+/src/content/  @A7m0spHere
