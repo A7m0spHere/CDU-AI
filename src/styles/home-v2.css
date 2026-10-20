@@ -103,26 +103,6 @@
   border-bottom-color: currentColor;
 }
 
-.home-hero__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.4rem;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--home-rule);
-  color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.04em;
-  list-style: none;
-}
-
-.home-hero__meta li::before {
-  content: '/';
-  margin-right: 0.45rem;
-  color: var(--line-strong);
-}
-
 /* 索引面板 */
 .home-hero__board {
   overflow: hidden;
@@ -669,10 +649,6 @@
 
   .home-hero__wordmark {
     font-size: clamp(3.1rem, 13vw, 4.4rem);
-  }
-
-  .home-hero__meta {
-    gap: 0.35rem 1rem;
   }
 
   .home-path__item {
