@@ -37,7 +37,7 @@ body {
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  box-shadow: none;
+  box-shadow: 0 0 0 1px var(--line);
 }
 
 .brand-text strong {

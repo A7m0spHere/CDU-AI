@@ -134,11 +134,14 @@
 
 ## 5. 动效
 
-- 时长：快 140ms / 常规 220ms / 慢 420ms。
-- 缓动：\`cubic-bezier(0.22, 1, 0.36, 1)\`，不弹跳。
-- 允许：搜索框淡入、卡片悬停抬升、主题和筛选状态过渡、箭头位移。
-- 禁止：滚动劫持、视差、自动播放、持续脉冲、列表逐项飞入。
-- \`prefers-reduced-motion: reduce\` 时关闭平滑滚动与搜索弹出动画。
+完整规范（含场景、时长表与验收方式）见 [DESIGN-REVIEW.md](DESIGN-REVIEW.md) 第 5 节。
+
+- 时长：即时 120ms / 快 140ms / 常规 220ms / 慢 420ms / 滚动 reveal 520ms / 首屏进入 560ms。
+- 缓动：`cubic-bezier(0.22, 1, 0.36, 1)`，不弹跳；弹簧缓动只用于图标小反馈。
+- 允许：首屏 stagger 进入、滚动一次性 reveal、卡片悬停抬升、箭头位移、搜索弹层淡入、主题和筛选状态过渡。
+- 禁止：滚动劫持、视差、自动播放、持续脉冲、列表逐项飞入、大块内容位移。
+- 只动 `opacity` / `transform`；不监听 scroll 做动画，使用 IntersectionObserver。
+- `prefers-reduced-motion: reduce` 时关闭全部动画与 reveal 隐藏，内容立即完整可见；打印样式同样强制可见。
 
 ## 6. 可访问性
 
@@ -169,3 +172,25 @@ src/styles/
 - 不引入 CSS 框架；类名采用 BEM 风格的短横线命名。
 - 深色主题只通过语义令牌切换。
 - 改动视觉后检查 1440 / 1024 / 390 / 320 四个宽度，并重跑 \`npm run verify\` 与 axe。
+
+## 8. 视觉升级记录
+
+### #5 阶段一：首页「编辑索引」样板（待维护者确认）
+
+- 设计评审、审计结论与两套方向见 [DESIGN-REVIEW.md](DESIGN-REVIEW.md)。
+- 阶段一只改首页：新 Hero、编号分区、行式学习路线、作品空状态、首屏进入与滚动 reveal；其他页面不动。
+- Hero 文案区由带细边框与极淡点阵材质的卡片承接；「AI」字样为 ASCII 字符画（Canvas 实现，约 3KB，无三方库；减少动效时静态，无 JS 时回退普通艺术字）。
+- Hero 右侧为「看板娘学习引导图」：透明 WebP 人物 + SVG 连线与六个可点击模块；hover / focus 点亮连线并自动轮播，移动端降级为人物 + 2 列网格，减少动效时静态。
+- Hero 左侧卡片悬停 / 键盘聚焦时显示像素粒子背景（纯 Canvas，约 7KB 未压缩；从中心向外出现并缓慢闪烁，减少动效时禁用）。
+- Hero 右侧网络有装饰性瞄准框：hover / focus 模块时四角框吸附，空闲围绕人物呼吸；只在本区域生效，不替换原生鼠标，触摸与减少动效下不启用。
+- 验收截图（真实 Edge 渲染，已提交仓库）：
+
+| 预览 | 文件 |
+| --- | --- |
+| 桌面 1440 浅色（首屏） | [design/home-a/home-1440-light.png](design/home-a/home-1440-light.png) |
+| 桌面 1440 深色（首屏） | [design/home-a/home-1440-dark.png](design/home-a/home-1440-dark.png) |
+| 桌面 1440 浅色（整页） | [design/home-a/home-1440-light-full.png](design/home-a/home-1440-light-full.png) |
+| 移动 390 浅色（整页） | [design/home-a/home-390-light-full.png](design/home-a/home-390-light-full.png) |
+| 减少动效 1440（整页） | [design/home-a/home-1440-light-reduced-motion.png](design/home-a/home-1440-light-reduced-motion.png) |
+
+- 维护者确认方向后才进入阶段二（共享组件、文档区、术语/工具/作品页）。

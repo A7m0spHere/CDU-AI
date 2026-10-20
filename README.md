@@ -14,9 +14,9 @@
 | 内容 | **内容重建中**：2026-10-20 已移除 8 篇指南 / 38 条术语 / 4 个作品示例；写作模板见 `src/content/*/_TEMPLATE.md` |
 | 贡献方式 | GitHub 网页 Issue / PR，无需命令行；说明见 [CONTRIBUTING.md](CONTRIBUTING.md) |
 | 账号 / 投稿 / 评论 / 活动报名 | 未开放 |
-| 社区与活动 | 只有版块和形式设计，不展示真实排期或真实帖子 |
+| 社区与活动 | 社区功能已关闭（/community/ 仅提示暂不开放）；活动只有形式设计，不展示真实排期 |
 | 作品广场 | 当前为空；重新填充后仍会明确标注「策划示例」，不是真实学生投稿 |
-| 视觉资源 | Logo、favicon 和作品封面暂为占位素材 |
+| 视觉资源 | Logo 与 favicon 已使用维护者提供的角色插画；作品封面仍为占位素材 |
 | 官方关系 | 非成都大学官方平台 |
 
 仓库公开用于开发协作和预览，**不代表项目已经完成或正式发布**。功能清单描述的是当前开发范围，不是上线承诺。
@@ -30,19 +30,24 @@
 - **推荐或更新工具**：提交 [工具建议](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)。
 - **改代码、样式或测试**：先读 [CONTRIBUTING.md](CONTRIBUTING.md)，再按 PR 模板提交。
 
-贡献流程：找到页面 → 点「在 GitHub 编辑本页」→ Fork 后在网页编辑 → 提交 PR（模板会询问验证方式、事实来源、隐私与版权、AI 辅助声明）→ 维护者审核，CI 自动运行 `npm run verify` → 合并发布。
+贡献流程：找到页面 → 点「在 GitHub 编辑本页」→ Fork 后在网页编辑 → 提交 PR（模板会询问验证方式、事实来源与隐私版权；文档 / 内容类修改注明 AI 辅助情况）→ 维护者审核，CI 自动运行 `npm run verify` → 合并发布。
 
 - 内容按仓库 [LICENSE](LICENSE)（MIT）发布；引用与图片需要能说明来源或授权。
-- AI 允许用于整理、润色和起草，但必须在 PR / issue 中声明用途；不能虚构经历、访谈、数据或「同学评价」。
+- AI 允许用于整理、润色和起草；文档 / 内容贡献必须在 PR 或 issue 中声明用途，纯工程改动无需声明；不能虚构经历、访谈、数据或「同学评价」。
 - M0 不开放匿名投稿：贡献需要一个公开的 GitHub 账号；涉及个人经历可先与维护组确认公开范围。
 
-## 品牌与占位素材
+## 品牌与视觉素材
 
-站点名称为 **CDU AI**。当前的 LogoMark、favicon 和作品封面仍使用占位图形，正式标识与主视觉可以后续替换；组件尺寸和替换位置已经保留。
+站点名称为 **CDU AI**。左上角 Logo 与浏览器 favicon 已替换为维护者提供的角色插画；作品封面仍为占位图形，组件尺寸和替换位置保留。
 
-- Logo：[src/components/LogoMark.astro](src/components/LogoMark.astro)
-- Favicon：[public/favicon.svg](public/favicon.svg)
-- 作品封面：[src/components/WorkArt.astro](src/components/WorkArt.astro)
+- Logo 组件：[src/components/LogoMark.astro](src/components/LogoMark.astro)
+- Logo 资源：[public/brand/logo-512.png](public/brand/logo-512.png)（页面使用 160px 版本，按 2–4 倍屏预留）
+- Favicon：[public/favicon-32.png](public/favicon-32.png) / [public/favicon-16.png](public/favicon-16.png) / [public/apple-touch-icon.png](public/apple-touch-icon.png)；PWA 图标见 [public/site.webmanifest](public/site.webmanifest)
+- 原始插画（不参与构建）：[docs/design/brand/logo-source.png](docs/design/brand/logo-source.png)
+- 看板娘（首页 Hero 右侧）：[public/brand/mascot.webp](public/brand/mascot.webp)，原始透明插画见 [docs/design/brand/mascot-source.png](docs/design/brand/mascot-source.png)
+- 作品封面：[src/components/WorkArt.astro](src/components/WorkArt.astro)（仍为占位）
+
+> 角色插画由维护者提供，用于本站品牌展示；如需在其他场合复用请联系维护组。
 
 ## 这是什么
 
@@ -51,12 +56,12 @@
 M0 先搭可持续迭代的框架，而不是堆完整功能。目前已经进入可构建、可预览的开发版本，但仍在继续完善：
 
 - 全局搜索：顶栏搜索框 / Ctrl·Cmd + K，支持页面、指南章节、术语、工具和作品；结果可直达正文锚点
-- 首页：定位、入口、学习路径、工具与作品预览、社区与活动预告
+- 首页：定位、入口、学习路径、工具与作品预览、活动与项目状态
 - 学习指南：三阶段框架 + Notion 风格文档排版（内容重建中，模板见 `src/content/guide/_TEMPLATE.md`）；每篇自动生成更新时间、参考来源、内容状态和 GitHub 编辑入口
 - 术语表：术语详情页、分类筛选与来源标注框架（内容重建中，模板见 `src/content/glossary/_TEMPLATE.md`）
 - 工具资源：按真实使用场景分类、可搜索筛选的工具目录
 - 作品广场：「策划示例」的组织方式（内容重建中，模板见 `src/content/works/_TEMPLATE.md`）
-- 社区：版块设计、讨论起点、社区公约与参与路径（M0 不开放真实发帖）
+- 社区：功能已关闭，页面仅保留「暂不开放」提示（不开放注册、发帖或评论）
 - 活动：活动形式蓝图与项目路线（不虚构日期、场地、嘉宾或参与人数）
 - 关于 / 共建：项目边界、透明说明与内容协作规范
 
@@ -119,13 +124,12 @@ src/
 │   ├── guide/           # 学习指南：一篇 Markdown = 一个模块（当前仅 _TEMPLATE.md）
 │   ├── glossary/        # 术语表：一个词一篇 Markdown（当前仅 _TEMPLATE.md）
 │   └── works/           # 作品广场：示例提案 / 未来真实投稿（当前仅 _TEMPLATE.md）
-├── data/                # 工具、术语、社区、活动、首页入口等结构化内容
+├── data/                # 工具、术语、活动、首页入口等结构化内容
 │   ├── types.ts         # 内容类型约束
 │   ├── site.ts          # 站点名、导航、页脚与透明说明
 │   ├── home.ts          # 首页入口与学习地图
 │   ├── glossary.ts      # 术语分类与展示名
 │   ├── tools.ts         # 工具目录
-│   ├── community.ts     # 社区版块、话题、公约
 │   └── events.ts        # 活动形式与项目路线
 ├── layouts/             # 全局页面骨架
 ├── pages/               # 路由页面 + 构建时搜索索引 search-index.json
@@ -136,7 +140,7 @@ tests/site.test.mjs      # 构建产物的结构与内容边界测试
 tests/fixtures/content/  # 内容检查器的「合法 / 错误条目」测试样例
 .github/
 ├── ISSUE_TEMPLATE/          # 纠错 / 经验投稿 / 工具建议的 GitHub 表单
-├── pull_request_template.md # PR 自检模板（来源、隐私、AI 声明）
+├── pull_request_template.md # PR 自检模板（来源、隐私；文档内容类含 AI 声明）
 ├── CODEOWNERS               # 默认审阅人（未强制，见 CONTRIBUTING）
 └── workflows/ci.yml         # CI：类型检查、构建、测试与链接检查
 docs/
@@ -157,7 +161,7 @@ scripts/check-content.mjs # 内容字段、order、引用与审校状态一致�
 2. 学习指南：复制 `src/content/guide/_TEMPLATE.md` 为 `序号-英文短名.md`，按 frontmatter 填写；页面自动生成并排序。
 3. 作品示例：复制 `src/content/works/_TEMPLATE.md` 并改名；M0 必须保持 `status: example`。
 4. 术语：复制 `src/content/glossary/_TEMPLATE.md` 并改名，按固定分节写白话解释；分类在 `src/data/glossary.ts`。
-5. 工具 / 社区 / 活动：编辑 `src/data/*.ts` 中对应数组，不改页面结构。
+5. 工具 / 活动：编辑 `src/data/*.ts` 中对应数组，不改页面结构。
 6. 在网页上直接改：打开页面，点底部的「在 GitHub 编辑本页」，按 [CONTRIBUTING.md](CONTRIBUTING.md) 的步骤提交 PR。
 7. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。
 

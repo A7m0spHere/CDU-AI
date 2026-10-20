@@ -30,36 +30,6 @@ export interface Tool {
   caution?: string;
 }
 
-export interface CommunityChannel {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  goodFor: string;
-  status: string;
-  icon: 'sprout' | 'wrench' | 'spark' | 'users';
-}
-
-export interface StarterTopic {
-  id: string;
-  question: string;
-  context: string;
-  tags: string[];
-  status: string;
-}
-
-export interface CommunityPrinciple {
-  id: string;
-  title: string;
-  text: string;
-}
-
-export interface JoiningStep {
-  step: string;
-  title: string;
-  text: string;
-}
-
 export interface EventFormat {
   id: string;
   title: string;

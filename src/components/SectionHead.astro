@@ -10,15 +10,35 @@ interface Props {
   linkLabel?: string;
   centered?: boolean;
   id?: string;
+  /** 区块编号（如 01），用于首页编辑式分区。 */
+  index?: string;
+  /** 提供给 <h2> 的 id，便于 section 的 aria-labelledby 引用。 */
+  headingId?: string;
 }
 
-const { eyebrow, title, titleLines, description, link, linkLabel = '查看全部', centered = false, id } = Astro.props;
+const {
+  eyebrow,
+  title,
+  titleLines,
+  description,
+  link,
+  linkLabel = '查看全部',
+  centered = false,
+  id,
+  index,
+  headingId,
+} = Astro.props;
 ---
 
 <div class:list={['section-head', { 'section-head--center': centered }]} id={id}>
   <div class="section-head__copy">
-    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-    <h2>
+    {(eyebrow || index) && (
+      <p class="eyebrow section-head__eyebrow">
+        {index && <span class="section-head__index mono">{index}</span>}
+        {eyebrow && <span>{eyebrow}</span>}
+      </p>
+    )}
+    <h2 id={headingId}>
       {titleLines && titleLines.length > 0
         ? titleLines.map((line, index) => (
             <Fragment>

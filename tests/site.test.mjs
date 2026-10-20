@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,16 +37,6 @@ const parsedTools = [...toolsBlock.matchAll(/id: '([^']+)',\s*\n\s*name: '([^']+
   name: match[2],
 }));
 assert.ok(parsedTools.length > 0, '无法从 src/data/tools.ts 解析工具列表，请更新测试的解析逻辑');
-
-/** 读取 src/data/*.ts 中某个导出数组的条目数（用于校验页面文案没有写死数量）。 */
-async function countDataEntries(file, exportName) {
-  const raw = await readFile(path.join(root, 'src/data', file), 'utf8');
-  const start = raw.indexOf('export const ' + exportName);
-  assert.ok(start !== -1, '无法在 ' + file + ' 找到导出 ' + exportName);
-  const next = raw.indexOf('export const ', start + 1);
-  const block = raw.slice(start, next === -1 ? undefined : next);
-  return (block.match(/\bid: '/g) || []).length;
-}
 
 const expectedRoutes = [
   'index.html',
@@ -351,8 +342,8 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   }
 
   const community = await read('community/index.html');
-  assert.match(community, /交流区尚未开放/);
-  assert.match(community, /非真实帖子/);
+  assert.match(community, /社区暂不开放/, '社区页应提示暂不开放');
+  assert.doesNotMatch(community, /参与路径|讨论起点|社区公约|版块/, '社区页不应再包含指引或版块内容');
 
   const events = await read('events/index.html');
   assert.match(events, /本页没有活动日历/);
@@ -481,17 +472,10 @@ test('页面文案中的数量来自数据，不写死', async () => {
     assert.ok(home.includes('作品示例正在准备中'), '首页缺少作品占位说明');
   }
 
-  const channelCount = await countDataEntries('community.ts', 'communityChannels');
-  const topicCount = await countDataEntries('community.ts', 'starterTopics');
-  const principleCount = await countDataEntries('community.ts', 'communityPrinciples');
-  assert.ok(
-    communityPage.includes(channelCount + ' 个版块、' + topicCount + ' 个讨论起点与 ' + principleCount + ' 条社区公约'),
-    '社区页数量文案与数据不一致',
-  );
-  assert.ok(
-    home.includes(channelCount + ' 个版块、' + topicCount + ' 个讨论起点和 ' + principleCount + ' 条公约'),
-    '首页社区数量文案与数据不一致',
-  );
+  // 社区功能已关闭：首页与社区页只保留「暂不开放」提示，不再展示版块数量或参与指引。
+  assert.ok(communityPage.includes('暂不开放'), '社区页应提示暂不开放');
+  assert.ok(home.includes('暂不开放'), '首页应说明社区暂不开放');
+  assert.ok(!home.includes('个版块'), '首页不应再展示社区版块数量');
 });
 
 test('内容检查器能识别新增合法条目与错误条目（fixture，不污染主站内容）', async () => {
@@ -524,6 +508,37 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
   for (const collection of ['guide', 'works', 'glossary']) {
     const result = await validateCollection({ collection, dir: sources[collection], context });
     assert.deepEqual(result.errors, [], collection + ' 内容一致性检查发现问题：' + JSON.stringify(result.errors));
+  }
+});
+
+test('品牌图标与 PWA 资源完整，并由页面与 manifest 引用', async () => {
+  const home = await read('index.html');
+  for (const asset of ['/favicon-32.png', '/favicon-16.png', '/apple-touch-icon.png', '/brand/logo-160.png']) {
+    assert.ok(home.includes(asset), '首页缺少图标引用：' + asset);
+    assert.ok(existsSync(path.join(dist, asset.slice(1))), '缺少构建资源：' + asset);
+  }
+  // 首页右侧看板娘学习引导图
+  assert.ok(home.includes('/brand/mascot.webp'), '首页缺少看板娘图片引用');
+  assert.ok(existsSync(path.join(dist, 'brand/mascot.webp')), '缺少构建资源：/brand/mascot.webp');
+  const networkLinks = [
+    ['学习指南', '/guide/'],
+    ['AI 术语', '/glossary/'],
+    ['工具资源', '/tools/'],
+    ['作品广场', '/works/'],
+    ['活动信息', '/events/'],
+    ['参与共建', '/about/#contribute'],
+  ];
+  assert.ok(home.includes('data-hero-network'), '首页缺少看板娘学习引导图容器');
+  for (const [label, href] of networkLinks) {
+    assert.ok(home.includes('>' + label + '<') || home.includes(label), '引导图缺少节点：' + label);
+    assert.ok(home.includes('href="' + href + '"'), '引导图缺少跳转：' + href);
+  }
+
+  const manifest = JSON.parse(await read('site.webmanifest'));
+  const sources = manifest.icons.map((icon) => icon.src);
+  for (const source of ['/icon-192.png', '/icon-512.png']) {
+    assert.ok(sources.includes(source), 'manifest 缺少图标：' + source);
+    assert.ok(existsSync(path.join(dist, source.slice(1))), '缺少构建资源：' + source);
   }
 });
 
