@@ -24,14 +24,6 @@ const stageModules = guideStages.map((stage) => ({
 const categoryLabel = (categoryId: string) =>
   toolCategories.find((category) => category.id === categoryId)?.name ?? '工具';
 
-const heroLinks = [
-  { label: '第一次接触 AI', target: '学习指南', href: '/guide/' },
-  { label: '想查一个 AI 术语', target: '术语表', href: '/glossary/' },
-  { label: '想找一个顺手的工具', target: '工具资源', href: '/tools/' },
-  { label: '想看看能做成什么', target: '作品广场', href: '/works/' },
-  { label: '想参与交流', target: '社区', href: '/community/' },
-  { label: '想了解活动', target: '活动', href: '/events/' },
-];
 ---
 
 <BaseLayout>
@@ -72,35 +64,6 @@ const heroLinks = [
           </div>
 
         </div>
-
-        <aside class="home-hero__board" aria-label="从哪里开始" data-enter style="--enter-index: 2">
-          <div class="home-hero__board-head">
-            <p class="home-hero__board-label mono">START HERE / 从哪里开始</p>
-            <span class="home-hero__stamp mono">M0</span>
-          </div>
-          <p class="home-hero__board-desc">按你想做的事选择入口</p>
-
-          <nav class="home-index" aria-label="快速入口">
-            {heroLinks.map((link, index) => (
-              <a class="home-index__row" href={link.href}>
-                <span class="home-index__no mono">{String(index + 1).padStart(2, '0')}</span>
-                <span class="home-index__label">{link.label}</span>
-                <span class="home-index__target">
-                  {link.target}
-                  <Icon name="arrow-right" size={14} />
-                </span>
-              </a>
-            ))}
-          </nav>
-
-          <div class="home-hero__board-foot">
-            <span>不知道怎么开始？</span>
-            <a class="link-arrow" href="/about/#contribute">
-              参与共建
-              <Icon name="arrow-right" size={14} />
-            </a>
-          </div>
-        </aside>
       </div>
 
       <div class="container home-status">
