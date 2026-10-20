@@ -201,7 +201,10 @@ export async function validateCollection({ collection, dir, context }) {
     return { errors: [{ file: collection, message: '内容目录不存在：' + dir }], count: 0 };
   }
 
-  const files = (await readdir(dir)).filter((file) => file.endsWith('.md')).sort();
+  // 以 _ 开头的文件是写作模板（如 _TEMPLATE.md），不参与构建，也不参与检查。
+  const files = (await readdir(dir))
+    .filter((file) => file.endsWith('.md') && !file.startsWith('_'))
+    .sort();
   const rows = [];
 
   for (const file of files) {

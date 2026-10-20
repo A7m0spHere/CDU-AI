@@ -11,11 +11,11 @@
 | --- | --- |
 | 项目阶段 | M0 · 基础框架，开发中 |
 | 站点形态 | 可本地构建的静态原型，尚未正式上线 |
-| 内容 | 指南、术语、工具和作品示例仍在补充与校订 |
+| 内容 | **内容重建中**：2026-10-20 已移除 8 篇指南 / 38 条术语 / 4 个作品示例；写作模板见 `src/content/*/_TEMPLATE.md` |
 | 贡献方式 | GitHub 网页 Issue / PR，无需命令行；说明见 [CONTRIBUTING.md](CONTRIBUTING.md) |
 | 账号 / 投稿 / 评论 / 活动报名 | 未开放 |
 | 社区与活动 | 只有版块和形式设计，不展示真实排期或真实帖子 |
-| 作品广场 | 全部为明确标注的策划示例，不是真实学生投稿 |
+| 作品广场 | 当前为空；重新填充后仍会明确标注「策划示例」，不是真实学生投稿 |
 | 视觉资源 | Logo、favicon 和作品封面暂为占位素材 |
 | 官方关系 | 非成都大学官方平台 |
 
@@ -52,17 +52,17 @@ M0 先搭可持续迭代的框架，而不是堆完整功能。目前已经进�
 
 - 全局搜索：顶栏搜索框 / Ctrl·Cmd + K，支持页面、指南章节、术语、工具和作品；结果可直达正文锚点
 - 首页：定位、入口、学习路径、工具与作品预览、社区与活动预告
-- 学习指南：三阶段、8 个模块；浅灰画布 + 白色文档卡，正文采用 Notion 风格排版；每页显示最后更新时间、参考来源和 GitHub 编辑入口
-- 术语表：38 个零基础 AI 术语，每个词一篇白话详解（一句话说清 / 打个比方 / 怎么运作 / 常见误解），可分类筛选、可点开详情；来源统一标注在页面末尾
+- 学习指南：三阶段框架 + Notion 风格文档排版（内容重建中，模板见 `src/content/guide/_TEMPLATE.md`）；每篇自动生成更新时间、参考来源、内容状态和 GitHub 编辑入口
+- 术语表：术语详情页、分类筛选与来源标注框架（内容重建中，模板见 `src/content/glossary/_TEMPLATE.md`）
 - 工具资源：按真实使用场景分类、可搜索筛选的工具目录
-- 作品广场：明确标注的「策划示例」，展示未来投稿作品会如何被组织
+- 作品广场：「策划示例」的组织方式（内容重建中，模板见 `src/content/works/_TEMPLATE.md`）
 - 社区：版块设计、讨论起点、社区公约与参与路径（M0 不开放真实发帖）
 - 活动：活动形式蓝图与项目路线（不虚构日期、场地、嘉宾或参与人数）
 - 关于 / 共建：项目边界、透明说明与内容协作规范
 
 ## 界面预览
 
-> 以下截图来自开发中的静态预览，内容和样式还会继续调整。
+> 以下截图来自内容清空前的开发预览，仅用于展示版式；内容与样式还会继续调整。
 
 | 首页 | 工具资源 |
 | --- | --- |
@@ -116,9 +116,9 @@ npm run check:links # 检查 dist/ 中指向站内的链接是否存在
 src/
 ├── components/          # 可复用 UI（导航、卡片、封面、图标等）
 ├── content/
-│   ├── guide/           # 学习指南：一篇 Markdown = 一个模块
-│   ├── glossary/        # 术语表：一个词一篇 Markdown，含正文详解
-│   └── works/           # 作品广场：示例提案 / 未来真实投稿
+│   ├── guide/           # 学习指南：一篇 Markdown = 一个模块（当前仅 _TEMPLATE.md）
+│   ├── glossary/        # 术语表：一个词一篇 Markdown（当前仅 _TEMPLATE.md）
+│   └── works/           # 作品广场：示例提案 / 未来真实投稿（当前仅 _TEMPLATE.md）
 ├── data/                # 工具、术语、社区、活动、首页入口等结构化内容
 │   ├── types.ts         # 内容类型约束
 │   ├── site.ts          # 站点名、导航、页脚与透明说明
@@ -151,10 +151,12 @@ scripts/check-content.mjs # 内容字段、order、引用与审校状态一致�
 
 完整文件地图、写作流程和提交检查见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
+> **内容重建中**：三个内容目录当前只保留 `_TEMPLATE.md` 写作模板。复制模板、去掉文件名开头的下划线并改名后即可开始写；以 `_` 开头的文件不会进入构建。
+
 1. 阅读 [`docs/CONTENT-GUIDE.md`](docs/CONTENT-GUIDE.md)，确认字段、语气与事实边界。
-2. 学习指南：在 `src/content/guide/` 新建 `.md`，按指定 frontmatter 填写；页面自动生成并排序。
-3. 作品示例：在 `src/content/works/` 新建 `.md`。M0 必须保持 `status: example`。
-4. 术语：在 `src/content/glossary/` 新建 `.md`，按固定分节写白话解释；分类在 `src/data/glossary.ts`。
+2. 学习指南：复制 `src/content/guide/_TEMPLATE.md` 为 `序号-英文短名.md`，按 frontmatter 填写；页面自动生成并排序。
+3. 作品示例：复制 `src/content/works/_TEMPLATE.md` 并改名；M0 必须保持 `status: example`。
+4. 术语：复制 `src/content/glossary/_TEMPLATE.md` 并改名，按固定分节写白话解释；分类在 `src/data/glossary.ts`。
 5. 工具 / 社区 / 活动：编辑 `src/data/*.ts` 中对应数组，不改页面结构。
 6. 在网页上直接改：打开页面，点底部的「在 GitHub 编辑本页」，按 [CONTRIBUTING.md](CONTRIBUTING.md) 的步骤提交 PR。
 7. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。

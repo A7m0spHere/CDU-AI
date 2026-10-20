@@ -9,7 +9,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
 async function listMarkdown(dir) {
-  return (await readdir(dir)).filter((file) => file.endsWith('.md')).sort();
+  // 以 _ 开头的文件是写作模板（如 _TEMPLATE.md），不参与构建，也不进入测试清单。
+  return (await readdir(dir)).filter((file) => file.endsWith('.md') && !file.startsWith('_')).sort();
 }
 
 // 页面清单、数量与引用都从实际内容集合推导，新增/删除条目不需要改测试。
@@ -136,9 +137,6 @@ test('指南内容清单驱动导航与搜索覆盖', async () => {
     assert.ok(['start', 'make', 'share'].includes(entry.stage), entry.slug + ' 的 stage 不合法');
     assert.match(entry.updated, /^\d{4}-\d{2}-\d{2}$/, entry.slug + ' 的 updated 不合法');
   }
-  for (const stage of ['start', 'make', 'share']) {
-    assert.ok(entries.some((entry) => entry.stage === stage), '阶段 ' + stage + ' 至少需要一篇指南');
-  }
 
   const search = JSON.parse(await read('search-index.json'));
   const guideIndex = await read('guide/index.html');
@@ -157,7 +155,12 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   const minimumEntries = parsedTools.length + guideSlugs.length + workSlugs.length + glossarySlugs.length;
   assert.ok(data.length >= minimumEntries, '搜索索引条目过少：' + data.length + ' < ' + minimumEntries);
   const types = new Set(data.map((item) => item.type));
-  for (const type of ['页面', '指南', '章节', '工具', '作品', '术语']) {
+  const requiredTypes = ['页面', '工具'];
+  if (guideSlugs.length > 0) requiredTypes.push('指南');
+  if (workSlugs.length > 0) requiredTypes.push('作品');
+  if (glossarySlugs.length > 0) requiredTypes.push('术语');
+  if (guideSlugs.length + workSlugs.length > 0) requiredTypes.push('章节');
+  for (const type of requiredTypes) {
     assert.ok(types.has(type), '搜索索引缺少类型：' + type);
   }
   for (const item of data) {
@@ -169,10 +172,10 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
     counts[item.type] = (counts[item.type] ?? 0) + 1;
     return counts;
   }, {});
-  assert.equal(countByType['指南'], guideSlugs.length, '搜索索引中的指南数量与内容目录不一致');
-  assert.equal(countByType['作品'], workSlugs.length, '搜索索引中的作品数量与内容目录不一致');
-  assert.equal(countByType['工具'], parsedTools.length, '搜索索引中的工具数量与工具目录不一致');
-  assert.equal(countByType['术语'], glossarySlugs.length, '搜索索引中的术语数量与内容目录不一致');
+  assert.equal(countByType['指南'] ?? 0, guideSlugs.length, '搜索索引中的指南数量与内容目录不一致');
+  assert.equal(countByType['作品'] ?? 0, workSlugs.length, '搜索索引中的作品数量与内容目录不一致');
+  assert.equal(countByType['工具'] ?? 0, parsedTools.length, '搜索索引中的工具数量与工具目录不一致');
+  assert.equal(countByType['术语'] ?? 0, glossarySlugs.length, '搜索索引中的术语数量与内容目录不一致');
 
   const sectionItems = data.filter((item) => item.type === '章节');
   // 每篇指南 / 作品至少贡献一条章节级记录，防止内容漏索引。
@@ -211,7 +214,13 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   }
 });
 test('学习指南详情采用 Notion 文档结构', async () => {
-  const guide = await read('guide/02-first-conversation/index.html');
+  if (guideSlugs.length === 0) {
+    const guideIndex = await read('guide/index.html');
+    assert.match(guideIndex, /data-content-empty/, '空指南页缺少「内容准备中」占位');
+    assert.match(guideIndex, /内容准备中/);
+    return;
+  }
+  const guide = await read('guide/' + guideSlugs[0] + '/index.html');
   assert.match(guide, /notion-page/);
   assert.match(guide, /notion-page-head/);
   assert.doesNotMatch(guide, /notion-page-properties/);
@@ -224,7 +233,6 @@ test('术语表内容与来源标注存在', async () => {
   const glossary = await read('glossary/index.html');
   assert.match(glossary, /AI 术语表/);
   assert.match(glossary, /VibeHub/);
-  assert.match(glossary, /id="ai-hallucination"/);
   assert.match(glossary, /参考 VibeHub（vibe-hub\.org）的 AI 术语图鉴/);
   assert.doesNotMatch(glossary, /href="https:\/\/vibe-hub\.org/);
   const termCount = (glossary.match(/class="glossary-term"/g) || []).length;
@@ -314,23 +322,33 @@ test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () 
     assert.match(html, /github\.com\/A7m0spHere\/CDU-AI\/edit\/main\//, route + ' 编辑链接错误');
   }
 
-  const sourcedGuide = await read('guide/02-first-conversation/index.html');
-  assert.match(sourcedGuide, /参考来源/);
-  assert.match(sourcedGuide, /platform\.claude\.com/);
+  for (const file of guideFiles) {
+    const raw = await readFile(path.join(sources.guide, file), 'utf8');
+    if (!/^sources:/m.test(raw)) continue;
+    const slug = file.replace(/\.md$/, '');
+    const html = await read('guide/' + slug + '/index.html');
+    assert.match(html, /参考来源/, slug + ' 有 sources 但页面缺少参考来源区');
+  }
 
   const glossary = await read('glossary/index.html');
-  assert.match(glossary, /最后更新：\d{4}-\d{2}-\d{2}/);
   assert.match(glossary, /在 GitHub 编辑术语表/);
+  if (glossarySlugs.length > 0) {
+    assert.match(glossary, /最后更新：\d{4}-\d{2}-\d{2}/);
+  } else {
+    assert.match(glossary, /内容准备中/);
+  }
 });
 
 test('M0 的示例、社区与活动状态都有明确标注', async () => {
   const works = await read('works/index.html');
   assert.match(works, /策划示例/);
-  assert.match(works, /不是真实学生作品/);
+  assert.match(works, /不是真实学生(作品|投稿)/);
 
-  const workDetail = await read('works/01-canteen-picker/index.html');
-  assert.match(workDetail, /策划示例 · 非真实投稿/);
-  assert.match(workDetail, /这是一条策划示例/);
+  if (workSlugs.length > 0) {
+    const workDetail = await read('works/' + workSlugs[0] + '/index.html');
+    assert.match(workDetail, /策划示例 · 非真实投稿/);
+    assert.match(workDetail, /这是一条策划示例/);
+  }
 
   const community = await read('community/index.html');
   assert.match(community, /交流区尚未开放/);
@@ -397,11 +415,9 @@ function assertContentStatus(html, fields, label) {
 }
 
 test('指南与术语详情页如实展示内容状态，不伪造人工审校', async () => {
-  const guideSource = path.join(root, 'src/content/guide');
-  const guideFiles = (await readdir(guideSource)).filter((file) => file.endsWith('.md')).sort();
   for (const file of guideFiles) {
     const slug = file.replace(/\.md$/, '');
-    const raw = await readFile(path.join(guideSource, file), 'utf8');
+    const raw = await readFile(path.join(sources.guide, file), 'utf8');
     assertContentStatus(await read('guide/' + slug + '/index.html'), frontmatterFields(raw, file), 'guide/' + file);
   }
 
@@ -410,23 +426,17 @@ test('指南与术语详情页如实展示内容状态，不伪造人工审校',
     assertContentStatus(await read('glossary/' + slug + '/index.html'), frontmatterFields(raw, slug + '.md'), 'glossary/' + slug);
   }
 
-  const worksSource = path.join(root, 'src/content/works');
-  const workFiles = (await readdir(worksSource)).filter((file) => file.endsWith('.md')).sort();
   for (const file of workFiles) {
     const slug = file.replace(/\.md$/, '');
-    const raw = await readFile(path.join(worksSource, file), 'utf8');
+    const raw = await readFile(path.join(sources.works, file), 'utf8');
     assertContentStatus(await read('works/' + slug + '/index.html'), frontmatterFields(raw, file), 'works/' + file);
   }
 });
 
 test('审校字段组合合法：reviewedBy / basis / testedOn 保持一致', async () => {
-  const guideSource = path.join(root, 'src/content/guide');
   const pairs = [
-    ...(await readdir(guideSource))
-      .filter((file) => file.endsWith('.md'))
-      .sort()
-      .map((file) => ({ file, dir: guideSource, collection: 'guide' })),
-    ...glossaryFiles.map((file) => ({ file, dir: glossarySource, collection: 'glossary' })),
+    ...guideFiles.map((file) => ({ file, dir: sources.guide, collection: 'guide' })),
+    ...glossaryFiles.map((file) => ({ file, dir: sources.glossary, collection: 'glossary' })),
   ];
 
   for (const { file, dir, collection } of pairs) {
@@ -463,8 +473,13 @@ test('页面文案中的数量来自数据，不写死', async () => {
 
   assert.ok(toolsPage.includes(parsedTools.length + ' 个工具'), '工具页数量与工具目录不一致');
   assert.ok(home.includes(parsedTools.length + ' 个常用工具'), '首页工具数量与工具目录不一致');
-  assert.ok(worksPage.includes(workFiles.length + ' 个策划示例'), '作品页数量与内容目录不一致');
-  assert.ok(home.includes(workFiles.length + ' 个示例'), '首页作品数量与内容目录不一致');
+  if (workFiles.length > 0) {
+    assert.ok(worksPage.includes(workFiles.length + ' 个策划示例'), '作品页数量与内容目录不一致');
+    assert.ok(home.includes(workFiles.length + ' 个示例'), '首页作品数量与内容目录不一致');
+  } else {
+    assert.ok(worksPage.includes('data-content-empty'), '空作品页缺少「内容准备中」占位');
+    assert.ok(home.includes('作品示例正在准备中'), '首页缺少作品占位说明');
+  }
 
   const channelCount = await countDataEntries('community.ts', 'communityChannels');
   const topicCount = await countDataEntries('community.ts', 'starterTopics');
@@ -509,5 +524,40 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
   for (const collection of ['guide', 'works', 'glossary']) {
     const result = await validateCollection({ collection, dir: sources[collection], context });
     assert.deepEqual(result.errors, [], collection + ' 内容一致性检查发现问题：' + JSON.stringify(result.errors));
+  }
+});
+
+test('内容集合为空时保留框架、写作模板与占位状态', async () => {
+  for (const collection of ['guide', 'works', 'glossary']) {
+    const files = await readdir(sources[collection]);
+    assert.ok(files.includes('_TEMPLATE.md'), collection + ' 缺少 _TEMPLATE.md 写作模板');
+  }
+
+  // 下划线模板不能被 Astro 当作内容生成页面
+  for (const collection of ['guide', 'works', 'glossary']) {
+    const dirs = await readdir(path.join(dist, collection));
+    assert.ok(
+      !dirs.some((name) => name.startsWith('_')),
+      collection + ' 的下划线模板不应生成页面：' + dirs.filter((name) => name.startsWith('_')).join(', '),
+    );
+  }
+
+  const expectations = [
+    ['guide/index.html', guideSlugs.length === 0],
+    ['glossary/index.html', glossarySlugs.length === 0],
+    ['works/index.html', workSlugs.length === 0],
+  ];
+  for (const [route, shouldBeEmpty] of expectations) {
+    if (!shouldBeEmpty) continue;
+    const html = await read(route);
+    assert.match(html, /data-content-empty/, route + ' 空集合时缺少占位区块');
+    assert.match(html, /准备中/, route + ' 空集合时缺少「准备中」说明');
+  }
+
+  const home = await read('index.html');
+  if (guideSlugs.length === 0) assert.match(home, /指南内容正在准备中/);
+  if (workSlugs.length === 0) {
+    assert.match(home, /作品示例正在准备中/);
+    assert.doesNotMatch(home, /0 个示例/, '首页不应出现「0 个示例」这类文案');
   }
 });

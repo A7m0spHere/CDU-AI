@@ -63,9 +63,19 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
 | 内容与页面测试 | [`tests/site.test.mjs`](tests/site.test.mjs) |
 | 内容一致性检查 | [`scripts/check-content.mjs`](scripts/check-content.mjs) 与 `tests/fixtures/content/`（合法 / 错误条目样例） |
+| 写作模板 | `src/content/{guide,works,glossary}/_TEMPLATE.md`（当前三个内容目录只保留模板） |
 | 协作模板与 CI | [`.github/`](.github/)：Issue 表单、PR 模板、CODEOWNERS、工作流 |
 
 ## 5. 各内容类型的字段与写法
+
+### 从模板开始（当前内容重建中）
+
+三个内容目录目前只保留 `_TEMPLATE.md` 写作模板，旧内容已清空：
+
+1. 复制对应目录的 `_TEMPLATE.md`，改名为内容文件（例如 `src/content/guide/09-my-first-guide.md`）；
+2. **去掉文件名开头的下划线**——以 `_` 开头的文件不会进入构建，只作为模板；
+3. 按模板里的注释填写 frontmatter 和正文，运行 `npm run verify` 检查；
+4. 内容为空时，列表页会显示「内容准备中」占位；加入第一篇内容后会自动恢复正常列表与详情页。
 
 ### 学习指南
 
@@ -149,6 +159,15 @@ npm run verify     # 类型检查 + 生产构建 + 内容测试 + 站内链接�
 1. `npm run check:content`：检查必填字段、日期格式、order 重复、工具 / 术语引用、审校字段组合等文件级规则；
 2. `npm run build`（或直接 `npm run verify`）：Zod schema 校验 + 页面构建 + 内容与搜索测试 + 站内链接检查；
 3. 修改了检查规则时，在 [`tests/fixtures/content/`](tests/fixtures/content/) 里补充「合法 / 错误」样例，运行 `npm test` 验证检查器仍然生效，不会污染正式内容。
+
+### 内容缓存排查
+
+修改或删除内容后，如果页面/构建仍显示旧内容，先清理 Astro 内容缓存再重试（内容缓存默认在 `node_modules/.astro`，不在 `.astro/`）：
+
+```powershell
+Remove-Item -Recurse -Force node_modules/.astro, .astro, dist
+npm run verify
+```
 
 ### 文档是怎样串起来的
 
