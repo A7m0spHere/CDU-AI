@@ -210,28 +210,6 @@
   margin-top: 2rem;
 }
 
-.term-review {
-  display: flex;
-  gap: 0.45rem;
-  align-items: flex-start;
-  max-width: 740px;
-  margin-top: 1.1rem;
-  color: var(--faint);
-  font-size: 0.72rem;
-  line-height: 1.75;
-}
-
-.term-review svg {
-  flex: none;
-  margin-top: 0.18em;
-}
-
-.term-review a {
-  color: var(--brand);
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
-}
-
 @media (max-width: 640px) {
   .term-related__grid {
     grid-template-columns: 1fr;

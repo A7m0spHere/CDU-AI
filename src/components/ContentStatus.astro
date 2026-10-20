@@ -1,0 +1,93 @@
+---
+import Icon from './Icon.astro';
+import { getContentStatus } from '../data/content-status';
+import type { ReviewFields } from '../data/content-status';
+
+interface Props {
+  data: ReviewFields;
+  context?: 'guide' | 'glossary' | 'work';
+}
+
+const { data, context = 'guide' } = Astro.props;
+const status = getContentStatus(data, { context });
+---
+
+<aside class={`content-status content-status--${status.id}`} data-content-status={status.id} aria-label="内容状态">
+  <p class="content-status__head">
+    <Icon name="info" size={14} />
+    <span>内容状态</span>
+    <strong class="content-status__badge">{status.label}</strong>
+  </p>
+  <p class="content-status__meta">
+    {status.basisLine} · {status.aiLine}
+    {status.reviewLine && <> · {status.reviewLine}</>}
+    {status.contributorsLine && <> · {status.contributorsLine}</>}
+  </p>
+  <p class="content-status__note">
+    {status.note}
+    <a href={status.guidelineUrl} target="_blank" rel="noopener noreferrer">查看标注规范<Icon name="arrow-up-right" size={12} /></a>
+  </p>
+</aside>
+
+<style>
+  .content-status {
+    max-width: 740px;
+    margin-top: 1.6rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg-soft);
+    color: var(--muted);
+    font-size: 0.76rem;
+    line-height: 1.75;
+  }
+
+  .content-status__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.55rem;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+  }
+
+  .content-status__head svg {
+    flex: none;
+  }
+
+  .content-status__badge {
+    padding: 0.08rem 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--surface-muted);
+    color: var(--ink);
+    font-weight: 650;
+  }
+
+  .content-status--reviewed .content-status__badge {
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+
+  .content-status--needs-update .content-status__badge {
+    background: var(--sun-soft);
+    color: var(--sun);
+  }
+
+  .content-status__meta {
+    margin-top: 0.4rem;
+  }
+
+  .content-status__note {
+    margin-top: 0.45rem;
+    color: var(--faint);
+    font-size: 0.72rem;
+  }
+
+  .content-status__note a {
+    margin-left: 0.25rem;
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    white-space: nowrap;
+  }
+</style>

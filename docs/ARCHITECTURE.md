@@ -74,8 +74,11 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 | 集合 | 路径 | 用途 | 关键字段 |
 | --- | --- | --- | --- |
-| `guide` | `src/content/guide/*.md` | 学习模块 | title, summary, stage, order, duration, outcome, forWho, updated, sources, tools, tags |
-| `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated |
+| `guide` | `src/content/guide/*.md` | 学习模块 | title, summary, stage, order, duration, outcome, forWho, updated, sources, tools, tags, reviewed, reviewedBy, needsUpdate, basis, aiUsage, testedOn, testedEnvironment, contributors |
+| `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
+| `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
+
+三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：没有 `reviewed` 一律显示「初稿 · 尚未人工核校」。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
 frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合法时 `astro build` 直接失败。
 
@@ -120,7 +123,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 | 用户与登录 | 导航右侧预留账户位置；先做只读游客体验，再引入认证 |
 | 活动报名 | 活动数据增加 `date/place/capacity/signup`，页面按状态渲染「待定/报名中/已结束」 |
 | 全文搜索 | M0 已有页面、指南/作品章节与术语的静态索引，并支持锚点跳转；M1 可增加中文分词、相关度排序、Pagefind 或服务端搜索 |
-| 内容审核 | 为 frontmatter 增加 `reviewedBy/reviewedAt` 与 CI 校验，不把审核逻辑写进页面 |
+| 内容审核 | M0 已实现 `reviewed/reviewedBy`、状态推导、页面状态展示与审校清单（见 `docs/CONTENT-REVIEW.md`）；M1 增加复核周期提醒、工具目录接入与更细的权限控制 |
 
 ## 8. 演进路线
 

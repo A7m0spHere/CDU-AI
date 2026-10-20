@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import ContentStatus from '../../components/ContentStatus.astro';
 import { glossaryCategories, glossaryCategoryName } from '../../data/glossary';
 import { repository } from '../../data/site';
 import '../../styles/glossary.css';
@@ -159,15 +160,7 @@ const jsonLd = {
         </a>
       </div>
 
-      {!entry.data.reviewed && (
-        <p class="term-review">
-          <Icon name="info" size={13} />
-          <span>
-            本页解释由 AI 协助撰写，尚未人工核校；词条与一句话释义参考 VibeHub 的术语图鉴。
-            发现错误请<a href={repository.url + '/issues'} target="_blank" rel="noopener noreferrer">在 GitHub 提 issue</a>。
-          </span>
-        </p>
-      )}
+      <ContentStatus data={entry.data} context="glossary" />
     </div>
   </div>
 

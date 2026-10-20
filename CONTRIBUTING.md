@@ -60,6 +60,7 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | 社区、活动、首页入口 | `src/data/community.ts`、`events.ts`、`home.ts` |
 | 全站搜索索引 | [`src/pages/search-index.json.ts`](src/pages/search-index.json.ts)，构建时生成，不要手工编辑 |
 | 技术文档 | [`docs/`](docs/)：架构、内容规范、设计系统 |
+| 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
 | 内容与页面测试 | [`tests/site.test.mjs`](tests/site.test.mjs) |
 | 协作模板与 CI | [`.github/`](.github/)：Issue 表单、PR 模板、CODEOWNERS、工作流 |
 
@@ -85,6 +86,8 @@ sources: # 可选；有外部依据时填写，必须可打开
     url: "https://example.com/source"
 tools: ["DeepSeek"] # 必须是工具目录里已有的名字
 tags: ["示例"]
+# 内容状态字段（可选；不写则按「初稿 + 教学示例 + AI 辅助起草」展示）
+# reviewed / reviewedBy / needsUpdate / reviewNote / basis / aiUsage / testedOn / testedEnvironment / contributors
 ---
 ```
 
@@ -116,7 +119,8 @@ updated: "2026-10-18"
 - `related`：相关词条的 id，详情页会渲染成「接着看」；
 - `updated`：最后核对日期；
 - `sources`：支持正文事实的官方文档或原始论文（`title` + `url`），详情页会展示为参考来源；不能只写网站名；
-- `reviewed`：**实际完成逐条人工核校**后再填日期。仅补充来源或由 AI 校订不能算人工核校完成。
+- `reviewed` / `reviewedBy`：**实际完成逐条人工核校**后再填日期与审校人（可笔名）。仅补充来源或由 AI 校订不能算人工核校完成。
+- `needsUpdate` / `reviewNote`、`basis`、`aiUsage`、`testedOn` / `testedEnvironment`、`contributors`：内容状态与依据字段，定义见 [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)；`basis: first-hand` 必须填写亲测日期与环境。
 
 正文用二级标题分成固定几节：`一句话说清`、`打个比方`、`它是怎么运作的`、`你会碰到它的场景`、`常见误解`，需要时再加 `想再深入一点`。面向零基础读者，不堆术语；必须出现的术语要当场讲清或指向本表另一条。
 
@@ -173,7 +177,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 - **真实经历**：是否存在编造的经历、访谈、数据、同学评价；AI 生成内容是否被写成「亲测」。
 - **隐私与版权**：姓名、学号、联系方式、聊天记录、未公开数据；图片与引文是否有来源或授权。
 - **M0 边界**：示例作品保留「策划示例」标注；活动不写未确认的日期、场地与人数；不写学校授权或合作。
-- **状态与 AI 声明**：AI 辅助起草、人工核校、真实经验等状态是否如实标注；PR 中是否声明 AI 用途。内容状态的正式规范由 [#3](https://github.com/A7m0spHere/CDU-AI/issues/3) 制定，落地前按现有字段和页面提示如实标注。
+- **状态与 AI 声明**：页面「内容状态」是否与 frontmatter 一致（未审校不得显示已审核）；`basis`、`aiUsage` 是否如实；PR 中是否声明 AI 用途。规则见 [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)。
 - **链接与页面**：站内链接与外链可达，无占位文字，移动端不溢出。
 
 **处理方式**：不达标时请求修改；长期无响应可关闭并说明；已合并内容发现事实问题，用 revert 或后续 PR 修正并留下说明。
@@ -186,7 +190,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 - **必须**：在 issue 或 PR 模板里声明具体用途；较大篇幅由 AI 起草时，写清哪一部分。
 - **禁止**：虚构经历、访谈、数据、评价；把 AI 生成内容写成「亲测」；把 AI 初稿当作已人工审校；批量生成低质量词条充数量。
 - **责任**：真实性与版权由贡献者和审阅人承担。AI 不是作者，CI 绿灯也不等于内容可信。
-- 术语稿在人工逐条核校前保留页面上的「AI 协助撰写」提示；核校完成后由审阅人补 `reviewed` 日期，再撤下提示。
+- 指南 / 术语 / 作品在人工逐条核校前显示「初稿 · 尚未人工核校」；核校完成后由审阅人补 `reviewed` 与 `reviewedBy`，页面自动切换为「已人工核校」，不要为了消掉提示而提前填日期。
 
 ## 9. 仓库管理设置（需要管理员权限）
 
