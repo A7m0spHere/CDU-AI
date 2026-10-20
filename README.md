@@ -16,7 +16,7 @@
 | 账号 / 投稿 / 评论 / 活动报名 | 未开放 |
 | 社区与活动 | 只有版块和形式设计，不展示真实排期或真实帖子 |
 | 作品广场 | 当前为空；重新填充后仍会明确标注「策划示例」，不是真实学生投稿 |
-| 视觉资源 | Logo、favicon 和作品封面暂为占位素材 |
+| 视觉资源 | Logo 与 favicon 已使用维护者提供的角色插画；作品封面仍为占位素材 |
 | 官方关系 | 非成都大学官方平台 |
 
 仓库公开用于开发协作和预览，**不代表项目已经完成或正式发布**。功能清单描述的是当前开发范围，不是上线承诺。
@@ -36,13 +36,17 @@
 - AI 允许用于整理、润色和起草，但必须在 PR / issue 中声明用途；不能虚构经历、访谈、数据或「同学评价」。
 - M0 不开放匿名投稿：贡献需要一个公开的 GitHub 账号；涉及个人经历可先与维护组确认公开范围。
 
-## 品牌与占位素材
+## 品牌与视觉素材
 
-站点名称为 **CDU AI**。当前的 LogoMark、favicon 和作品封面仍使用占位图形，正式标识与主视觉可以后续替换；组件尺寸和替换位置已经保留。
+站点名称为 **CDU AI**。左上角 Logo 与浏览器 favicon 已替换为维护者提供的角色插画；作品封面仍为占位图形，组件尺寸和替换位置保留。
 
-- Logo：[src/components/LogoMark.astro](src/components/LogoMark.astro)
-- Favicon：[public/favicon.svg](public/favicon.svg)
-- 作品封面：[src/components/WorkArt.astro](src/components/WorkArt.astro)
+- Logo 组件：[src/components/LogoMark.astro](src/components/LogoMark.astro)
+- Logo 资源：[public/brand/logo-512.png](public/brand/logo-512.png)（页面使用 160px 版本，按 2–4 倍屏预留）
+- Favicon：[public/favicon-32.png](public/favicon-32.png) / [public/favicon-16.png](public/favicon-16.png) / [public/apple-touch-icon.png](public/apple-touch-icon.png)；PWA 图标见 [public/site.webmanifest](public/site.webmanifest)
+- 原始插画（不参与构建）：[docs/design/brand/logo-source.png](docs/design/brand/logo-source.png)
+- 作品封面：[src/components/WorkArt.astro](src/components/WorkArt.astro)（仍为占位）
+
+> 角色插画由维护者提供，用于本站品牌展示；如需在其他场合复用请联系维护组。
 
 ## 这是什么
 

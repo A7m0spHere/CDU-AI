@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -524,6 +525,21 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
   for (const collection of ['guide', 'works', 'glossary']) {
     const result = await validateCollection({ collection, dir: sources[collection], context });
     assert.deepEqual(result.errors, [], collection + ' 内容一致性检查发现问题：' + JSON.stringify(result.errors));
+  }
+});
+
+test('品牌图标与 PWA 资源完整，并由页面与 manifest 引用', async () => {
+  const home = await read('index.html');
+  for (const asset of ['/favicon-32.png', '/favicon-16.png', '/apple-touch-icon.png', '/brand/logo-160.png']) {
+    assert.ok(home.includes(asset), '首页缺少图标引用：' + asset);
+    assert.ok(existsSync(path.join(dist, asset.slice(1))), '缺少构建资源：' + asset);
+  }
+
+  const manifest = JSON.parse(await read('site.webmanifest'));
+  const sources = manifest.icons.map((icon) => icon.src);
+  for (const source of ['/icon-192.png', '/icon-512.png']) {
+    assert.ok(sources.includes(source), 'manifest 缺少图标：' + source);
+    assert.ok(existsSync(path.join(dist, source.slice(1))), '缺少构建资源：' + source);
   }
 });
 

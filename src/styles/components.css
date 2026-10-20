@@ -38,9 +38,18 @@
   width: 40px;
   height: 40px;
   flex: none;
+  overflow: hidden;
   border-radius: 13px;
-  box-shadow: 0 8px 18px -12px rgba(20, 32, 24, 0.65);
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--line), 0 8px 18px -12px rgba(20, 32, 24, 0.65);
   transition: transform var(--dur-base) var(--ease-spring);
+}
+
+.logo-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .brand:hover .logo-mark {
