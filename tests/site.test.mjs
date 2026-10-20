@@ -333,3 +333,91 @@ test('外链带新窗口与安全的 rel 属性，页面无占位废话', async 
     }
   }
 });
+
+/** 内容状态由 frontmatter 推导：needsUpdate 优先，其次 reviewed，缺省为 draft。 */
+function expectedContentStatus(fields) {
+  if ((fields.needsUpdate || '').toLowerCase() === 'true') return 'needs-update';
+  if (fields.reviewed) return 'reviewed';
+  return 'draft';
+}
+
+function assertContentStatus(html, fields, label) {
+  const status = expectedContentStatus(fields);
+  assert.match(
+    html,
+    new RegExp('data-content-status="' + status + '"'),
+    label + ' 页面内容状态与 frontmatter 不一致（期望 ' + status + '）',
+  );
+  assert.match(html, /内容依据：/, label + ' 缺少「内容依据」说明');
+  assert.match(html, /AI 参与：/, label + ' 缺少「AI 参与」说明');
+
+  if (status === 'reviewed') {
+    assert.match(html, /已人工核校/, label + ' 应显示「已人工核校」');
+    assert.ok(html.includes(fields.reviewed), label + ' 未显示审校日期 ' + fields.reviewed);
+  } else if (status === 'needs-update') {
+    assert.match(html, /待更新/, label + ' 应显示「待更新」');
+    assert.doesNotMatch(html, /已人工核校/, label + ' 待更新内容不得显示「已人工核校」');
+  } else {
+    assert.match(html, /尚未人工核校/, label + ' 未审校内容必须显示「尚未人工核校」');
+    assert.doesNotMatch(html, /已人工核校/, label + ' 未审校内容不得显示「已人工核校」');
+  }
+}
+
+test('指南与术语详情页如实展示内容状态，不伪造人工审校', async () => {
+  const guideSource = path.join(root, 'src/content/guide');
+  const guideFiles = (await readdir(guideSource)).filter((file) => file.endsWith('.md')).sort();
+  for (const file of guideFiles) {
+    const slug = file.replace(/\.md$/, '');
+    const raw = await readFile(path.join(guideSource, file), 'utf8');
+    assertContentStatus(await read('guide/' + slug + '/index.html'), frontmatterFields(raw, file), 'guide/' + file);
+  }
+
+  for (const slug of glossarySlugs) {
+    const raw = await readFile(path.join(glossarySource, slug + '.md'), 'utf8');
+    assertContentStatus(await read('glossary/' + slug + '/index.html'), frontmatterFields(raw, slug + '.md'), 'glossary/' + slug);
+  }
+
+  const worksSource = path.join(root, 'src/content/works');
+  const workFiles = (await readdir(worksSource)).filter((file) => file.endsWith('.md')).sort();
+  for (const file of workFiles) {
+    const slug = file.replace(/\.md$/, '');
+    const raw = await readFile(path.join(worksSource, file), 'utf8');
+    assertContentStatus(await read('works/' + slug + '/index.html'), frontmatterFields(raw, file), 'works/' + file);
+  }
+});
+
+test('审校字段组合合法：reviewedBy / basis / testedOn 保持一致', async () => {
+  const guideSource = path.join(root, 'src/content/guide');
+  const pairs = [
+    ...(await readdir(guideSource))
+      .filter((file) => file.endsWith('.md'))
+      .sort()
+      .map((file) => ({ file, dir: guideSource, collection: 'guide' })),
+    ...glossaryFiles.map((file) => ({ file, dir: glossarySource, collection: 'glossary' })),
+  ];
+
+  for (const { file, dir, collection } of pairs) {
+    const raw = await readFile(path.join(dir, file), 'utf8');
+    const fields = frontmatterFields(raw, file);
+    const label = collection + '/' + file;
+
+    if (fields.reviewedBy) {
+      assert.ok(fields.reviewed, label + ' 填写 reviewedBy 时必须同时填写 reviewed');
+    }
+    if (fields.reviewed) {
+      assert.match(fields.reviewed, /^\d{4}-\d{2}-\d{2}$/, label + ' reviewed 日期格式不合法');
+    }
+    if (fields.testedOn) {
+      assert.match(fields.testedOn, /^\d{4}-\d{2}-\d{2}$/, label + ' testedOn 日期格式不合法');
+    }
+    if (fields.basis === 'first-hand') {
+      assert.ok(fields.testedOn, label + ' basis 为 first-hand 时必须填写 testedOn');
+      assert.ok(fields.testedEnvironment, label + ' basis 为 first-hand 时必须填写 testedEnvironment');
+    } else {
+      assert.ok(
+        !fields.testedOn && !fields.testedEnvironment,
+        label + ' 只有 basis 为 first-hand 时才允许填写 testedOn / testedEnvironment',
+      );
+    }
+  }
+});

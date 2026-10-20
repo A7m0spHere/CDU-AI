@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import ContentStatus from '../../components/ContentStatus.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import { guideStages, repository } from '../../data/site';
@@ -101,6 +102,8 @@ const sources = entry.data.sources ?? [];
             </ul>
           </div>
         )}
+
+        <ContentStatus data={entry.data} context="guide" />
 
         <div class="page-meta">
           <span><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>

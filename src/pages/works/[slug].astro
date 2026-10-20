@@ -4,6 +4,7 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
+import ContentStatus from '../../components/ContentStatus.astro';
 import WorkArt from '../../components/WorkArt.astro';
 import { tools } from '../../data/tools';
 import { repository } from '../../data/site';
@@ -100,6 +101,8 @@ const editUrl = `${repository.url}/edit/${repository.branch}/src/content/works/$
                 : '页面内容由作者提供并经维护者审核，具体事实与授权信息以作者声明为准。'}
             </p>
           </div>
+
+          <ContentStatus data={entry.data} context="work" />
 
           {updated && (
             <div class="page-meta">

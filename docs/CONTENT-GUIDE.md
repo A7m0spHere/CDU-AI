@@ -36,6 +36,9 @@ sources: # 可选；有外部依据时填写，必须可打开
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview"
 tools: ["DeepSeek", "Kimi"] # 可留空，但必须是工具目录里已有的名字
 tags: ["AI 素养", "安全"]
+# 内容状态字段（可选；默认按「初稿 + AI 辅助起草 + 教学示例」展示）
+# reviewed / reviewedBy / needsUpdate / reviewNote / basis / aiUsage / testedOn / testedEnvironment / contributors
+# 定义与判定规则见 docs/CONTENT-REVIEW.md
 ---
 ```
 
@@ -100,7 +103,11 @@ frontmatter：
 - `related`：相关词条 id；
 - `updated`：最后核对日期。
 - `sources`：正文事实的官方文档或原始论文，包含 `title` 与 `url`，详情页自动渲染参考来源。
-- `reviewed`：逐条人工核校完成的日期；补充引用或 AI 校订不等于人工核校完成。
+- `reviewed` / `reviewedBy`：真人逐条核校完成的日期与审校人署名（可笔名）；只补来源或由 AI 校订不算人工核校完成。
+- `needsUpdate` / `reviewNote`：发现过期或问题时标记待更新，并写明原因（≤200 字）。
+- `basis`：`first-hand`（亲自实测）/ `desk-research`（资料整理）/ `teaching-example`（默认，教学示例）；`first-hand` 必须同时填写 `testedOn` 与 `testedEnvironment`。
+- `aiUsage`：`none` / `assisted` / `drafted`（默认），如实标注 AI 参与程度。
+- `contributors`：最多 5 个贡献者代称，不写真实姓名、学号等隐私。
 
 正文固定分节，每节都要能被零基础读者读懂：
 
@@ -116,7 +123,7 @@ frontmatter：
 来源标注要与实际情况一致，分两层写：
 
 - 词条清单、别名、一句话释义参考 VibeHub（vibe-hub.org）的 AI 术语图鉴，中文表述已改写；
-- 详情页正文（类比、步骤、场景、常见误解）是本站在该框架下撰写的，初稿由 AI 协助，逐条人工核校前不要去掉页面上的「AI 协助撰写」说明；核校完成后把对应词条的 `reviewed` 字段补上再撤下提示。
+- 详情页正文（类比、步骤、场景、常见误解）是本站在该框架下撰写的，初稿由 AI 协助。**页面状态由 `reviewed` 字段自动推导**：没有审校日期就显示「初稿 · 尚未人工核校」，真人逐条核校后填写 `reviewed` / `reviewedBy` 才会显示「已人工核校」。不要为了消掉提示而提前填日期。
 
 校准一条术语的标准：能指出它「不成立」的边界（例如微调不能可靠记住新事实），并且没有写死会变化的价格、额度、版本号。
 
@@ -139,7 +146,15 @@ frontmatter：
 - 活动只写形式与流程蓝图，不写日期、地点、嘉宾、报名方式，除非负责人已确认并同步给维护者。
 - 社区公约应具体可执行，避免口号。
 
-## 8. 提交前检查
+## 8. 内容状态与审校
+
+每篇指南、术语和作品详情页底部都会展示「内容状态」：初稿（尚未人工核校）/ 已人工核校 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审校人与日期、贡献者。
+
+- 字段定义、状态推导规则、审校清单与生命周期流程见 [`docs/CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
+- 默认值保守：不写 `reviewed` 就按初稿展示；不写 `basis` 就按教学示例；不写 `aiUsage` 就按 AI 辅助起草。
+- 已有内容不需要一次性迁移。实质修改事实性内容后必须重新审校，不能沿用旧的审校日期。
+
+## 9. 提交前检查
 
 ```bash
 npm run verify
