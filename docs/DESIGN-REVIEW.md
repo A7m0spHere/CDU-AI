@@ -103,6 +103,9 @@
 3. 学习路径改为行式时间线；作品空状态改为结构化投稿入口；社区三卡加左侧强调线。
 4. 首屏 CSS stagger 进入 + 滚动 reveal（渐进增强）+ hover/焦点细化。
 5. `SectionHead` 增加可选的 `index` 与 `headingId`（向后兼容，其他页面不受影响）。
+6. Hero 右侧「看板娘学习引导图」：透明 WebP 人物 + SVG 连线 / 节点 + 六个可点击模块（学习指南 / AI 术语 / 工具资源 / 作品广场 / 活动信息 / 参与共建）；hover / focus 点亮对应连线，未开启动效时自动轮播点亮；prefers-reduced-motion 下静态。
+7. Hero 左侧卡片加入 PixelCard 风格像素粒子背景：hover / focus 时像素从中心向外出现并轻微闪烁，离开时收回；纯 Canvas 实现（无 React / 无三方库），prefers-reduced-motion 下禁用。
+8. Hero 右侧网络加入瞄准框装饰（借鉴 TargetCursor）：hover / 键盘聚焦模块时四角框吸附到对应模块，空闲时围绕人物轻微呼吸；仅在本区域生效，不替换原生鼠标、不依赖 GSAP；触摸设备与 reduced-motion 下不播放。
 
 验收材料（随 PR 提交）：
 
@@ -139,3 +142,6 @@
 - 实测：ASCII 动画正常、reduce-motion 下静止、无 JS 时 fallback 可见；CLS = 0、无 console error。
 - 社区功能关闭：首页社区卡改为不可点击的「暂不开放」提示，页脚入口标注暂不开放；社区页只保留提示，不再展示版块 / 公约 / 参与路径。
 - 移除 Hero 右侧「START HERE / 从哪里开始」快速索引面板；Hero 改为单列居中卡片（最大 940px），保留点阵材质与左侧内容对齐。
+- Hero 右侧新增看板娘学习引导图：以维护者提供的透明人物插画为中心，六个模块通过 SVG 虚线节点环绕，hover / focus 点亮连线、自动轮播点亮；移动端降级为「人物 + 2 列模块网格」，prefers-reduced-motion 下关闭浮动 / 呼吸 / 轮播。
+- Hero 左侧卡片加入像素粒子背景（参考 PixelCard 效果，纯 Canvas 重写）：hover / focus 时像素从中心向外出现并闪烁，离开时收回；减少动效下完全禁用，CLS 保持 0。
+- Hero 右侧网络加入四角瞄准框（参考 TargetCursor）：悬停 / 聚焦模块时吸附到模块边框，空闲时围绕人物呼吸；不隐藏原生鼠标、无 GSAP、只监听本区域事件；触摸与减少动效环境不启用。

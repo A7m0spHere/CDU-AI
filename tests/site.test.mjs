@@ -517,6 +517,22 @@ test('品牌图标与 PWA 资源完整，并由页面与 manifest 引用', async
     assert.ok(home.includes(asset), '首页缺少图标引用：' + asset);
     assert.ok(existsSync(path.join(dist, asset.slice(1))), '缺少构建资源：' + asset);
   }
+  // 首页右侧看板娘学习引导图
+  assert.ok(home.includes('/brand/mascot.webp'), '首页缺少看板娘图片引用');
+  assert.ok(existsSync(path.join(dist, 'brand/mascot.webp')), '缺少构建资源：/brand/mascot.webp');
+  const networkLinks = [
+    ['学习指南', '/guide/'],
+    ['AI 术语', '/glossary/'],
+    ['工具资源', '/tools/'],
+    ['作品广场', '/works/'],
+    ['活动信息', '/events/'],
+    ['参与共建', '/about/#contribute'],
+  ];
+  assert.ok(home.includes('data-hero-network'), '首页缺少看板娘学习引导图容器');
+  for (const [label, href] of networkLinks) {
+    assert.ok(home.includes('>' + label + '<') || home.includes(label), '引导图缺少节点：' + label);
+    assert.ok(home.includes('href="' + href + '"'), '引导图缺少跳转：' + href);
+  }
 
   const manifest = JSON.parse(await read('site.webmanifest'));
   const sources = manifest.icons.map((icon) => icon.src);

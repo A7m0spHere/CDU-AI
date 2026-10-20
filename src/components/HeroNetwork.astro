@@ -1,0 +1,150 @@
+---
+import Icon from './Icon.astro';
+import { tools } from '../data/tools';
+
+type NodeIcon = 'compass' | 'book-open' | 'wrench' | 'spark' | 'calendar' | 'heart';
+
+interface HeroNode {
+  key: string;
+  label: string;
+  meta: string;
+  href: string;
+  icon: NodeIcon;
+  /** 连线终点（viewBox 560×540 坐标） */
+  x: number;
+  y: number;
+  path: string;
+}
+
+/**
+ * 首页 Hero 右侧「看板娘学习引导图」。
+ * 人物：维护者提供的透明 WebP；连线 / 节点装饰：内联 SVG；
+ * 交互：节点可点击，hover / focus 点亮对应连线，未开启动效时自动轮播点亮。
+ */
+const nodes: HeroNode[] = [
+  {
+    key: 'guide',
+    label: '学习指南',
+    meta: '内容重建中',
+    href: '/guide/',
+    icon: 'compass',
+    x: 76,
+    y: 57,
+    path: 'M280 292 C 216 170 150 100 76 57',
+  },
+  {
+    key: 'terms',
+    label: 'AI 术语',
+    meta: '内容重建中',
+    href: '/glossary/',
+    icon: 'book-open',
+    x: 484,
+    y: 50,
+    path: 'M280 292 C 366 170 420 100 484 50',
+  },
+  {
+    key: 'join',
+    label: '参与共建',
+    meta: '开放中',
+    href: '/about/#contribute',
+    icon: 'heart',
+    x: 74,
+    y: 238,
+    path: 'M280 292 C 210 280 140 250 74 238',
+  },
+  {
+    key: 'tools',
+    label: '工具资源',
+    meta: `${tools.length} 个工具`,
+    href: '/tools/',
+    icon: 'wrench',
+    x: 492,
+    y: 282,
+    path: 'M280 292 C 380 296 440 288 492 282',
+  },
+  {
+    key: 'works',
+    label: '作品广场',
+    meta: '示例筹备中',
+    href: '/works/',
+    icon: 'spark',
+    x: 466,
+    y: 432,
+    path: 'M280 292 C 370 340 430 400 466 432',
+  },
+  {
+    key: 'events',
+    label: '活动信息',
+    meta: '暂无排期',
+    href: '/events/',
+    icon: 'calendar',
+    x: 76,
+    y: 450,
+    path: 'M280 292 C 216 340 160 420 76 450',
+  },
+];
+---
+
+<div class="hero-network" data-hero-network>
+  <div class="hero-network__halo" aria-hidden="true"></div>
+
+  <svg
+    class="hero-network__links"
+    viewBox="0 0 560 540"
+    preserveAspectRatio="xMidYMid meet"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle class="hero-network__orbit" cx="280" cy="292" r="164" />
+    <circle class="hero-network__orbit hero-network__orbit--outer" cx="280" cy="292" r="232" />
+    <circle class="hero-network__particle" cx="176" cy="150" r="2.4" />
+    <circle class="hero-network__particle hero-network__particle--b" cx="404" cy="176" r="2" />
+    <circle class="hero-network__particle hero-network__particle--c" cx="330" cy="438" r="2.2" />
+
+    {nodes.map((node) => (
+      <g data-link-group={node.key}>
+        <path class="hero-network__link" data-link={node.key} d={node.path} />
+        <circle class="hero-network__dot" data-dot={node.key} cx={node.x} cy={node.y} r="3.4" />
+      </g>
+    ))}
+  </svg>
+
+  <picture class="hero-network__figure">
+    <img
+      src="/brand/mascot.webp"
+      alt="CDU AI 看板娘插画"
+      width="965"
+      height="960"
+      loading="eager"
+      decoding="async"
+    />
+  </picture>
+
+  <div class="hero-network__target" data-hero-target aria-hidden="true">
+    <div class="hero-network__target-frame">
+      <span class="hero-network__target-corner hero-network__target-corner--tl"></span>
+      <span class="hero-network__target-corner hero-network__target-corner--tr"></span>
+      <span class="hero-network__target-corner hero-network__target-corner--br"></span>
+      <span class="hero-network__target-corner hero-network__target-corner--bl"></span>
+    </div>
+    <span class="hero-network__target-dot"></span>
+  </div>
+
+  <nav class="hero-network__nodes" aria-label="学习入口">
+    {nodes.map((node) => (
+      <a
+        class={`hero-node hero-node--${node.key}`}
+        href={node.href}
+        data-node={node.key}
+        aria-label={`${node.label}（${node.meta}）`}
+      >
+        <span class="hero-node__icon" aria-hidden="true"><Icon name={node.icon} size={17} /></span>
+        <span class="hero-node__text">
+          <strong>{node.label}</strong>
+          <small>{node.meta}</small>
+        </span>
+        <span class="hero-node__arrow" aria-hidden="true"><Icon name="arrow-up-right" size={13} /></span>
+      </a>
+    ))}
+  </nav>
+</div>

@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import SectionHead from '../components/SectionHead.astro';
 import AsciiAI from '../components/AsciiAI.astro';
+import HeroNetwork from '../components/HeroNetwork.astro';
 import ToolCard from '../components/ToolCard.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { site, guideStages } from '../data/site';
@@ -30,7 +31,9 @@ const categoryLabel = (categoryId: string) =>
   <div class="home-v2">
     <section class="home-hero" aria-labelledby="hero-title">
       <div class="container home-hero__grid">
-        <div class="home-hero__main">
+        <div class="home-hero__main" data-hero-pixels>
+          <canvas class="home-hero__pixels" aria-hidden="true"></canvas>
+
           <p class="home-hero__kicker" data-enter style="--enter-index: 0">
             <span class="status-dot" aria-hidden="true"></span>
             <span>成都大学 · AI 学习社区</span>
@@ -50,20 +53,13 @@ const categoryLabel = (categoryId: string) =>
 
           <div class="home-hero__actions btn-row" data-enter style="--enter-index: 3">
             <a class="btn btn--primary" href="/guide/">
-              学习指南
+              开始学习
               <Icon name="arrow-right" size={18} />
             </a>
-            <a class="btn btn--soft" href="/tools/">
-              工具资源
-              <Icon name="arrow-up-right" size={17} />
-            </a>
-            <a class="home-hero__text-link" href="/about/#contribute">
-              参与共建
-              <Icon name="arrow-right" size={15} />
-            </a>
           </div>
-
         </div>
+
+        <HeroNetwork />
       </div>
 
       <div class="container home-status">
@@ -256,4 +252,7 @@ const categoryLabel = (categoryId: string) =>
 <script>
   import '../scripts/motion';
   import '../scripts/ascii-ai';
+  import '../scripts/hero-network';
+  import '../scripts/pixel-card';
+  import '../scripts/target-reticle';
 </script>

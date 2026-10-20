@@ -44,6 +44,7 @@
 - Logo 资源：[public/brand/logo-512.png](public/brand/logo-512.png)（页面使用 160px 版本，按 2–4 倍屏预留）
 - Favicon：[public/favicon-32.png](public/favicon-32.png) / [public/favicon-16.png](public/favicon-16.png) / [public/apple-touch-icon.png](public/apple-touch-icon.png)；PWA 图标见 [public/site.webmanifest](public/site.webmanifest)
 - 原始插画（不参与构建）：[docs/design/brand/logo-source.png](docs/design/brand/logo-source.png)
+- 看板娘（首页 Hero 右侧）：[public/brand/mascot.webp](public/brand/mascot.webp)，原始透明插画见 [docs/design/brand/mascot-source.png](docs/design/brand/mascot-source.png)
 - 作品封面：[src/components/WorkArt.astro](src/components/WorkArt.astro)（仍为占位）
 
 > 角色插画由维护者提供，用于本站品牌展示；如需在其他场合复用请联系维护组。
