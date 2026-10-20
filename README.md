@@ -102,8 +102,9 @@ npm run verify     # 类型检查 + 生产构建 + 内容测试 + 内部链接�
 其他命令：
 
 ```bash
-npm run check       # Astro / TypeScript 类型检查
-npm run build       # 生成静态站点到 dist/
+npm run check        # Astro / TypeScript 类型检查
+npm run check:content # 内容字段与跨文件一致性检查（含审核状态字段）
+npm run build        # 生成静态站点到 dist/
 npm run preview     # 本地预览生产构建
 npm run test        # 构建后的页面结构、M0 标注与链接安全测试
 npm run check:links # 检查 dist/ 中指向站内的链接是否存在
@@ -132,6 +133,7 @@ src/
 ├── styles/              # 设计令牌、基础/组件/页面样式与视觉收口
 └── content.config.ts    # 内容集合 frontmatter 校验
 tests/site.test.mjs      # 构建产物的结构与内容边界测试
+tests/fixtures/content/  # 内容检查器的「合法 / 错误条目」测试样例
 .github/
 ├── ISSUE_TEMPLATE/          # 纠错 / 经验投稿 / 工具建议的 GitHub 表单
 ├── pull_request_template.md # PR 自检模板（来源、隐私、AI 声明）
@@ -141,7 +143,8 @@ docs/
 ├── ARCHITECTURE.md      # M0 架构决策与信息架构
 ├── CONTENT-GUIDE.md     # 内容字段规范、语气与禁写事项
 └── DESIGN-SYSTEM.md     # 视觉语言与组件约定
-scripts/check-links.mjs  # 构建产物内部链接检查
+scripts/check-links.mjs   # 构建产物内部链接检查
+scripts/check-content.mjs # 内容字段、order、引用与审校状态一致性检查
 ```
 
 ## 内容怎么维护
@@ -166,7 +169,7 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 npm run verify
 ```
 
-它会依次执行类型检查、生产构建、内容清单与搜索覆盖测试、章节锚点检查、站内链接检查。CI 使用同一命令。
+它会依次执行类型检查、内容一致性检查、生产构建、内容清单与搜索覆盖测试、章节锚点检查、站内链接检查。CI 使用同一命令。
 
 ## 提交信息
 

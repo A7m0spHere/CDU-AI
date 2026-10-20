@@ -10,7 +10,7 @@ const counts = new Map(toolCategories.map((category) => [category.id, tools.filt
 
 <BaseLayout
   title="AI 工具资源"
-  description="按使用场景整理的 AI 工具索引，共 15 个工具、5 个分类。标注门槛、费用与限制。"
+  description={`按使用场景整理的 AI 工具索引，共 ${tools.length} 个工具、${toolCategories.length} 个分类。标注门槛、费用与限制。`}
 >
   <PageHero
     eyebrow="工具资源"

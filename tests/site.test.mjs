@@ -3,9 +3,48 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadContentContext, validateCollection } from '../scripts/check-content.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
+
+async function listMarkdown(dir) {
+  return (await readdir(dir)).filter((file) => file.endsWith('.md')).sort();
+}
+
+// 页面清单、数量与引用都从实际内容集合推导，新增/删除条目不需要改测试。
+const contentRoot = path.join(root, 'src/content');
+const sources = {
+  guide: path.join(contentRoot, 'guide'),
+  works: path.join(contentRoot, 'works'),
+  glossary: path.join(contentRoot, 'glossary'),
+};
+const glossarySource = sources.glossary;
+const guideFiles = await listMarkdown(sources.guide);
+const workFiles = await listMarkdown(sources.works);
+const glossaryFiles = await listMarkdown(sources.glossary);
+const guideSlugs = guideFiles.map((file) => file.replace(/\.md$/, ''));
+const workSlugs = workFiles.map((file) => file.replace(/\.md$/, ''));
+const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
+
+// 工具目录当前仍是 TypeScript 数据，测试从源文件解析；迁移为 Markdown（#8）后同步调整这里。
+const toolsSource = await readFile(path.join(root, 'src/data/tools.ts'), 'utf8');
+const toolsBlock = toolsSource.slice(toolsSource.indexOf('export const tools'));
+const parsedTools = [...toolsBlock.matchAll(/id: '([^']+)',\s*\n\s*name: '([^']+)'/g)].map((match) => ({
+  id: match[1],
+  name: match[2],
+}));
+assert.ok(parsedTools.length > 0, '无法从 src/data/tools.ts 解析工具列表，请更新测试的解析逻辑');
+
+/** 读取 src/data/*.ts 中某个导出数组的条目数（用于校验页面文案没有写死数量）。 */
+async function countDataEntries(file, exportName) {
+  const raw = await readFile(path.join(root, 'src/data', file), 'utf8');
+  const start = raw.indexOf('export const ' + exportName);
+  assert.ok(start !== -1, '无法在 ' + file + ' 找到导出 ' + exportName);
+  const next = raw.indexOf('export const ', start + 1);
+  const block = raw.slice(start, next === -1 ? undefined : next);
+  return (block.match(/\bid: '/g) || []).length;
+}
 
 const expectedRoutes = [
   'index.html',
@@ -17,25 +56,10 @@ const expectedRoutes = [
   'glossary/index.html',
   'tools/index.html',
   'works/index.html',
-  'guide/01-ai-capability-map/index.html',
-  'guide/02-first-conversation/index.html',
-  'guide/03-safety-boundaries/index.html',
-  'guide/04-find-a-real-task/index.html',
-  'guide/05-make-first-output/index.html',
-  'guide/06-verify-output/index.html',
-  'guide/07-package-your-work/index.html',
-  'guide/08-build-your-rhythm/index.html',
-  'works/01-canteen-picker/index.html',
-  'works/02-exam-coach/index.html',
-  'works/03-club-poster/index.html',
-  'works/04-explain-your-major/index.html',
+  ...guideSlugs.map((slug) => 'guide/' + slug + '/index.html'),
+  ...workSlugs.map((slug) => 'works/' + slug + '/index.html'),
+  ...glossarySlugs.map((slug) => 'glossary/' + slug + '/index.html'),
 ];
-
-// 术语页由 src/content/glossary/*.md 驱动，新增术语不需要改这里。
-const glossarySource = path.join(root, 'src/content/glossary');
-const glossaryFiles = (await readdir(glossarySource)).filter((file) => file.endsWith('.md')).sort();
-const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
-for (const slug of glossarySlugs) expectedRoutes.push('glossary/' + slug + '/index.html');
 
 async function read(relPath) {
   return readFile(path.join(dist, relPath), 'utf8');
@@ -90,17 +114,12 @@ test('所有页面具备基本文档结构与唯一 h1', async () => {
 });
 
 test('指南内容清单驱动导航与搜索覆盖', async () => {
-  const guideSource = path.join(root, 'src/content/guide');
-  const files = (await readdir(guideSource)).filter((file) => file.endsWith('.md')).sort();
-  assert.equal(files.length, 8, '指南模块数量与预期不符');
-
   const entries = [];
-  for (const file of files) {
-    const raw = await readFile(path.join(guideSource, file), 'utf8');
+  for (const file of guideFiles) {
+    const raw = await readFile(path.join(sources.guide, file), 'utf8');
     const fields = frontmatterFields(raw, file);
-    const slug = file.replace(/\.md$/, '');
     entries.push({
-      slug,
+      slug: file.replace(/\.md$/, ''),
       title: fields.title,
       stage: fields.stage,
       order: Number(fields.order),
@@ -108,22 +127,18 @@ test('指南内容清单驱动导航与搜索覆盖', async () => {
     });
   }
 
-  const orders = entries.map((entry) => entry.order).sort((a, b) => a - b);
   assert.equal(new Set(entries.map((entry) => entry.slug)).size, entries.length, '指南 slug 重复');
-  assert.deepEqual(orders, Array.from({ length: entries.length }, (_, index) => index + 1), '指南 order 必须从 1 连续且不重复');
+  const orders = entries.map((entry) => entry.order);
+  assert.equal(new Set(orders).size, orders.length, '指南 order 必须唯一（新增条目前请检查 order）');
   for (const entry of entries) {
     assert.ok(entry.title, entry.slug + ' 缺少标题');
+    assert.ok(Number.isInteger(entry.order) && entry.order > 0, entry.slug + ' 的 order 必须是正整数');
     assert.ok(['start', 'make', 'share'].includes(entry.stage), entry.slug + ' 的 stage 不合法');
     assert.match(entry.updated, /^\d{4}-\d{2}-\d{2}$/, entry.slug + ' 的 updated 不合法');
   }
-  assert.deepEqual(
-    entries.reduce((counts, entry) => {
-      counts[entry.stage] = (counts[entry.stage] ?? 0) + 1;
-      return counts;
-    }, {}),
-    { start: 3, make: 3, share: 2 },
-    '阶段内指南数量与预期不符',
-  );
+  for (const stage of ['start', 'make', 'share']) {
+    assert.ok(entries.some((entry) => entry.stage === stage), '阶段 ' + stage + ' 至少需要一篇指南');
+  }
 
   const search = JSON.parse(await read('search-index.json'));
   const guideIndex = await read('guide/index.html');
@@ -133,12 +148,14 @@ test('指南内容清单驱动导航与搜索覆盖', async () => {
     assert.ok(guideIndex.includes('href="' + href + '"'), '指南首页缺少入口：' + entry.slug);
     assert.match(await read('guide/' + entry.slug + '/index.html'), /notion-page/, entry.slug + ' 缺少 Notion 文档结构');
   }
+  assert.equal(search.filter((item) => item.type === '指南').length, guideFiles.length, '搜索索引中的指南数量与内容目录不一致');
 });
 
 test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   const data = JSON.parse(await read('search-index.json'));
   assert.ok(Array.isArray(data), '搜索索引应为数组');
-  assert.ok(data.length >= 80, '搜索索引条目过少');
+  const minimumEntries = parsedTools.length + guideSlugs.length + workSlugs.length + glossarySlugs.length;
+  assert.ok(data.length >= minimumEntries, '搜索索引条目过少：' + data.length + ' < ' + minimumEntries);
   const types = new Set(data.map((item) => item.type));
   for (const type of ['页面', '指南', '章节', '工具', '作品', '术语']) {
     assert.ok(types.has(type), '搜索索引缺少类型：' + type);
@@ -152,16 +169,32 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
     counts[item.type] = (counts[item.type] ?? 0) + 1;
     return counts;
   }, {});
-  assert.equal(countByType['指南'], 8, '搜索索引中的指南数量不符');
-  assert.equal(countByType['作品'], 4, '搜索索引中的作品数量不符');
-  assert.equal(countByType['工具'], 15, '搜索索引中的工具数量不符');
-  assert.equal(countByType['术语'], 38, '搜索索引中的术语数量不符');
-  assert.ok(countByType['章节'] >= 40, '搜索索引中的章节数量过少');
+  assert.equal(countByType['指南'], guideSlugs.length, '搜索索引中的指南数量与内容目录不一致');
+  assert.equal(countByType['作品'], workSlugs.length, '搜索索引中的作品数量与内容目录不一致');
+  assert.equal(countByType['工具'], parsedTools.length, '搜索索引中的工具数量与工具目录不一致');
+  assert.equal(countByType['术语'], glossarySlugs.length, '搜索索引中的术语数量与内容目录不一致');
 
   const sectionItems = data.filter((item) => item.type === '章节');
-  assert.ok(sectionItems.length >= 40, '章节级搜索记录过少');
-  assert.ok(sectionItems.some((item) => item.href.includes('/guide/') && item.href.includes('#')), '缺少指南章节锚点');
-  assert.ok(sectionItems.some((item) => item.href.includes('/works/') && item.href.includes('#')), '缺少作品章节锚点');
+  // 每篇指南 / 作品至少贡献一条章节级记录，防止内容漏索引。
+  for (const slug of guideSlugs) {
+    assert.ok(
+      sectionItems.some((item) => item.href.startsWith('/guide/' + slug + '/#')),
+      '指南缺少章节级搜索记录：' + slug,
+    );
+  }
+  for (const slug of workSlugs) {
+    assert.ok(
+      sectionItems.some((item) => item.href.startsWith('/works/' + slug + '/#')),
+      '作品缺少章节级搜索记录：' + slug,
+    );
+  }
+  // 每个工具都必须进入搜索索引。
+  for (const tool of parsedTools) {
+    assert.ok(
+      data.some((item) => item.type === '工具' && item.title === tool.name),
+      '搜索索引缺少工具：' + tool.name,
+    );
+  }
 
   // 搜索索引的每个锚点都必须真实存在于构建产物中。
   for (const item of data) {
@@ -195,7 +228,7 @@ test('术语表内容与来源标注存在', async () => {
   assert.match(glossary, /参考 VibeHub（vibe-hub\.org）的 AI 术语图鉴/);
   assert.doesNotMatch(glossary, /href="https:\/\/vibe-hub\.org/);
   const termCount = (glossary.match(/class="glossary-term"/g) || []).length;
-  assert.equal(termCount, 38, '术语表条目数量不符');
+  assert.equal(termCount, glossaryFiles.length, '术语表卡片数量与内容目录不一致');
   for (const slug of glossarySlugs) {
     assert.ok(glossary.includes('href="/glossary/' + slug + '/"'), '术语卡片缺少详情链接：' + slug);
   }
@@ -419,5 +452,62 @@ test('审校字段组合合法：reviewedBy / basis / testedOn 保持一致', as
         label + ' 只有 basis 为 first-hand 时才允许填写 testedOn / testedEnvironment',
       );
     }
+  }
+});
+
+test('页面文案中的数量来自数据，不写死', async () => {
+  const home = await read('index.html');
+  const toolsPage = await read('tools/index.html');
+  const worksPage = await read('works/index.html');
+  const communityPage = await read('community/index.html');
+
+  assert.ok(toolsPage.includes(parsedTools.length + ' 个工具'), '工具页数量与工具目录不一致');
+  assert.ok(home.includes(parsedTools.length + ' 个常用工具'), '首页工具数量与工具目录不一致');
+  assert.ok(worksPage.includes(workFiles.length + ' 个策划示例'), '作品页数量与内容目录不一致');
+  assert.ok(home.includes(workFiles.length + ' 个示例'), '首页作品数量与内容目录不一致');
+
+  const channelCount = await countDataEntries('community.ts', 'communityChannels');
+  const topicCount = await countDataEntries('community.ts', 'starterTopics');
+  const principleCount = await countDataEntries('community.ts', 'communityPrinciples');
+  assert.ok(
+    communityPage.includes(channelCount + ' 个版块、' + topicCount + ' 个讨论起点与 ' + principleCount + ' 条社区公约'),
+    '社区页数量文案与数据不一致',
+  );
+  assert.ok(
+    home.includes(channelCount + ' 个版块、' + topicCount + ' 个讨论起点和 ' + principleCount + ' 条公约'),
+    '首页社区数量文案与数据不一致',
+  );
+});
+
+test('内容检查器能识别新增合法条目与错误条目（fixture，不污染主站内容）', async () => {
+  const context = await loadContentContext(root);
+
+  for (const collection of ['guide', 'works', 'glossary']) {
+    const result = await validateCollection({
+      collection,
+      dir: path.join(root, 'tests/fixtures/content/valid', collection),
+      context,
+    });
+    assert.deepEqual(result.errors, [], collection + ' 的合法 fixture 不应报错：' + JSON.stringify(result.errors));
+  }
+
+  const invalidErrors = [];
+  for (const collection of ['guide', 'works', 'glossary']) {
+    const result = await validateCollection({
+      collection,
+      dir: path.join(root, 'tests/fixtures/content/invalid', collection),
+      context,
+    });
+    invalidErrors.push(...result.errors);
+  }
+  const report = invalidErrors.map((error) => error.file + '  ' + error.message).join('\n');
+  for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category']) {
+    assert.ok(report.includes(expected), '错误 fixture 未被识别：' + expected + '\n' + report);
+  }
+
+  // 主站正式内容也必须通过同一个检查器。
+  for (const collection of ['guide', 'works', 'glossary']) {
+    const result = await validateCollection({ collection, dir: sources[collection], context });
+    assert.deepEqual(result.errors, [], collection + ' 内容一致性检查发现问题：' + JSON.stringify(result.errors));
   }
 });

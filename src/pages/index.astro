@@ -7,6 +7,7 @@ import ToolCard from '../components/ToolCard.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { site, guideStages } from '../data/site';
 import { tools, toolCategories } from '../data/tools';
+import { communityChannels, starterTopics, communityPrinciples } from '../data/community';
 
 const guideModules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
 const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
@@ -162,7 +163,7 @@ const categoryLabel = (categoryId: string) =>
       <SectionHead
         eyebrow="工具资源"
         title="按场景查找工具"
-        description="15 个常用工具，标注上手门槛、费用模式与使用限制。"
+        description={`${tools.length} 个常用工具，标注上手门槛、费用模式与使用限制。`}
         link="/tools/"
         linkLabel="全部工具"
       />
@@ -185,7 +186,7 @@ const categoryLabel = (categoryId: string) =>
       <SectionHead
         eyebrow="作品广场"
         title="策划示例"
-        description="4 个示例，展示问题、做法与提示词。不是真实学生投稿。"
+        description={`${works.length} 个示例，展示问题、做法与提示词。不是真实学生投稿。`}
         link="/works/"
         linkLabel="全部示例"
       />
@@ -216,7 +217,7 @@ const categoryLabel = (categoryId: string) =>
             <span class="badge">M1 试运行</span>
           </div>
           <h3>社区</h3>
-          <p>4 个版块、3 个讨论起点和 6 条公约。当前不开放注册、发帖或评论。</p>
+          <p>{communityChannels.length} 个版块、{starterTopics.length} 个讨论起点和 {communityPrinciples.length} 条公约。当前不开放注册、发帖或评论。</p>
           <span class="link-arrow">查看社区<Icon name="arrow-right" size={15} /></span>
         </a>
 

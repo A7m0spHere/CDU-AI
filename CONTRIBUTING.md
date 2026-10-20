@@ -62,6 +62,7 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | 技术文档 | [`docs/`](docs/)：架构、内容规范、设计系统 |
 | 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
 | 内容与页面测试 | [`tests/site.test.mjs`](tests/site.test.mjs) |
+| 内容一致性检查 | [`scripts/check-content.mjs`](scripts/check-content.mjs) 与 `tests/fixtures/content/`（合法 / 错误条目样例） |
 | 协作模板与 CI | [`.github/`](.github/)：Issue 表单、PR 模板、CODEOWNERS、工作流 |
 
 ## 5. 各内容类型的字段与写法
@@ -141,7 +142,13 @@ npm run dev        # http://localhost:4321
 npm run verify     # 类型检查 + 生产构建 + 内容测试 + 站内链接检查
 ```
 
-其他命令：`npm run check`（类型检查）、`npm run build`（生成 `dist/`）、`npm run preview`（预览构建产物）、`npm run test`、`npm run check:links`。
+其他命令：`npm run check`（类型检查）、`npm run check:content`（内容与审校字段一致性检查）、`npm run build`（生成 `dist/`）、`npm run preview`（预览构建产物）、`npm run test`、`npm run check:links`。
+
+### 新增或修改内容后的验证流程
+
+1. `npm run check:content`：检查必填字段、日期格式、order 重复、工具 / 术语引用、审校字段组合等文件级规则；
+2. `npm run build`（或直接 `npm run verify`）：Zod schema 校验 + 页面构建 + 内容与搜索测试 + 站内链接检查；
+3. 修改了检查规则时，在 [`tests/fixtures/content/`](tests/fixtures/content/) 里补充「合法 / 错误」样例，运行 `npm test` 验证检查器仍然生效，不会污染正式内容。
 
 ### 文档是怎样串起来的
 
