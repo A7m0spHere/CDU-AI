@@ -49,35 +49,38 @@
 
 .home-hero__title {
   margin-top: 1.1rem;
-  font-size: clamp(2.8rem, 6vw, 4.4rem);
-  line-height: 1.06;
+  line-height: 0.95;
+}
+
+/* 品牌字：一点艺术感（衬线斜体）+ 左→右「灰黑到黑」渐变 */
+.home-hero__wordmark {
+  display: inline-block;
+  padding-right: 0.06em;
+  font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(3.6rem, 8.6vw, 6.6rem);
+  line-height: 0.98;
   letter-spacing: -0.045em;
-  text-wrap: balance;
+  background: linear-gradient(90deg, #707079 0%, #333338 48%, #0b0b0d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
-.home-hero__title-cn {
-  display: block;
-  color: var(--ink);
-  font-weight: 650;
+:root[data-theme='dark'] .home-hero__wordmark {
+  background: linear-gradient(90deg, #8d8d96 0%, #c9c9d0 50%, #fafafa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
-.home-hero__title-en {
-  display: block;
-  margin-top: 0.9rem;
+.home-hero__byline {
+  margin-top: 0.8rem;
   color: var(--faint);
   font-family: var(--font-mono);
-  font-size: clamp(0.7rem, 1vw, 0.8rem);
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.home-hero__lede {
-  max-width: 52ch;
-  margin-top: 1.4rem;
-  color: var(--ink-soft);
-  font-size: 1rem;
-  line-height: 1.85;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
 }
 
 .home-hero__actions {
@@ -664,8 +667,8 @@
     padding-top: 1.6rem;
   }
 
-  .home-hero__title {
-    font-size: clamp(2.35rem, 9vw, 3rem);
+  .home-hero__wordmark {
+    font-size: clamp(3.1rem, 13vw, 4.4rem);
   }
 
   .home-hero__meta {
