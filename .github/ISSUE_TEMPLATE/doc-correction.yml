@@ -1,0 +1,57 @@
+name: 文档纠错
+description: 指出指南、术语、作品或页面里的错误、过期信息、错别字与失效链接。
+title: "[纠错] "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > 只是改几个字或一句话时，直接在网页上改更快：打开对应页面，点底部的「在 GitHub 编辑本页」，修改后提交 PR 即可，不需要命令行。
+        >
+        > 这个表单用于**说不清怎么改、需要维护者核实**的问题。请不要粘贴学号、手机号、聊天记录等个人隐私。
+  - type: input
+    id: page
+    attributes:
+      label: 出错的页面
+      description: 页面链接或路径，例如 /guide/01-ai-capability-map/ 或 /glossary/token/
+      placeholder: https://… 或 /guide/…
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 问题类型
+      options:
+        - 事实或数据错误
+        - 信息过期
+        - 错别字或语句不通
+        - 链接失效或指向错误
+        - 缺少来源，或来源不支持正文
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: 具体问题
+      description: 引用有问题的原文（可复制一小段），说明你看到的问题和你认为正确的说法。
+      placeholder: 原文：「……」
+                 问题：……
+                 更准确的说法：……
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 依据（可选）
+      description: 能打开的官方文档、原始论文或权威说明。没有依据也可以提交，维护者会一起核实。
+      placeholder: 来源标题 + 链接；或说明你的实际使用环境与日期。
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我没有粘贴真实姓名、学号、手机号、聊天记录等个人隐私。
+          required: true
+        - label: 我理解这条 issue 会公开可见，并同意维护者引用其中的问题描述。
+          required: true

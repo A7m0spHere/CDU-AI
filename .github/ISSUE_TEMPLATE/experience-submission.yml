@@ -1,0 +1,66 @@
+name: 经验投稿
+description: 分享你亲自用 AI 解决校园或学习问题的过程；M0 阶段由维护者整理成指南或作品示例。
+title: "[经验] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > 我们优先要**真实发生过**的经历：包括失败、返工和不适用的地方。AI 生成的虚构案例、访谈和「同学评价」会被拒绝。
+        >
+        > M0 没有投稿表单：先在这里记录素材，维护者会与你确认是否整理成文；署名或笔名都可以。
+  - type: input
+    id: title
+    attributes:
+      label: 一句话说明这段经验
+      placeholder: 例如：用 AI 把社团例会记录整理成待办，省下 30 分钟
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 原始问题和场景
+      description: 当时要解决什么、为什么值得花时间。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 你实际做了什么
+      description: 用了哪些工具、按什么顺序、关键提示词是什么；写你真正做过的步骤。
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: 结果、失败与边界
+      description: 哪些地方有用、哪些地方翻车、什么情况下不推荐照做。
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 核对信息（可选）
+      description: 使用日期、设备/网络环境、工具版本或截图链接，方便维护者复核。
+  - type: dropdown
+    id: ai-usage
+    attributes:
+      label: 这段文字是如何整理的？
+      options:
+        - 完全手写
+        - 用了 AI 润色或梳理结构，内容由我核对
+        - 大部分由 AI 起草，我已逐条核对事实
+        - 其他（请在下方说明）
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 内容是我本人的真实经历，不是编造或 AI 虚构的案例；引用他人内容已注明来源。
+          required: true
+        - label: 不包含他人隐私（姓名、学号、联系方式、聊天记录、未公开数据）。
+          required: true
+        - label: 同意内容在确认后按仓库 LICENSE（MIT）发布；署名方式可与维护者后续商定（可使用笔名）。
+          required: true

@@ -12,6 +12,7 @@
 | 项目阶段 | M0 · 基础框架，开发中 |
 | 站点形态 | 可本地构建的静态原型，尚未正式上线 |
 | 内容 | 指南、术语、工具和作品示例仍在补充与校订 |
+| 贡献方式 | GitHub 网页 Issue / PR，无需命令行；说明见 [CONTRIBUTING.md](CONTRIBUTING.md) |
 | 账号 / 投稿 / 评论 / 活动报名 | 未开放 |
 | 社区与活动 | 只有版块和形式设计，不展示真实排期或真实帖子 |
 | 作品广场 | 全部为明确标注的策划示例，不是真实学生投稿 |
@@ -19,6 +20,21 @@
 | 官方关系 | 非成都大学官方平台 |
 
 仓库公开用于开发协作和预览，**不代表项目已经完成或正式发布**。功能清单描述的是当前开发范围，不是上线承诺。
+
+## 参与共建
+
+这是一个开放共建的项目，**不需要会写代码**也能参与，所有入口都在 GitHub 网页上完成：
+
+- **发现错误**：指南、术语和作品详情页底部都有「在 GitHub 编辑本页」，点开即可在网页上修改 Markdown 并提交 PR；不确定怎么改就先提交 [文档纠错](https://github.com/A7m0spHere/CDU-AI/issues/new?template=doc-correction.yml)。
+- **分享真实经验**：提交 [经验投稿](https://github.com/A7m0spHere/CDU-AI/issues/new?template=experience-submission.yml)，维护者会与你确认是否整理成指南或作品示例。
+- **推荐或更新工具**：提交 [工具建议](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)。
+- **改代码、样式或测试**：先读 [CONTRIBUTING.md](CONTRIBUTING.md)，再按 PR 模板提交。
+
+贡献流程：找到页面 → 点「在 GitHub 编辑本页」→ Fork 后在网页编辑 → 提交 PR（模板会询问验证方式、事实来源、隐私与版权、AI 辅助声明）→ 维护者审核，CI 自动运行 `npm run verify` → 合并发布。
+
+- 内容按仓库 [LICENSE](LICENSE)（MIT）发布；引用与图片需要能说明来源或授权。
+- AI 允许用于整理、润色和起草，但必须在 PR / issue 中声明用途；不能虚构经历、访谈、数据或「同学评价」。
+- M0 不开放匿名投稿：贡献需要一个公开的 GitHub 账号；涉及个人经历可先与维护组确认公开范围。
 
 ## 品牌与占位素材
 
@@ -116,7 +132,11 @@ src/
 ├── styles/              # 设计令牌、基础/组件/页面样式与视觉收口
 └── content.config.ts    # 内容集合 frontmatter 校验
 tests/site.test.mjs      # 构建产物的结构与内容边界测试
-.github/workflows/ci.yml # CI：类型检查、构建、测试与链接检查
+.github/
+├── ISSUE_TEMPLATE/          # 纠错 / 经验投稿 / 工具建议的 GitHub 表单
+├── pull_request_template.md # PR 自检模板（来源、隐私、AI 声明）
+├── CODEOWNERS               # 默认审阅人（未强制，见 CONTRIBUTING）
+└── workflows/ci.yml         # CI：类型检查、构建、测试与链接检查
 docs/
 ├── ARCHITECTURE.md      # M0 架构决策与信息架构
 ├── CONTENT-GUIDE.md     # 内容字段规范、语气与禁写事项
@@ -133,7 +153,8 @@ scripts/check-links.mjs  # 构建产物内部链接检查
 3. 作品示例：在 `src/content/works/` 新建 `.md`。M0 必须保持 `status: example`。
 4. 术语：在 `src/content/glossary/` 新建 `.md`，按固定分节写白话解释；分类在 `src/data/glossary.ts`。
 5. 工具 / 社区 / 活动：编辑 `src/data/*.ts` 中对应数组，不改页面结构。
-5. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。
+6. 在网页上直接改：打开页面，点底部的「在 GitHub 编辑本页」，按 [CONTRIBUTING.md](CONTRIBUTING.md) 的步骤提交 PR。
+7. 本地跑 `npm run verify`，通过后提交。新增或修改指南时补充 `updated`，有外部依据时填写 `sources`。
 
 > 不要在没有来源的情况下写「官方合作」「学校认证」「已有 XX 名同学」「某月某日举办」等事实性表述。
 

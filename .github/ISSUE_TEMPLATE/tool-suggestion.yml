@@ -1,0 +1,62 @@
+name: 工具建议
+description: 推荐收录一个 AI 工具，或指出工具目录里需要更新的信息。
+title: "[工具] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > 工具目录「收录不等于推荐」：只写适用场景、门槛与限制，不做排行榜或价格背书。只收**官方入口**，不收聚合站、网盘和邀请码。
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 建议类型
+      options:
+        - 新增收录
+        - 信息需要更新（名称、入口、费用、限制等）
+        - 建议下架
+    validations:
+      required: true
+  - type: input
+    id: tool
+    attributes:
+      label: 工具名称
+      placeholder: 例如：DeepSeek
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: 官方入口
+      description: 工具官网或官方文档地址。
+      placeholder: https://…
+    validations:
+      required: true
+  - type: textarea
+    id: usage
+    attributes:
+      label: 适合谁、解决什么问题
+      description: 具体到校园或学习场景，避免「提效」「万能」这类空泛表述。
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: 门槛、限制与隐私提示
+      description: 注册条件、免费额度是否够用、地区限制、数据是否会上传等。
+    validations:
+      required: true
+  - type: input
+    id: checked
+    attributes:
+      label: 核对日期与依据（可选）
+      description: 你最近一次打开官网的日期；如有价格或政策变化，附官方说明链接。
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 这是官方入口；我与该工具没有未披露的利益关系（员工、推广返利等）。
+          required: true
+        - label: 我没有把未实测的内容写成「亲测」或「推荐」。
+          required: true

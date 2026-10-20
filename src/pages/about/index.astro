@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
 import Roadmap from '../../components/Roadmap.astro';
-import { site, transparencyItems } from '../../data/site';
+import { site, transparencyItems, repository } from '../../data/site';
 import { contributionPaths } from '../../data/home';
 import { roadmap } from '../../data/events';
 
@@ -55,9 +55,16 @@ const maintainSteps = [
 ];
 
 const processSteps = [
-  { number: '01', title: '选一个小任务', text: '写一篇指南、复核一个工具链接、补一个示例的边界说明，或者改进一处可访问性。' },
-  { number: '02', title: '按规范提交', text: '内容注明场景、依据和不确定处；代码保持小步修改，提交前在本地跑一次验证。' },
-  { number: '03', title: '由维护者审核', text: '事实、授权、语气与链接都需要人工确认。M0 阶段通过协会内部渠道组织，不开放匿名投稿。' },
+  { number: '01', title: '找到要改的内容', text: '打开页面点底部的「在 GitHub 编辑本页」，或从 issue 表单提交问题与素材。' },
+  { number: '02', title: '在网页提交', text: 'GitHub 会自动 Fork，在网页里修改 Markdown 后提交 PR，不需要命令行。' },
+  { number: '03', title: '维护者审阅', text: 'CI 自动检查构建与链接，维护者核对事实、隐私与版权后合并。M0 仍不开放匿名投稿。' },
+];
+
+const contributionLinks = [
+  { label: '文档纠错', href: `${repository.url}/issues/new?template=doc-correction.yml` },
+  { label: '经验投稿', href: `${repository.url}/issues/new?template=experience-submission.yml` },
+  { label: '工具建议', href: `${repository.url}/issues/new?template=tool-suggestion.yml` },
+  { label: '贡献指南', href: `${repository.url}/blob/main/CONTRIBUTING.md` },
 ];
 ---
 
@@ -154,7 +161,18 @@ const processSteps = [
         <div class="contribute-block__copy">
           <p class="eyebrow">参与共建</p>
           <h2>参与共建</h2>
-          <p>写指南、复核工具、做设计或组织活动都可以参与。M0 暂不开放匿名投稿，请通过协会内部渠道联系维护组。</p>
+          <p>写指南、复核工具、做设计或组织活动都可以参与。现在已开放 GitHub 网页贡献：不需要命令行，也不需要读懂代码。</p>
+          <div class="btn-row contribute-actions">
+            {contributionLinks.map((link) => (
+              <a class="btn btn--soft btn--sm" href={link.href} target="_blank" rel="noopener noreferrer">
+                {link.label}
+                <Icon name="arrow-up-right" size={13} />
+              </a>
+            ))}
+          </div>
+          <p>
+            每篇指南、术语和作品页底部都有「在 GitHub 编辑本页」，点击即可定位并直接修改源 Markdown；提交后由维护者审阅，CI 自动运行构建与链接检查。M0 仍不开放匿名投稿：贡献需要一个公开的 GitHub 账号。AI 辅助写作必须在 PR / issue 中声明用途，真实性由贡献者与审校人负责。
+          </p>
         </div>
         <div class="contribution-grid">
           {contributionPaths.map((path) => (
