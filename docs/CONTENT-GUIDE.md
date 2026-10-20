@@ -2,6 +2,16 @@
 
 > 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。完整文件地图和新增流程见 [`CONTRIBUTING.md`](https://github.com/A7m0spHere/CDU-AI/blob/main/CONTRIBUTING.md)。
 
+## 0. 从模板开始
+
+三个内容目录当前只保留 `_TEMPLATE.md`（旧内容已于 2026-10-20 清空）：
+
+- `src/content/guide/_TEMPLATE.md`：学习指南模板
+- `src/content/works/_TEMPLATE.md`：作品示例模板
+- `src/content/glossary/_TEMPLATE.md`：术语模板
+
+复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会进入构建**，可以作为草稿模板长期保留。内容为空时列表页会显示「内容准备中」占位。
+
 ## 1. 三条底线
 
 1. **不编事实**：没有确认的活动日期、场地、嘉宾、人数、学校授权、合作方、学生作品，一律不写。

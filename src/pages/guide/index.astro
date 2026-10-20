@@ -4,7 +4,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
-import { guideStages } from '../../data/site';
+import EmptyContent from '../../components/EmptyContent.astro';
+import { guideStages, repository } from '../../data/site';
 import '../../styles/notion.css';
 
 const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
@@ -14,6 +15,11 @@ const groupedStages = guideStages.map((stage) => ({
   modules: modules.filter((module) => module.data.stage === stage.id).sort((a, b) => a.data.order - b.data.order),
 }));
 const firstModule = modules[0];
+const guideEmpty = modules.length === 0;
+const contributeLinks = [
+  { label: '投稿真实经验', href: `${repository.url}/issues/new?template=experience-submission.yml`, external: true },
+  { label: '贡献指南', href: `${repository.url}/blob/main/CONTRIBUTING.md`, external: true },
+];
 ---
 
 <BaseLayout
@@ -46,6 +52,15 @@ const firstModule = modules[0];
           <Icon name="shield-check" size={17} />
           <p>开始前：AI 会出错，结论自己核对；不上传个人隐私；作业与论文按课程规则声明 AI 使用。</p>
         </div>
+
+        {guideEmpty && (
+          <EmptyContent
+            icon="book-open"
+            title="指南内容正在准备中"
+            description="第一批学习指南正在撰写与人工核校中；每篇内容都会标注实际审校状态。想先贡献一篇真实经验，可以从经验投稿开始。"
+            links={contributeLinks}
+          />
+        )}
 
         <section class="wiki-section" aria-labelledby="start-title">
           <h2 id="start-title">从哪里开始</h2>
@@ -90,17 +105,21 @@ const firstModule = modules[0];
                 </div>
               </header>
 
-              <ol class="wiki-module-list">
-                {stage.modules.map((module) => (
-                  <li>
-                    <a href={`/guide/${slugOf(module.id)}/`}>
-                      <span class="mono">{String(module.data.order).padStart(2, '0')}</span>
-                      <span class="wiki-module-list__title">{module.data.title}</span>
-                      <Icon name="arrow-right" size={15} />
-                    </a>
-                  </li>
-                ))}
-              </ol>
+              {stage.modules.length > 0 ? (
+                <ol class="wiki-module-list">
+                  {stage.modules.map((module) => (
+                    <li>
+                      <a href={`/guide/${slugOf(module.id)}/`}>
+                        <span class="mono">{String(module.data.order).padStart(2, '0')}</span>
+                        <span class="wiki-module-list__title">{module.data.title}</span>
+                        <Icon name="arrow-right" size={15} />
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p class="wiki-stage__empty">这一阶段的指南正在准备中。</p>
+              )}
             </section>
           ))}
         </section>
@@ -108,13 +127,18 @@ const firstModule = modules[0];
         <div class="wiki-next">
           <div>
             <p class="eyebrow">下一步</p>
-            <h2>从第一篇开始</h2>
-            <p>先建立判断，再决定要不要把任务交给 AI。</p>
+            <h2>{firstModule ? '从第一篇开始' : '内容准备中'}</h2>
+            <p>{firstModule ? '先建立判断，再决定要不要把任务交给 AI。' : '第一批指南正在撰写；也可以先浏览工具资源与术语表，或参与共建。'}</p>
           </div>
           <div class="btn-row">
-            {firstModule && (
+            {firstModule ? (
               <a class="btn btn--primary" href={`/guide/${slugOf(firstModule.id)}/`}>
                 阅读第一篇
+                <Icon name="arrow-right" size={16} />
+              </a>
+            ) : (
+              <a class="btn btn--primary" href="/about/#contribute">
+                参与共建
                 <Icon name="arrow-right" size={16} />
               </a>
             )}
@@ -126,3 +150,11 @@ const firstModule = modules[0];
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .wiki-stage__empty {
+    margin-top: 0.7rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+</style>

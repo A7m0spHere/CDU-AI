@@ -80,6 +80,8 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：没有 `reviewed` 一律显示「初稿 · 尚未人工核校」。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
+**内容重建状态**：2026-10-20 清空了 8 篇指南、38 条术语与 4 个作品示例，三个内容目录只保留 `_TEMPLATE.md` 写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不参与构建**；集合为空时列表页显示「内容准备中」占位，测试与检查器均支持空集合。
+
 frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合法时 `astro build` 直接失败。
 
 ### 结构化数据

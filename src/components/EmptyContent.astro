@@ -1,0 +1,44 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  icon?: 'sprout' | 'book-open' | 'wrench' | 'spark' | 'users' | 'search' | 'info';
+  title: string;
+  description: string;
+  links?: { label: string; href: string; external?: boolean }[];
+}
+
+const { icon = 'sprout', title, description, links = [] } = Astro.props;
+---
+
+<div class="empty-state content-empty" data-content-empty role="status">
+  <Icon name={icon} size={28} />
+  <h2>{title}</h2>
+  <p>{description}</p>
+  {links.length > 0 && (
+    <div class="btn-row">
+      {links.map((link) => (
+        <a
+          class="btn btn--soft btn--sm"
+          href={link.href}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+        >
+          {link.label}
+          <Icon name={link.external ? 'arrow-up-right' : 'arrow-right'} size={14} />
+        </a>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .content-empty {
+    margin-top: 1.6rem;
+  }
+
+  .content-empty .btn-row {
+    justify-content: center;
+    margin-top: 0.4rem;
+  }
+</style>

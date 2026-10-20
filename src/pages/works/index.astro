@@ -4,8 +4,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
 import WorkCard from '../../components/WorkCard.astro';
+import EmptyContent from '../../components/EmptyContent.astro';
+import { repository } from '../../data/site';
 
 const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
+const isEmpty = works.length === 0;
+const contributeLinks = [
+  { label: '参与共建', href: '/about/#contribute' },
+  { label: '投稿真实经验', href: `${repository.url}/issues/new?template=experience-submission.yml`, external: true },
+];
 const categories = ['校园生活', '学习效率', '创意表达', '跨专业实验'].filter((category) =>
   works.some((work) => work.data.category === category),
 );
@@ -13,12 +20,20 @@ const categories = ['校园生活', '学习效率', '创意表达', '跨专业�
 
 <BaseLayout
   title="作品广场"
-  description={`${works.length} 个策划示例，展示问题、做法与提示词。不是真实学生投稿。`}
+  description={
+    works.length > 0
+      ? `${works.length} 个策划示例，展示问题、做法与提示词。不是真实学生投稿。`
+      : '作品广场：展示问题、做法与提示词的策划示例，不是真实学生投稿。'
+  }
 >
   <PageHero
     eyebrow="作品广场 · 策划示例"
     title="作品广场"
-    description={`${works.length} 个策划示例，展示问题、做法与提示词。不是真实学生投稿。`}
+    description={
+      works.length > 0
+        ? `${works.length} 个策划示例，展示问题、做法与提示词。不是真实学生投稿。`
+        : '作品示例正在准备中，这里会展示问题、做法与提示词，并明确标注示例状态。'
+    }
     crumbs={[{ label: '作品广场' }]}
     tone="warm"
   >
@@ -34,6 +49,15 @@ const categories = ['校园生活', '学习效率', '创意表达', '跨专业�
 
   <section class="section section--flush-top">
     <div class="container">
+      {isEmpty ? (
+        <EmptyContent
+          icon="spark"
+          title="作品示例正在准备中"
+          description="这里将展示明确标注为「策划示例」的作品，不是真实学生投稿。第一批示例正在整理中，欢迎分享你的真实经验。"
+          links={contributeLinks}
+        />
+      ) : (
+      <>
       <div class="notice notice--warm">
         <Icon name="alert-triangle" size={17} />
         <p><strong>先说明：</strong>本页条目均为策划示例，不是真实学生作品，也没有成品链接。</p>
@@ -73,6 +97,8 @@ const categories = ['校园生活', '学习效率', '创意表达', '跨专业�
           <p>试试其他类别，或点击「清除筛选」查看全部策划示例。</p>
         </div>
       </div>
+      </>
+      )}
 
       <div class="works-footer">
         <div>

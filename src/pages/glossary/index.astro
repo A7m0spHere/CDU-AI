@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import EmptyContent from '../../components/EmptyContent.astro';
 import { getCollection } from 'astro:content';
 import { glossaryCategories } from '../../data/glossary';
 import { repository } from '../../data/site';
@@ -15,7 +16,12 @@ const terms = (await getCollection('glossary')).sort(
 
 const categoryCount = (id: string) => terms.filter((term) => term.data.category === id).length;
 const total = terms.length;
-const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1) ?? '2026-10-18';
+const isEmpty = total === 0;
+const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1);
+const contributeLinks = [
+  { label: '参与共建', href: '/about/#contribute' },
+  { label: '贡献指南', href: `${repository.url}/blob/main/CONTRIBUTING.md`, external: true },
+];
 ---
 
 <BaseLayout
@@ -31,13 +37,23 @@ const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1) ?? '202
       </nav>
 
       <header class="wiki-heading">
-        <p class="eyebrow">术语表 · {total} 条</p>
+        <p class="eyebrow">术语表 · {total > 0 ? `${total} 条` : '内容准备中'}</p>
         <h1>AI 术语表</h1>
         <p class="wiki-lede">
           把常见的 AI 术语讲清楚。每个词都有一篇白话解释：先打个比方，再说它怎么运作、什么时候会碰到、哪些地方容易误解。点开卡片就能看全文。
         </p>
       </header>
 
+      {isEmpty && (
+        <EmptyContent
+          icon="book-open"
+          title="术语内容正在准备中"
+          description="第一批术语正在整理与人工核校中。每个词都会附上白话解释、校园场景示例和实际审校状态。"
+          links={contributeLinks}
+        />
+      )}
+
+      {!isEmpty && (
       <div class="catalog-layout glossary-layout" data-filter-root>
         <aside class="catalog-sidebar glossary-sidebar" aria-label="术语筛选">
           <label class="sr-only" for="glossary-search">搜索术语、别名或场景</label>
@@ -143,9 +159,14 @@ const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1) ?? '202
           </div>
         </div>
       </div>
+      )}
 
       <div class="page-meta">
-        <span><Icon name="clock" size={14} />最后更新：{lastUpdated}</span>
+        {lastUpdated ? (
+          <span><Icon name="clock" size={14} />最后更新：{lastUpdated}</span>
+        ) : (
+          <span><Icon name="clock" size={14} />内容准备中 · 欢迎共建</span>
+        )}
         <a href={repository.url + '/tree/' + repository.branch + '/src/content/glossary'} target="_blank" rel="noopener noreferrer">
           <Icon name="pen" size={14} />在 GitHub 编辑术语表
           <Icon name="arrow-up-right" size={13} />
