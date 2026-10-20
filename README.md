@@ -30,10 +30,10 @@
 - **推荐或更新工具**：提交 [工具建议](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)。
 - **改代码、样式或测试**：先读 [CONTRIBUTING.md](CONTRIBUTING.md)，再按 PR 模板提交。
 
-贡献流程：找到页面 → 点「在 GitHub 编辑本页」→ Fork 后在网页编辑 → 提交 PR（模板会询问验证方式、事实来源、隐私与版权、AI 辅助声明）→ 维护者审核，CI 自动运行 `npm run verify` → 合并发布。
+贡献流程：找到页面 → 点「在 GitHub 编辑本页」→ Fork 后在网页编辑 → 提交 PR（模板会询问验证方式、事实来源与隐私版权；文档 / 内容类修改注明 AI 辅助情况）→ 维护者审核，CI 自动运行 `npm run verify` → 合并发布。
 
 - 内容按仓库 [LICENSE](LICENSE)（MIT）发布；引用与图片需要能说明来源或授权。
-- AI 允许用于整理、润色和起草，但必须在 PR / issue 中声明用途；不能虚构经历、访谈、数据或「同学评价」。
+- AI 允许用于整理、润色和起草；文档 / 内容贡献必须在 PR 或 issue 中声明用途，纯工程改动无需声明；不能虚构经历、访谈、数据或「同学评价」。
 - M0 不开放匿名投稿：贡献需要一个公开的 GitHub 账号；涉及个人经历可先与维护组确认公开范围。
 
 ## 品牌与视觉素材
@@ -140,7 +140,7 @@ tests/site.test.mjs      # 构建产物的结构与内容边界测试
 tests/fixtures/content/  # 内容检查器的「合法 / 错误条目」测试样例
 .github/
 ├── ISSUE_TEMPLATE/          # 纠错 / 经验投稿 / 工具建议的 GitHub 表单
-├── pull_request_template.md # PR 自检模板（来源、隐私、AI 声明）
+├── pull_request_template.md # PR 自检模板（来源、隐私；文档内容类含 AI 声明）
 ├── CODEOWNERS               # 默认审阅人（未强制，见 CONTRIBUTING）
 └── workflows/ci.yml         # CI：类型检查、构建、测试与链接检查
 docs/
