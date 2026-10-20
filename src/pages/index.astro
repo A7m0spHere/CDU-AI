@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import SectionHead from '../components/SectionHead.astro';
+import AsciiAI from '../components/AsciiAI.astro';
 import ToolCard from '../components/ToolCard.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { site, guideStages } from '../data/site';
@@ -47,7 +48,11 @@ const heroLinks = [
           </p>
 
           <h1 id="hero-title" class="home-hero__title" data-enter style="--enter-index: 1">
-            <span class="home-hero__wordmark">CDU AI</span>
+            <span class="home-hero__wordmark">
+              <span class="home-hero__wordmark-cdu">CDU</span>
+              <AsciiAI />
+              <span class="sr-only"> AI</span>
+            </span>
           </h1>
 
           <p class="home-hero__byline" data-enter style="--enter-index: 2">由成都大学计算机协会制作</p>
@@ -289,4 +294,5 @@ const heroLinks = [
 
 <script>
   import '../scripts/motion';
+  import '../scripts/ascii-ai';
 </script>

@@ -19,12 +19,40 @@
 .home-hero__grid {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-  gap: clamp(2rem, 5vw, 4.5rem);
-  align-items: start;
+  gap: clamp(1.4rem, 3.2vw, 2.6rem);
+  align-items: stretch;
 }
 
 .home-hero__main {
-  max-width: 680px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: none;
+  overflow: hidden;
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(165deg, var(--surface) 0%, var(--bg-soft) 100%);
+  box-shadow: var(--shadow-xs);
+}
+
+/* 卡片内部的极淡点阵，让「承接区域」有材质而不抢内容 */
+.home-hero__main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--line-strong) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.32;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+  pointer-events: none;
+}
+
+.home-hero__main > * {
+  position: relative;
+  z-index: 1;
 }
 
 .home-hero__kicker {
@@ -52,9 +80,11 @@
   line-height: 0.95;
 }
 
-/* 品牌字：一点艺术感（衬线斜体）+ 左→右「灰黑到黑」渐变 */
+/* 品牌字：CDU 用衬线斜体 + 灰黑渐变；AI 用 ASCII 字符画 */
 .home-hero__wordmark {
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12em;
   padding-right: 0.06em;
   font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
   font-style: italic;
@@ -62,17 +92,66 @@
   font-size: clamp(3.6rem, 8.6vw, 6.6rem);
   line-height: 0.98;
   letter-spacing: -0.045em;
-  background: linear-gradient(90deg, #707079 0%, #333338 48%, #0b0b0d 100%);
+}
+
+.home-hero__wordmark-cdu {
+  background: linear-gradient(90deg, #707079 0%, #333338 55%, #1a1a1e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
 
-:root[data-theme='dark'] .home-hero__wordmark {
-  background: linear-gradient(90deg, #8d8d96 0%, #c9c9d0 50%, #fafafa 100%);
+:root[data-theme='dark'] .home-hero__wordmark-cdu {
+  background: linear-gradient(90deg, #8d8d96 0%, #d6d6dc 60%, #fafafa 100%);
   -webkit-background-clip: text;
   background-clip: text;
+}
+
+.ascii-ai {
+  position: relative;
+  display: inline-block;
+  width: 1.62em;
+  height: 0.94em;
+  flex: none;
+  vertical-align: baseline;
+}
+
+.ascii-ai__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+.ascii-ai.is-ready .ascii-ai__canvas {
+  opacity: 1;
+}
+
+.ascii-ai__fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  line-height: 1;
+  letter-spacing: inherit;
+  background: linear-gradient(90deg, #55555d 0%, #18181b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+:root[data-theme='dark'] .ascii-ai__fallback {
+  background: linear-gradient(90deg, #9a9aa3 0%, #fafafa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.ascii-ai.is-ready .ascii-ai__fallback {
+  opacity: 0;
 }
 
 .home-hero__byline {
@@ -669,13 +748,9 @@
 }
 
 @media (max-width: 480px) {
-  .home-hero__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .home-hero__actions .btn {
     justify-content: center;
+    flex: 1 1 100%;
   }
 
   .home-index__row {
