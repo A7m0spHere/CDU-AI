@@ -31,6 +31,8 @@ const editUrl = `${repository.url}/edit/${repository.branch}/src/content/guide/$
 const relatedTools = entry.data.tools
   .map((name) => tools.find((tool) => tool.name === name))
   .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
+// sources 在 schema 里有默认值；这里再兜底一次，避免旧内容缓存缺字段时详情页渲染崩溃。
+const sources = entry.data.sources ?? [];
 ---
 
 <BaseLayout title={entry.data.title} description={entry.data.summary}>
@@ -84,11 +86,11 @@ const relatedTools = entry.data.tools
           </div>
         )}
 
-        {entry.data.sources.length > 0 && (
+        {sources.length > 0 && (
           <div class="page-sources">
             <p>参考来源</p>
             <ul>
-              {entry.data.sources.map((source) => (
+              {sources.map((source) => (
                 <li>
                   <a href={source.url} target="_blank" rel="noopener noreferrer">
                     {source.title}
