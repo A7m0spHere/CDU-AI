@@ -6,7 +6,8 @@
 /* 页头 */
 .page-header {
   border-bottom: 1px solid var(--home-rule);
-  padding-block: clamp(2rem, 5vw, 3.2rem) clamp(1.6rem, 3vw, 2.4rem);
+  /* 顶部留白收紧：导航到面包屑的空隙原本超过 80px，压到约 30px */
+  padding-block: clamp(1.1rem, 2vw, 1.7rem) clamp(1.4rem, 2.5vw, 2rem);
 }
 
 .page-header__inner {
