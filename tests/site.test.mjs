@@ -248,11 +248,23 @@ test('每个术语都有可读的详情页与结构化数据', async () => {
 
     const html = await read('glossary/' + slug + '/index.html');
     assert.match(html, /<h1[ >]/, slug + ' 缺少 h1');
+    assert.match(html, /data-term-module/, slug + ' 缺少术语模块容器');
+    assert.match(html, /data-copy-markdown/, slug + ' 缺少「复制 Markdown」按钮');
+    assert.match(html, /term-definition/, slug + ' 缺少定义块');
     assert.match(html, /term-example/, slug + ' 缺少校园场景');
-    assert.match(html, /一句话说清/, slug + ' 缺少一句话说清');
-    assert.match(html, /常见误解/, slug + ' 缺少常见误解');
+    assert.match(html, /先知道/, slug + ' 缺少「先知道」分类');
     assert.match(html, /application\/ld\+json/, slug + ' 缺少结构化数据');
     assert.match(html, /href="\/glossary\/"/, slug + ' 缺少返回术语表的入口');
+    // 术语模块的可选区块：写了 frontmatter 就必须渲染出来
+    if (/^youMaySay:/m.test(raw)) assert.match(html, /你可能会说/, slug + ' 缺少「你可能会说」');
+    if (/^scenario:/m.test(raw)) {
+      assert.match(html, /role="tablist"/, slug + ' 缺少步骤 tablist');
+      assert.match(html, /data-scenario-tab/, slug + ' 缺少场景拆解步骤');
+      assert.match(html, /data-scenario-panel/, slug + ' 缺少场景提示画面');
+    }
+    if (/^quiz:/m.test(raw)) assert.match(html, /data-quiz-option/, slug + ' 缺少选择题选项');
+    if (/^agentPrompt:/m.test(raw)) assert.match(html, /data-copy-prompt/, slug + ' 缺少提示词复制按钮');
+    if (fields.sources || /^sources:/m.test(raw)) assert.match(html, /延伸阅读/, slug + ' 缺少延伸阅读出处');
 
     assert.ok(
       search.some((item) => item.type === '术语' && item.href === '/glossary/' + slug + '/'),
@@ -292,12 +304,12 @@ test('术语来源展示真实链接，并保留未人工核校提示', async ()
 
     if (prioritySlugs.includes(slug)) assert.ok(urls.length > 0, slug + ' 缺少事实来源');
     if (urls.length > 0) {
-      assert.match(html, /aria-label="参考来源"/, slug + ' 缺少参考来源区');
+      assert.match(html, /aria-label="延伸阅读"/, slug + ' 缺少延伸阅读（来源）区');
       for (const url of urls) {
         assert.ok(html.includes('href="' + url.replace(/&/g, '&amp;') + '"'), slug + ' 未显示来源链接：' + url);
       }
     } else {
-      assert.doesNotMatch(html, /aria-label="参考来源"/, slug + ' 不应显示空来源区');
+      assert.doesNotMatch(html, /aria-label="延伸阅读"/, slug + ' 不应显示空来源区');
     }
     if (!fields.reviewed) assert.match(html, /尚未人工核校/, slug + ' 丢失核校状态说明');
   }

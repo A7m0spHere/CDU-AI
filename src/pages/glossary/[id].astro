@@ -40,6 +40,19 @@ const editUrl = `${repository.url}/edit/${repository.branch}/src/content/glossar
 const termUrl = `/glossary/${entry.id}/`;
 // 同指南页：sources 有 schema 默认值，仍兜底一次，防止旧内容缓存缺字段时报错。
 const sources = entry.data.sources ?? [];
+const scenario = entry.data.scenario;
+const quiz = entry.data.quiz ?? [];
+const agentPrompt = entry.data.agentPrompt;
+const youMaySay = entry.data.youMaySay;
+const optionLetters = ['A', 'B', 'C', 'D'];
+
+// 「复制 Markdown」用：构建时以 raw 方式引入源文件，复制出来的就是仓库里那一份（含 frontmatter）。
+const glossaryRaw = import.meta.glob('../../content/glossary/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const markdownSource = glossaryRaw[`../../content/glossary/${entry.id}.md`] ?? '';
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -57,7 +70,7 @@ const jsonLd = {
 ---
 
 <BaseLayout title={`${entry.data.term} 是什么意思`} description={entry.data.definition} ogType="article">
-  <div class="wiki-shell term-shell">
+  <div class="wiki-shell term-shell" data-term-module>
     <div class="container term-container">
       <nav class="breadcrumb" aria-label="面包屑">
         <a href="/">首页</a>
@@ -70,35 +83,163 @@ const jsonLd = {
       </nav>
 
       <header class="term-head">
-        <p class="term-head__eyebrow">
-          <a href={`/glossary/?category=${entry.data.category}`}>{category?.name ?? '术语表'}</a>
-        </p>
-        <h1 class="term-title">
-          {entry.data.term}
-          {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
-            <span class="term-title__en">{entry.data.en}</span>
+        <div class="term-head__top">
+          <div class="term-head__intro">
+            <p class="term-head__eyebrow">{category?.name ?? '术语表'}</p>
+            <h1 class="term-title">
+              {entry.data.term}
+              {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
+                <span class="term-title__en">{entry.data.en}</span>
+              )}
+            </h1>
+          </div>
+          {markdownSource && (
+            <>
+              <button class="term-copy" type="button" data-copy-markdown title="复制这一页的 Markdown 源码（含 frontmatter）">
+                <Icon name="copy" size={15} />
+                <span data-copy-markdown-label>复制 Markdown</span>
+                <span class="sr-only">复制本页 Markdown 源码</span>
+              </button>
+              <textarea hidden data-term-markdown aria-hidden="true" tabindex="-1">{markdownSource}</textarea>
+            </>
           )}
-        </h1>
-        <p class="term-lede">{entry.data.definition}</p>
-        {entry.data.aliases.length > 0 && (
-          <p class="term-aliases">
-            <span>也常叫</span>
-            {entry.data.aliases.map((alias) => <span class="term-alias">{alias}</span>)}
-          </p>
+        </div>
+
+        {youMaySay && (
+          <blockquote class="term-say">
+            <p class="term-say__label">你可能会说</p>
+            <p class="term-say__text">{youMaySay}</p>
+          </blockquote>
         )}
+
+        <p class="term-definition">{entry.data.definition}</p>
+
+        <div class="term-facts">
+          <p class="term-fact">
+            <span class="term-fact__label">先知道</span>
+            <a class="term-fact__value" href={`/glossary/?category=${entry.data.category}`}>
+              {category?.name ?? '术语表'}
+            </a>
+          </p>
+          {entry.data.aliases.length > 0 && (
+            <p class="term-fact">
+              <span class="term-fact__label">也常被叫作</span>
+              {entry.data.aliases.map((alias) => <span class="term-alias">{alias}</span>)}
+            </p>
+          )}
+        </div>
+
         <div class="term-example">
           <span class="term-example__label">校园里的样子</span>
           <p>{entry.data.example}</p>
         </div>
       </header>
 
+      {scenario && (
+        <section class="term-scenario" data-scenario aria-labelledby="term-scenario-title">
+          <h2 class="term-block__title" id="term-scenario-title">{scenario.title}</h2>
+          <div class="term-steps" role="tablist" aria-label={scenario.title}>
+            {scenario.steps.map((step, stepIndex) => (
+              <button
+                class="term-steps__item"
+                type="button"
+                role="tab"
+                id={`scenario-tab-${stepIndex}`}
+                aria-controls={`scenario-panel-${stepIndex}`}
+                aria-selected={stepIndex === 0 ? 'true' : 'false'}
+                tabindex={stepIndex === 0 ? 0 : -1}
+                data-scenario-tab
+                data-step={stepIndex}
+              >
+                <span class="term-steps__index mono">{String(stepIndex + 1).padStart(2, '0')}</span>
+                <span class="term-steps__label">{step.label}</span>
+              </button>
+            ))}
+          </div>
+          {scenario.steps.map((step, stepIndex) => (
+            <div
+              class="term-scenario__panel"
+              role="tabpanel"
+              id={`scenario-panel-${stepIndex}`}
+              aria-labelledby={`scenario-tab-${stepIndex}`}
+              data-scenario-panel
+            >
+              {step.quote && <blockquote class="term-scenario__quote">{step.quote}</blockquote>}
+              <p class="term-scenario__body">{step.body}</p>
+              {step.meta && <p class="term-scenario__meta mono">{step.meta}</p>}
+              {step.note && <p class="term-scenario__note">{step.note}</p>}
+            </div>
+          ))}
+        </section>
+      )}
+
       <div class="term-body prose">
         <Content />
       </div>
 
+      {quiz.length > 0 && (
+        <section class="term-quiz" data-quiz aria-labelledby="term-quiz-title">
+          <p class="term-quiz__eyebrow">选择题</p>
+          <h2 class="term-block__title" id="term-quiz-title">选一个你认为最合适的答案</h2>
+          {quiz.map((item, quizIndex) => (
+            <div class="term-quiz__item" data-quiz-item>
+              <p class="term-quiz__question">{item.question}</p>
+              <div class="term-quiz__options" role="group" aria-labelledby={`term-quiz-question-${quizIndex}`}>
+                {item.options.map((option, optionIndex) => (
+                  <button
+                    class="term-quiz__option"
+                    type="button"
+                    data-quiz-option
+                    data-correct={option.correct ? 'true' : 'false'}
+                  >
+                    <span class="term-quiz__mark mono" aria-hidden="true">{optionLetters[optionIndex] ?? optionIndex + 1}</span>
+                    <span class="term-quiz__text">{option.text}</span>
+                    <span class="term-quiz__result" aria-live="polite"></span>
+                  </button>
+                ))}
+              </div>
+              {item.explain && <p class="term-quiz__explain" data-quiz-explain hidden>{item.explain}</p>}
+            </div>
+          ))}
+        </section>
+      )}
+
+      {agentPrompt && (
+        <section class="term-prompt" aria-labelledby="term-prompt-title">
+          <h2 class="term-block__title" id="term-prompt-title">你可以这样告诉 AI Agent</h2>
+          <div class="term-prompt__card">
+            <p class="term-prompt__text" data-prompt-text>{agentPrompt}</p>
+            <button class="term-prompt__copy" type="button" data-copy-prompt>
+              <Icon name="copy" size={14} />
+              <span data-copy-label>复制提示词</span>
+            </button>
+          </div>
+        </section>
+      )}
+
+      {related.length > 0 && (
+        <section class="term-next" aria-labelledby="term-next-title">
+          <h2 class="term-block__title" id="term-next-title">接下来学什么</h2>
+          <ol class="term-next__list">
+            {related.map((item, itemIndex) => (
+              <li>
+                <a class="term-next__item" href={`/glossary/${item.id}/`}>
+                  <span class="term-next__index mono">{itemIndex + 1}</span>
+                  <span class="term-next__text">
+                    <strong>{item.data.term}</strong>
+                    <span class="term-next__cat">{glossaryCategoryName(item.data.category)}</span>
+                  </span>
+                  <Icon name="arrow-right" size={15} />
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {sources.length > 0 && (
-        <section class="page-sources term-sources" aria-label="参考来源">
-          <p>参考来源</p>
+        <section class="page-sources term-sources" aria-label="延伸阅读">
+          <p>延伸阅读 · 权威出处</p>
           <ul>
             {sources.map((source) => (
               <li>
@@ -109,21 +250,6 @@ const jsonLd = {
               </li>
             ))}
           </ul>
-        </section>
-      )}
-
-      {related.length > 0 && (
-        <section class="term-related" aria-labelledby="term-related-title">
-          <h2 class="term-related__title" id="term-related-title">接着看</h2>
-          <div class="term-related__grid">
-            {related.map((item) => (
-              <a class="term-related__card" href={`/glossary/${item.id}/`}>
-                <span class="term-related__cat">{glossaryCategoryName(item.data.category)}</span>
-                <strong>{item.data.term}</strong>
-                <span class="term-related__desc">{item.data.definition}</span>
-              </a>
-            ))}
-          </div>
         </section>
       )}
 
@@ -147,7 +273,7 @@ const jsonLd = {
         ) : (
           <a class="wiki-pager__link wiki-pager__link--next" href="/glossary/">
             <span>继续</span>
-            <strong>全部术语</strong>
+            <strong>术语表</strong>
           </a>
         )}
       </nav>
@@ -163,6 +289,101 @@ const jsonLd = {
       <ContentStatus data={entry.data} context="glossary" />
     </div>
   </div>
+
+  <script>
+    // 场景拆解：点上方每一步，切换下方对应的「提示画面」。
+    document.querySelectorAll<HTMLElement>('[data-scenario]').forEach((scenario) => {
+      const tabs = Array.from(scenario.querySelectorAll<HTMLButtonElement>('[data-scenario-tab]'));
+      if (tabs.length === 0) return;
+      const panels = Array.from(scenario.querySelectorAll<HTMLElement>('[data-scenario-panel]'));
+
+      const activate = (index: number) => {
+        tabs.forEach((tab, tabIndex) => {
+          const selected = tabIndex === index;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panels.forEach((panel, panelIndex) => {
+          panel.hidden = panelIndex !== index;
+        });
+      };
+
+      // 渐进增强：HTML 里默认三个面板都渲染（无 JS 也能读），脚本接管后只显示第一步。
+      activate(0);
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activate(index));
+        tab.addEventListener('keydown', (event) => {
+          if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+          event.preventDefault();
+          const delta = event.key === 'ArrowRight' ? 1 : -1;
+          const nextIndex = (index + delta + tabs.length) % tabs.length;
+          tabs[nextIndex]?.focus();
+          activate(nextIndex);
+        });
+      });
+    });
+
+    // 选择题：点一次即揭晓；正确项常亮，选错的标红并给出解释。
+    document.querySelectorAll<HTMLElement>('[data-quiz-item]').forEach((item) => {
+      item.querySelectorAll<HTMLButtonElement>('[data-quiz-option]').forEach((option) => {
+        option.addEventListener('click', () => {
+          if (item.dataset.answered === 'true') return;
+          item.dataset.answered = 'true';
+          const isCorrect = option.dataset.correct === 'true';
+          item.querySelectorAll<HTMLButtonElement>('[data-quiz-option]').forEach((candidate) => {
+            const correct = candidate.dataset.correct === 'true';
+            candidate.classList.toggle('is-correct', correct);
+            candidate.classList.toggle('is-wrong', candidate === option && !isCorrect);
+            candidate.dataset.state = candidate === option ? 'selected' : '';
+            const result = candidate.querySelector<HTMLElement>('.term-quiz__result');
+            if (result) result.textContent = correct ? '正确答案' : candidate === option ? '不太合适' : '';
+          });
+          const explain = item.querySelector<HTMLElement>('[data-quiz-explain]');
+          if (explain) explain.hidden = false;
+        });
+      });
+    });
+
+    // 复制本页 Markdown（正文 + frontmatter），方便直接在 GitHub 网页里粘贴修改
+    document.querySelectorAll<HTMLElement>('[data-copy-markdown]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const source = document.querySelector<HTMLTextAreaElement>('[data-term-markdown]');
+        const label = button.querySelector<HTMLElement>('[data-copy-markdown-label]');
+        // textarea 会把换行规范成 CRLF，复制前还原成 LF，和仓库里的文件保持一致
+        const text = (source?.value ?? '').replace(/\r\n?/g, '\n');
+        try {
+          await navigator.clipboard.writeText(text);
+          button.dataset.state = 'done';
+          if (label) label.textContent = '已复制';
+        } catch {
+          button.dataset.state = 'error';
+          if (label) label.textContent = '复制失败';
+        }
+        window.setTimeout(() => {
+          button.dataset.state = '';
+          if (label) label.textContent = '复制 Markdown';
+        }, 2000);
+      });
+    });
+
+    // 提示词一键复制
+    document.querySelectorAll<HTMLElement>('[data-copy-prompt]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const text = button.parentElement?.querySelector<HTMLElement>('[data-prompt-text]')?.textContent?.trim() ?? '';
+        const label = button.querySelector<HTMLElement>('[data-copy-label]');
+        try {
+          await navigator.clipboard.writeText(text);
+          if (label) label.textContent = '已复制';
+        } catch {
+          if (label) label.textContent = '复制失败，请手动选择';
+        }
+        window.setTimeout(() => {
+          if (label) label.textContent = '复制提示词';
+        }, 2000);
+      });
+    });
+  </script>
 
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </BaseLayout>

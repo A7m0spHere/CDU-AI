@@ -90,6 +90,10 @@ const CONTENT_TYPES = {
       'aliases',
       'definition',
       'example',
+      'youMaySay',
+      'scenario',
+      'quiz',
+      'agentPrompt',
       'order',
       'related',
       'updated',
@@ -343,6 +347,62 @@ export async function validateCollection({ collection, dir, context }) {
       }
       if (!checkPositiveInteger(data.order)) {
         errors.push({ file: label(file), message: 'order 必须是大于 0 的整数' });
+      }
+
+      // 场景拆解：2–4 步
+      if (data.scenario !== undefined) {
+        if (typeof data.scenario !== 'object' || data.scenario === null || Array.isArray(data.scenario)) {
+          errors.push({ file: label(file), message: 'scenario 必须是对象（title / steps / example）' });
+        } else {
+          if (!isNonEmptyString(data.scenario.title)) {
+            errors.push({ file: label(file), message: 'scenario.title 不能为空' });
+          }
+          const steps = data.scenario.steps;
+          if (!Array.isArray(steps) || steps.length < 2 || steps.length > 4) {
+            errors.push({ file: label(file), message: 'scenario.steps 需要 2–4 步' });
+          } else {
+            steps.forEach((step, index) => {
+              const no = `scenario.steps[${index}]`;
+              if (!step || typeof step !== 'object' || Array.isArray(step)) {
+                errors.push({ file: label(file), message: `${no} 必须是对象（label / body）` });
+                return;
+              }
+              if (!isNonEmptyString(step.label)) errors.push({ file: label(file), message: `${no}.label 不能为空` });
+              if (!isNonEmptyString(step.body)) errors.push({ file: label(file), message: `${no}.body 不能为空` });
+            });
+          }
+        }
+      }
+
+      // 选择题：每题必须有且只有一个正确答案
+      if (data.quiz !== undefined) {
+        if (!Array.isArray(data.quiz) || data.quiz.length > 3) {
+          errors.push({ file: label(file), message: 'quiz 必须是数组，最多 3 题' });
+        } else {
+          data.quiz.forEach((item, index) => {
+            const no = `quiz[${index}]`;
+            if (!item || !isNonEmptyString(item.question)) {
+              errors.push({ file: label(file), message: `${no}.question 不能为空` });
+              return;
+            }
+            const options = item.options;
+            if (!Array.isArray(options) || options.length < 2 || options.length > 4) {
+              errors.push({ file: label(file), message: `${no}.options 需要 2–4 个选项` });
+              return;
+            }
+            if (options.some((option) => !option || !isNonEmptyString(option.text))) {
+              errors.push({ file: label(file), message: `${no}.options 里每个选项都要有 text` });
+            }
+            const correctCount = options.filter((option) => option && option.correct === true).length;
+            if (correctCount !== 1) {
+              errors.push({ file: label(file), message: `${no} 必须恰好有一个 correct: true 的选项（当前 ${correctCount} 个）` });
+            }
+          });
+        }
+      }
+
+      if (data.agentPrompt !== undefined && !isNonEmptyString(data.agentPrompt)) {
+        errors.push({ file: label(file), message: 'agentPrompt 不能为空' });
       }
     }
   }
