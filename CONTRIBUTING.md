@@ -87,7 +87,6 @@ title: "一篇指南的标题"
 summary: "一句话说清这篇解决什么问题。"
 stage: "start" # start | make | share
 order: 9
-duration: "15 分钟"
 level: "零基础"
 outcome: "读完后能完成的一件具体小事。"
 forWho: "最适合哪类同学。"

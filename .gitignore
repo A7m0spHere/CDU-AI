@@ -16,5 +16,8 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+# local agent / tool state
+.local/
+
 # local visual QA artifacts
 work/

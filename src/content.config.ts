@@ -99,7 +99,6 @@ const guide = defineCollection({
       summary: z.string(),
       stage: z.enum(['start', 'make', 'share']),
       order: z.number().int().positive(),
-      duration: z.string(),
       level: z.string().default('零基础'),
       outcome: z.string(),
       forWho: z.string(),
