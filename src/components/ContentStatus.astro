@@ -6,12 +6,31 @@ import type { ReviewFields } from '../data/content-status';
 interface Props {
   data: ReviewFields;
   context?: 'guide' | 'glossary' | 'work';
+  /** inline 用于文章页脚元信息条，block 用于正文中的完整说明 */
+  variant?: 'block' | 'inline';
 }
 
-const { data, context = 'guide' } = Astro.props;
+const { data, context = 'guide', variant = 'block' } = Astro.props;
 const status = getContentStatus(data, { context });
 ---
 
+{variant === 'inline' ? (
+  <aside class={`content-status content-status--inline content-status--${status.id}`} data-content-status={status.id} aria-label="内容状态">
+    <span class="content-status__badge">{status.label}</span>
+    <details class="content-status__details">
+      <summary>内容状态说明</summary>
+      <p class="content-status__meta">
+        {status.basisLine} · {status.aiLine}
+        {status.reviewLine && <> · {status.reviewLine}</>}
+        {status.contributorsLine && <> · {status.contributorsLine}</>}
+      </p>
+      <p class="content-status__note">
+        {status.note}
+        <a href={status.guidelineUrl} target="_blank" rel="noopener noreferrer">查看标注规范<Icon name="arrow-up-right" size={12} /></a>
+      </p>
+    </details>
+  </aside>
+) : (
 <aside class={`content-status content-status--${status.id}`} data-content-status={status.id} aria-label="内容状态">
   <p class="content-status__head">
     <Icon name="info" size={14} />
@@ -28,6 +47,7 @@ const status = getContentStatus(data, { context });
     <a href={status.guidelineUrl} target="_blank" rel="noopener noreferrer">查看标注规范<Icon name="arrow-up-right" size={12} /></a>
   </p>
 </aside>
+)}
 
 <style>
   .content-status {

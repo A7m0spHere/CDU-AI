@@ -1,0 +1,77 @@
+---
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface PageMeta {
+  label: string;
+  tone?: 'default' | 'brand' | 'warn';
+}
+
+interface Props {
+  /** 页面编号（如 01），用于编辑式页眉 */
+  index?: string;
+  eyebrow: string;
+  title: string;
+  lede?: string;
+  /** 标题下的状态 chips */
+  meta?: PageMeta[];
+  crumbs?: Crumb[];
+  /** 引导用户操作的按钮区 */
+  actionsSlot?: boolean;
+  /** guide 等自带容器布局的页面置为 true，避免双层 container */
+  bare?: boolean;
+}
+
+const { index, eyebrow, title, lede, meta = [], crumbs = [], bare = false } = Astro.props;
+const hasAside = Astro.slots.has('aside');
+const hasActions = Astro.slots.has('actions');
+---
+
+<header class:list={['page-header', { 'page-header--bare': bare }]} data-page-header>
+  <div class:list={['page-header__container', { container: !bare }]}>
+    {crumbs.length > 0 && (
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href="/">首页</a>
+        {crumbs.map((crumb) => (
+          <Fragment>
+            <span class="breadcrumb__sep" aria-hidden="true">/</span>
+            {crumb.href ? <a href={crumb.href}>{crumb.label}</a> : <span aria-current="page">{crumb.label}</span>}
+          </Fragment>
+        ))}
+      </nav>
+    )}
+
+    <div class="page-header__inner">
+      <div class="page-header__copy">
+        <p class="page-header__eyebrow">
+          {index && <span class="page-header__index mono">{index}</span>}
+          <span>{eyebrow}</span>
+          {meta && meta.length > 0 && (
+            <span class="page-header__chips">
+              {meta.map((item) => (
+                <span class:list={['page-header__chip', item.tone && `page-header__chip--${item.tone}`]}>
+                  {item.label}
+                </span>
+              ))}
+            </span>
+          )}
+        </p>
+        <h1>{title}</h1>
+        {lede && <p class="page-header__lede">{lede}</p>}
+        {hasActions && (
+          <div class="page-header__actions">
+            <slot name="actions" />
+          </div>
+        )}
+      </div>
+
+      {hasAside && (
+        <div class="page-header__aside">
+          <slot name="aside" />
+        </div>
+      )}
+    </div>
+  </div>
+</header>

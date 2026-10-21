@@ -47,7 +47,15 @@ export function initFilter(options: FilterOptions = {}): void {
       const queryMatch = query.length === 0 || haystack.includes(query);
       const show = categoryMatch && queryMatch;
       card.hidden = !show;
-      if (show) visible += 1;
+      card.classList.remove('filter-appear');
+      if (show) {
+        // 仅给可见卡片加一次轻量进入动画，用索引做极短 stagger
+        card.style.setProperty('--filter-i', String(Math.min(visible, 10)));
+        void card.offsetWidth;
+        card.classList.add('filter-appear');
+        window.setTimeout(() => card.classList.remove('filter-appear'), 320);
+        visible += 1;
+      }
     }
 
     if (count) count.textContent = String(visible);

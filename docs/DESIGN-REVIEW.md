@@ -145,3 +145,4 @@
 - Hero 右侧新增看板娘学习引导图：以维护者提供的透明人物插画为中心，六个模块通过 SVG 虚线节点环绕，hover / focus 点亮连线、自动轮播点亮；移动端降级为「人物 + 2 列模块网格」，prefers-reduced-motion 下关闭浮动 / 呼吸 / 轮播。
 - Hero 左侧卡片加入像素粒子背景（参考 PixelCard 效果，纯 Canvas 重写）：hover / focus 时像素从中心向外出现并闪烁，离开时收回；减少动效下完全禁用，CLS 保持 0。
 - Hero 右侧网络加入四角瞄准框（参考 TargetCursor）：悬停 / 聚焦模块时吸附到模块边框，空闲时围绕人物呼吸；不隐藏原生鼠标、无 GSAP、只监听本区域事件；触摸与减少动效环境不启用。
+- 阶段二第一批：新增共享 PageHeader（编号 eyebrow + 状态 chips + 可选 aside），应用到学习指南 / 术语表 / 工具资源 / 作品广场；EmptyContent 升级为带点阵材质的 v2 空状态卡；滚动 reveal 从首页扩展到全站（data-reveal + BaseLayout 引入 motion）；工具 / 术语筛选卡片增加轻量进入过渡（filter-appear，减少动效时禁用）。
