@@ -35,15 +35,33 @@ export function initFilter(options: FilterOptions = {}): void {
   const clear = root.querySelector<HTMLButtonElement>(clearSelector);
   const groups = Array.from(root.querySelectorAll<HTMLElement>('[data-filter-group]'));
 
-  let activeCategory = 'all';
+  // 默认分支：页面加载、清除筛选时回到这一项（术语页默认停在「AI 主线」）。
+  const defaultChip =
+    chips.find((chip) => chip.hasAttribute('data-filter-default')) ??
+    chips.find((chip) => chip.dataset.filterValue === 'all');
+  const defaultValue = defaultChip?.dataset.filterValue ?? 'all';
+
+  let activeValue = defaultValue;
   let query = '';
 
+  /** 一个筛选项可以匹配多个分类（data-filter-match），也可以只匹配单个分类。 */
+  const chipMatches = (chip: HTMLButtonElement | undefined, card: HTMLElement): boolean => {
+    if (!chip) return true;
+    const categories = chip.dataset.filterMatch;
+    if (categories) {
+      const set = new Set(categories.split(/\s+/).filter(Boolean));
+      return set.has(card.dataset.category ?? '');
+    }
+    const value = chip.dataset.filterValue ?? '';
+    return value === 'all' || (card.dataset.category ?? '') === value;
+  };
+
   const apply = () => {
+    const activeChip = chips.find((chip) => chip.dataset.filterValue === activeValue);
     let visible = 0;
     for (const card of cards) {
-      const category = card.dataset.category ?? '';
       const haystack = normalize(card.dataset.search ?? card.textContent ?? '');
-      const categoryMatch = activeCategory === 'all' || category === activeCategory;
+      const categoryMatch = chipMatches(activeChip, card);
       const queryMatch = query.length === 0 || haystack.includes(query);
       const show = categoryMatch && queryMatch;
       card.hidden = !show;
@@ -60,7 +78,7 @@ export function initFilter(options: FilterOptions = {}): void {
 
     if (count) count.textContent = String(visible);
     if (empty) empty.hidden = visible !== 0;
-    if (clear) clear.hidden = activeCategory === 'all' && query.length === 0;
+    if (clear) clear.hidden = activeValue === defaultValue && query.length === 0;
 
     groups.forEach((group) => {
       const hasVisibleCard = Array.from(group.querySelectorAll<HTMLElement>(cardSelector)).some(
@@ -70,7 +88,7 @@ export function initFilter(options: FilterOptions = {}): void {
     });
 
     chips.forEach((chip) => {
-      chip.setAttribute('aria-pressed', chip.dataset.filterValue === activeCategory ? 'true' : 'false');
+      chip.setAttribute('aria-pressed', chip.dataset.filterValue === activeValue ? 'true' : 'false');
     });
   };
 
@@ -79,7 +97,7 @@ export function initFilter(options: FilterOptions = {}): void {
     const category = params.get('category');
     const q = params.get('q');
     if (category && chips.some((chip) => chip.dataset.filterValue === category)) {
-      activeCategory = category;
+      activeValue = category;
     }
     if (q) {
       query = normalize(q).trim();
@@ -90,8 +108,8 @@ export function initFilter(options: FilterOptions = {}): void {
 
   const syncUrl = () => {
     const params = new URLSearchParams(window.location.search);
-    if (activeCategory === 'all') params.delete('category');
-    else params.set('category', activeCategory);
+    if (activeValue === defaultValue) params.delete('category');
+    else params.set('category', activeValue);
     if (!query) params.delete('q');
     else params.set('q', query);
     const next = params.toString();
@@ -101,7 +119,7 @@ export function initFilter(options: FilterOptions = {}): void {
 
   chips.forEach((chip) => {
     chip.addEventListener('click', () => {
-      activeCategory = chip.dataset.filterValue ?? 'all';
+      activeValue = chip.dataset.filterValue ?? defaultValue;
       apply();
       syncUrl();
     });
@@ -120,7 +138,7 @@ export function initFilter(options: FilterOptions = {}): void {
   }
 
   clear?.addEventListener('click', () => {
-    activeCategory = 'all';
+    activeValue = defaultValue;
     query = '';
     if (search) search.value = '';
     apply();

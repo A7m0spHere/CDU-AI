@@ -24,6 +24,13 @@ const total = terms.length;
 // 「Vibe Coding」是延伸分支的起点：它是分支名，前端 / 后端 / 产品 / 测试 / Git 挂在它下面。
 const vibeCategory = glossaryCategories.find((category) => category.id === 'vibecoding');
 const vibeTechCategories = glossaryExtensionCategories.filter((category) => category.id !== 'vibecoding');
+
+// 左侧两个分支头点击时按「整个分支」筛选，所以各自带一份分支内分类清单。
+const aiMainIds = glossaryPrimaryCategories.map((category) => category.id);
+const vibeBranchIds = glossaryExtensionCategories.map((category) => category.id);
+const countInBranch = (ids: string[]) => ids.reduce((sum, id) => sum + categoryCount(id), 0);
+const aiMainCount = countInBranch(aiMainIds);
+const vibeBranchCount = countInBranch(vibeBranchIds);
 const isEmpty = total === 0;
 const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1);
 const contributeLinks = [
@@ -72,10 +79,18 @@ const contributeLinks = [
             <div class="branch-group branch-group--main" data-branch>
               <div class="branch-group__head">
                 <span class="branch-node__rail" aria-hidden="true"></span>
-                <button class="branch-group__label" type="button" data-filter-value="all" aria-pressed="true">
-                  <span class="branch-ref branch-ref--main mono">main</span>
-                  <span class="branch-group__name">全部术语</span>
-                  <span class="branch-group__count">{total}</span>
+                <button
+                  class="branch-group__label"
+                  type="button"
+                  data-filter-value="ai-main"
+                  data-filter-match={aiMainIds.join(' ')}
+                  data-filter-default
+                  aria-pressed="true"
+                  title="AI 主分支：基础 / 提示词 / 工具 / Agent / 安全 / 成本"
+                >
+                  <span class="branch-ref branch-ref--ai mono">AI</span>
+                  <span class="branch-group__name">AI 主线</span>
+                  <span class="branch-group__count">{aiMainCount}</span>
                 </button>
                 <button
                   class="branch-group__toggle"
@@ -115,13 +130,14 @@ const contributeLinks = [
                 <button
                   class="branch-group__label"
                   type="button"
-                  data-filter-value="vibecoding"
+                  data-filter-value="vibe-branch"
+                  data-filter-match={vibeBranchIds.join(' ')}
                   aria-pressed="false"
                   title={vibeCategory?.description}
                 >
                   <span class="branch-ref branch-ref--vibe mono">vibecoding</span>
                   <span class="branch-group__name">Vibe Coding</span>
-                  <span class="branch-group__count">{categoryCount('vibecoding')}</span>
+                  <span class="branch-group__count">{vibeBranchCount}</span>
                 </button>
                 <button
                   class="branch-group__toggle"
@@ -171,7 +187,7 @@ const contributeLinks = [
           ) : (
             <>
               <div class="results-bar">
-                <p aria-live="polite">显示 <strong data-filter-count>{total}</strong> 个术语</p>
+                <p aria-live="polite">显示 <strong data-filter-count>{aiMainCount}</strong> 个术语</p>
                 <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
               </div>
 
@@ -238,8 +254,8 @@ const contributeLinks = [
 
               <div class="empty-state" data-empty-state hidden>
                 <Icon name="search" size={28} />
-                <h2>没有找到匹配的术语</h2>
-                <p>换个更短的关键词，或点击「清除筛选」查看全部。</p>
+                <h2>这个分支下没有匹配的术语</h2>
+                <p>换一个分支看看，或换个更短的关键词。</p>
               </div>
             </>
           )}

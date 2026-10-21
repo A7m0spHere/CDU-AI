@@ -492,7 +492,7 @@
   line-height: 1.6;
 }
 
-.branch-ref--main {
+.branch-ref--ai {
   border-color: var(--brand-soft);
   background: var(--brand-tint);
   color: var(--brand);
