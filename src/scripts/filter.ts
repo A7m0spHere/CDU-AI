@@ -58,11 +58,13 @@ export function initFilter(options: FilterOptions = {}): void {
 
   const apply = () => {
     const activeChip = chips.find((chip) => chip.dataset.filterValue === activeValue);
+    // 搜索是全局的：一旦输入关键词，就忽略当前分支筛选，避免「明明有却搜不到」。
+    const searching = query.length > 0;
     let visible = 0;
     for (const card of cards) {
       const haystack = normalize(card.dataset.search ?? card.textContent ?? '');
-      const categoryMatch = chipMatches(activeChip, card);
-      const queryMatch = query.length === 0 || haystack.includes(query);
+      const categoryMatch = searching || chipMatches(activeChip, card);
+      const queryMatch = !searching || haystack.includes(query);
       const show = categoryMatch && queryMatch;
       card.hidden = !show;
       card.classList.remove('filter-appear');

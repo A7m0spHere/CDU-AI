@@ -87,7 +87,6 @@ const contributeLinks = [
                   data-filter-value="ai-main"
                   data-filter-match={aiMainIds.join(' ')}
                   data-filter-default
-                  aria-pressed="true"
                   title="AI 主分支：基础 / 提示词 / 工具 / Agent / 安全 / 成本"
                 >
                   <span class="branch-ref branch-ref--ai mono">AI</span>
@@ -99,7 +98,8 @@ const contributeLinks = [
                   type="button"
                   data-branch-toggle
                   aria-expanded="true"
-                  aria-label="折叠或展开 AI 主分支"
+                  data-label-collapse="折叠 AI 主分支"
+                  data-label-expand="展开 AI 主分支"
                 >
                   <Icon name="chevron-down" size={14} />
                 </button>
@@ -148,7 +148,8 @@ const contributeLinks = [
                   type="button"
                   data-branch-toggle
                   aria-expanded="true"
-                  aria-label="折叠或展开 Vibe Coding 分支"
+                  data-label-collapse="折叠 Vibe Coding 分支"
+                  data-label-expand="展开 Vibe Coding 分支"
                 >
                   <Icon name="chevron-down" size={14} />
                 </button>
@@ -258,8 +259,8 @@ const contributeLinks = [
 
               <div class="empty-state" data-empty-state hidden>
                 <Icon name="search" size={28} />
-                <h2>这个分支下没有匹配的术语</h2>
-                <p>换一个分支看看，或换个更短的关键词。</p>
+                <h2>没有找到匹配的术语</h2>
+                <p>换个更短的关键词，或换一个分支看看。搜索会在全部分支里找。</p>
               </div>
             </>
           )}
@@ -290,10 +291,12 @@ const contributeLinks = [
   document.querySelectorAll<HTMLElement>('[data-branch]').forEach((branch) => {
     const toggle = branch.querySelector<HTMLButtonElement>('[data-branch-toggle]');
     if (!toggle) return;
+    toggle.setAttribute('aria-label', toggle.dataset.labelCollapse ?? '折叠或展开分支');
     toggle.addEventListener('click', () => {
       const collapsed = branch.dataset.collapsed === 'true';
       branch.dataset.collapsed = String(!collapsed);
       toggle.setAttribute('aria-expanded', String(collapsed));
+      toggle.setAttribute('aria-label', (collapsed ? toggle.dataset.labelCollapse : toggle.dataset.labelExpand) ?? '折叠或展开分支');
     });
   });
 </script>
