@@ -308,6 +308,36 @@
   margin-top: 0.4rem;
 }
 
+/* 作品封面：插画锚点 + 状态角标 */
+.work-card__art {
+  border-bottom: 1px solid var(--line);
+}
+
+.work-card__art .work-art {
+  will-change: transform;
+}
+
+.work-card__status {
+  top: 0.7rem;
+  right: 0.7rem;
+  left: auto;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+}
+
+.work-card__category {
+  right: auto;
+  left: 0.7rem;
+  bottom: 0.7rem;
+}
+
+.work-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 /* 文章页脚元信息条 */
 .doc-meta {
   display: flex;
