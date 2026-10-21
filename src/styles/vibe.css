@@ -96,6 +96,15 @@ body {
   color: var(--ink);
 }
 
+/* 页头 GitHub 入口：与主题按钮同尺寸的图标链接 */
+.header-github {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
 .search-trigger {
   display: inline-flex;
   width: clamp(13rem, 21vw, 19rem);
