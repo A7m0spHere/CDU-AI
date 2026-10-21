@@ -6,13 +6,16 @@ interface Props {
   title: string;
   description: string;
   links?: { label: string; href: string; external?: boolean }[];
+  /** 空状态上方的小标签，默认「内容准备中」 */
+  status?: string;
 }
 
-const { icon = 'sprout', title, description, links = [] } = Astro.props;
+const { icon = 'sprout', title, description, links = [], status = '内容准备中' } = Astro.props;
 ---
 
-<div class="empty-state content-empty" data-content-empty role="status">
-  <Icon name={icon} size={28} />
+<div class="empty-state empty-state--v2 content-empty" data-content-empty role="status">
+  <span class="empty-state__icon" aria-hidden="true"><Icon name={icon} size={24} /></span>
+  <p class="empty-state__eyebrow">{status}</p>
   <h2>{title}</h2>
   <p>{description}</p>
   {links.length > 0 && (
@@ -34,11 +37,11 @@ const { icon = 'sprout', title, description, links = [] } = Astro.props;
 
 <style>
   .content-empty {
-    margin-top: 1.6rem;
+    margin-top: 1.8rem;
   }
 
   .content-empty .btn-row {
     justify-content: center;
-    margin-top: 0.4rem;
+    margin-top: 1.2rem;
   }
 </style>

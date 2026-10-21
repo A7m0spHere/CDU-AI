@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
+import PageHeader from '../../components/PageHeader.astro';
 import EmptyContent from '../../components/EmptyContent.astro';
 import { guideStages, repository } from '../../data/site';
 import '../../styles/notion.css';
@@ -34,19 +35,18 @@ const contributeLinks = [
         <div class="wiki-main">
         <GuideMobileNav />
 
-        <nav class="breadcrumb" aria-label="面包屑">
-          <a href="/">首页</a>
-          <span class="breadcrumb__sep" aria-hidden="true">/</span>
-          <span aria-current="page">学习指南</span>
-        </nav>
-
-        <header class="wiki-heading">
-          <p class="eyebrow">学习指南</p>
-          <h1>AI 学习指南</h1>
-          <p class="wiki-lede">
-            不必先懂编程。先看清 AI 能做什么，再动手完成一件小事，最后把过程整理成可以分享的经验。可以顺着读，也可以从眼下需要的一篇开始。
-          </p>
-        </header>
+        <PageHeader
+          bare
+          index="01"
+          eyebrow="学习指南"
+          title="AI 学习指南"
+          lede="不必先懂编程。先看清 AI 能做什么，再动手完成一件小事，最后把过程整理成可以分享的经验。可以顺着读，也可以从眼下需要的一篇开始。"
+          meta={[
+            { label: guideEmpty ? '内容重建中' : modules.length + ' 篇', tone: guideEmpty ? 'warn' : 'brand' },
+            { label: '3 个阶段' },
+          ]}
+          crumbs={[{ label: '学习指南' }]}
+        />
 
         <div class="wiki-note">
           <Icon name="shield-check" size={17} />
@@ -62,7 +62,7 @@ const contributeLinks = [
           />
         )}
 
-        <section class="wiki-section" aria-labelledby="start-title">
+        <section class="wiki-section" aria-labelledby="start-title" data-reveal>
           <h2 id="start-title">从哪里开始</h2>
           <div class="wiki-table-wrap">
             <table class="wiki-table">
@@ -91,7 +91,7 @@ const contributeLinks = [
           </div>
         </section>
 
-        <section class="wiki-section wiki-outline" aria-labelledby="outline-title">
+        <section class="wiki-section wiki-outline" aria-labelledby="outline-title" data-reveal>
           <h2 id="outline-title">学习路线</h2>
 
           {groupedStages.map((stage) => (

@@ -1,0 +1,228 @@
+/* ---------------------------------------------------------
+   阶段二：内容页共享视觉（页头 / 空状态 / 筛选过渡 / reveal）
+   与首页 v2 保持同一套令牌与节奏。
+   --------------------------------------------------------- */
+
+/* 页头 */
+.page-header {
+  border-bottom: 1px solid var(--home-rule);
+  padding-block: clamp(2rem, 5vw, 3.2rem) clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.page-header__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  align-items: end;
+}
+
+.page-header__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 46rem;
+}
+
+.page-header__eyebrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.page-header__index {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.page-header__chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.page-header__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.14rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+}
+
+.page-header__chip--brand {
+  border-color: var(--brand-soft);
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.page-header__chip--warn {
+  border-color: var(--warn-soft, #fde68a);
+  background: var(--warn-soft, #fef3c7);
+  color: var(--warn-ink, #92400e);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 4.2vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.page-header__lede {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+}
+
+.page-header__aside {
+  max-width: 330px;
+}
+
+.page-header__container .breadcrumb {
+  margin-bottom: clamp(1rem, 2.5vw, 1.6rem);
+}
+
+@media (max-width: 900px) {
+  .page-header__inner {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .page-header__aside {
+    max-width: none;
+  }
+}
+
+/* 空状态 v2（EmptyContent 组件使用；工具页筛选空态保持原样式） */
+.empty-state--v2 {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.8rem;
+  padding: clamp(2.4rem, 6vw, 4rem) 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--surface), var(--bg-soft));
+  text-align: center;
+}
+
+.empty-state--v2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--line-strong) 1px, transparent 1px);
+  background-size: 22px 22px;
+  opacity: 0.3;
+  mask-image: linear-gradient(180deg, #000, transparent 72%);
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 72%);
+  pointer-events: none;
+}
+
+.empty-state--v2 > * {
+  position: relative;
+}
+
+.empty-state--v2 .empty-state__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 0.9rem;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.empty-state--v2 .empty-state__eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.empty-state--v2 h2 {
+  margin: 0 0 0.7rem;
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
+}
+
+.empty-state--v2 p {
+  max-width: 34rem;
+  margin: 0 auto;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+.empty-state--v2 .btn-row {
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+/* 滚动 reveal（全站通用；JS 不可用时内容始终可见） */
+[data-reveal='pending'] {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+[data-reveal='pending'].is-revealed {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal='pending'] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@media print {
+  [data-reveal],
+  [data-reveal='pending'] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* 筛选结果过渡 */
+@keyframes filter-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-filter-card].filter-appear {
+  animation: filter-appear 200ms var(--ease-out) both;
+  animation-delay: calc(var(--filter-i, 0) * 16ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-filter-card].filter-appear {
+    animation: none !important;
+  }
+}

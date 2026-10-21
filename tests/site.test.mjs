@@ -576,3 +576,29 @@ test('内容集合为空时保留框架、写作模板与占位状态', async ()
     assert.doesNotMatch(home, /0 个示例/, '首页不应出现「0 个示例」这类文案');
   }
 });
+
+test('阶段二：内容页使用共享页头与 v2 空状态', async () => {
+  const pages = [
+    ['guide/index.html', '01', '学习指南'],
+    ['glossary/index.html', '02', '术语表'],
+    ['tools/index.html', '03', '工具资源'],
+    ['works/index.html', '04', '作品广场'],
+  ];
+  for (const [route, index, label] of pages) {
+    const html = await read(route);
+    assert.match(html, /data-page-header/, route + ' 缺少共享页头');
+    assert.ok(html.includes('> ' + index) || html.includes('>' + index + '<'), route + ' 页头缺少编号 ' + index);
+    assert.ok(html.includes(label), route + ' 页头缺少标签 ' + label);
+  }
+
+  const emptyRoutes = ['guide/index.html', 'glossary/index.html'];
+  if (workSlugs.length === 0) emptyRoutes.push('works/index.html');
+  for (const route of emptyRoutes) {
+    const html = await read(route);
+    assert.match(html, /empty-state--v2/, route + ' 空状态未使用 v2 样式');
+  }
+
+  // 筛选卡片具备进入动画的样式钩子（真实交互由浏览器验证）
+  const toolsPage = await read('tools/index.html');
+  assert.match(toolsPage, /data-filter-card/, '工具页缺少筛选卡片');
+});
