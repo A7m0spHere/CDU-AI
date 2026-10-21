@@ -123,27 +123,33 @@ const contributeLinks = [
                       category.name,
                     ].join(' ').toLowerCase();
                     return (
-                      <a
+                      <article
                         class="glossary-term"
-                        href={'/glossary/' + term.id + '/'}
                         id={term.id}
                         data-filter-card
                         data-category={term.data.category}
                         data-search={searchText}
                       >
                         <div class="glossary-term__head">
-                          <h3>{term.data.term}<span>{term.data.en}</span></h3>
+                          <h3>
+                            <a href={'/glossary/' + term.id + '/'}>
+                              {term.data.term}<span>{term.data.en}</span>
+                            </a>
+                          </h3>
                         </div>
                         <p class="glossary-term__definition">{term.data.definition}</p>
-                        <p class="glossary-term__example"><span>例子</span>{term.data.example}</p>
-                        {term.data.aliases.length > 0 && (
-                          <p class="glossary-term__aliases">也常叫：{term.data.aliases.join(' / ')}</p>
-                        )}
-                        <span class="glossary-term__more">
+                        <details class="glossary-term__details">
+                          <summary>例子与别名</summary>
+                          <p class="glossary-term__example"><span>例子</span>{term.data.example}</p>
+                          {term.data.aliases.length > 0 && (
+                            <p class="glossary-term__aliases">也常叫：{term.data.aliases.join(' / ')}</p>
+                          )}
+                        </details>
+                        <a class="glossary-term__more" href={'/glossary/' + term.id + '/'}>
                           查看详解
                           <Icon name="arrow-right" size={13} />
-                        </span>
-                      </a>
+                        </a>
+                      </article>
                     );
                   })}
                 </div>
