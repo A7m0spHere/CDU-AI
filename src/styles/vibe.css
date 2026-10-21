@@ -76,6 +76,47 @@ body {
   font-weight: 600;
 }
 
+/* 导航末尾的「关于与共建」入口：配色、尺寸与 nav-link 完全一致 */
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-left: 0.28rem;
+  padding: 0 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.nav-cta:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.nav-cta:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* 导航 dock 放大：scripts/nav-dock.ts 写入 --dock-scale / --dock-lift */
+.nav-link,
+.nav-cta {
+  transform: translateY(var(--dock-lift, 0px)) scale(var(--dock-scale, 1));
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link,
+  .nav-cta {
+    transform: none;
+    will-change: auto;
+  }
+}
+
 .header-actions {
   gap: 0.4rem;
   margin-left: auto;

@@ -7,20 +7,6 @@ import { site, transparencyItems, repository } from '../../data/site';
 import { contributionPaths } from '../../data/home';
 import { roadmap } from '../../data/events';
 
-const whatItIs = [
-  '面向成都大学所有专业同学的开放 AI 学习与交流入口',
-  '由成都大学计算机协会 AI 方向发起的学生共建项目',
-  '以真实需求、工具使用、创意实践与社区交流为核心',
-  '内容与代码尽量开放维护，不以付费墙或焦虑营销驱动',
-];
-
-const whatItIsNot = [
-  '不是成都大学官方平台，也不代表学校或任何学院的立场',
-  '不是 AI 课程售卖页、工具推广页或流量生意',
-  '不是已经拥有大量用户和内容的成熟社区',
-  '不是替代专业意见的医疗、法律或财务顾问',
-];
-
 const standards = [
   {
     icon: 'alert-triangle' as const,
@@ -99,27 +85,6 @@ const contributionLinks = [
 
   <section class="section section--flush-top" id="what">
     <div class="container">
-      <div class="about-split">
-        <div class="about-list-card card">
-          <div class="about-list-card__head">
-            <span class="about-list-card__icon"><Icon name="check" size={19} /></span>
-            <h2>它是</h2>
-          </div>
-          <ul class="check-list">
-            {whatItIs.map((item) => <li><Icon name="check" size={15} /><span>{item}</span></li>)}
-          </ul>
-        </div>
-        <div class="about-list-card about-list-card--muted card">
-          <div class="about-list-card__head">
-            <span class="about-list-card__icon"><Icon name="close" size={19} /></span>
-            <h2>它不是</h2>
-          </div>
-          <ul class="check-list check-list--cross">
-            {whatItIsNot.map((item) => <li><Icon name="close" size={14} /><span>{item}</span></li>)}
-          </ul>
-        </div>
-      </div>
-
       <div class="about-maintenance" id="how">
         <div class="about-maintenance__copy">
           <p class="eyebrow">怎么维护</p>

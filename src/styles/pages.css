@@ -2830,75 +2830,19 @@
 /* =========================================================
    About page
    ========================================================= */
-.about-split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
 
-.about-list-card {
-  padding: clamp(1.3rem, 3vw, 1.8rem);
-}
-
-.about-list-card--muted {
-  background: var(--bg-soft);
-}
-
-.about-list-card__head {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 1rem;
-}
-
-.about-list-card__icon {
-  display: inline-grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--brand-soft);
-  color: var(--brand);
-}
-
-.about-list-card--muted .about-list-card__icon {
-  background: var(--surface-muted);
-  color: var(--muted);
-}
-
-.about-list-card__head h2 {
-  font-size: 1.12rem;
-}
-
-.check-list {
-  display: grid;
-  gap: 0.6rem;
-  list-style: none;
-}
-
-.check-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-  color: var(--ink-soft);
-  font-size: 0.82rem;
-  line-height: 1.7;
-}
-
-.check-list svg {
-  margin-top: 0.22rem;
-  flex: none;
-  color: var(--brand);
-}
-
-.check-list--cross svg {
-  color: var(--faint);
-}
 
 .about-maintenance {
   margin-top: clamp(4rem, 8vw, 7rem);
   padding-top: clamp(2.5rem, 5vw, 4rem);
   border-top: 1px solid var(--line);
+}
+
+/* 首块（「它是 / 它不是」卡片移除后）不再需要顶部留白与分隔线 */
+.about-maintenance:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .about-maintenance__copy {
@@ -3428,9 +3372,6 @@
     gap: 0;
   }
 
-  .about-split {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 760px) {
