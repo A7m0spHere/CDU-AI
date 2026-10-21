@@ -911,6 +911,23 @@ body.search-open {
   animation: search-in var(--dur-base) var(--ease-out);
 }
 
+.search-dialog.is-closing {
+  animation: search-out 140ms var(--ease-out) both;
+}
+
+@keyframes search-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-dialog.is-closing {
+    animation: none;
+  }
+}
+
 @keyframes search-in {
   from {
     opacity: 0;

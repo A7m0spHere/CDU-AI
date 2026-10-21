@@ -238,6 +238,24 @@ if (searchDialog) {
     return searchRequest;
   };
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let closing = false;
+
+  const closeSearch = () => {
+    if (!searchDialog.open || closing) return;
+    if (prefersReducedMotion.matches) {
+      searchDialog.close();
+      return;
+    }
+    closing = true;
+    searchDialog.classList.add('is-closing');
+    window.setTimeout(() => {
+      searchDialog.classList.remove('is-closing');
+      closing = false;
+      searchDialog.close();
+    }, 150);
+  };
+
   const openSearch = () => {
     previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.classList.add('search-open');
@@ -258,10 +276,10 @@ if (searchDialog) {
     trigger.addEventListener('click', openSearch);
   });
 
-  searchDialog.querySelector('[data-search-close]')?.addEventListener('click', () => searchDialog.close());
+  searchDialog.querySelector('[data-search-close]')?.addEventListener('click', closeSearch);
 
   searchDialog.addEventListener('click', (event) => {
-    if (event.target === searchDialog) searchDialog.close();
+    if (event.target === searchDialog) closeSearch();
   });
 
   searchDialog.addEventListener('close', () => {
@@ -308,7 +326,7 @@ if (searchDialog) {
     }
     if (event.key === 'Escape' && searchDialog.open) {
       event.preventDefault();
-      searchDialog.close();
+      closeSearch();
     }
   });
 }

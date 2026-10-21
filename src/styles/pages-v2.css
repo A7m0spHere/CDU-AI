@@ -204,6 +204,39 @@
   }
 }
 
+/* 跨文档页面切换（渐进增强；不支持的浏览器直接普通跳转） */
+@view-transition {
+  navigation: auto;
+}
+
+@keyframes page-vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes page-vt-out {
+  to {
+    opacity: 0;
+  }
+}
+
+::view-transition-old(root) {
+  animation: page-vt-out 140ms var(--ease-out) both;
+}
+
+::view-transition-new(root) {
+  animation: page-vt-in 220ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 /* 文章页脚元信息条 */
 .doc-meta {
   display: flex;
