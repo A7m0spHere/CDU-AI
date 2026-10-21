@@ -2502,33 +2502,6 @@ body.search-open {
   line-height: 1.6;
 }
 
-.glossary-source {
-  display: flex;
-  gap: 0.65rem;
-  align-items: flex-start;
-  max-width: 760px;
-  margin-top: 1.6rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
-  color: var(--faint);
-  font-size: 0.7rem;
-  line-height: 1.75;
-}
-
-.glossary-source__label {
-  flex: none;
-  padding: 0.08rem 0.34rem;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-}
-
-.glossary-source p {
-  margin: 0;
-}
-
 @media (max-width: 760px) {
   .glossary-grid {
     grid-template-columns: minmax(0, 1fr);
