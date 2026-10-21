@@ -295,9 +295,9 @@
   opacity: 0.55;
 }
 
-/* 分支头：轨道从圆点向下才开始 */
-.branch-row--head[data-lanes~='main']::before,
-.branch-row--head[data-lanes~='vibe']::after {
+/* 分支头：主线从圆点向下才开始；vibecoding 是从 fork 接过来的，
+   轨道必须从上一行连续画到本行，否则会和上方泳道断开一截。 */
+.branch-row--head[data-lanes~='main']::before {
   top: 50%;
 }
 
