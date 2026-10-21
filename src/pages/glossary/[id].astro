@@ -163,7 +163,6 @@ const jsonLd = {
               id={`scenario-panel-${stepIndex}`}
               aria-labelledby={`scenario-tab-${stepIndex}`}
               data-scenario-panel
-              hidden={stepIndex !== 0}
             >
               {step.quote && <blockquote class="term-scenario__quote">{step.quote}</blockquote>}
               <p class="term-scenario__body">{step.body}</p>
@@ -308,6 +307,9 @@ const jsonLd = {
           panel.hidden = panelIndex !== index;
         });
       };
+
+      // 渐进增强：HTML 里默认三个面板都渲染（无 JS 也能读），脚本接管后只显示第一步。
+      activate(0);
 
       tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => activate(index));
