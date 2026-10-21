@@ -36,8 +36,8 @@ const aiUsageLabels: Record<AiUsage, string> = {
 const contextNotes: Record<'guide' | 'glossary' | 'work', string> = {
   guide:
     '状态按《内容审校与溯源规范》标注；发现过期或错误内容，可在 GitHub 提 issue 或直接编辑本页。',
-  glossary:
-    '术语定义为本站独立撰写，事实以词条列出的来源文档为准；正文中的 AI 辅助内容需逐条人工核校后才能视为已确认。',
+  // 术语页只保留状态、依据、AI 参与与审校信息，不再追加说明段落。
+  glossary: '',
   work:
     '策划示例用于展示作品可以如何组织，不代表已完成或已验证的成品；真实投稿的审校与授权规则在 M1 明确。',
 };
