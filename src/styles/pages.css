@@ -603,15 +603,6 @@
   color: var(--brand);
 }
 
-.learning-stage__duration {
-  flex: none;
-  padding-top: 0.12rem;
-  color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  white-space: nowrap;
-}
-
 .learning-stage__foot {
   display: flex;
   align-items: center;

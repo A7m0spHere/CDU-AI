@@ -74,7 +74,7 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 | 集合 | 路径 | 用途 | 关键字段 |
 | --- | --- | --- | --- |
-| `guide` | `src/content/guide/*.md` | 学习模块 | title, summary, stage, order, duration, outcome, forWho, updated, sources, tools, tags, reviewed, reviewedBy, needsUpdate, basis, aiUsage, testedOn, testedEnvironment, contributors |
+| `guide` | `src/content/guide/*.md` | 学习模块 | title, summary, stage, order, outcome, forWho, updated, sources, tools, tags, reviewed, reviewedBy, needsUpdate, basis, aiUsage, testedOn, testedEnvironment, contributors |
 | `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
 | `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
 

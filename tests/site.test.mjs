@@ -591,7 +591,10 @@ test('阶段二：内容页使用共享页头与 v2 空状态', async () => {
     assert.ok(html.includes(label), route + ' 页头缺少标签 ' + label);
   }
 
-  const emptyRoutes = ['guide/index.html', 'glossary/index.html'];
+  // 空状态断言按实际内容集合推导：有内容时不应再要求 v2 空状态（避免新增内容导致旧断言失败）。
+  const emptyRoutes = [];
+  if (guideSlugs.length === 0) emptyRoutes.push('guide/index.html');
+  if (glossarySlugs.length === 0) emptyRoutes.push('glossary/index.html');
   if (workSlugs.length === 0) emptyRoutes.push('works/index.html');
   for (const route of emptyRoutes) {
     const html = await read(route);

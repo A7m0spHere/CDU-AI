@@ -23,7 +23,7 @@ const slugFileRe = /^[a-z0-9][a-z0-9-]*\.md$/;
 
 const CONTENT_TYPES = {
   guide: {
-    required: ['title', 'summary', 'stage', 'order', 'duration', 'outcome', 'forWho', 'updated'],
+    required: ['title', 'summary', 'stage', 'order', 'outcome', 'forWho', 'updated'],
     stages: ['start', 'make', 'share'],
   },
   works: {

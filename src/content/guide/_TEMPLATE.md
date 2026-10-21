@@ -5,7 +5,6 @@ title: "标题：用动词开头，说清解决什么问题"
 summary: "一句话说清这篇能帮上什么忙。"
 stage: "start" # start（先建立判断）| make（动手做出东西）| share（整理与分享）
 order: 1 # 正整数；全局唯一，用于排序与上一篇 / 下一篇
-duration: "15 分钟"
 level: "零基础"
 outcome: "读完后你能做到的一件具体小事。"
 forWho: "最适合哪类同学；不要写给所有人。"

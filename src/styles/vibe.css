@@ -96,6 +96,15 @@ body {
   color: var(--ink);
 }
 
+/* 页头 GitHub 入口：与主题按钮同尺寸的图标链接 */
+.header-github {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+
 .search-trigger {
   display: inline-flex;
   width: clamp(13rem, 21vw, 19rem);
@@ -1525,7 +1534,7 @@ body.search-open {
    Guide wiki layout (reference: wiki.uestcai.top)
    ========================================================= */
 .wiki-shell {
-  padding-block: clamp(1.2rem, 2.4vw, 2rem) clamp(3rem, 5vw, 4.5rem);
+  padding-block: clamp(0.8rem, 1.2vw, 1.1rem) clamp(3rem, 5vw, 4.5rem);
 }
 
 .wiki-layout {
@@ -1546,6 +1555,12 @@ body.search-open {
 
 .wiki-shell .breadcrumb {
   margin-bottom: 1.35rem;
+}
+
+/* 页面自带 PageHeader 时不再叠加容器顶部间距：
+   否则「导航 → 面包屑」之间会出现 wiki-shell + page-header 两层留白。 */
+.wiki-shell:has([data-page-header]) {
+  padding-top: 0;
 }
 
 /* Sidebar */

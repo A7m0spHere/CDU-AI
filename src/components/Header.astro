@@ -1,5 +1,5 @@
 ---
-import { site, navItems } from '../data/site';
+import { site, navItems, repository } from '../data/site';
 import Icon from './Icon.astro';
 import LogoMark from './LogoMark.astro';
 
@@ -52,6 +52,16 @@ function isActive(href: string) {
         <span class="theme-icon theme-icon--sun"><Icon name="sun" size={18} /></span>
       </button>
 
+      <a
+        class="icon-button header-github"
+        href={repository.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub 仓库（在新标签页打开）"
+        title="在 GitHub 上查看与共建"
+      >
+        <Icon name="github" size={18} />
+      </a>
 
       <details class="mobile-menu" data-mobile-menu>
         <summary class="icon-button" aria-label="打开导航菜单">
