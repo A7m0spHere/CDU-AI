@@ -249,6 +249,7 @@ test('每个术语都有可读的详情页与结构化数据', async () => {
     const html = await read('glossary/' + slug + '/index.html');
     assert.match(html, /<h1[ >]/, slug + ' 缺少 h1');
     assert.match(html, /data-term-module/, slug + ' 缺少术语模块容器');
+    assert.match(html, /data-copy-markdown/, slug + ' 缺少「复制 Markdown」按钮');
     assert.match(html, /term-definition/, slug + ' 缺少定义块');
     assert.match(html, /term-example/, slug + ' 缺少校园场景');
     assert.match(html, /先知道/, slug + ' 缺少「先知道」分类');

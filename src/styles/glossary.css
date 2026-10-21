@@ -44,6 +44,70 @@
   padding-block: 1rem 0.4rem;
 }
 
+/* 标题行：左侧标题信息，右侧「复制 Markdown」 */
+.term-head__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.term-head__intro {
+  min-width: 0;
+}
+
+.term-copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.7rem;
+  padding: 0.42rem 0.78rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.term-copy:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.term-copy:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.term-copy[data-state='done'] {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.term-copy[data-state='error'] {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+@media (max-width: 640px) {
+  .term-head__top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+
+  .term-copy {
+    margin-top: 0;
+  }
+}
+
 .term-head__eyebrow {
   display: inline-flex;
   align-items: center;

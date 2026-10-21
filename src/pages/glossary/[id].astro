@@ -46,6 +46,14 @@ const agentPrompt = entry.data.agentPrompt;
 const youMaySay = entry.data.youMaySay;
 const optionLetters = ['A', 'B', 'C', 'D'];
 
+// 「复制 Markdown」用：构建时以 raw 方式引入源文件，复制出来的就是仓库里那一份（含 frontmatter）。
+const glossaryRaw = import.meta.glob('../../content/glossary/*.md', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const markdownSource = glossaryRaw[`../../content/glossary/${entry.id}.md`] ?? '';
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'DefinedTerm',
@@ -75,13 +83,27 @@ const jsonLd = {
       </nav>
 
       <header class="term-head">
-        <p class="term-head__eyebrow">{category?.name ?? '术语表'}</p>
-        <h1 class="term-title">
-          {entry.data.term}
-          {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
-            <span class="term-title__en">{entry.data.en}</span>
+        <div class="term-head__top">
+          <div class="term-head__intro">
+            <p class="term-head__eyebrow">{category?.name ?? '术语表'}</p>
+            <h1 class="term-title">
+              {entry.data.term}
+              {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
+                <span class="term-title__en">{entry.data.en}</span>
+              )}
+            </h1>
+          </div>
+          {markdownSource && (
+            <>
+              <button class="term-copy" type="button" data-copy-markdown title="复制这一页的 Markdown 源码（含 frontmatter）">
+                <Icon name="copy" size={15} />
+                <span data-copy-markdown-label>复制 Markdown</span>
+                <span class="sr-only">复制本页 Markdown 源码</span>
+              </button>
+              <textarea hidden data-term-markdown aria-hidden="true" tabindex="-1">{markdownSource}</textarea>
+            </>
           )}
-        </h1>
+        </div>
 
         {youMaySay && (
           <blockquote class="term-say">
@@ -318,6 +340,28 @@ const jsonLd = {
           const explain = item.querySelector<HTMLElement>('[data-quiz-explain]');
           if (explain) explain.hidden = false;
         });
+      });
+    });
+
+    // 复制本页 Markdown（正文 + frontmatter），方便直接在 GitHub 网页里粘贴修改
+    document.querySelectorAll<HTMLElement>('[data-copy-markdown]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const source = document.querySelector<HTMLTextAreaElement>('[data-term-markdown]');
+        const label = button.querySelector<HTMLElement>('[data-copy-markdown-label]');
+        // textarea 会把换行规范成 CRLF，复制前还原成 LF，和仓库里的文件保持一致
+        const text = (source?.value ?? '').replace(/\r\n?/g, '\n');
+        try {
+          await navigator.clipboard.writeText(text);
+          button.dataset.state = 'done';
+          if (label) label.textContent = '已复制';
+        } catch {
+          button.dataset.state = 'error';
+          if (label) label.textContent = '复制失败';
+        }
+        window.setTimeout(() => {
+          button.dataset.state = '';
+          if (label) label.textContent = '复制 Markdown';
+        }, 2000);
       });
     });
 
