@@ -4,7 +4,11 @@ import Icon from '../../components/Icon.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import EmptyContent from '../../components/EmptyContent.astro';
 import { getCollection } from 'astro:content';
-import { glossaryCategories } from '../../data/glossary';
+import {
+  glossaryCategories,
+  glossaryPrimaryCategories,
+  glossaryExtensionCategories,
+} from '../../data/glossary';
 import { repository } from '../../data/site';
 import '../../styles/glossary.css';
 
@@ -43,18 +47,8 @@ const contributeLinks = [
         crumbs={[{ label: '术语表' }]}
       />
 
-      {isEmpty && (
-        <EmptyContent
-          icon="book-open"
-          title="术语内容正在准备中"
-          description="第一批术语正在整理与人工核校中。每个词都会附上白话解释、校园场景示例和实际审校状态。"
-          links={contributeLinks}
-        />
-      )}
-
-      {!isEmpty && (
       <div class="catalog-layout glossary-layout" data-filter-root data-reveal>
-        <aside class="catalog-sidebar glossary-sidebar" aria-label="术语筛选">
+        <aside class="catalog-sidebar glossary-sidebar" aria-label="术语分类">
           <label class="sr-only" for="glossary-search">搜索术语、别名或场景</label>
           <div class="search-field">
             <Icon name="search" size={18} />
@@ -67,98 +61,153 @@ const contributeLinks = [
             />
           </div>
 
-          <nav class="catalog-nav" aria-label="按分类筛选">
-            <div class="catalog-nav__head">
-              <span>分类</span>
-              <span class="filter-count">{total} 条</span>
-            </div>
-            <div class="filter-chips filter-chips--vertical" role="group" aria-label="按分类筛选">
-              <button class="filter-chip" type="button" data-filter-value="all" aria-pressed="true">
-                全部术语
-                <span class="filter-chip__count">{total}</span>
-              </button>
-              {glossaryCategories.map((category) => (
-                <button class="filter-chip" type="button" data-filter-value={category.id} aria-pressed="false">
-                  {category.name}
-                  <span class="filter-chip__count">{categoryCount(category.id)}</span>
+          <nav class="branch-tree" aria-label="术语分支">
+            <p class="branch-tree__head">
+              <span class="mono">技术分支</span>
+              <span class="branch-tree__total">{total} 条</span>
+            </p>
+
+            <ul class="branch-tree__list branch-tree__list--primary" style="--rail-x: 13px">
+              <li class="branch-node">
+                <span class="branch-node__rail" aria-hidden="true"></span>
+                <button class="branch-node__label" type="button" data-filter-value="all" aria-pressed="true">
+                  <span class="branch-node__name">
+                    全部术语<em class="branch-tree__ref">main</em>
+                  </span>
+                  <span class="branch-node__count">{total}</span>
                 </button>
+              </li>
+              {glossaryPrimaryCategories.map((category) => (
+                <li class="branch-node">
+                  <span class="branch-node__rail" aria-hidden="true"></span>
+                  <button
+                    class="branch-node__label"
+                    type="button"
+                    data-filter-value={category.id}
+                    aria-pressed="false"
+                    title={category.description}
+                  >
+                    <span class="branch-node__name">{category.name}</span>
+                    <span class="branch-node__count">{categoryCount(category.id)}</span>
+                  </button>
+                </li>
               ))}
+            </ul>
+
+            <div class="branch-tree__fork" aria-hidden="true">
+              <span class="branch-tree__fork-label mono">fork</span>
             </div>
+
+            <ul class="branch-tree__list branch-tree__list--extension" style="--rail-x: 13px">
+              {glossaryExtensionCategories.map((category) => (
+                <li class="branch-node">
+                  <span class="branch-node__rail" aria-hidden="true"></span>
+                  <button
+                    class="branch-node__label"
+                    type="button"
+                    data-filter-value={category.id}
+                    aria-pressed="false"
+                    title={category.description}
+                  >
+                    <span class="branch-node__name">{category.name}</span>
+                    <span class="branch-node__count">{categoryCount(category.id)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </nav>
 
           <p class="catalog-sidebar__note">
             <Icon name="info" size={14} />
-            同一个概念可能有多个叫法；以实际产品与官方文档为准。
+            同一个概念可能有多个叫法；以实际产品与官方文档为准。延伸分支只做术语介绍，不替代教程。
           </p>
         </aside>
 
         <div class="catalog-main glossary-main">
-          <div class="results-bar">
-            <p aria-live="polite">显示 <strong data-filter-count>{total}</strong> 个术语</p>
-            <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
-          </div>
+          {isEmpty ? (
+            <EmptyContent
+              icon="book-open"
+              title="术语内容正在准备中"
+              description="第一批术语正在整理与人工核校中。每个词都会附上白话解释、校园场景示例和实际审校状态。左侧分支是已经确定的结构，内容会按分支逐批补齐。"
+              links={contributeLinks}
+            />
+          ) : (
+            <>
+              <div class="results-bar">
+                <p aria-live="polite">显示 <strong data-filter-count>{total}</strong> 个术语</p>
+                <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
+              </div>
 
-          <div class="glossary-groups">
-            {glossaryCategories.map((category) => (
-              <section
-                class="glossary-group"
-                data-filter-group
-                id={'glossary-' + category.id}
-                aria-labelledby={'glossary-' + category.id + '-title'}
-              >
-                <div class="glossary-group__head">
-                  <h2 id={'glossary-' + category.id + '-title'}>{category.name}</h2>
-                  <span>{categoryCount(category.id)} 条</span>
-                </div>
-                <p class="glossary-group__desc">{category.description}</p>
+              <div class="glossary-groups">
+                {glossaryCategories.map((category, index) => (
+                  <>
+                    {index === glossaryPrimaryCategories.length && (
+                      <div class="glossary-divider">
+                        <span class="glossary-divider__label">延伸分支</span>
+                        <span class="glossary-divider__note">接触 AI 后会碰到的词，只做术语介绍，不替代教程</span>
+                      </div>
+                    )}
+                    <section
+                      class="glossary-group"
+                      data-filter-group
+                      id={'glossary-' + category.id}
+                      aria-labelledby={'glossary-' + category.id + '-title'}
+                    >
+                      <div class="glossary-group__head">
+                        <h2 id={'glossary-' + category.id + '-title'}>{category.name}</h2>
+                        <span>{categoryCount(category.id)} 条</span>
+                      </div>
+                      <p class="glossary-group__desc">{category.description}</p>
 
-                <div class="glossary-grid">
-                  {terms.filter((term) => term.data.category === category.id).map((term) => {
-                    const searchText = [
-                      term.data.term,
-                      term.data.en,
-                      ...term.data.aliases,
-                      term.data.definition,
-                      term.data.example,
-                      category.name,
-                    ].join(' ').toLowerCase();
-                    return (
-                      <a
-                        class="glossary-term"
-                        href={'/glossary/' + term.id + '/'}
-                        id={term.id}
-                        data-filter-card
-                        data-category={term.data.category}
-                        data-search={searchText}
-                      >
-                        <div class="glossary-term__head">
-                          <h3>{term.data.term}<span>{term.data.en}</span></h3>
-                        </div>
-                        <p class="glossary-term__definition">{term.data.definition}</p>
-                        <p class="glossary-term__example"><span>例子</span>{term.data.example}</p>
-                        {term.data.aliases.length > 0 && (
-                          <p class="glossary-term__aliases">也常叫：{term.data.aliases.join(' / ')}</p>
-                        )}
-                        <span class="glossary-term__more">
-                          查看详解
-                          <Icon name="arrow-right" size={13} />
-                        </span>
-                      </a>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
+                    <div class="glossary-grid">
+                      {terms.filter((term) => term.data.category === category.id).map((term) => {
+                        const searchText = [
+                          term.data.term,
+                          term.data.en,
+                          ...term.data.aliases,
+                          term.data.definition,
+                          term.data.example,
+                          category.name,
+                        ].join(' ').toLowerCase();
+                        return (
+                          <a
+                            class="glossary-term"
+                            href={'/glossary/' + term.id + '/'}
+                            id={term.id}
+                            data-filter-card
+                            data-category={term.data.category}
+                            data-search={searchText}
+                          >
+                            <div class="glossary-term__head">
+                              <h3>{term.data.term}<span>{term.data.en}</span></h3>
+                            </div>
+                            <p class="glossary-term__definition">{term.data.definition}</p>
+                            <p class="glossary-term__example"><span>例子</span>{term.data.example}</p>
+                            {term.data.aliases.length > 0 && (
+                              <p class="glossary-term__aliases">也常叫：{term.data.aliases.join(' / ')}</p>
+                            )}
+                            <span class="glossary-term__more">
+                              查看详解
+                              <Icon name="arrow-right" size={13} />
+                            </span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                    </section>
+                  </>
+                ))}
+              </div>
 
-          <div class="empty-state" data-empty-state hidden>
-            <Icon name="search" size={28} />
-            <h2>没有找到匹配的术语</h2>
-            <p>换个更短的关键词，或点击「清除筛选」查看全部。</p>
-          </div>
+              <div class="empty-state" data-empty-state hidden>
+                <Icon name="search" size={28} />
+                <h2>没有找到匹配的术语</h2>
+                <p>换个更短的关键词，或点击「清除筛选」查看全部。</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
-      )}
 
       <div class="page-meta">
         {lastUpdated ? (

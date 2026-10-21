@@ -217,3 +217,205 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   术语分支树（左侧导航，git graph 风格的两条泳道）
+   主线 = AI 主分支；从主线 fork 出延伸分支（前端 / 后端 / Git …）。
+   全部用 CSS 画线，不依赖 JS 与图片；节点即筛选按钮。
+   ========================================================= */
+.branch-tree {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.1rem;
+}
+
+.branch-tree__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  color: var(--faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.branch-tree__total {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+}
+
+.branch-tree__list {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 泳道竖线 */
+.branch-tree__list::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--rail-x, 13px) + 1px);
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+
+.branch-tree__list--extension::before {
+  background: var(--line);
+}
+
+/* fork 连接线：从主线拐到延伸泳道 */
+.branch-tree__fork {
+  position: relative;
+  width: 20px;
+  height: 22px;
+  margin-left: calc(13px - 1px);
+  border-left: 2px solid var(--line-strong);
+  border-bottom: 2px solid var(--line);
+  border-bottom-left-radius: 10px;
+}
+
+.branch-tree__fork-label {
+  position: absolute;
+  top: 50%;
+  left: 26px;
+  transform: translateY(-40%);
+  color: var(--faint);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+/* 延伸分支整体右移，形成第二条泳道 */
+.branch-tree__list--extension {
+  margin-left: 20px;
+}
+
+.branch-node {
+  position: relative;
+}
+
+.branch-node__rail {
+  position: absolute;
+  left: calc(var(--rail-x, 13px) - 3px);
+  top: 50%;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.branch-tree__list--primary .branch-node__rail {
+  border-color: var(--brand);
+}
+
+.branch-tree__list--extension .branch-node__rail {
+  border-color: var(--sky);
+}
+
+.branch-node__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.42rem 0.55rem 0.42rem calc(var(--rail-x, 13px) + 20px);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.branch-node__label:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.branch-node__label[aria-pressed='true'] {
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 650;
+}
+
+.branch-node:has(.branch-node__label[aria-pressed='true']) .branch-node__rail {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+
+.branch-tree__list--extension .branch-node:has(.branch-node__label[aria-pressed='true']) .branch-node__rail {
+  border-color: var(--sky);
+  background: var(--sky);
+}
+
+.branch-node__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.branch-tree__ref {
+  padding: 0.02rem 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+.branch-node__count {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+}
+
+@media (max-width: 900px) {
+  .branch-tree {
+    margin-top: 0.9rem;
+  }
+
+  .branch-tree__list--extension {
+    margin-left: 16px;
+  }
+}
+
+/* 列表区的「延伸分支」分隔：与左侧分支树的主线 / 延伸两层对应 */
+.glossary-divider {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 1.9rem 0 0.2rem;
+  padding-top: 1.3rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.glossary-divider__label {
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+}
+
+.glossary-divider__note {
+  color: var(--faint);
+  font-size: 0.72rem;
+}

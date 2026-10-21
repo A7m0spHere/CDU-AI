@@ -235,13 +235,15 @@ test('术语表结构与详情链接存在', async () => {
 
 test('每个术语都有可读的详情页与结构化数据', async () => {
   const search = JSON.parse(await read('search-index.json'));
+  // 分类 id 由 src/data/glossary.ts 决定，测试从同一份数据读取，避免改分类就失败。
+  const { glossaryCategoryIds } = await loadContentContext(root);
   for (const file of glossaryFiles) {
     const slug = file.replace(/\.md$/, '');
     const raw = await readFile(path.join(glossarySource, file), 'utf8');
     const fields = frontmatterFields(raw, file);
     assert.ok(fields.term, slug + ' 缺少 term');
     assert.ok(fields.en, slug + ' 缺少 en');
-    assert.ok(['basics', 'context', 'agents', 'config', 'runtime'].includes(fields.category), slug + ' 分类不合法');
+    assert.ok(glossaryCategoryIds.includes(fields.category), slug + ' 分类不合法');
     assert.match(fields.updated, /^\d{4}-\d{2}-\d{2}$/, slug + ' 的 updated 不合法');
 
     const html = await read('glossary/' + slug + '/index.html');
