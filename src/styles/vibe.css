@@ -76,30 +76,24 @@ body {
   font-weight: 600;
 }
 
-/* 导航末尾的「关于与共建」入口：与 nav-link 同一尺寸，仅用底色区分主次 */
+/* 导航末尾的「关于与共建」入口：配色、尺寸与 nav-link 完全一致 */
 .nav-cta {
   display: inline-flex;
   align-items: center;
   min-height: 36px;
   margin-left: 0.28rem;
-  padding: 0 0.8rem;
-  border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
+  padding: 0 0.7rem;
   border-radius: var(--radius-sm);
-  background: var(--brand-soft);
-  color: var(--brand);
+  color: var(--muted);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
-  transition:
-    background var(--dur-fast) ease,
-    border-color var(--dur-fast) ease,
-    color var(--dur-fast) ease;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 .nav-cta:hover {
-  border-color: var(--brand);
-  background: var(--brand);
-  color: var(--on-brand);
+  background: var(--surface-muted);
+  color: var(--ink);
 }
 
 .nav-cta:focus-visible {
