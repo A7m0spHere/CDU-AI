@@ -162,12 +162,24 @@ npm run verify     # 类型检查 + 生产构建 + 内容测试 + 站内链接�
 
 ### 内容缓存排查
 
-修改或删除内容后，如果页面/构建仍显示旧内容，先清理 Astro 内容缓存再重试（内容缓存默认在 `node_modules/.astro`，不在 `.astro/`）：
+**典型症状**：删改 Markdown 后，本地 `npm run verify` 仍按旧内容失败（构建页数、搜索索引或「初稿 / 已人工核校」断言的报错里出现已经删掉的文件），而 CI 是绿的。
+
+原因：Astro 5 把内容层缓存放在 **`node_modules/.astro`**（不是根目录的 `.astro/`），删文件不会自动让它失效。先清缓存再重试：
 
 ```powershell
+# Windows PowerShell
 Remove-Item -Recurse -Force node_modules/.astro, .astro, dist
 npm run verify
 ```
+
+```bash
+# macOS / Linux
+rm -rf node_modules/.astro .astro dist && npm run verify
+```
+
+CI 不受影响：每次 `npm ci` 都是全新的 `node_modules`，不存在旧缓存。
+
+顺带说明：内容检查器会拒绝 schema 之外的**未知字段**（例如已废弃的 `duration`）。Zod 本身会静默忽略这类字段，所以由 `npm run check:content` 显式拦截，避免数据被悄悄丢掉。
 
 ### 文档是怎样串起来的
 

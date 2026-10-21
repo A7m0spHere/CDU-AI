@@ -3,7 +3,7 @@
  * 内容一致性检查：补充 Zod schema（构建时类型校验）之外的跨字段 / 跨文件规则。
  *
  * 检查内容：
- * - 必填字段、枚举值、日期格式；
+ * - 必填字段、枚举值、日期格式、未知字段（与 schema 字段清单对照，避免旧字段被静默丢弃）；
  * - 内容状态字段组合（reviewedBy / basis / testedOn / contributors，见 docs/CONTENT-REVIEW.md）；
  * - 跨文件唯一性（指南 order 全局唯一、术语同分类 order 唯一、作品 order 唯一）；
  * - 引用完整性（指南/作品的 tools 必须在工具目录中、术语 related 必须存在）；
@@ -21,18 +21,81 @@ import yaml from 'js-yaml';
 const isoDateRe = /^\d{4}-\d{2}-\d{2}$/;
 const slugFileRe = /^[a-z0-9][a-z0-9-]*\.md$/;
 
+/** 指南 / 作品 / 术语共用的内容状态字段，定义见 docs/CONTENT-REVIEW.md。 */
+const REVIEW_FIELDS = [
+  'reviewed',
+  'reviewedBy',
+  'needsUpdate',
+  'reviewNote',
+  'basis',
+  'aiUsage',
+  'testedOn',
+  'testedEnvironment',
+  'contributors',
+];
+
+/**
+ * 已知字段清单「必须与 src/content.config.ts 的 schema 保持一致」。
+ *
+ * 为什么还要单独列一遍：Zod 默认会剥掉 schema 里没声明的字段而不报错，
+ * 所以从 schema 删除的字段（例如已废弃的 duration）写回来时构建照样通过，
+ * 数据却被静默丢弃。这里显式列出允许的字段，写错字段名或用旧字段会在
+ * npm run check:content 直接失败。
+ */
 const CONTENT_TYPES = {
   guide: {
     required: ['title', 'summary', 'stage', 'order', 'outcome', 'forWho', 'updated'],
+    known: [
+      'title',
+      'summary',
+      'stage',
+      'order',
+      'level',
+      'outcome',
+      'forWho',
+      'updated',
+      'sources',
+      'tools',
+      'tags',
+      ...REVIEW_FIELDS,
+    ],
     stages: ['start', 'make', 'share'],
   },
   works: {
     required: ['title', 'summary', 'category', 'format', 'prompt', 'effort', 'order', 'updated'],
+    known: [
+      'title',
+      'summary',
+      'category',
+      'format',
+      'tools',
+      'tags',
+      'prompt',
+      'effort',
+      'level',
+      'order',
+      'updated',
+      'status',
+      ...REVIEW_FIELDS,
+    ],
     categories: ['校园生活', '学习效率', '创意表达', '跨专业实验'],
     statuses: ['example', 'community'],
   },
   glossary: {
     required: ['term', 'en', 'category', 'definition', 'example', 'order', 'updated'],
+    known: [
+      'term',
+      'en',
+      'category',
+      'aliases',
+      'definition',
+      'example',
+      'order',
+      'related',
+      'updated',
+      'sources',
+      ...REVIEW_FIELDS,
+    ],
   },
 };
 
@@ -224,6 +287,17 @@ export async function validateCollection({ collection, dir, context }) {
 
     for (const key of CONTENT_TYPES[collection].required) {
       if (!(key in data)) errors.push({ file: label(file), message: '缺少必填字段 ' + key });
+    }
+
+    // 未知字段：避免「schema 已删除的字段」被 Zod 静默丢弃（例如旧的 duration）。
+    const knownFields = CONTENT_TYPES[collection].known;
+    for (const key of Object.keys(data)) {
+      if (!knownFields.includes(key)) {
+        errors.push({
+          file: label(file),
+          message: `未知字段 ${key}：schema 中没有这个字段（字段名写错，或使用了已废弃字段；允许的字段见 src/content.config.ts）`,
+        });
+      }
     }
 
     checkCommonFields(data, label(file), errors);
