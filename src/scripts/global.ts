@@ -1,3 +1,5 @@
+import { initNavDock } from './nav-dock';
+
 const THEME_KEY = 'cdu-ai-theme';
 const root = document.documentElement;
 
@@ -330,3 +332,5 @@ if (searchDialog) {
     }
   });
 }
+
+initNavDock();
