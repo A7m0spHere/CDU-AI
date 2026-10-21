@@ -220,11 +220,11 @@ test('学习指南详情采用 Notion 文档结构', async () => {
   assert.doesNotMatch(guide, /wiki-heading--article/);
 });
 
-test('术语表内容与来源标注存在', async () => {
+test('术语表结构与详情链接存在', async () => {
   const glossary = await read('glossary/index.html');
   assert.match(glossary, /AI 术语表/);
-  assert.match(glossary, /VibeHub/);
-  assert.match(glossary, /参考 VibeHub（vibe-hub\.org）的 AI 术语图鉴/);
+  // 列表页不再展示来源说明条（维护者要求移除），也不设置站外术语跳转。
+  assert.doesNotMatch(glossary, /glossary-source/);
   assert.doesNotMatch(glossary, /href="https:\/\/vibe-hub\.org/);
   const termCount = (glossary.match(/class="glossary-term"/g) || []).length;
   assert.equal(termCount, glossaryFiles.length, '术语表卡片数量与内容目录不一致');
