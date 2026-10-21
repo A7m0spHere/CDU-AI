@@ -21,6 +21,9 @@ const terms = (await getCollection('glossary')).sort(
 
 const categoryCount = (id: string) => terms.filter((term) => term.data.category === id).length;
 const total = terms.length;
+// 「Vibe Coding」是延伸分支的起点：它是分支名，前端 / 后端 / 产品 / 测试 / Git 挂在它下面。
+const vibeCategory = glossaryCategories.find((category) => category.id === 'vibecoding');
+const vibeTechCategories = glossaryExtensionCategories.filter((category) => category.id !== 'vibecoding');
 const isEmpty = total === 0;
 const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1);
 const contributeLinks = [
@@ -66,54 +69,89 @@ const contributeLinks = [
               <span class="branch-tree__total">{total} 条</span>
             </p>
 
-            <ul class="branch-tree__list branch-tree__list--primary" style="--rail-x: 13px">
-              <li class="branch-node">
+            <div class="branch-group branch-group--main" data-branch>
+              <div class="branch-group__head">
                 <span class="branch-node__rail" aria-hidden="true"></span>
-                <button class="branch-node__label" type="button" data-filter-value="all" aria-pressed="true">
-                  <span class="branch-node__name">
-                    全部术语<em class="branch-tree__ref">main</em>
-                  </span>
-                  <span class="branch-node__count">{total}</span>
+                <button class="branch-group__label" type="button" data-filter-value="all" aria-pressed="true">
+                  <span class="branch-ref branch-ref--main mono">main</span>
+                  <span class="branch-group__name">全部术语</span>
+                  <span class="branch-group__count">{total}</span>
                 </button>
-              </li>
-              {glossaryPrimaryCategories.map((category) => (
-                <li class="branch-node">
-                  <span class="branch-node__rail" aria-hidden="true"></span>
-                  <button
-                    class="branch-node__label"
-                    type="button"
-                    data-filter-value={category.id}
-                    aria-pressed="false"
-                    title={category.description}
-                  >
-                    <span class="branch-node__name">{category.name}</span>
-                    <span class="branch-node__count">{categoryCount(category.id)}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+                <button
+                  class="branch-group__toggle"
+                  type="button"
+                  data-branch-toggle
+                  aria-expanded="true"
+                  aria-label="折叠或展开 AI 主分支"
+                >
+                  <Icon name="chevron-down" size={14} />
+                </button>
+              </div>
 
-            <div class="branch-tree__fork" aria-hidden="true">
-              <span class="branch-tree__fork-label mono">fork</span>
+              <ul class="branch-tree__list branch-tree__list--primary">
+                {glossaryPrimaryCategories.map((category) => (
+                  <li class="branch-node">
+                    <span class="branch-node__rail" aria-hidden="true"></span>
+                    <button
+                      class="branch-node__label"
+                      type="button"
+                      data-filter-value={category.id}
+                      aria-pressed="false"
+                      title={category.description}
+                    >
+                      <span class="branch-node__name">{category.name}</span>
+                      <span class="branch-node__count">{categoryCount(category.id)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <ul class="branch-tree__list branch-tree__list--extension" style="--rail-x: 13px">
-              {glossaryExtensionCategories.map((category) => (
-                <li class="branch-node">
-                  <span class="branch-node__rail" aria-hidden="true"></span>
-                  <button
-                    class="branch-node__label"
-                    type="button"
-                    data-filter-value={category.id}
-                    aria-pressed="false"
-                    title={category.description}
-                  >
-                    <span class="branch-node__name">{category.name}</span>
-                    <span class="branch-node__count">{categoryCount(category.id)}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div class="branch-tree__fork" aria-hidden="true"></div>
+
+            <div class="branch-group branch-group--vibe" data-branch>
+              <div class="branch-group__head">
+                <span class="branch-node__rail" aria-hidden="true"></span>
+                <button
+                  class="branch-group__label"
+                  type="button"
+                  data-filter-value="vibecoding"
+                  aria-pressed="false"
+                  title={vibeCategory?.description}
+                >
+                  <span class="branch-ref branch-ref--vibe mono">vibecoding</span>
+                  <span class="branch-group__name">Vibe Coding</span>
+                  <span class="branch-group__count">{categoryCount('vibecoding')}</span>
+                </button>
+                <button
+                  class="branch-group__toggle"
+                  type="button"
+                  data-branch-toggle
+                  aria-expanded="true"
+                  aria-label="折叠或展开 Vibe Coding 分支"
+                >
+                  <Icon name="chevron-down" size={14} />
+                </button>
+              </div>
+
+              <ul class="branch-tree__list branch-tree__list--extension">
+                {vibeTechCategories.map((category) => (
+                  <li class="branch-node">
+                    <span class="branch-node__rail" aria-hidden="true"></span>
+                    <button
+                      class="branch-node__label"
+                      type="button"
+                      data-filter-value={category.id}
+                      aria-pressed="false"
+                      title={category.description}
+                    >
+                      <span class="branch-node__name">{category.name}</span>
+                      <span class="branch-node__count">{categoryCount(category.id)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </nav>
 
           <p class="catalog-sidebar__note">
@@ -225,5 +263,17 @@ const contributeLinks = [
 
 <script>
   import { initFilter } from '../../scripts/filter';
+
   initFilter();
+
+  // 分支折叠：点 chevron 收起/展开该分支下的节点，不影响筛选状态。
+  document.querySelectorAll<HTMLElement>('[data-branch]').forEach((branch) => {
+    const toggle = branch.querySelector<HTMLButtonElement>('[data-branch-toggle]');
+    if (!toggle) return;
+    toggle.addEventListener('click', () => {
+      const collapsed = branch.dataset.collapsed === 'true';
+      branch.dataset.collapsed = String(!collapsed);
+      toggle.setAttribute('aria-expanded', String(collapsed));
+    });
+  });
 </script>

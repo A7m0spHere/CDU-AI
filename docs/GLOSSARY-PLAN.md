@@ -5,7 +5,19 @@
 
 ## 1. 两层分类
 
-术语页左侧是「分支树」：一条 AI 主线，从主线 fork 出延伸分支。
+术语页左侧是「分支树」，按 git graph 的方式组织：
+
+```text
+main（AI 主分支）
+  ├ 基础 / 提示词 / 工具 / Agent / 安全 / 成本
+  └─ fork → vibecoding（延伸起点）
+       ├ Vibe Coding
+       └ 前端 / 后端 / 产品 / 测试 / Git
+```
+
+- 两个分支头（`main` / `vibecoding`）都可以**折叠**，收起后只留分支头与计数。
+- 分支头与每个节点都是筛选按钮；节点颜色跟随所在分支（主分支蓝、vibecoding 紫）。
+- 延伸分支的 5 个技术类目挂在 Vibe Coding 之下：先通过 vibe coding 接触 AI 做东西，再撞到前端 / 后端 / 产品 / 测试 / Git。
 
 ### AI 主分支（primary，重点）
 
