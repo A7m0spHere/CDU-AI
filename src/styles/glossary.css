@@ -623,10 +623,8 @@
 .term-steps {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.95rem;
-  margin: 0 0 1.05rem;
-  padding: 0;
-  list-style: none;
+  gap: 1rem;
+  margin: 0 0 1rem;
 }
 
 .term-steps__item {
@@ -634,17 +632,40 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.42rem 0.78rem;
+  padding: 0.45rem 0.85rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   background: var(--bg);
+  color: var(--muted);
   font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.term-steps__item:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.term-steps__item:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.term-steps__item[aria-selected='true'] {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
 }
 
 .term-steps__item:not(:last-child)::after {
   content: '→';
   position: absolute;
-  right: -0.78rem;
+  right: -0.82rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--faint);
@@ -652,31 +673,49 @@
 }
 
 .term-steps__index {
-  color: var(--brand);
+  color: var(--faint);
   font-size: 0.62rem;
 }
 
-.term-scenario__card {
-  margin: 0;
-  padding: 1rem 1.1rem;
+.term-steps__item[aria-selected='true'] .term-steps__index {
+  color: var(--brand);
+}
+
+.term-scenario__panel {
+  padding: 1.05rem 1.15rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface);
+  animation: scenario-panel-in 180ms var(--ease-out);
 }
 
-.term-scenario__label {
-  color: var(--faint);
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
+@keyframes scenario-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-scenario__panel {
+    animation: none;
+  }
 }
 
 .term-scenario__quote {
-  margin: 0.6rem 0 0;
+  margin: 0;
   padding-left: 0.85rem;
   border-left: 3px solid var(--line-strong);
   color: var(--ink);
   font-size: 0.92rem;
   line-height: 1.75;
+}
+
+.term-scenario__body {
+  margin: 0.6rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.8;
 }
 
 .term-scenario__meta {

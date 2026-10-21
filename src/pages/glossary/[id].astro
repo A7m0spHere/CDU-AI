@@ -114,26 +114,41 @@ const jsonLd = {
       </header>
 
       {scenario && (
-        <section class="term-scenario" aria-labelledby="term-scenario-title">
+        <section class="term-scenario" data-scenario aria-labelledby="term-scenario-title">
           <h2 class="term-block__title" id="term-scenario-title">{scenario.title}</h2>
-          <ol class="term-steps">
+          <div class="term-steps" role="tablist" aria-label={scenario.title}>
             {scenario.steps.map((step, stepIndex) => (
-              <li class="term-steps__item">
+              <button
+                class="term-steps__item"
+                type="button"
+                role="tab"
+                id={`scenario-tab-${stepIndex}`}
+                aria-controls={`scenario-panel-${stepIndex}`}
+                aria-selected={stepIndex === 0 ? 'true' : 'false'}
+                tabindex={stepIndex === 0 ? 0 : -1}
+                data-scenario-tab
+                data-step={stepIndex}
+              >
                 <span class="term-steps__index mono">{String(stepIndex + 1).padStart(2, '0')}</span>
-                <span class="term-steps__label">{step}</span>
-              </li>
+                <span class="term-steps__label">{step.label}</span>
+              </button>
             ))}
-          </ol>
-          {scenario.example && (
-            <figure class="term-scenario__card">
-              {scenario.example.label && (
-                <figcaption class="term-scenario__label">{scenario.example.label}</figcaption>
-              )}
-              <blockquote class="term-scenario__quote">{scenario.example.quote}</blockquote>
-              {scenario.example.meta && <p class="term-scenario__meta mono">{scenario.example.meta}</p>}
-              {scenario.example.note && <p class="term-scenario__note">{scenario.example.note}</p>}
-            </figure>
-          )}
+          </div>
+          {scenario.steps.map((step, stepIndex) => (
+            <div
+              class="term-scenario__panel"
+              role="tabpanel"
+              id={`scenario-panel-${stepIndex}`}
+              aria-labelledby={`scenario-tab-${stepIndex}`}
+              data-scenario-panel
+              hidden={stepIndex !== 0}
+            >
+              {step.quote && <blockquote class="term-scenario__quote">{step.quote}</blockquote>}
+              <p class="term-scenario__body">{step.body}</p>
+              {step.meta && <p class="term-scenario__meta mono">{step.meta}</p>}
+              {step.note && <p class="term-scenario__note">{step.note}</p>}
+            </div>
+          ))}
         </section>
       )}
 
@@ -255,6 +270,36 @@ const jsonLd = {
   </div>
 
   <script>
+    // 场景拆解：点上方每一步，切换下方对应的「提示画面」。
+    document.querySelectorAll<HTMLElement>('[data-scenario]').forEach((scenario) => {
+      const tabs = Array.from(scenario.querySelectorAll<HTMLButtonElement>('[data-scenario-tab]'));
+      if (tabs.length === 0) return;
+      const panels = Array.from(scenario.querySelectorAll<HTMLElement>('[data-scenario-panel]'));
+
+      const activate = (index: number) => {
+        tabs.forEach((tab, tabIndex) => {
+          const selected = tabIndex === index;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        panels.forEach((panel, panelIndex) => {
+          panel.hidden = panelIndex !== index;
+        });
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => activate(index));
+        tab.addEventListener('keydown', (event) => {
+          if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+          event.preventDefault();
+          const delta = event.key === 'ArrowRight' ? 1 : -1;
+          const nextIndex = (index + delta + tabs.length) % tabs.length;
+          tabs[nextIndex]?.focus();
+          activate(nextIndex);
+        });
+      });
+    });
+
     // 选择题：点一次即揭晓；正确项常亮，选错的标红并给出解释。
     document.querySelectorAll<HTMLElement>('[data-quiz-item]').forEach((item) => {
       item.querySelectorAll<HTMLButtonElement>('[data-quiz-option]').forEach((option) => {

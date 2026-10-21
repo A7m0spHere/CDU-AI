@@ -163,15 +163,19 @@ const glossary = defineCollection({
       scenario: z
         .object({
           title: z.string().trim().min(1),
-          steps: z.array(z.string().trim().min(1)).min(2).max(4),
-          example: z
-            .object({
-              label: z.string().trim().min(1).optional(),
-              quote: z.string().trim().min(1),
-              meta: z.string().trim().min(1).optional(),
-              note: z.string().trim().min(1).optional(),
-            })
-            .optional(),
+          /** 每一步都是一个可点击的标签，点开显示对应的「提示画面」。 */
+          steps: z
+            .array(
+              z.object({
+                label: z.string().trim().min(1),
+                body: z.string().trim().min(1),
+                quote: z.string().trim().min(1).optional(),
+                meta: z.string().trim().min(1).optional(),
+                note: z.string().trim().min(1).optional(),
+              }),
+            )
+            .min(2)
+            .max(4),
         })
         .optional(),
       /** 「选择题」：一条术语最多 3 题，每题 2–4 个选项且只有一个正确答案。 */

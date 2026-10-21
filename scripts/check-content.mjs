@@ -360,12 +360,16 @@ export async function validateCollection({ collection, dir, context }) {
           const steps = data.scenario.steps;
           if (!Array.isArray(steps) || steps.length < 2 || steps.length > 4) {
             errors.push({ file: label(file), message: 'scenario.steps 需要 2–4 步' });
-          } else if (steps.some((step) => !isNonEmptyString(step))) {
-            errors.push({ file: label(file), message: 'scenario.steps 里每一步都必须是非空字符串' });
-          }
-          const example = data.scenario.example;
-          if (example !== undefined && (typeof example !== 'object' || example === null || !isNonEmptyString(example.quote))) {
-            errors.push({ file: label(file), message: 'scenario.example 至少要有 quote' });
+          } else {
+            steps.forEach((step, index) => {
+              const no = `scenario.steps[${index}]`;
+              if (!step || typeof step !== 'object' || Array.isArray(step)) {
+                errors.push({ file: label(file), message: `${no} 必须是对象（label / body）` });
+                return;
+              }
+              if (!isNonEmptyString(step.label)) errors.push({ file: label(file), message: `${no}.label 不能为空` });
+              if (!isNonEmptyString(step.body)) errors.push({ file: label(file), message: `${no}.body 不能为空` });
+            });
           }
         }
       }

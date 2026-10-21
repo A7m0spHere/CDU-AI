@@ -65,7 +65,7 @@
 | 定义（加粗） | `definition` | 一句话释义，卡片与搜索也用这句 |
 | 先知道 / 也常被叫作 | `category` / `aliases` | 分类与常见别称 |
 | 校园里的样子 | `example` | 贴近校园的具体场景 |
-| 场景拆解 | `scenario` | 标题 + 2–4 步流程 + 示例卡（label / quote / meta / note） |
+| 场景拆解 | `scenario` | 标题 + 2–4 步**可点击**流程；每步有对应的提示画面（body，可选 quote / meta / note），支持键盘左右切换 |
 | 正文 | Markdown 正文 | 核验要点、容易混淆的地方等 |
 | 选择题 | `quiz` | 最多 3 题，每题 2–4 个选项，**恰好一个 correct: true**；点击即揭晓并显示解释 |
 | 你可以这样告诉 AI Agent | `agentPrompt` | 可一键复制的提示词 |

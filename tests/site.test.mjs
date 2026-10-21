@@ -256,7 +256,11 @@ test('每个术语都有可读的详情页与结构化数据', async () => {
     assert.match(html, /href="\/glossary\/"/, slug + ' 缺少返回术语表的入口');
     // 术语模块的可选区块：写了 frontmatter 就必须渲染出来
     if (/^youMaySay:/m.test(raw)) assert.match(html, /你可能会说/, slug + ' 缺少「你可能会说」');
-    if (/^scenario:/m.test(raw)) assert.match(html, /term-steps/, slug + ' 缺少场景拆解步骤');
+    if (/^scenario:/m.test(raw)) {
+      assert.match(html, /role="tablist"/, slug + ' 缺少步骤 tablist');
+      assert.match(html, /data-scenario-tab/, slug + ' 缺少场景拆解步骤');
+      assert.match(html, /data-scenario-panel/, slug + ' 缺少场景提示画面');
+    }
     if (/^quiz:/m.test(raw)) assert.match(html, /data-quiz-option/, slug + ' 缺少选择题选项');
     if (/^agentPrompt:/m.test(raw)) assert.match(html, /data-copy-prompt/, slug + ' 缺少提示词复制按钮');
     if (fields.sources || /^sources:/m.test(raw)) assert.match(html, /延伸阅读/, slug + ' 缺少延伸阅读出处');
