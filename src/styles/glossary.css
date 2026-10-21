@@ -219,12 +219,13 @@
 }
 
 /* =========================================================
-   术语分支树（左侧导航，参考 git 可视化项目的表达）
+   术语分支树（git graph 风格，两条泳道并行）
    参考：mhutchie/vscode-git-graph 的分支 ref 标签与配色、
-   nicoespeon/gitgraph.js 的分支泳道与提交节点画法。
-   结构：main（AI 主分支）→ fork → vibecoding（延伸起点），
-   分支头可折叠，节点即筛选按钮；前端 / 后端 / 产品 / 测试 / Git
-   挂在 vibecoding 分支下面。
+   nicoespeon/gitgraph.js 的泳道与提交节点画法。
+   结构：AI 主线走到「工具」处 fork 出 vibecoding 分支，
+   之后主线继续（Agent / 安全 / 成本），vibecoding 泳道并行向下，
+   承载 Vibe Coding 与前端 / 后端 / 产品 / 测试 / Git。
+   走廊固定 44px：所有标签从同一列开始，节点圆点落在各自泳道上。
    ========================================================= */
 .branch-tree {
   display: flex;
@@ -232,10 +233,10 @@
   margin-top: 1.1rem;
 }
 
-/* 分支树比普通筛选栏宽一点，才能放下 ref 标签 + 分支名 + 计数 */
+/* 分支树需要一条泳道走廊，比普通筛选栏宽一些 */
 @media (min-width: 901px) {
   .glossary-layout {
-    grid-template-columns: 17rem minmax(0, 1fr);
+    grid-template-columns: 18rem minmax(0, 1fr);
   }
 }
 
@@ -255,147 +256,86 @@
   font-size: 0.64rem;
 }
 
-/* ---------- 分支（一条泳道） ---------- */
-.branch-group {
-  --lane-x: 13px;
-  position: relative;
-}
-
-/* 泳道竖线：从分支头中心画到分支末尾 */
-.branch-group::before {
-  content: '';
-  position: absolute;
-  left: calc(var(--lane-x) + 1px);
-  top: 17px;
-  bottom: 6px;
-  width: 2px;
-  border-radius: 2px;
-  background: var(--line-strong);
-}
-
-/* 泳道配色：主分支蓝、vibecoding 紫（同 git graph 的分支配色） */
-.branch-group--main::before {
-  background: var(--brand);
-  opacity: 0.32;
-}
-
-.branch-group--vibe::before {
-  background: var(--vibe);
-  opacity: 0.5;
-}
-
-[data-branch][data-collapsed='true']::before {
-  display: none;
-}
-
-.branch-group__head {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.1rem;
-  height: 34px;
-}
-
-.branch-group__label {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.15rem 0 0.15rem calc(var(--lane-x) + 18px);
-  border: 1px solid transparent;
-  border-radius: var(--radius-xs);
-  background: transparent;
-  color: var(--ink-soft);
-  font-size: 0.84rem;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) ease,
-    color var(--dur-fast) ease;
-}
-
-.branch-group__label:hover {
-  background: var(--surface-muted);
-  color: var(--ink);
-}
-
-.branch-group__label[aria-pressed='true'] {
-  background: var(--brand-soft);
-  color: var(--brand);
-}
-
-.branch-group__name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.branch-group__count {
-  flex: none;
-  color: var(--faint);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-}
-
-.branch-group__toggle {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  background: transparent;
-  color: var(--faint);
-  cursor: pointer;
-  transition:
-    background-color var(--dur-fast) ease,
-    color var(--dur-fast) ease;
-}
-
-.branch-group__toggle:hover {
-  border-color: var(--line);
-  background: var(--bg);
-  color: var(--ink);
-}
-
-.branch-group__toggle svg {
-  transition: transform var(--dur-fast) ease;
-}
-
-[data-branch][data-collapsed='true'] .branch-group__toggle svg {
-  transform: rotate(-90deg);
-}
-
-[data-branch][data-collapsed='true'] > .branch-tree__list {
-  display: none;
-}
-
-/* ---------- 分支内的节点 ---------- */
-.branch-tree__list {
-  position: relative;
+.branch-rows {
   margin: 0;
-  padding: 0 0 0.1rem;
+  padding: 0;
   list-style: none;
 }
 
-.branch-node {
+.branch-row {
   position: relative;
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  padding-left: 44px;
 }
 
-.branch-node__rail {
+/* 泳道竖线：每行画自己的一段，相邻行首尾相接就成了连续轨道 */
+.branch-row[data-lanes~='main']::before {
+  content: '';
   position: absolute;
-  left: calc(var(--lane-x, 13px) - 3px);
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--brand);
+  opacity: 0.38;
+}
+
+.branch-row[data-lanes~='vibe']::after {
+  content: '';
+  position: absolute;
+  left: 29px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--vibe);
+  opacity: 0.55;
+}
+
+/* 分支头：轨道从圆点向下才开始 */
+.branch-row--head[data-lanes~='main']::before,
+.branch-row--head[data-lanes~='vibe']::after {
+  top: 50%;
+}
+
+/* 主线最后一行：轨道到圆点为止 */
+.branch-row--last[data-lanes~='main']::before {
+  bottom: 50%;
+}
+
+/* fork 行：竖线交给曲线元素画 */
+.branch-row--fork {
+  min-height: 20px;
+}
+
+.branch-row--fork::before,
+.branch-row--fork::after {
+  display: none;
+}
+
+.branch-fork {
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  border-left: 2px solid var(--brand);
+  border-bottom: 2px solid var(--vibe);
+  border-bottom-left-radius: 9px;
+  opacity: 0.55;
+}
+
+/* 节点圆点 */
+.branch-dot {
+  position: absolute;
   top: 50%;
   z-index: 1;
-  width: 8px;
-  height: 8px;
-  margin-top: -4px;
+  width: 9px;
+  height: 9px;
+  margin-top: -5px;
   border: 2px solid var(--line-strong);
   border-radius: 50%;
   background: var(--bg);
@@ -404,27 +344,28 @@
     background-color var(--dur-fast) ease;
 }
 
-.branch-tree__list--primary .branch-node__rail,
-.branch-group--main .branch-group__head .branch-node__rail {
+.branch-row[data-lane='main'] .branch-dot {
+  left: 7px;
   border-color: var(--brand);
 }
 
-.branch-tree__list--extension .branch-node__rail,
-.branch-group--vibe .branch-group__head .branch-node__rail {
+.branch-row[data-lane='vibe'] .branch-dot {
+  left: 25px;
   border-color: var(--vibe);
 }
 
-.branch-node:hover .branch-node__rail {
+.branch-row:hover .branch-dot {
   transform: scale(1.2);
 }
 
-.branch-node__label {
+/* 行内按钮 */
+.branch-row__label {
   display: flex;
+  flex: 1;
+  min-width: 0;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  width: 100%;
-  padding: 0.4rem 0.55rem 0.4rem calc(var(--lane-x, 13px) + 18px);
+  gap: 0.4rem;
+  padding: 0.34rem 0.5rem;
   border: 1px solid transparent;
   border-radius: var(--radius-xs);
   background: transparent;
@@ -438,48 +379,105 @@
     color var(--dur-fast) ease;
 }
 
-.branch-node__label:hover {
+.branch-row--head .branch-row__label {
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+
+.branch-row__label:hover {
   background: var(--surface-muted);
   color: var(--ink);
 }
 
-.branch-node__label[aria-pressed='true'] {
+.branch-row__label[aria-pressed='true'] {
   background: var(--brand-soft);
   color: var(--brand);
-  font-weight: 650;
 }
 
-.branch-tree__list--extension .branch-node__label[aria-pressed='true'] {
+.branch-row[data-lane='vibe'] .branch-row__label[aria-pressed='true'] {
   background: var(--vibe-soft);
   color: var(--vibe);
 }
 
-.branch-node:has(.branch-node__label[aria-pressed='true']) .branch-node__rail {
-  border-color: var(--brand);
-  background: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-soft);
+.branch-row__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.branch-tree__list--extension .branch-node:has(.branch-node__label[aria-pressed='true']) .branch-node__rail {
-  border-color: var(--vibe);
-  background: var(--vibe);
-  box-shadow: 0 0 0 3px var(--vibe-soft);
+.branch-row--head .branch-row__name {
+  flex: 0 1 auto;
 }
 
-.branch-node__name {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.branch-node__count {
+.branch-row__count {
   flex: none;
+  margin-left: auto;
   color: var(--faint);
   font-family: var(--font-mono);
   font-size: 0.64rem;
 }
 
-/* ---------- ref 标签（main / vibecoding） ---------- */
+.branch-row--head .branch-row__count {
+  margin-left: auto;
+}
+
+.branch-row__toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 0.15rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.branch-row__toggle:hover {
+  border-color: var(--line);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.branch-row__toggle svg {
+  transition: transform var(--dur-fast) ease;
+}
+
+[data-branch][data-collapsed='true'] .branch-row__toggle svg {
+  transform: rotate(-90deg);
+}
+
+[data-branch][data-collapsed='true'] > .branch-rows {
+  display: none;
+}
+
+[data-branch][data-collapsed='true'] > .branch-row--head::before,
+[data-branch][data-collapsed='true'] > .branch-row--head::after {
+  display: none;
+}
+
+/* 当前选中的节点高亮 */
+.branch-row:has(.branch-row__label[aria-pressed='true']) .branch-dot {
+  border-color: var(--brand);
+  background: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.branch-row[data-lane='vibe']:has(.branch-row__label[aria-pressed='true']) .branch-dot {
+  border-color: var(--vibe);
+  background: var(--vibe);
+  box-shadow: 0 0 0 3px var(--vibe-soft);
+}
+
+/* 分支 ref 标签 */
 .branch-ref {
   flex: none;
   padding: 0.02rem 0.26rem;
@@ -504,25 +502,9 @@
   color: var(--vibe);
 }
 
-/* ---------- fork：从 main 轨道拐到 vibecoding 轨道 ---------- */
-.branch-tree__fork {
-  position: relative;
-  width: 16px;
-  height: 18px;
-  margin-left: 13px;
-  border-left: 2px solid var(--brand);
-  border-bottom: 2px solid var(--vibe);
-  border-bottom-left-radius: 9px;
-  opacity: 0.55;
-}
-
-.branch-group--vibe {
-  margin-left: 16px;
-}
-
 @media (max-width: 900px) {
-  .branch-group--vibe {
-    margin-left: 14px;
+  .branch-row {
+    padding-left: 40px;
   }
 }
 

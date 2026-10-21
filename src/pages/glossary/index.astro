@@ -21,6 +21,7 @@ const terms = (await getCollection('glossary')).sort(
 
 const categoryCount = (id: string) => terms.filter((term) => term.data.category === id).length;
 const total = terms.length;
+
 // 「Vibe Coding」是延伸分支的起点：它是分支名，前端 / 后端 / 产品 / 测试 / Git 挂在它下面。
 const vibeCategory = glossaryCategories.find((category) => category.id === 'vibecoding');
 const vibeTechCategories = glossaryExtensionCategories.filter((category) => category.id !== 'vibecoding');
@@ -31,6 +32,12 @@ const vibeBranchIds = glossaryExtensionCategories.map((category) => category.id)
 const countInBranch = (ids: string[]) => ids.reduce((sum, id) => sum + categoryCount(id), 0);
 const aiMainCount = countInBranch(aiMainIds);
 const vibeBranchCount = countInBranch(vibeBranchIds);
+
+// 分支从主线的中途分出（工具之后）：分出后主线继续，vibecoding 泳道并行。
+const forkAt = 3;
+const primaryBeforeFork = glossaryPrimaryCategories.slice(0, forkAt);
+const primaryAfterFork = glossaryPrimaryCategories.slice(forkAt);
+
 const isEmpty = total === 0;
 const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1);
 const contributeLinks = [
@@ -77,10 +84,10 @@ const contributeLinks = [
             </p>
 
             <div class="branch-group branch-group--main" data-branch>
-              <div class="branch-group__head">
-                <span class="branch-node__rail" aria-hidden="true"></span>
+              <div class="branch-row branch-row--head" data-lane="main" data-lanes="main">
+                <span class="branch-dot" aria-hidden="true"></span>
                 <button
-                  class="branch-group__label"
+                  class="branch-row__label"
                   type="button"
                   data-filter-value="ai-main"
                   data-filter-match={aiMainIds.join(' ')}
@@ -89,11 +96,11 @@ const contributeLinks = [
                   title="AI 主分支：基础 / 提示词 / 工具 / Agent / 安全 / 成本"
                 >
                   <span class="branch-ref branch-ref--ai mono">AI</span>
-                  <span class="branch-group__name">AI 主线</span>
-                  <span class="branch-group__count">{aiMainCount}</span>
+                  <span class="branch-row__name">AI 主线</span>
+                  <span class="branch-row__count">{aiMainCount}</span>
                 </button>
                 <button
-                  class="branch-group__toggle"
+                  class="branch-row__toggle"
                   type="button"
                   data-branch-toggle
                   aria-expanded="true"
@@ -103,32 +110,54 @@ const contributeLinks = [
                 </button>
               </div>
 
-              <ul class="branch-tree__list branch-tree__list--primary">
-                {glossaryPrimaryCategories.map((category) => (
-                  <li class="branch-node">
-                    <span class="branch-node__rail" aria-hidden="true"></span>
+              <ul class="branch-rows">
+                {primaryBeforeFork.map((category) => (
+                  <li class="branch-row" data-lane="main" data-lanes="main">
+                    <span class="branch-dot" aria-hidden="true"></span>
                     <button
-                      class="branch-node__label"
+                      class="branch-row__label"
                       type="button"
                       data-filter-value={category.id}
                       aria-pressed="false"
                       title={category.description}
                     >
-                      <span class="branch-node__name">{category.name}</span>
-                      <span class="branch-node__count">{categoryCount(category.id)}</span>
+                      <span class="branch-row__name">{category.name}</span>
+                      <span class="branch-row__count">{categoryCount(category.id)}</span>
+                    </button>
+                  </li>
+                ))}
+
+                <li class="branch-row branch-row--fork" data-lanes="main vibe" aria-hidden="true">
+                  <span class="branch-fork"></span>
+                </li>
+
+                {primaryAfterFork.map((category, index) => (
+                  <li
+                    class:list={['branch-row', { 'branch-row--last': index === primaryAfterFork.length - 1 }]}
+                    data-lane="main"
+                    data-lanes="main vibe"
+                  >
+                    <span class="branch-dot" aria-hidden="true"></span>
+                    <button
+                      class="branch-row__label"
+                      type="button"
+                      data-filter-value={category.id}
+                      aria-pressed="false"
+                      title={category.description}
+                    >
+                      <span class="branch-row__name">{category.name}</span>
+                      <span class="branch-row__count">{categoryCount(category.id)}</span>
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div class="branch-tree__fork" aria-hidden="true"></div>
-
             <div class="branch-group branch-group--vibe" data-branch>
-              <div class="branch-group__head">
-                <span class="branch-node__rail" aria-hidden="true"></span>
+              <div class="branch-row branch-row--head" data-lane="vibe" data-lanes="vibe">
+                <span class="branch-dot" aria-hidden="true"></span>
                 <button
-                  class="branch-group__label"
+                  class="branch-row__label"
                   type="button"
                   data-filter-value="vibe-branch"
                   data-filter-match={vibeBranchIds.join(' ')}
@@ -136,11 +165,11 @@ const contributeLinks = [
                   title={vibeCategory?.description}
                 >
                   <span class="branch-ref branch-ref--vibe mono">vibecoding</span>
-                  <span class="branch-group__name">Vibe Coding</span>
-                  <span class="branch-group__count">{vibeBranchCount}</span>
+                  <span class="branch-row__name">Vibe Coding</span>
+                  <span class="branch-row__count">{vibeBranchCount}</span>
                 </button>
                 <button
-                  class="branch-group__toggle"
+                  class="branch-row__toggle"
                   type="button"
                   data-branch-toggle
                   aria-expanded="true"
@@ -150,19 +179,19 @@ const contributeLinks = [
                 </button>
               </div>
 
-              <ul class="branch-tree__list branch-tree__list--extension">
+              <ul class="branch-rows">
                 {vibeTechCategories.map((category) => (
-                  <li class="branch-node">
-                    <span class="branch-node__rail" aria-hidden="true"></span>
+                  <li class="branch-row" data-lane="vibe" data-lanes="vibe">
+                    <span class="branch-dot" aria-hidden="true"></span>
                     <button
-                      class="branch-node__label"
+                      class="branch-row__label"
                       type="button"
                       data-filter-value={category.id}
                       aria-pressed="false"
                       title={category.description}
                     >
-                      <span class="branch-node__name">{category.name}</span>
-                      <span class="branch-node__count">{categoryCount(category.id)}</span>
+                      <span class="branch-row__name">{category.name}</span>
+                      <span class="branch-row__count">{categoryCount(category.id)}</span>
                     </button>
                   </li>
                 ))}
