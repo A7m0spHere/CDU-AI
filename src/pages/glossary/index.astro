@@ -33,11 +33,6 @@ const countInBranch = (ids: string[]) => ids.reduce((sum, id) => sum + categoryC
 const aiMainCount = countInBranch(aiMainIds);
 const vibeBranchCount = countInBranch(vibeBranchIds);
 
-// 分支从主线的中途分出（工具之后）：分出后主线继续，vibecoding 泳道并行。
-const forkAt = 3;
-const primaryBeforeFork = glossaryPrimaryCategories.slice(0, forkAt);
-const primaryAfterFork = glossaryPrimaryCategories.slice(forkAt);
-
 const isEmpty = total === 0;
 const lastUpdated = terms.map((term) => term.data.updated).sort().at(-1);
 const contributeLinks = [
@@ -111,7 +106,7 @@ const contributeLinks = [
               </div>
 
               <ul class="branch-rows">
-                {primaryBeforeFork.map((category) => (
+                {glossaryPrimaryCategories.map((category) => (
                   <li class="branch-row" data-lane="main" data-lanes="main">
                     <span class="branch-dot" aria-hidden="true"></span>
                     <button
@@ -130,26 +125,6 @@ const contributeLinks = [
                 <li class="branch-row branch-row--fork" data-lanes="main vibe" aria-hidden="true">
                   <span class="branch-fork"></span>
                 </li>
-
-                {primaryAfterFork.map((category, index) => (
-                  <li
-                    class:list={['branch-row', { 'branch-row--last': index === primaryAfterFork.length - 1 }]}
-                    data-lane="main"
-                    data-lanes="main vibe"
-                  >
-                    <span class="branch-dot" aria-hidden="true"></span>
-                    <button
-                      class="branch-row__label"
-                      type="button"
-                      data-filter-value={category.id}
-                      aria-pressed="false"
-                      title={category.description}
-                    >
-                      <span class="branch-row__name">{category.name}</span>
-                      <span class="branch-row__count">{categoryCount(category.id)}</span>
-                    </button>
-                  </li>
-                ))}
               </ul>
             </div>
 

@@ -305,18 +305,13 @@
   top: 0;
 }
 
-/* 主线最后一行：轨道到圆点为止 */
-.branch-row--last[data-lanes~='main']::before {
-  bottom: 50%;
-}
-
 /* fork 行：竖线交给曲线元素画 */
 .branch-row--fork {
   min-height: 20px;
 }
 
-/* fork 行：主线保持直通（由 ::before 画），只把紫色泳道的接口交给下一行；
-   弯道单独用 .branch-fork 覆盖，避免主线被弯道「带走」出现断口。 */
+/* fork 行：主线到上一行为止，由连接线拐到 vibecoding 泳道 */
+.branch-row--fork::before,
 .branch-row--fork::after {
   display: none;
 }
@@ -324,8 +319,8 @@
 .branch-fork {
   position: absolute;
   left: 11px;
-  /* 从行中段起弯，下端伸出 1px 压住与下一行的抗锯齿缝 */
-  top: 50%;
+  /* 上下各伸出 1px，和上一行主线、下一行泳道严丝合缝 */
+  top: -1px;
   bottom: -1px;
   width: 20px;
   border-left: 2px solid var(--brand);
