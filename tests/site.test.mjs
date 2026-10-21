@@ -500,7 +500,7 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
     invalidErrors.push(...result.errors);
   }
   const report = invalidErrors.map((error) => error.file + '  ' + error.message).join('\n');
-  for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category']) {
+  for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category', '未知字段']) {
     assert.ok(report.includes(expected), '错误 fixture 未被识别：' + expected + '\n' + report);
   }
 
