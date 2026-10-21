@@ -3,29 +3,12 @@
    仅在 /glossary/ 与 /glossary/[id]/ 上加载。
    ========================================================= */
 
-/* 列表页：整张卡片可点击（stretched link） -------------------
-   #15 把卡片从 <a> 改成 <article> 以容纳折叠面板，卡片本身不再可点。
-   这里用标题链接的 ::after 铺满整张卡片，恢复「点哪都能进详情」，
-   同时把折叠面板与「查看详解」抬到上层，避免点击被覆盖层抢走。 */
+/* 列表页：整张卡片就是链接（沿用 PR #1 的做法）-------------
+   卡片本身就是 <a>，例子与别名默认展开，不做折叠面板。
+   这样点卡片任何位置都能进详情，也不需要覆盖层或额外 JS。 */
 .glossary-term {
-  position: relative;
   color: inherit;
   text-decoration: none;
-}
-
-.glossary-term__head h3 a::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: inherit;
-}
-
-/* 只有折叠标题需要挡住覆盖层：点标题是展开，点展开后的正文仍然进详情页。 */
-.glossary-term__details > summary,
-.glossary-term__more {
-  position: relative;
-  z-index: 2;
 }
 
 .glossary-term__more {

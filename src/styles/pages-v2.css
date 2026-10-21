@@ -237,16 +237,14 @@
   }
 }
 
-/* 渐进披露：工具 / 术语卡片 */
-.tool-card__details,
-.glossary-term__details {
+/* 渐进披露：工具卡片（术语卡沿用 PR #1 的整卡链接，不折叠） */
+.tool-card__details {
   margin-top: 0.55rem;
   border-top: 1px solid var(--line);
   padding-top: 0.55rem;
 }
 
-.tool-card__details summary,
-.glossary-term__details summary {
+.tool-card__details summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -258,20 +256,17 @@
   list-style: none;
 }
 
-.tool-card__details summary::-webkit-details-marker,
-.glossary-term__details summary::-webkit-details-marker {
+.tool-card__details summary::-webkit-details-marker {
   display: none;
 }
 
-.tool-card__details summary::after,
-.glossary-term__details summary::after {
+.tool-card__details summary::after {
   content: '＋';
   color: var(--faint);
   font-weight: 400;
 }
 
-.tool-card__details[open] summary::after,
-.glossary-term__details[open] summary::after {
+.tool-card__details[open] summary::after {
   content: '－';
 }
 
@@ -289,23 +284,6 @@
 
 .tool-card__details .tool-card__caution {
   margin-top: 0.55rem;
-}
-
-.glossary-term__head h3 a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.glossary-term__head h3 a:hover {
-  color: var(--brand);
-}
-
-.glossary-term__details .glossary-term__example {
-  margin-top: 0.55rem;
-}
-
-.glossary-term__details .glossary-term__aliases {
-  margin-top: 0.4rem;
 }
 
 /* 作品封面：插画锚点 + 状态角标 */
