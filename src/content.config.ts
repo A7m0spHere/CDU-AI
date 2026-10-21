@@ -157,6 +157,44 @@ const glossary = defineCollection({
       aliases: z.array(z.string()).default([]),
       definition: z.string(),
       example: z.string(),
+      /** 「你可能会说」：读者真实会问出口的一句话，用来把术语和场景连起来。 */
+      youMaySay: z.string().trim().min(1).max(240).optional(),
+      /** 「场景拆解」：把术语放进一个真实情境，用 2–4 步说明怎么处理。 */
+      scenario: z
+        .object({
+          title: z.string().trim().min(1),
+          steps: z.array(z.string().trim().min(1)).min(2).max(4),
+          example: z
+            .object({
+              label: z.string().trim().min(1).optional(),
+              quote: z.string().trim().min(1),
+              meta: z.string().trim().min(1).optional(),
+              note: z.string().trim().min(1).optional(),
+            })
+            .optional(),
+        })
+        .optional(),
+      /** 「选择题」：一条术语最多 3 题，每题 2–4 个选项且只有一个正确答案。 */
+      quiz: z
+        .array(
+          z.object({
+            question: z.string().trim().min(1),
+            options: z
+              .array(
+                z.object({
+                  text: z.string().trim().min(1),
+                  correct: z.boolean().default(false),
+                }),
+              )
+              .min(2)
+              .max(4),
+            explain: z.string().trim().min(1).optional(),
+          }),
+        )
+        .max(3)
+        .default([]),
+      /** 「你可以这样告诉 AI Agent」：一段可直接复制的提示词。 */
+      agentPrompt: z.string().trim().min(1).max(600).optional(),
       order: z.number().int().positive(),
       related: z.array(z.string()).default([]),
       updated: isoDate,
