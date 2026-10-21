@@ -280,7 +280,7 @@
   width: 2px;
   border-radius: 2px;
   background: var(--brand);
-  opacity: 0.38;
+  opacity: 0.42;
 }
 
 .branch-row[data-lanes~='vibe']::after {
@@ -292,13 +292,17 @@
   width: 2px;
   border-radius: 2px;
   background: var(--vibe);
-  opacity: 0.55;
+  opacity: 0.42;
 }
 
 /* 分支头：主线从圆点向下才开始；vibecoding 是从 fork 接过来的，
    轨道必须从上一行连续画到本行，否则会和上方泳道断开一截。 */
 .branch-row--head[data-lanes~='main']::before {
   top: 50%;
+}
+
+.branch-row--head[data-lanes~='vibe']::after {
+  top: 0;
 }
 
 /* 主线最后一行：轨道到圆点为止 */
@@ -311,7 +315,8 @@
   min-height: 20px;
 }
 
-.branch-row--fork::before,
+/* fork 行：主线保持直通（由 ::before 画），只把紫色泳道的接口交给下一行；
+   弯道单独用 .branch-fork 覆盖，避免主线被弯道「带走」出现断口。 */
 .branch-row--fork::after {
   display: none;
 }
@@ -319,13 +324,14 @@
 .branch-fork {
   position: absolute;
   left: 11px;
-  top: 0;
-  bottom: 0;
+  /* 从行中段起弯，下端伸出 1px 压住与下一行的抗锯齿缝 */
+  top: 50%;
+  bottom: -1px;
   width: 20px;
   border-left: 2px solid var(--brand);
   border-bottom: 2px solid var(--vibe);
-  border-bottom-left-radius: 9px;
-  opacity: 0.55;
+  border-bottom-left-radius: 8px;
+  opacity: 0.42;
 }
 
 /* 节点圆点 */
