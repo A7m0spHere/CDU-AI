@@ -204,6 +204,121 @@
   }
 }
 
+/* 文章页脚元信息条 */
+.doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem 1.4rem;
+  margin-top: 2.2rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--home-rule);
+  border-bottom: 1px solid var(--home-rule);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.doc-meta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.1rem;
+}
+
+.doc-meta__updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.doc-meta__edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 550;
+}
+
+.doc-meta__edit:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.content-status--inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.7rem;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.75rem;
+}
+
+.content-status--inline .content-status__badge {
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.content-status--inline.content-status--reviewed .content-status__badge {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.content-status--inline.content-status--needs-update .content-status__badge {
+  background: var(--sun-soft);
+  color: var(--sun);
+}
+
+.content-status__details {
+  position: relative;
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+
+.content-status__details summary {
+  cursor: pointer;
+  color: var(--brand);
+  list-style: none;
+}
+
+.content-status__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.content-status__details summary::after {
+  content: ' ▾';
+  font-size: 0.6rem;
+}
+
+.content-status__details[open] summary::after {
+  content: ' ▴';
+}
+
+.content-status__details .content-status__meta,
+.content-status__details .content-status__note {
+  max-width: 44rem;
+  margin-top: 0.45rem;
+  line-height: 1.7;
+}
+
+.content-status__details .content-status__note a {
+  margin-left: 0.25rem;
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 /* 筛选结果过渡 */
 @keyframes filter-appear {
   from {

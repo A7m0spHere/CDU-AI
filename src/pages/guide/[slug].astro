@@ -103,15 +103,16 @@ const sources = entry.data.sources ?? [];
           </div>
         )}
 
-        <ContentStatus data={entry.data} context="guide" />
-
-        <div class="page-meta">
-          <span><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
-          <a href={editUrl} target="_blank" rel="noopener noreferrer">
-            <Icon name="pen" size={14} />在 GitHub 编辑本页
-            <Icon name="arrow-up-right" size={13} />
-          </a>
-        </div>
+        <footer class="doc-meta" aria-label="内容状态与维护信息">
+          <ContentStatus data={entry.data} context="guide" variant="inline" />
+          <div class="doc-meta__actions">
+            <span class="doc-meta__updated"><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
+            <a class="doc-meta__edit" href={editUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="pen" size={14} />在 GitHub 编辑本页
+              <Icon name="arrow-up-right" size={13} />
+            </a>
+          </div>
+        </footer>
 
         <nav class="wiki-pager" aria-label="模块翻页">
           {previous ? (
