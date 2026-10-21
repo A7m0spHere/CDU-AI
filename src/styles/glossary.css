@@ -217,3 +217,320 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   术语分支树（git graph 风格，两条泳道并行）
+   参考：mhutchie/vscode-git-graph 的分支 ref 标签与配色、
+   nicoespeon/gitgraph.js 的泳道与提交节点画法。
+   结构：AI 主线走到「工具」处 fork 出 vibecoding 分支，
+   之后主线继续（Agent / 安全 / 成本），vibecoding 泳道并行向下，
+   承载 Vibe Coding 与前端 / 后端 / 产品 / 测试 / Git。
+   走廊固定 44px：所有标签从同一列开始，节点圆点落在各自泳道上。
+   ========================================================= */
+.branch-tree {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.1rem;
+}
+
+/* 分支树需要一条泳道走廊，比普通筛选栏宽一些 */
+@media (min-width: 901px) {
+  .glossary-layout {
+    grid-template-columns: 18rem minmax(0, 1fr);
+  }
+}
+
+.branch-tree__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+  color: var(--faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.branch-tree__total {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+}
+
+.branch-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.branch-row {
+  position: relative;
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  padding-left: 44px;
+}
+
+/* 泳道竖线：每行画自己的一段，相邻行首尾相接就成了连续轨道 */
+.branch-row[data-lanes~='main']::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--brand);
+  opacity: 0.42;
+}
+
+.branch-row[data-lanes~='vibe']::after {
+  content: '';
+  position: absolute;
+  left: 29px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--vibe);
+  opacity: 0.42;
+}
+
+/* 分支头：主线从圆点向下才开始；vibecoding 是从 fork 接过来的，
+   轨道必须从上一行连续画到本行，否则会和上方泳道断开一截。 */
+.branch-row--head[data-lanes~='main']::before {
+  top: 50%;
+}
+
+.branch-row--head[data-lanes~='vibe']::after {
+  top: 0;
+}
+
+/* fork 行：竖线交给曲线元素画 */
+.branch-row--fork {
+  min-height: 20px;
+}
+
+/* fork 行：主线到上一行为止，由连接线拐到 vibecoding 泳道 */
+.branch-row--fork::before,
+.branch-row--fork::after {
+  display: none;
+}
+
+.branch-fork {
+  position: absolute;
+  left: 11px;
+  /* 上下各伸出 1px，和上一行主线、下一行泳道严丝合缝 */
+  top: -1px;
+  bottom: -1px;
+  width: 20px;
+  border-left: 2px solid var(--brand);
+  border-bottom: 2px solid var(--vibe);
+  border-bottom-left-radius: 8px;
+  opacity: 0.42;
+}
+
+/* 节点圆点 */
+.branch-dot {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  margin-top: -5px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  background: var(--bg);
+  transition:
+    transform var(--dur-fast) ease,
+    background-color var(--dur-fast) ease;
+}
+
+.branch-row[data-lane='main'] .branch-dot {
+  left: 7px;
+  border-color: var(--brand);
+}
+
+.branch-row[data-lane='vibe'] .branch-dot {
+  left: 25px;
+  border-color: var(--vibe);
+}
+
+.branch-row:hover .branch-dot {
+  transform: scale(1.2);
+}
+
+/* 行内按钮 */
+.branch-row__label {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.34rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.branch-row--head .branch-row__label {
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+
+.branch-row__label:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.branch-row__label[aria-pressed='true'] {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.branch-row[data-lane='vibe'] .branch-row__label[aria-pressed='true'] {
+  background: var(--vibe-soft);
+  color: var(--vibe);
+}
+
+.branch-row__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.branch-row--head .branch-row__name {
+  flex: 0 1 auto;
+}
+
+.branch-row__count {
+  flex: none;
+  margin-left: auto;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+}
+
+.branch-row--head .branch-row__count {
+  margin-left: auto;
+}
+
+.branch-row__toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 0.15rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.branch-row__toggle:hover {
+  border-color: var(--line);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.branch-row__toggle svg {
+  transition: transform var(--dur-fast) ease;
+}
+
+[data-branch][data-collapsed='true'] .branch-row__toggle svg {
+  transform: rotate(-90deg);
+}
+
+[data-branch][data-collapsed='true'] > .branch-rows {
+  display: none;
+}
+
+[data-branch][data-collapsed='true'] > .branch-row--head::before,
+[data-branch][data-collapsed='true'] > .branch-row--head::after {
+  display: none;
+}
+
+/* 当前选中的节点高亮 */
+.branch-row:has(.branch-row__label[aria-pressed='true']) .branch-dot {
+  border-color: var(--brand);
+  background: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.branch-row[data-lane='vibe']:has(.branch-row__label[aria-pressed='true']) .branch-dot {
+  border-color: var(--vibe);
+  background: var(--vibe);
+  box-shadow: 0 0 0 3px var(--vibe-soft);
+}
+
+/* 分支 ref 标签 */
+.branch-ref {
+  flex: none;
+  padding: 0.02rem 0.26rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--faint);
+  font-size: 0.54rem;
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+.branch-ref--ai {
+  border-color: var(--brand-soft);
+  background: var(--brand-tint);
+  color: var(--brand);
+}
+
+.branch-ref--vibe {
+  border-color: var(--vibe-soft);
+  background: var(--vibe-soft);
+  color: var(--vibe);
+}
+
+@media (max-width: 900px) {
+  .branch-row {
+    padding-left: 40px;
+  }
+}
+
+/* 列表区的「延伸分支」分隔：与左侧分支树的主线 / 延伸两层对应 */
+.glossary-divider {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 1.9rem 0 0.2rem;
+  padding-top: 1.3rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.glossary-divider__label {
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  background: var(--surface-muted);
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+}
+
+.glossary-divider__note {
+  color: var(--faint);
+  font-size: 0.72rem;
+}

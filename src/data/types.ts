@@ -67,6 +67,8 @@ export interface GlossaryCategory {
   id: string;
   name: string;
   description: string;
+  /** primary = AI 主分支（重点）；extension = 接触 AI 后绕不开的延伸分支（只做术语介绍）。 */
+  kind: 'primary' | 'extension';
 }
 
 export interface GlossaryTerm {

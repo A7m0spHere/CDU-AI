@@ -1,6 +1,6 @@
 /**
  * 设计令牌
- * 参考 VibeHub 的克制、清晰、工具型界面：白底、细边框、蓝色交互色、系统字体。
+ * 基调：克制、清晰、工具型界面——白底、细边框、蓝色交互色、系统字体。
  * 颜色通过语义命名使用；换主题只改这一层。
  */
 :root {
@@ -42,6 +42,10 @@
   --sun-soft: #fefce8;
   --ok: #15803d;
   --danger: #dc2626;
+
+  /* git 分支赛道色（术语页左侧分支树，vibecoding 分支专用） */
+  --vibe: #7c3aed;
+  --vibe-soft: #f1ebff;
 
   /* states */
   --focus: #2563eb;
@@ -137,6 +141,9 @@
   --sun-soft: #422006;
   --ok: #86efac;
   --danger: #fca5a5;
+
+  --vibe: #a78bfa;
+  --vibe-soft: #2a1a4d;
 
   --focus: #93c5fd;
   --backdrop: rgba(0, 0, 0, 0.7);

@@ -3,7 +3,8 @@
 # 以 _ 开头的文件不会进入构建，本文件仅作模板。
 term: "术语中文名"
 en: "English Term"
-category: "basics" # basics / context / agents / config / runtime
+category: "basics" # 主分支：basics / prompt / tools / agents / safety / cost
+#                     延伸分支（只做术语介绍）：vibecoding / frontend / backend / product / testing / git
 aliases: []
 definition: "一句话释义：列表卡片、搜索和页面标题都会用到。"
 example: "校园或学习中的具体场景。"
