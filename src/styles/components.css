@@ -108,6 +108,44 @@
   color: var(--brand);
 }
 
+/* 导航末尾的「参与共建」快速入口 */
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  min-height: 36px;
+  margin-left: 0.55rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--brand);
+  border-radius: var(--radius-pill);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 0.85rem;
+  font-weight: 620;
+  white-space: nowrap;
+  transition:
+    background var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    transform var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease;
+}
+
+.nav-cta:hover {
+  background: var(--brand);
+  color: var(--on-brand);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px -12px color-mix(in srgb, var(--brand) 85%, transparent);
+}
+
+.nav-cta:active {
+  transform: translateY(0);
+}
+
+.nav-cta:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
