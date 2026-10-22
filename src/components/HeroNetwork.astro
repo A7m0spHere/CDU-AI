@@ -55,7 +55,7 @@ const nodes: HeroNode[] = [
   {
     key: 'tools',
     label: '工具资源',
-    meta: `${tools.length} 个工具`,
+    meta: tools.length > 0 ? `${tools.length} 个工具` : '待补充',
     href: '/tools/',
     icon: 'wrench',
     x: 492,

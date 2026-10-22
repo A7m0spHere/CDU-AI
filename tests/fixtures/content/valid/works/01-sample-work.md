@@ -3,7 +3,7 @@ title: "示例作品：验证内容检查器"
 summary: "用于验证作品条目的检查流程。"
 category: "校园生活"
 format: "对话式小工具"
-tools: ["DeepSeek"]
+tools: []
 tags: ["测试"]
 prompt: "示例提示词。"
 effort: "一个下午"

@@ -56,7 +56,7 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | 作品示例 | [`src/content/works/`](src/content/works/) |
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
 | 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |
-| 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)（后续会迁移为 Markdown，见 [#8](https://github.com/A7m0spHere/CDU-AI/issues/8)） |
+| 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)——**只由维护者按需添加**，暂不开放社区提交，也不迁移 Markdown |
 | 活动、首页入口 | `src/data/events.ts`、`home.ts` |
 | 全站搜索索引 | [`src/pages/search-index.json.ts`](src/pages/search-index.json.ts)，构建时生成，不要手工编辑 |
 | 技术文档 | [`docs/`](docs/)：架构、内容规范、设计系统 |

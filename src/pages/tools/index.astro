@@ -6,22 +6,31 @@ import ToolCard from '../../components/ToolCard.astro';
 import { tools, toolCategories } from '../../data/tools';
 
 const counts = new Map(toolCategories.map((category) => [category.id, tools.filter((tool) => tool.category === category.id).length]));
+const hasTools = tools.length > 0;
 ---
 
 <BaseLayout
   title="AI 工具资源"
-  description={`按使用场景整理的 AI 工具索引，共 ${tools.length} 个工具、${toolCategories.length} 个分类。标注门槛、费用与限制。`}
+  description={
+    hasTools
+      ? `按使用场景整理的 AI 工具索引，共 ${tools.length} 个工具、${toolCategories.length} 个分类。标注门槛、费用与限制。`
+      : '工具目录由维护者按需补充：标注使用场景、上手门槛、费用模式与限制，收录不等于推荐。'
+  }
 >
   <PageHeader
     index="03"
     eyebrow="工具资源"
     title="AI 工具资源"
     lede="按使用场景分类。标注上手门槛、费用模式与限制；收录不等于推荐。"
-    meta={[
-      { label: tools.length + ' 个工具', tone: 'brand' },
-      { label: toolCategories.length + ' 个场景' },
-      { label: '收录 ≠ 推荐' },
-    ]}
+    meta={
+      hasTools
+        ? [
+            { label: tools.length + ' 个工具', tone: 'brand' },
+            { label: toolCategories.length + ' 个场景' },
+            { label: '收录 ≠ 推荐' },
+          ]
+        : [{ label: '待补充', tone: 'brand' }, { label: '收录 ≠ 推荐' }]
+    }
     crumbs={[{ label: '工具资源' }]}
   >
     <Fragment slot="aside">
@@ -31,7 +40,7 @@ const counts = new Map(toolCategories.map((category) => [category.id, tools.filt
           <div><dt>工具</dt><dd>{String(tools.length).padStart(2, '0')}</dd></div>
           <div><dt>场景分类</dt><dd>{String(toolCategories.length).padStart(2, '0')}</dd></div>
         </dl>
-        <p>持续补充中，收录不等于推荐。</p>
+        <p>{hasTools ? '持续补充中，收录不等于推荐。' : '由维护者按需补充，收录不等于推荐。'}</p>
       </div>
     </Fragment>
   </PageHeader>
@@ -44,6 +53,7 @@ const counts = new Map(toolCategories.map((category) => [category.id, tools.filt
       </div>
 
       <h2 class="sr-only">工具目录</h2>
+      {hasTools && (
       <div class="catalog-layout" data-filter-root data-reveal>
         <aside class="catalog-sidebar" aria-label="工具筛选">
           <label class="sr-only" for="tool-search">搜索工具名、使用场景或标签</label>
@@ -105,6 +115,15 @@ const counts = new Map(toolCategories.map((category) => [category.id, tools.filt
           </div>
         </div>
       </div>
+      )}
+
+      {!hasTools && (
+        <div class="empty-state">
+          <Icon name="layers" size={28} />
+          <h2>工具目录暂时为空</h2>
+          <p>工具由维护者按需补充：会写清使用场景、上手门槛、费用与限制，并标注「收录不等于推荐」。</p>
+        </div>
+      )}
 
     </div>
   </section>

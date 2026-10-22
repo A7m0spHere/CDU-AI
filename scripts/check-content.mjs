@@ -248,7 +248,9 @@ export async function loadContentContext(root) {
   const glossarySource = await readFile(path.join(root, 'src', 'data', 'glossary.ts'), 'utf8');
   const toolNames = loadToolNamesFromSource(toolsSource);
   const glossaryCategoryIds = loadGlossaryCategoryIdsFromSource(glossarySource);
-  if (toolNames.length === 0) throw new Error('无法解析 src/data/tools.ts 中的工具列表');
+  // 工具目录允许为空（只由维护者按需添加），此时无法解析出名字是正常的；
+  // 但文件本身必须仍有 tools 数组，避免误删结构后检查静默通过。
+  if (!toolsSource.includes('export const tools')) throw new Error('无法定位 src/data/tools.ts 中的 tools 数组');
   if (glossaryCategoryIds.length === 0) throw new Error('无法解析 src/data/glossary.ts 中的术语分类');
   return { toolNames, glossaryCategoryIds };
 }
