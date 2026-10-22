@@ -1671,14 +1671,6 @@ body.search-open {
   border-radius: 6px;
 }
 
-/* 六个分组统一中性配色：靠序号与层级区分，不再按阶段上色 */
-.guide-nav__group[data-group='start-here'] {
-  --group-soft: var(--brand-soft);
-  --group-active: var(--brand-soft);
-  --group-line: var(--line);
-  --group-ink: var(--brand);
-}
-
 .guide-nav__summary {
   display: flex;
   min-height: 38px;
@@ -2746,5 +2738,24 @@ body.search-open {
 
   .guide-mobile-nav {
     display: block;
+  }
+}
+
+/* 分组展开动效：子项序列出现交给 CSS 动画批量执行，避免逐项 WAAPI 与高度动画抢主线程 */
+.guide-nav__group.is-entering ul > li {
+  animation: guide-nav-item-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 10) * 18ms);
+}
+
+@keyframes guide-nav-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-nav__group.is-entering ul > li {
+    animation: none;
   }
 }

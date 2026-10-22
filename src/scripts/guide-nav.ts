@@ -13,10 +13,7 @@
  */
 
 const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-const DURATION = 260;
-const ITEM_DURATION = 200;
-const ITEM_STAGGER = 18;
-const ITEM_MAX_DELAY = 220;
+const DURATION = 240;
 
 export function initGuideNavMotion(): void {
   if (typeof window === 'undefined') return;
@@ -36,6 +33,9 @@ export function initGuideNavMotion(): void {
       details.open = true;
       const target = list.scrollHeight;
       list.style.overflow = 'hidden';
+      // 子项序列出现改用 CSS 动画（.is-entering + 每项 --i 延迟），
+      // 批量交给样式引擎执行，避免逐项 WAAPI 与高度动画抢主线程造成卡顿。
+      details.classList.add('is-entering');
       const heightAnim = list.animate(
         [
           { height: '0px', opacity: 0 },
@@ -43,26 +43,10 @@ export function initGuideNavMotion(): void {
         ],
         { duration: DURATION, easing: EASE },
       );
-
-      // 子项序列出现：延迟逐条递增，避免整块同时闪现
-      list.querySelectorAll<HTMLElement>('li').forEach((item, index) => {
-        item.animate(
-          [
-            { opacity: 0, transform: 'translateY(-4px)' },
-            { opacity: 1, transform: 'none' },
-          ],
-          {
-            duration: ITEM_DURATION,
-            delay: Math.min(index * ITEM_STAGGER, ITEM_MAX_DELAY),
-            easing: EASE,
-            fill: 'backwards',
-          },
-        );
-      });
-
       heightAnim.onfinish = () => {
         list.style.overflow = '';
         list.style.height = '';
+        details.classList.remove('is-entering');
         busy = false;
       };
     };
@@ -81,6 +65,7 @@ export function initGuideNavMotion(): void {
         details.open = false;
         list.style.overflow = '';
         list.style.height = '';
+        details.classList.remove('is-entering');
         busy = false;
       };
     };

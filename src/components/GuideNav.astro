@@ -55,8 +55,8 @@ const publishedCount = modules.length;
         <Icon name="chevron-down" size={14} />
       </summary>
       <ul>
-        {group.items.map((item) => (
-          <li>
+        {group.items.map((item, itemIndex) => (
+          <li style={`--i:${itemIndex}`}>
             {item.href ? (
               <a
                 class:list={{ 'is-active': item.active, 'is-external': item.external }}
