@@ -7,6 +7,7 @@ import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import EmptyContent from '../../components/EmptyContent.astro';
 import { guideStages, repository } from '../../data/site';
+import { guideNavGroups } from '../../data/guide-nav';
 import '../../styles/notion.css';
 
 const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
@@ -16,6 +17,9 @@ const groupedStages = guideStages.map((stage) => ({
   modules: modules.filter((module) => module.data.stage === stage.id).sort((a, b) => a.data.order - b.data.order),
 }));
 const firstModule = modules[0];
+const navItemTotal = guideNavGroups.reduce((total, group) => total + group.items.length, 0);
+const navSlugs = new Set(guideNavGroups.flatMap((group) => group.items.map((item) => item.slug).filter(Boolean)));
+const plannedCount = navSlugs.size - modules.filter((module) => navSlugs.has(slugOf(module.id))).length;
 const guideEmpty = modules.length === 0;
 const contributeLinks = [
   { label: '投稿真实经验', href: `${repository.url}/issues/new?template=experience-submission.yml`, external: true },
@@ -42,8 +46,9 @@ const contributeLinks = [
           title="AI 学习指南"
           lede="不必先懂编程。先看清 AI 能做什么，再动手完成一件小事，最后把过程整理成可以分享的经验。可以顺着读，也可以从眼下需要的一篇开始。"
           meta={[
-            { label: guideEmpty ? '内容重建中' : modules.length + ' 篇', tone: guideEmpty ? 'warn' : 'brand' },
-            { label: '3 个阶段' },
+            { label: guideEmpty ? '目录已定稿 · 正文撰写中' : modules.length + ' 篇', tone: guideEmpty ? 'warn' : 'brand' },
+            { label: guideNavGroups.length + ' 个分组' },
+            { label: plannedCount > 0 ? plannedCount + ' 篇规划中' : navItemTotal + ' 个条目' },
           ]}
           crumbs={[{ label: '学习指南' }]}
         />
@@ -91,8 +96,47 @@ const contributeLinks = [
           </div>
         </section>
 
+
+        <section class="wiki-section" aria-labelledby="nav-map-title" data-reveal>
+          <h2 id="nav-map-title">目录总览</h2>
+          <p class="wiki-section__lede">
+            左侧目录按栏目分组，和「按阶段顺序读」是两件事：分组决定你在目录里的位置，阶段只影响上一篇 / 下一篇的顺序。
+            {plannedCount > 0 && `标注「规划中」的 ${plannedCount} 篇还没有正文，目录先定下来，正文分批补。`}
+          </p>
+          <div class="wiki-navmap">
+            {guideNavGroups.map((group) => (
+              <article class="wiki-navmap__group">
+                <header>
+                  <span class="mono">{group.index}</span>
+                  <h3>{group.label}</h3>
+                  <span class="wiki-navmap__count mono">
+                    {group.items.filter((item) => item.slug && modules.some((module) => slugOf(module.id) === item.slug)).length}/{group.items.length}
+                  </span>
+                </header>
+                <p>{group.description}</p>
+                <ul>
+                  {group.items.map((item) => {
+                    const published = item.slug && modules.some((module) => slugOf(module.id) === item.slug);
+                    const href = published ? `/guide/${item.slug}/` : item.href;
+                    return (
+                      <li>
+                        {href ? (
+                          <a href={href}>{item.label}</a>
+                        ) : (
+                          <span class="wiki-navmap__planned">{item.label}<em>规划中</em></span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section class="wiki-section wiki-outline" aria-labelledby="outline-title" data-reveal>
-          <h2 id="outline-title">学习路线</h2>
+          <h2 id="outline-title">阅读顺序（按阶段）</h2>
+          <p class="wiki-section__lede">这一节是「按什么顺序读」，和上面目录的分组是两套维度：调整栏目不会改变阅读顺序，反之亦然。</p>
 
           {groupedStages.map((stage) => (
             <section class="wiki-stage" id={`stage-${stage.id}`} aria-labelledby={`stage-${stage.id}-title`}>

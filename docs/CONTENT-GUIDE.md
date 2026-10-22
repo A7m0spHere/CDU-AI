@@ -30,6 +30,24 @@
 
 文件放在 `src/content/guide/`，文件名用英文小写与连字符，例如 `01-ai-first-step.md`。
 
+### 目录归属：`src/data/guide-nav.ts`
+
+侧边栏的**分组（栏目）**单独维护在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts)，与文章的 `stage` / `order` 解耦：
+
+- `stage` + `order` 只决定「上一篇 / 下一篇」的阅读顺序；
+- `guideNavGroups` 决定文章出现在侧边栏哪个栏目、栏目内第几条、以及目录总览卡片；
+- 只登记 `slug` 没有对应文件 = 「规划中」占位（灰色不可点，不生成路由）；
+- 建了文件但没登记 = `npm run check:content` 报错（避免文章写了却不在目录里）。
+
+新增一篇文章的完整流程：
+
+1. 在 `guide-nav.ts` 找到目标栏目，确认已有占位条目（如 `{ label: '任务描述', slug: 'task-description' }`）；没有就加一条；
+2. 用同一个 `slug` 建文件 `src/content/guide/<slug>.md`（可先复制 `_TEMPLATE.md`）；
+3. 填 frontmatter（`stage` 决定阅读顺序、`order` 决定同阶段排序）与正文；
+4. 跑 `npm run verify`：侧边栏自动变成真实链接，标题取文章 `title`，目录计数同步。
+
+调整栏目（改名、加分组、换顺序）只改 `guide-nav.ts`，不需要动组件或页面。
+
 ```yaml
 ---
 title: "先建立使用 AI 的基本姿势"

@@ -1627,9 +1627,10 @@ body.search-open {
   letter-spacing: 0.04em;
 }
 
-.guide-sidebar__head > a {
+.guide-sidebar__head > a,
+.guide-sidebar__title {
   display: block;
-  margin-top: 0.25rem;
+  margin: 0.25rem 0 0;
   color: var(--ink);
   font-size: 0.95rem;
   font-weight: 650;
@@ -1670,46 +1671,12 @@ body.search-open {
   border-radius: 6px;
 }
 
-.guide-nav__group--start {
-  --group-soft: #edf7f1;
-  --group-active: #d8ece0;
-  --group-line: #cde4d7;
-  --group-ink: #1f5a40;
-}
-
-.guide-nav__group--make {
-  --group-soft: #fdf4e9;
-  --group-active: #f7e3cd;
-  --group-line: #efd9c0;
-  --group-ink: #7c4a20;
-}
-
-.guide-nav__group--share {
-  --group-soft: #f3f0fa;
-  --group-active: #e7e1f4;
-  --group-line: #ddd4ee;
-  --group-ink: #55477d;
-}
-
-:root[data-theme='dark'] .guide-nav__group--start {
-  --group-soft: #12251b;
-  --group-active: #1b3928;
-  --group-line: #294632;
-  --group-ink: #a9ddba;
-}
-
-:root[data-theme='dark'] .guide-nav__group--make {
-  --group-soft: #271e14;
-  --group-active: #382819;
-  --group-line: #4a3521;
-  --group-ink: #ecc29b;
-}
-
-:root[data-theme='dark'] .guide-nav__group--share {
-  --group-soft: #1b1829;
-  --group-active: #2a243d;
-  --group-line: #3a3151;
-  --group-ink: #c9bced;
+/* 六个分组统一中性配色：靠序号与层级区分，不再按阶段上色 */
+.guide-nav__group[data-group='start-here'] {
+  --group-soft: var(--brand-soft);
+  --group-active: var(--brand-soft);
+  --group-line: var(--line);
+  --group-ink: var(--brand);
 }
 
 .guide-nav__summary {
@@ -1788,12 +1755,58 @@ body.search-open {
 }
 
 .guide-nav ul a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.35rem 0.5rem;
   border-radius: 4px;
   color: var(--muted);
   font-size: 0.75rem;
   line-height: 1.55;
+}
+
+.guide-nav__item-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.guide-nav ul a.is-external svg {
+  flex: none;
+  color: var(--faint);
+}
+
+/* 规划中：不可点击，弱化显示，避免被误认为死链 */
+.guide-nav__planned {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 4px;
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  cursor: default;
+}
+
+.guide-nav__badge {
+  flex: none;
+  padding: 0 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface-muted);
+  color: var(--faint);
+  font-size: 0.56rem;
+  letter-spacing: 0.02em;
+}
+
+.guide-nav__note {
+  margin: 0.85rem 0 0;
+  padding: 0.55rem 0.6rem;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  color: var(--faint);
+  font-size: 0.68rem;
+  line-height: 1.6;
 }
 
 .guide-nav ul a:hover {
@@ -1879,7 +1892,10 @@ body.search-open {
 }
 
 .guide-mobile-nav .guide-nav {
+  max-height: min(70vh, 34rem);
+  overflow-y: auto;
   padding: 0.55rem 0.7rem 0.8rem;
+  scrollbar-width: thin;
 }
 
 .guide-mobile-nav .guide-nav__home {
@@ -1974,6 +1990,99 @@ body.search-open {
 
 .wiki-section {
   margin-top: 2rem;
+}
+
+.wiki-section__lede {
+  max-width: 62ch;
+  margin: -0.2rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+/* 目录总览：六个栏目卡片，规划中条目弱化 */
+.wiki-navmap {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+.wiki-navmap__group {
+  padding: 0.95rem 1rem 1.05rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.wiki-navmap__group > header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.wiki-navmap__group > header .mono {
+  color: var(--faint);
+  font-size: 0.6rem;
+}
+
+.wiki-navmap__group h3 {
+  flex: 1;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.wiki-navmap__count {
+  color: var(--faint);
+  font-size: 0.62rem;
+}
+
+.wiki-navmap__group > p {
+  margin: 0.35rem 0 0.6rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+
+.wiki-navmap__group ul {
+  display: grid;
+  gap: 0.18rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wiki-navmap__group li a {
+  display: block;
+  padding: 0.2rem 0;
+  color: var(--brand);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.wiki-navmap__group li a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.wiki-navmap__planned {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--faint);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.wiki-navmap__planned em {
+  padding: 0 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface-muted);
+  font-size: 0.55rem;
+  font-style: normal;
 }
 
 .wiki-section > h2 {
@@ -2628,4 +2737,14 @@ body.search-open {
   gap: 0.3rem;
   color: var(--brand);
   font-size: 0.76rem;
+}
+/* 学习指南：≤900px 隐藏桌面侧边栏，改用抽屉式目录 */
+@media (max-width: 900px) {
+  .guide-doc-layout .guide-sidebar {
+    display: none;
+  }
+
+  .guide-mobile-nav {
+    display: block;
+  }
 }

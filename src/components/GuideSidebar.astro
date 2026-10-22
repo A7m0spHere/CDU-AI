@@ -1,5 +1,6 @@
 ---
 import GuideNav from './GuideNav.astro';
+import { repository } from '../data/site';
 
 interface Props {
   currentId?: string;
@@ -11,12 +12,15 @@ const { currentId } = Astro.props;
 <aside class="guide-sidebar" aria-label="学习指南目录">
   <div class="guide-sidebar__head">
     <span class="mono">学习指南</span>
-    <a href="/guide/">AI 学习指南</a>
+    <p class="guide-sidebar__title">AI 学习指南</p>
   </div>
   <GuideNav currentId={currentId} />
   <div class="guide-sidebar__foot">
-    <a href="/glossary/">AI 术语表</a>
-    <a href="/tools/">工具资源</a>
-    <a href="/works/">作品示例</a>
+    <a href={`${repository.url}/blob/main/CONTRIBUTING.md`} target="_blank" rel="noopener noreferrer">
+      贡献指南
+    </a>
+    <a href={`${repository.url}/issues/new?template=experience-submission.yml`} target="_blank" rel="noopener noreferrer">
+      投稿真实经验
+    </a>
   </div>
 </aside>
