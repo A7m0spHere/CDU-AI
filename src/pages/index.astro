@@ -141,16 +141,22 @@ const categoryLabel = (categoryId: string) =>
           eyebrow="工具资源"
           title="按场景查找工具"
           headingId="tools-title"
-          description={`${tools.length} 个常用工具，标注上手门槛、费用模式与使用限制。`}
+          description={
+            tools.length > 0
+              ? `${tools.length} 个常用工具，标注上手门槛、费用模式与使用限制。`
+              : '工具目录由维护者按需补充，会标注门槛、费用与限制；收录不等于推荐。'
+          }
           link="/tools/"
           linkLabel="全部工具"
         />
 
-        <div class="tool-grid tool-grid--home">
-          {toolsToShow.map((tool) => (
-            <ToolCard tool={tool} categoryLabel={categoryLabel(tool.category)} />
-          ))}
-        </div>
+        {toolsToShow.length > 0 && (
+          <div class="tool-grid tool-grid--home">
+            {toolsToShow.map((tool) => (
+              <ToolCard tool={tool} categoryLabel={categoryLabel(tool.category)} />
+            ))}
+          </div>
+        )}
 
         <p class="home-footnote">
           <Icon name="info" size={15} />

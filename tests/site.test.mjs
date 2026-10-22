@@ -36,7 +36,8 @@ const parsedTools = [...toolsBlock.matchAll(/id: '([^']+)',\s*\n\s*name: '([^']+
   id: match[1],
   name: match[2],
 }));
-assert.ok(parsedTools.length > 0, '无法从 src/data/tools.ts 解析工具列表，请更新测试的解析逻辑');
+// 工具目录允许为空（只由维护者按需添加），但文件结构必须可解析
+assert.ok(toolsBlock.includes('export const tools'), '无法定位 src/data/tools.ts 中的 tools 数组');
 
 const expectedRoutes = [
   'index.html',
@@ -146,7 +147,8 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   const minimumEntries = parsedTools.length + guideSlugs.length + workSlugs.length + glossarySlugs.length;
   assert.ok(data.length >= minimumEntries, '搜索索引条目过少：' + data.length + ' < ' + minimumEntries);
   const types = new Set(data.map((item) => item.type));
-  const requiredTypes = ['页面', '工具'];
+  const requiredTypes = ['页面'];
+  if (parsedTools.length > 0) requiredTypes.push('工具');
   if (guideSlugs.length > 0) requiredTypes.push('指南');
   if (workSlugs.length > 0) requiredTypes.push('作品');
   if (glossarySlugs.length > 0) requiredTypes.push('术语');
@@ -476,8 +478,13 @@ test('页面文案中的数量来自数据，不写死', async () => {
   const worksPage = await read('works/index.html');
   const communityPage = await read('community/index.html');
 
-  assert.ok(toolsPage.includes(parsedTools.length + ' 个工具'), '工具页数量与工具目录不一致');
-  assert.ok(home.includes(parsedTools.length + ' 个常用工具'), '首页工具数量与工具目录不一致');
+  if (parsedTools.length > 0) {
+    assert.ok(toolsPage.includes(parsedTools.length + ' 个工具'), '工具页数量与工具目录不一致');
+    assert.ok(home.includes(parsedTools.length + ' 个常用工具'), '首页工具数量与工具目录不一致');
+  } else {
+    assert.ok(toolsPage.includes('工具目录暂时为空'), '空工具目录缺少占位说明');
+    assert.ok(home.includes('工具目录由维护者按需补充'), '首页缺少工具目录占位说明');
+  }
   if (workFiles.length > 0) {
     assert.ok(worksPage.includes(workFiles.length + ' 个策划示例'), '作品页数量与内容目录不一致');
     assert.ok(home.includes(workFiles.length + ' 个示例'), '首页作品数量与内容目录不一致');
@@ -615,7 +622,11 @@ test('阶段二：内容页使用共享页头与 v2 空状态', async () => {
     assert.match(html, /empty-state--v2/, route + ' 空状态未使用 v2 样式');
   }
 
-  // 筛选卡片具备进入动画的样式钩子（真实交互由浏览器验证）
+  // 筛选卡片具备进入动画的样式钩子（真实交互由浏览器验证）；目录为空时不渲染卡片
   const toolsPage = await read('tools/index.html');
-  assert.match(toolsPage, /data-filter-card/, '工具页缺少筛选卡片');
+  if (parsedTools.length > 0) {
+    assert.match(toolsPage, /data-filter-card/, '工具页缺少筛选卡片');
+  } else {
+    assert.doesNotMatch(toolsPage, /data-filter-card/, '空工具目录不应渲染筛选卡片');
+  }
 });

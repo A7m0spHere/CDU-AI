@@ -141,7 +141,9 @@ frontmatter：
 
 ## 6. 工具数据
 
-编辑 `src/data/tools.ts`：
+**现状**：工具目录当前为空，且只由维护者按需添加（不开放社区提交、不迁移 Markdown）。页面在目录为空时显示占位说明，新增第一条工具后筛选与搜索会自动恢复。
+
+新增条目时编辑 `src/data/tools.ts`：
 
 - `url` 必须是官方入口，不写聚合站、网盘或邀请码链接。
 - `summary` 一句话；`description` 2–3 句；`bestFor` 写具体任务。

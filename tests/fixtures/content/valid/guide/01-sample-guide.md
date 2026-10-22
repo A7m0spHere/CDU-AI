@@ -7,7 +7,7 @@ level: "零基础"
 outcome: "能独立运行内容检查。"
 forWho: "维护者与贡献者。"
 updated: "2026-10-20"
-tools: ["DeepSeek"]
+tools: []
 tags: ["测试"]
 reviewed: "2026-10-20"
 reviewedBy: "示例审校人"
