@@ -7,6 +7,7 @@
  * - 内容状态字段组合（reviewedBy / basis / testedOn / contributors，见 docs/CONTENT-REVIEW.md）；
  * - 跨文件唯一性（指南 order 全局唯一、术语同分类 order 唯一、作品 order 唯一）；
  * - 引用完整性（指南/作品的 tools 必须在工具目录中、术语 related 必须存在）；
+ * - 指南目录覆盖率（文章必须登记在 src/data/guide-nav.ts，否则侧边栏看不到）；
  * - 外链协议白名单（只允许 http(s)，拦 javascript: / data: / file: 等，见 #22）；
  * - 来源 URL 格式、分类与文件命名。
  *
@@ -236,6 +237,27 @@ function loadToolNamesFromSource(source) {
   if (start === -1) return [];
   const block = source.slice(start);
   return [...block.matchAll(/id: '([^']+)',\s*\n\s*name: '([^']+)'/g)].map((match) => match[2]);
+}
+
+/** 从 src/data/guide-nav.ts 解析已登记的目录条目 slug（含规划中条目）。 */
+export function loadGuideNavSlugsFromSource(source) {
+  const start = source.indexOf('export const guideNavGroups');
+  if (start === -1) return [];
+  const block = source.slice(start, source.indexOf('export const guideNavGroupIds'));
+  return [...block.matchAll(/slug: '([^']+)'/g)].map((match) => match[1]);
+}
+
+/**
+ * 目录覆盖率（纯函数，便于测试）：
+ * 文章写了却没登记 → 侧边栏看不到它，所以报错；登记了但没文章 → 正常（规划中）。
+ */
+export function checkGuideNavCoverage({ slugs, registeredSlugs }) {
+  return slugs
+    .filter((slug) => !registeredSlugs.includes(slug))
+    .map((slug) => ({
+      file: `guide/${slug}.md`,
+      message: '未在 src/data/guide-nav.ts 中登记，侧边栏与目录总览不会显示这篇文章',
+    }));
 }
 
 function loadGlossaryCategoryIdsFromSource(source) {
@@ -481,6 +503,22 @@ export async function validateContentRoot(root) {
     total += result.count;
   }
   results.push(...(await validateToolUrls(root)));
+
+  // 指南目录覆盖率：文章必须在 src/data/guide-nav.ts 登记，否则侧边栏看不到
+  const navSource = await readFile(path.join(root, 'src', 'data', 'guide-nav.ts'), 'utf8');
+  const registeredSlugs = loadGuideNavSlugsFromSource(navSource);
+  if (registeredSlugs.length === 0) throw new Error('无法解析 src/data/guide-nav.ts 中的目录条目');
+  const guideDir = path.join(root, 'src', 'content', 'guide');
+  const guideFiles = existsSync(guideDir)
+    ? (await readdir(guideDir)).filter((file) => file.endsWith('.md') && !file.startsWith('_'))
+    : [];
+  results.push(
+    ...checkGuideNavCoverage({
+      slugs: guideFiles.map((file) => file.replace(/\.md$/, '')),
+      registeredSlugs,
+    }),
+  );
+
   return { errors: results, count: total };
 }
 

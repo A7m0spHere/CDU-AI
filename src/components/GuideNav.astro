@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import { guideStages } from '../data/site';
+import { guideNavGroups } from '../data/guide-nav';
 import Icon from './Icon.astro';
 
 interface Props {
@@ -8,51 +8,83 @@ interface Props {
 }
 
 const { currentId } = Astro.props;
-const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
+
+// 文章标题以 frontmatter 为准；没有对应文件的条目渲染成「规划中」，不生成假路由。
+const modules = await getCollection('guide');
 const slugOf = (id: string) => id.replace(/\.md$/, '');
-const currentModule = currentId ? modules.find((module) => slugOf(module.id) === currentId) : undefined;
-const activeStage = currentModule?.data.stage;
-const groupedStages = guideStages.map((stage) => ({
-  ...stage,
-  modules: modules.filter((module) => module.data.stage === stage.id),
+const bySlug = new Map(modules.map((module) => [slugOf(module.id), module]));
+
+const groups = guideNavGroups.map((group) => ({
+  id: group.id,
+  index: group.index,
+  label: group.label,
+  items: group.items.map((item) => {
+    const entry = item.slug ? bySlug.get(item.slug) : undefined;
+    return {
+      label: entry?.data.title ?? item.label,
+      hint: item.hint,
+      slug: item.slug,
+      href: entry ? `/guide/${item.slug}/` : item.href,
+      active: Boolean(item.slug && item.slug === currentId) || Boolean(item.href === '/guide/' && !currentId),
+      planned: Boolean(item.slug && !entry),
+      // 只有指向指南之外的入口才标外链图标（指南首页属于指南内部）
+      external: Boolean(item.href && !item.slug && !item.href.startsWith('/guide/')),
+    };
+  }),
 }));
+
+// 当前文章所在分组默认展开；在目录首页则全部展开，方便一眼看完结构。
+const currentGroupId = groups.find((group) => group.items.some((item) => item.active))?.id;
+const shouldOpen = (groupId: string) => (currentGroupId ? groupId === currentGroupId : true);
+const publishedCount = modules.length;
 ---
 
 <nav class="guide-nav" aria-label="学习指南目录">
-  <a class:list={['guide-nav__home', { 'is-active': !currentId }]} href="/guide/">
-    指南首页
-  </a>
+  {groups.map((group) => (
+    <details
+      class="guide-nav__group"
+      data-group={group.id}
+      open={shouldOpen(group.id)}
+    >
+      <summary class="guide-nav__summary">
+        <span class="guide-nav__index mono">{group.index}</span>
+        <span class="guide-nav__name">{group.label}</span>
+        <span class="guide-nav__count mono">
+          {group.items.filter((item) => !item.planned).length}/{group.items.length}
+        </span>
+        <Icon name="chevron-down" size={14} />
+      </summary>
+      <ul>
+        {group.items.map((item, itemIndex) => (
+          <li style={`--i:${itemIndex}`}>
+            {item.href ? (
+              <a
+                class:list={{ 'is-active': item.active, 'is-external': item.external }}
+                href={item.href}
+                aria-current={item.active ? 'page' : undefined}
+              >
+                <span class="guide-nav__item-label">{item.label}</span>
+                {item.external && <Icon name="arrow-up-right" size={11} />}
+              </a>
+            ) : (
+              <span class="guide-nav__planned" data-planned="true" aria-disabled="true">
+                <span class="guide-nav__item-label">{item.label}</span>
+                <span class="guide-nav__badge">规划中</span>
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </details>
+  ))}
 
-  {groupedStages.map((stage) => {
-    const isActiveStage = Boolean(activeStage && stage.id === activeStage);
-    const shouldOpen = !currentId || !activeStage || isActiveStage;
-    return (
-      <details
-        class:list={['guide-nav__group', `guide-nav__group--${stage.id}`, { 'is-active-stage': isActiveStage }]}
-        open={shouldOpen}
-      >
-        <summary class="guide-nav__summary">
-          <span class="guide-nav__index mono">{stage.index}</span>
-          <span class="guide-nav__name">{stage.label}</span>
-          <Icon name="chevron-down" size={14} />
-        </summary>
-        <ul>
-          {stage.modules.map((module) => {
-            const slug = slugOf(module.id);
-            return (
-              <li>
-                <a
-                  class:list={{ 'is-active': currentId === slug }}
-                  href={`/guide/${slug}/`}
-                  aria-current={currentId === slug ? 'page' : undefined}
-                >
-                  {module.data.title}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </details>
-    );
-  })}
+  {publishedCount === 0 && (
+    <p class="guide-nav__note">目录已定稿，正文按栏目分批撰写；标注「规划中」的条目还没有文章。</p>
+  )}
 </nav>
+
+<script>
+  import { initGuideNavMotion } from '../scripts/guide-nav';
+
+  initGuideNavMotion();
+</script>

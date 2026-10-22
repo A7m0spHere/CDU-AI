@@ -690,3 +690,59 @@ test('构建产物中不存在危险协议的 href / src（#22）', async () => 
     assert.doesNotMatch(html, /src="\s*(javascript|vbscript):/i, route + ' 输出了危险协议的 src');
   }
 });
+
+
+test('学习指南目录：六个分组、规划条目不是死链、站内链接可达（信息架构）', async () => {
+  const html = await read('guide/index.html');
+  const navSource = await readFile(path.join(root, 'src/data/guide-nav.ts'), 'utf8');
+  const { loadGuideNavSlugsFromSource, checkGuideNavCoverage } = await import('../scripts/check-content.mjs');
+
+  // 只检查桌面侧边栏（移动端抽屉是同一个组件的第二份渲染）
+  const sidebarStart = html.indexOf('class="guide-sidebar"');
+  assert.ok(sidebarStart > -1, '指南页缺少侧边栏');
+  const sidebarHtml = html.slice(sidebarStart, html.indexOf('</aside>', sidebarStart));
+
+  // 六个分组按规划顺序出现
+  const groupLabels = ['先从这里开始', '开始学习', 'AI 能帮你做什么', '进一步使用 Agent', '跟着案例实践', '资源与交流'];
+  let cursor = -1;
+  for (const label of groupLabels) {
+    const at = sidebarHtml.indexOf(label);
+    assert.ok(at > cursor, '侧边栏缺少分组或顺序不对：' + label);
+    cursor = at;
+  }
+  assert.equal((sidebarHtml.match(/class="guide-nav__group"/g) || []).length, 6, '侧边栏分组数量应为 6');
+
+  // 规划中的条目只占位、不生成链接：数量 = 登记 slug 数 - 已发布文章数
+  const registeredSlugs = loadGuideNavSlugsFromSource(navSource);
+  assert.ok(registeredSlugs.length >= 20, '目录登记条目过少：' + registeredSlugs.length);
+  const plannedCount = (sidebarHtml.match(/data-planned="true"/g) || []).length;
+  assert.equal(plannedCount, registeredSlugs.length - guideFiles.length, '规划中条目数量与登记表不一致');
+  for (const slug of registeredSlugs) {
+    if (guideFiles.includes(slug + '.md')) continue;
+    assert.ok(!html.includes('href="/guide/' + slug + '/"'), '规划中的文章不应生成路由：' + slug);
+  }
+
+  // 当前页高亮：指南首页
+  assert.ok(sidebarHtml.includes('href="/guide/" aria-current="page"'), '目录首页缺少当前页高亮');
+
+  // 站内链接都能在构建产物中找到对应页面（无死链）
+  const hrefs = new Set([...html.matchAll(/href="(\/[^"]*)"/g)].map((match) => match[1]));
+  for (const href of hrefs) {
+    const clean = href.split('#')[0];
+    if (clean === '/' || clean === '') continue;
+    const target = clean.endsWith('/') ? clean.slice(1) + 'index.html' : clean.slice(1);
+    assert.ok(existsSync(path.join(dist, target)), '指南页出现死链：' + href);
+  }
+
+  // 移动端目录入口存在（原生 details/summary，键盘可操作）
+  assert.match(html, /class="guide-mobile-nav"/, '缺少移动端目录');
+  assert.match(html, /guide-mobile-nav[\s\S]{0,200}?<summary/, '移动端目录缺少可点击的 summary');
+
+  // 目录覆盖率规则：未登记的文章要被报出来
+  assert.deepEqual(checkGuideNavCoverage({ slugs: ['who-is-this-for'], registeredSlugs }), [], '已登记文章不应报错');
+  assert.equal(
+    checkGuideNavCoverage({ slugs: ['not-registered'], registeredSlugs }).length,
+    1,
+    '未登记的文章必须被内容检查器拦下',
+  );
+});
