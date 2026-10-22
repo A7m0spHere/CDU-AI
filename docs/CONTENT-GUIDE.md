@@ -137,6 +137,12 @@ frontmatter：
 
 校准一条术语的标准：能指出它「不成立」的边界（例如微调不能可靠记住新事实），并且没有写死会变化的价格、额度、版本号。
 
+### 外链协议规则（安全）
+
+- `sources` 与工具 `url` **只允许 `http:` / `https:` 绝对地址**；`javascript:`、`data:`、`file:`、`vbscript:` 以及协议相对的 `//example.com` 一律被拒绝，报错会指出文件与字段。
+- 正文 Markdown 里的链接同一规则：危险协议在渲染阶段直接去掉 `href`（文字保留），外链自动加 `target="_blank"` 与 `rel="noopener noreferrer"`。
+- 站内链接写 `/guide/`、`#anchor` 这类相对路径即可，不要写完整域名。
+
 改动后运行 `npm run verify`（包含 `npm run check:content` 文件级检查与完整构建测试），检查术语条目、筛选、详情页和搜索索引是否正常生成。
 
 ## 6. 工具数据

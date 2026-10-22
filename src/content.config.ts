@@ -1,6 +1,8 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { glossaryCategoryIds } from './data/glossary';
+// 纯 JS 模块：内容检查脚本（Node）与 schema 共用同一套白名单
+import { isSafeExternalUrl } from './lib/url-guard.mjs';
 
 /**
  * 内容状态与审校字段（guide / glossary / works 共用）。
@@ -12,6 +14,17 @@ import { glossaryCategoryIds } from './data/glossary';
  * - basis（内容依据）与 reviewed（人工核校）是两个维度：核验过事实不等于亲自实测。
  */
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式应为 YYYY-MM-DD');
+
+/**
+ * 参考来源链接（#22）：语法合法 + 协议必须是 http(s)。
+ * `z.string().url()` 会放过 javascript: / data: 这类「合法但危险」的 URL，
+ * 所以这里再叠一层白名单；规则与 scripts/check-content.mjs、src/lib/url-guard.mjs 一致。
+ */
+const sourceUrl = z
+  .string()
+  .trim()
+  .url('来源链接必须是完整 URL')
+  .refine(isSafeExternalUrl, '来源链接只允许 http(s) 协议，不要写 javascript: / data: / file: 等');
 
 const reviewFields = {
   /** 人工逐条核校完成的日期；填写后才允许在页面显示「已人工核校」。 */
@@ -107,7 +120,7 @@ const guide = defineCollection({
         .array(
           z.object({
             title: z.string(),
-            url: z.string().url(),
+            url: sourceUrl,
           }),
         )
         .default([]),
@@ -206,7 +219,7 @@ const glossary = defineCollection({
         .array(
           z.object({
             title: z.string(),
-            url: z.string().url(),
+            url: sourceUrl,
           }),
         )
         .default([]),

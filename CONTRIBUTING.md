@@ -263,6 +263,10 @@ gh api repos/A7m0spHere/CDU-AI/branches/main/protection   # 404 表示未开启
 gh api repos/A7m0spHere/CDU-AI/rulesets
 ```
 
+### 外链协议（安全）
+
+外部链接只允许 `http:` / `https:` 绝对地址。`javascript:`、`data:`、`file:`、`vbscript:`、协议相对的 `//host` 都会被拒绝：frontmatter 里的 `sources`、工具 `url` 在构建或 `npm run check:content` 阶段报错；正文 Markdown 里的链接在渲染阶段直接去掉 `href`。站内链接用 `/guide/`、`#anchor` 这类相对路径。
+
 ## 10. 提交信息规范
 
 提交主题使用 `类型: 中文说明`，类型前缀保留英文：
