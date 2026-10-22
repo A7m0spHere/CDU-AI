@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import rehypeSafeLinks from './src/lib/rehype-safe-links.mjs';
 
 // Astro 5 在内容集合为空时，会对每次 getCollection 调用打印
 //「The collection "x" does not exist or is empty」的警告；内容重建期间空集合是预期状态。
@@ -23,6 +24,8 @@ export default defineConfig({
     format: 'directory',
   },
   markdown: {
+    // 正文里的外链兜底（#22）：危险协议去掉 href，外链补 target/rel
+    rehypePlugins: [rehypeSafeLinks],
     shikiConfig: {
       theme: 'github-light',
       wrap: true,

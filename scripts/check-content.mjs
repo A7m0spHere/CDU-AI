@@ -7,6 +7,7 @@
  * - 内容状态字段组合（reviewedBy / basis / testedOn / contributors，见 docs/CONTENT-REVIEW.md）；
  * - 跨文件唯一性（指南 order 全局唯一、术语同分类 order 唯一、作品 order 唯一）；
  * - 引用完整性（指南/作品的 tools 必须在工具目录中、术语 related 必须存在）；
+ * - 外链协议白名单（只允许 http(s)，拦 javascript: / data: / file: 等，见 #22）；
  * - 来源 URL 格式、分类与文件命名。
  *
  * 设计目标：新增合法条目不会因为旧样本计数而报错；错误条目能给出可读的文件名与原因。
@@ -17,6 +18,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import { isSafeExternalUrl } from '../src/lib/url-guard.mjs';
 
 const isoDateRe = /^\d{4}-\d{2}-\d{2}$/;
 const slugFileRe = /^[a-z0-9][a-z0-9-]*\.md$/;
@@ -156,11 +158,12 @@ function checkSources(data, file, errors) {
       errors.push({ file, message: `sources[${index}].url 不能为空` });
       continue;
     }
-    try {
-      const url = new URL(source.url);
-      if (!/^https?:$/.test(url.protocol)) throw new Error('仅支持 http / https');
-    } catch {
-      errors.push({ file, message: `sources[${index}].url 不是可打开的 http(s) 链接：${source.url}` });
+    // 协议白名单（#22）：javascript: / data: / file: 等「语法合法但危险」的地址必须拦下
+    if (!isSafeExternalUrl(source.url)) {
+      errors.push({
+        file,
+        message: `sources[${index}].url 只允许 http(s) 外链（拒绝 javascript: / data: / file: 等危险协议）：${source.url}`,
+      });
     }
   }
 }
@@ -445,6 +448,24 @@ export async function validateCollection({ collection, dir, context }) {
   return { errors, count: files.length };
 }
 
+/**
+ * 工具目录的外链校验（#22）。
+ * 工具仍是 TypeScript 数据文件，不经 schema，所以单独扫一遍 url 字段。
+ */
+export async function validateToolUrls(root) {
+  const file = 'src/data/tools.ts';
+  const source = await readFile(path.join(root, 'src', 'data', 'tools.ts'), 'utf8');
+  const block = source.slice(source.indexOf('export const tools'));
+  const errors = [];
+  for (const match of block.matchAll(/^\s*url: '([^']*)'/gm)) {
+    const url = match[1];
+    if (!isSafeExternalUrl(url)) {
+      errors.push({ file, message: `工具 url 只允许 http(s) 外链（拒绝 javascript: / data: / file: 等危险协议）：${url}` });
+    }
+  }
+  return errors;
+}
+
 /** 校验 src/content 下的全部内容集合。 */
 export async function validateContentRoot(root) {
   const context = await loadContentContext(root);
@@ -459,6 +480,7 @@ export async function validateContentRoot(root) {
     results.push(...result.errors);
     total += result.count;
   }
+  results.push(...(await validateToolUrls(root)));
   return { errors: results, count: total };
 }
 

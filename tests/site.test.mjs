@@ -521,7 +521,7 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
     invalidErrors.push(...result.errors);
   }
   const report = invalidErrors.map((error) => error.file + '  ' + error.message).join('\n');
-  for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category', '未知字段']) {
+  for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category', '未知字段', '危险协议']) {
     assert.ok(report.includes(expected), '错误 fixture 未被识别：' + expected + '\n' + report);
   }
 
@@ -628,5 +628,65 @@ test('阶段二：内容页使用共享页头与 v2 空状态', async () => {
     assert.match(toolsPage, /data-filter-card/, '工具页缺少筛选卡片');
   } else {
     assert.doesNotMatch(toolsPage, /data-filter-card/, '空工具目录不应渲染筛选卡片');
+  }
+});
+
+test('外链协议白名单：危险 URL 被拒绝，正常链接保留（#22）', async () => {
+  const { isSafeExternalUrl, isSafeLinkTarget } = await import('../src/lib/url-guard.mjs');
+
+  const dangerous = [
+    'javascript:alert(1)',
+    'JaVaScRiPt:alert(1)',
+    '  javascript:alert(1)  ',
+    'java\tscript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    'file:///etc/passwd',
+    'vbscript:msgbox(1)',
+    '//evil.example.com/path',
+    '/\\evil.example.com',
+    '',
+  ];
+  for (const value of dangerous) {
+    assert.equal(isSafeExternalUrl(value), false, '危险外链未被拒绝：' + JSON.stringify(value));
+  }
+
+  const safe = ['https://openai.com/index/why-language-models-hallucinate/', 'http://example.com/a?b=1#c'];
+  for (const value of safe) {
+    assert.equal(isSafeExternalUrl(value), true, '正常外链被误杀：' + value);
+  }
+
+  for (const value of ['/glossary/', '#contribute', './x', '../y']) {
+    assert.equal(isSafeLinkTarget(value), true, '站内链接被误杀：' + value);
+  }
+});
+
+test('正文 Markdown 的危险链接在渲染阶段被剥离（#22）', async () => {
+  const plugin = (await import('../src/lib/rehype-safe-links.mjs')).default;
+  const tree = {
+    type: 'root',
+    children: [
+      { type: 'element', tagName: 'a', properties: { href: 'javascript:alert(1)' }, children: [{ type: 'text', value: '坏链接' }] },
+      { type: 'element', tagName: 'a', properties: { href: 'https://example.com/doc' }, children: [{ type: 'text', value: '外链' }] },
+      { type: 'element', tagName: 'a', properties: { href: '/glossary/' }, children: [{ type: 'text', value: '站内' }] },
+      { type: 'element', tagName: 'img', properties: { src: 'data:text/html,<script>alert(1)</script>' }, children: [] },
+    ],
+  };
+  plugin()(tree);
+
+  const [blocked, external, internal, image] = tree.children;
+  assert.equal(blocked.properties.href, undefined, '危险链接的 href 应被移除');
+  assert.equal(blocked.properties['data-link-blocked'], 'true', '危险链接应留痕便于排查');
+  assert.equal(external.properties.target, '_blank', '外链应在新窗口打开');
+  assert.equal(external.properties.rel, 'noopener noreferrer', '外链应带安全 rel');
+  assert.equal(internal.properties.target, undefined, '站内链接不应加 target');
+  assert.equal(image.properties.src, undefined, '危险图片地址应被移除');
+});
+
+test('构建产物中不存在危险协议的 href / src（#22）', async () => {
+  for (const route of expectedRoutes) {
+    if (!route.endsWith('.html')) continue;
+    const html = await read(route);
+    assert.doesNotMatch(html, /href="\s*(javascript|data|file|vbscript):/i, route + ' 输出了危险协议的 href');
+    assert.doesNotMatch(html, /src="\s*(javascript|vbscript):/i, route + ' 输出了危险协议的 src');
   }
 });
