@@ -13,7 +13,7 @@
 | 分享一次真实使用经验 | [经验投稿 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=experience-submission.yml) | GitHub 账号、真实经历 |
 | 推荐或更新工具 | [工具建议 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml) | GitHub 账号 |
 | 改代码、样式或测试 | 读第 6 节，按 PR 流程提交 | Node.js ≥ 22（可选） |
-| 想被记名、改名或撤下署名 | 见第 8 节；名单在 [CONTRIBUTORS.md](CONTRIBUTORS.md) | 一个 GitHub 账号 |
+| 想改名或撤下署名 | 见第 8 节；默认提交 PR 即署名，名单在 [CONTRIBUTORS.md](CONTRIBUTORS.md) | 一个 GitHub 账号 |
 
 所有贡献默认按仓库 [LICENSE](LICENSE)（MIT）发布。M0 不开放匿名投稿：贡献需要一个公开的 GitHub 账号。
 
@@ -227,7 +227,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 
 ## 8. 署名与致谢
 
-被记录的贡献会写进 [CONTRIBUTORS.md](CONTRIBUTORS.md)。这一节说明「记什么、记在哪、用什么名字、怎么改」。
+被记录的贡献会写进 [CONTRIBUTORS.md](CONTRIBUTORS.md)。**提交 PR 即视为同意署名**，不需要单独申请；这一节说明「记什么、记在哪、用什么名字、怎么改」。
 
 ### 8.1 哪些贡献会被记录
 
@@ -248,7 +248,8 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 
 ### 8.4 怎么申请或修改署名
 
-- 提 PR 时在描述里写一句「署名用 XXX」（默认用你的 GitHub 账号并加链接），维护者合并时一并记进 `CONTRIBUTORS.md`。
+- **提交 PR 即视为同意署名**：维护者合并时会把你的 GitHub 账号记进 `CONTRIBUTORS.md` 并链接到个人主页，不需要单独申请。
+- 想换个名字（昵称 / 笔名 / 匿名代称）：在 PR 描述里写一句「署名用 XXX」即可；不希望在名单里出现，也直接说。
 - 已经合并但没被记录：开一个空白 issue（或在任意 issue 里留言），说明你做了什么并附上 PR / Issue 链接，维护组核对后补记。
 - 想改名或撤下：同样说一声即可，不需要理由。
 
