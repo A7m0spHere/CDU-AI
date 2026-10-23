@@ -1,7 +1,7 @@
 /**
  * 把「AI」渲染成 ASCII 字符画（轻量 Canvas 实现）。
  *
- * 参考了常见的 ASCII text 效果（文字采样成字符 + 波浪 / 指针交互），
+ * 参考了常见的 ASCII text 效果（文字采样成字符 + 波浪 / 指针局部驱散），
  * 但没有引入 three.js / React：这里只用 2D canvas，体积约 3KB。
  *
  * 约束：
@@ -35,6 +35,8 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
   let cols = 0;
   let rows = 0;
   let alpha: Float32Array | null = null;
+  let shiftX: Float32Array | null = null;
+  let shiftY: Float32Array | null = null;
   let gradient: CanvasGradient | null = null;
   let pointer = { x: 0, y: 0, active: false };
 
@@ -82,6 +84,8 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
 
     const source = sampleText();
     alpha = new Float32Array(cols * rows);
+    shiftX = new Float32Array(cols * rows);
+    shiftY = new Float32Array(cols * rows);
     if (source) {
       const sw = source.width;
       const sh = source.height;
@@ -114,11 +118,40 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
     const moving = !state.reduced.matches;
     const waveAmp = moving ? 0.55 : 0;
     const waveTime = time * 0.0016;
-    const offsetX = pointer.active ? pointer.x * cell * 1.4 : 0;
-    const offsetY = pointer.active ? pointer.y * cell * 1.4 : 0;
+
+    // 指针附近做一个局部排斥场：字符被轻轻推开，离开后缓动回位。
+    // 半径和最大位移都按字符格换算，避免不同字号下效果失衡。
+    const pointerX = (pointer.x + 0.5) * width;
+    const pointerY = (pointer.y + 0.5) * height;
+    const repelRadius = Math.max(cell * 10.4, 40);
+    const maxShift = cell * 2.4;
+    const ease = pointer.active ? 0.4 : 0.18;
 
     for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
+        const index = row * cols + col;
+        let targetX = 0;
+        let targetY = 0;
+
+        if (moving && pointer.active) {
+          const centerX = col * cell + cell / 2;
+          const centerY = row * cell + cell / 2;
+          const dx = centerX - pointerX;
+          const dy = centerY - pointerY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance > 0.001 && distance < repelRadius) {
+            const falloff = 1 - distance / repelRadius;
+            const strength = falloff * falloff;
+            targetX = (dx / distance) * maxShift * strength;
+            targetY = (dy / distance) * maxShift * strength;
+          }
+        }
+
+        if (shiftX && shiftY) {
+          shiftX[index] += (targetX - shiftX[index]) * ease;
+          shiftY[index] += (targetY - shiftY[index]) * ease;
+        }
+
         const sourceRow =
           waveAmp === 0
             ? row
@@ -129,7 +162,9 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
         const scaled = 0.2 + value * 0.8;
         const char = CHARSET[Math.min(CHARSET.length - 1, Math.floor(scaled * CHARSET.length))];
         if (char === ' ') continue;
-        ctx.fillText(char, col * cell + cell / 2 + offsetX, row * cell + offsetY);
+        const x = col * cell + cell / 2 + (shiftX ? shiftX[index] : 0);
+        const y = row * cell + (shiftY ? shiftY[index] : 0);
+        ctx.fillText(char, x, y);
       }
     }
   };
@@ -151,8 +186,14 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
     state.raf = requestAnimationFrame(loop);
   };
 
+  const resetShifts = () => {
+    shiftX?.fill(0);
+    shiftY?.fill(0);
+  };
+
   const drawStatic = () => {
     cancelAnimationFrame(state.raf);
+    resetShifts();
     render(0);
   };
 
@@ -170,6 +211,7 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
   resizeObserver.observe(host);
 
   const onPointerMove = (event: PointerEvent) => {
+    if (state.reduced.matches) return;
     const rect = host.getBoundingClientRect();
     pointer = {
       x: (event.clientX - rect.left) / rect.width - 0.5,
@@ -179,6 +221,7 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
   };
   const onPointerLeave = () => {
     pointer = { x: 0, y: 0, active: false };
+    if (state.reduced.matches) drawStatic();
   };
   host.addEventListener('pointermove', onPointerMove);
   host.addEventListener('pointerleave', onPointerLeave);
@@ -191,8 +234,12 @@ function setupHost(host: HTMLElement, state: AsciiInstanceState) {
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   const onMotionChange = () => {
-    if (state.reduced.matches) drawStatic();
-    else startAnimation();
+    if (state.reduced.matches) {
+      pointer = { x: 0, y: 0, active: false };
+      drawStatic();
+    } else {
+      startAnimation();
+    }
   };
   state.reduced.addEventListener('change', onMotionChange);
 
