@@ -804,6 +804,18 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /收录不等于推荐/, '缺少「收录不等于推荐」说明');
 });
 
+test('GitHub 产品官网不会被误当成代码仓库', async () => {
+  if (!parsedTools.some((tool) => tool.id === 'github-copilot')) return;
+  const html = await read('tools/index.html');
+  const cards = html.match(/<article\b[^>]*class="tool-card card"[\s\S]*?<\/article>/g) ?? [];
+  const copilot = cards.find((card) => /<h3>[\s\S]*?GitHub Copilot[\s\S]*?<\/h3>/.test(card));
+  assert.ok(copilot, '缺少 GitHub Copilot 卡片');
+  const footer = copilot.match(/<div class="tool-card__foot">[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.match(footer, /href="https:\/\/github\.com\/features\/copilot"/, '官网入口应指向 Copilot 产品页');
+  assert.match(footer, /打开官网/, 'GitHub 域名上的产品页仍应显示「打开官网」');
+  assert.doesNotMatch(footer, /class="tool-card__repo"[^>]*href="https:\/\/github\.com\/features\/copilot"/, '产品页不能作为代码仓库入口');
+});
+
 test('工具数据进入搜索索引：别名、技术类型与能力标签都可搜', async () => {
   if (parsedTools.length === 0) return;
   const data = JSON.parse(await read('search-index.json'));

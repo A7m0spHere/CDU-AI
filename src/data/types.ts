@@ -22,7 +22,7 @@ export interface ToolLogo {
   source: string;
   /** 授权说明：CC0、品牌方媒体资源、仅用于识别产品等 */
   license: string;
-  /** 单色（近黑）标志：深色主题下需要反色才看得清 */
+  /** 仅用于黑白灰的近黑标志：深色主题下反色；彩色品牌图标不要设置 */
   mono?: boolean;
 }
 
@@ -51,9 +51,9 @@ export interface Tool {
   bestFor: string;
   difficulty: ToolDifficulty;
   pricing: ToolPricing;
-  /** 官方入口 */
+  /** 优先填写独立官网或官方项目介绍页；没有时才回退到官方仓库 */
   url: string;
-  /** 开源项目或官方代码仓库 */
+  /** 官方 GitHub 仓库，供 GitHub 图标入口使用，与官网入口分别维护 */
   githubUrl?: string;
   /** 技术类型：LLM、扩散模型、Harness、TTS、STT 等 */
   tech: string;

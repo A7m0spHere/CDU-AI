@@ -167,6 +167,8 @@ frontmatter：
 
 工具目录只由维护者审核后入库（不开放自动发布、不迁移 Markdown），全部数据在 [`src/data/tools.ts`](../src/data/tools.ts)，字段由 [`src/data/types.ts`](../src/data/types.ts) 的 `Tool` 约束。**改数据就能加工具**：页面、筛选计数、首页推荐、搜索索引都由这份数组推导，不需要动组件。
 
+2026-10-24 的 Agent 补充、社区项目维护状态与仓库迁移依据见 [AGENT-CATALOG-REVIEW.md](AGENT-CATALOG-REVIEW.md)。
+
 ### 6.1 分类与技术类型不是一回事
 
 分类回答「我想做什么」，技术类型回答「它靠什么实现」。两者必须分开写，否则页面会变成一锅粥：
@@ -232,7 +234,7 @@ frontmatter：
 2. **官方 Brand Assets / Media Kit**（如 `github.com/logos`、`elevenlabs.io/brand`）；
 3. **开源项目的官方 GitHub 组织头像**；
 4. **有明确授权的开源品牌图标库**：本项目个别条目用 [Simple Icons](https://simple-icons.org)（CC0 1.0）；
-5. **确实拿不到官方图标时**：省略 `logo` 字段，页面回退成名称首字母。
+5. **没有适合小尺寸展示的官方图标时**：省略 `logo` 字段，页面回退成名称首字母；不要使用 GitHub 自动生成头像代替产品标志。
 
 **保留官方图标的底板**：官方图标是白底、深底或圆角方块就照原样显示，不要抠成透明，也不要自己再加白框。卡片图标区本身不带底色和描边——图标有底板就显示底板，本身透明就浮在卡片上。
 
@@ -243,13 +245,16 @@ frontmatter：
 技术细节：
 
 - 位图转成 96×96 WebP（保留原图透明通道），矢量图保留原始 SVG，单个文件控制在 12KB 以内。
-- 深色单色标志（Qwen、Cline、Udio、Elicit、Coze 等）要加 `mono: true`，深色主题会自动反色。
+- 只有黑白灰的近黑标志（如 Cline）才加 `mono: true`，深色主题会自动反色；Qwen、Udio、Elicit、Coze 等彩色图标必须保留品牌原色，不设置此字段。
 - 授权与出处汇总见 [`docs/TOOL-LOGOS.md`](TOOL-LOGOS.md)。
 
 ### 6.5 链接与失效处理
 
-- `url` 只写官方入口：不写聚合站、网盘、邀请码、第三方镜像。
-- 开源项目可额外填 `githubUrl`；仓库改名或迁移时（例如 CosyVoice 从 FunAudioLLM 迁到 QwenAudio），要更新为跳转后的新地址，并在 `caution` 里说明旧链接会跳转。
+- `url` 优先填写独立官网或官方项目介绍页，供工具名称和「打开官网」使用；只有没有可用官网时才回退到官方仓库。不写聚合站、网盘、邀请码、第三方镜像。
+- 有官方 GitHub 仓库的项目单独填写 `githubUrl`，供 GitHub 图标旁的「代码仓库」入口使用；不要因为项目开源，就让「打开官网」也跳到仓库。
+- `url` 回退到 GitHub 时，卡片只显示带 GitHub 图标的「代码仓库」，不把仓库标为官网，也不重复展示两个相同的入口。
+- 回退到仓库时同时填写相同的 `url` 和 `githubUrl`。GitHub Copilot 等产品的官网也在 `github.com` 下，不能只凭域名把产品页认成仓库。
+- 仓库改名或迁移时（例如 OpenCode 从 sst 迁到 anomalyco、CosyVoice 从 FunAudioLLM 迁到 QwenAudio），更新 `githubUrl` 为当前地址；有独立官网时保留官网入口。
 - **产品停运或长期不可用**：直接从数组里删除该条目，并在 PR 说明里写清依据；不要为了凑数保留失效链接。
 - **只改了价格/额度**：更新 `caution` 文案与 `verifiedOn`，不动其他字段。
 - **拿不准来源**：先不收录。工具目录空着比放错更安全。

@@ -43,6 +43,11 @@ const searchText = [
   .join(' ')
   .toLowerCase();
 const basisLabel = toolBasisLabels[tool.basis] ?? '官网核对';
+// GitHub 也承载 Copilot 等产品官网；只有官网入口与仓库入口相同时才按仓库展示。
+const isRepositoryUrl = Boolean(
+  tool.githubUrl && new URL(tool.url).href.replace(/\/$/, '') === new URL(tool.githubUrl).href.replace(/\/$/, ''),
+);
+const githubUrl = tool.githubUrl;
 ---
 
 <article
@@ -117,12 +122,14 @@ const basisLabel = toolBasisLabels[tool.basis] ?? '官网核对';
   </details>
 
   <div class="tool-card__foot">
-    <a class="link-arrow" href={tool.url} target="_blank" rel="noopener noreferrer">
-      打开官网
-      <Icon name="arrow-up-right" size={15} />
-    </a>
-    {tool.githubUrl && (
-      <a class="tool-card__repo" href={tool.githubUrl} target="_blank" rel="noopener noreferrer">
+    {!isRepositoryUrl && (
+      <a class="link-arrow" href={tool.url} target="_blank" rel="noopener noreferrer">
+        打开官网
+        <Icon name="arrow-up-right" size={15} />
+      </a>
+    )}
+    {githubUrl && (
+      <a class="tool-card__repo" href={githubUrl} target="_blank" rel="noopener noreferrer">
         <Icon name="github" size={15} />
         代码仓库
       </a>
