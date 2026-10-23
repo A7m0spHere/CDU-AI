@@ -200,4 +200,5 @@ npm run verify
 - [AI 科研入门指南](https://github.com/Takamatsu-Hikaru/AI-Research-Guide)：按阶段组织长文、内容清单、构建时生成导航与校验；我们借鉴其内容管理方式，但保留 Astro 实现
 - [AI Demo 作品集](https://github.com/deepdemos/ds-demos-showcase)：作品广场的分类、状态标注与「过程即内容」思路
 - [WayToAGI](https://github.com/WayToAGI)：按工具与场景组织的目录型入口
+- [dsh-status-rotator](https://github.com/01Virex/dsh-status-rotator)：贡献者致谢名单与署名规则的组织方式（按贡献类型分组、逐条关联 PR、支持笔名与匿名）；[CONTRIBUTORS.md](CONTRIBUTORS.md) 按其结构重写，未复制其代码或文案
 
