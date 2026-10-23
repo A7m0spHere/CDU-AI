@@ -13,6 +13,7 @@
 | 站点形态 | 可本地构建的静态原型，尚未正式上线 |
 | 内容 | **内容重建中**：2026-10-20 已移除 8 篇指南 / 38 条术语 / 4 个作品示例；写作模板见 `src/content/*/_TEMPLATE.md` |
 | 贡献方式 | GitHub 网页 Issue / PR，无需命令行；说明见 [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 贡献者致谢 | 名单见 [CONTRIBUTORS.md](CONTRIBUTORS.md)：代码、文档、校对、设计、真实经验与有效反馈都会记录；人名用 GitHub 账号并链接到个人主页，也可用笔名或匿名 |
 | 账号 / 投稿 / 评论 / 活动报名 | 未开放 |
 | 社区与活动 | 社区功能已关闭（/community/ 仅提示暂不开放）；活动只有形式设计，不展示真实排期 |
 | 作品广场 | 当前为空；重新填充后仍会明确标注「策划示例」，不是真实学生投稿 |
@@ -29,6 +30,7 @@
 - **分享真实经验**：提交 [经验投稿](https://github.com/A7m0spHere/CDU-AI/issues/new?template=experience-submission.yml)，维护者会与你确认是否整理成指南或作品示例。
 - **推荐或更新工具**：提交 [工具建议](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)。
 - **改代码、样式或测试**：先读 [CONTRIBUTING.md](CONTRIBUTING.md)，再按 PR 模板提交。
+- **想被记名**：代码、文档、内容校对、设计、真实使用经验、建议与 Bug 反馈都会记进 [CONTRIBUTORS.md](CONTRIBUTORS.md)；署名方式与申请流程见 [CONTRIBUTING.md 第 8 节](CONTRIBUTING.md#8-署名与致谢)。
 
 贡献流程：找到页面 → 点「在 GitHub 编辑本页」→ Fork 后在网页编辑 → 提交 PR（模板会询问验证方式、事实来源与隐私版权；文档 / 内容类修改注明 AI 辅助情况）→ 维护者审核，CI 自动运行 `npm run verify` → 合并发布。
 
@@ -149,6 +151,7 @@ docs/
 └── DESIGN-SYSTEM.md     # 视觉语言与组件约定
 scripts/check-links.mjs   # 构建产物内部链接检查
 scripts/check-content.mjs # 内容字段、order、引用与审校状态一致性检查
+CONTRIBUTORS.md          # 贡献者名单：参与者、具体贡献与对应 PR / Issue
 ```
 
 ## 内容怎么维护
@@ -197,4 +200,5 @@ npm run verify
 - [AI 科研入门指南](https://github.com/Takamatsu-Hikaru/AI-Research-Guide)：按阶段组织长文、内容清单、构建时生成导航与校验；我们借鉴其内容管理方式，但保留 Astro 实现
 - [AI Demo 作品集](https://github.com/deepdemos/ds-demos-showcase)：作品广场的分类、状态标注与「过程即内容」思路
 - [WayToAGI](https://github.com/WayToAGI)：按工具与场景组织的目录型入口
+- [dsh-status-rotator](https://github.com/01Virex/dsh-status-rotator)：贡献者致谢名单与署名规则的组织方式（按贡献类型分组、逐条关联 PR、支持笔名与匿名）；[CONTRIBUTORS.md](CONTRIBUTORS.md) 按其结构重写，未复制其代码或文案
 

@@ -90,6 +90,7 @@ export const footerGroups = [
       { label: '活动形式', href: '/events/' },
       { label: '共建方式', href: '/about/#contribute' },
       { label: '纠错与贡献', href: `${repository.url}/blob/main/CONTRIBUTING.md` },
+      { label: '贡献者', href: `${repository.url}/blob/main/CONTRIBUTORS.md` },
     ],
   },
   {
