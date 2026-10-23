@@ -787,7 +787,10 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
     assert.ok(html.includes(file), '工具页没有引用 Logo：' + file);
   }
   assert.match(html, /class="tool-mark__fallback"/, '缺少首字母兜底');
-  assert.match(html, /onerror="this\.remove\(\)"/, 'Logo 加载失败时应有回退');
+  // 有图标时首字母必须默认隐藏：否则透明图标的空白处会露出字母，观感很差
+  assert.match(html, /class="tool-mark__fallback"[^>]*data-fallback hidden/, '有 Logo 时首字母兜底必须默认隐藏');
+  assert.match(html, /onerror="this\.remove\(\);/, 'Logo 加载失败时应移除图片并露出首字母');
+  assert.match(html, /fb\.hidden = false/, 'Logo 加载失败时应恢复首字母兜底');
   assert.match(html, /data-mono="true"/, '单色标志需要 data-mono 钩子做深色反色');
 
   // 能力筛选与场景筛选

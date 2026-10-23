@@ -4,72 +4,67 @@
 
 ## 使用原则
 
-1. 只用官方 Brand Assets、官方网站/官方仓库里的图标，或有明确授权的开源品牌图标库；
-2. 图标只用于**识别对应产品**，不代表品牌方对本站的认可或背书；商标归各品牌方所有；
-3. 不使用搜索引擎随机图片、带水印图片、来源不明的 CDN 热链，也不用 AI 重绘官方 Logo；
-4. **一律使用透明底标志**：卡片不给图标加白底或色块，避免深浅主题下出现「白色方块」；
-5. 官方只提供带底色的应用图标时，按背景色抠掉底板、保留原标志形状（下表「已去掉底板」条目），不改变标志轮廓；
-6. 拿不到合规透明标志时省略 `logo` 字段，页面回退为名称首字母。
+1. **用官方发布的图标本体**：品牌官网的 apple-touch-icon / favicon / PWA 图标，或官方 GitHub 组织头像；
+2. 官方图标自带底板（白底、深底、圆角方块）时**保留底板**，不再抠成透明，也不再自己加白框；
+3. 图标只用于**识别对应产品**，不代表品牌方对本站的认可或背书；商标归各品牌方所有；
+4. 不使用搜索引擎随机图片、带水印图片、来源不明的 CDN 热链，也不用 AI 重绘官方 Logo；
+5. **首字母只在图标加载失败时出现**：正常状态下不显示，避免透明图标的空白处露出字母；
+6. 完全拿不到官方图标时才回退首字母。
 
 ## 图标清单
 
 | 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
 | --- | --- | --- | --- | --- |
-| ChatGPT | `/tool-logos/chatgpt.svg` | https://chatgpt.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（chatgpt.com） | 是 |
-| Claude | `/tool-logos/claude.svg` | Simple Icons · https://simple-icons.org/claude | Simple Icons（CC0 1.0） | 否 |
-| Gemini | `/tool-logos/googlegemini.svg` | Simple Icons · https://simple-icons.org/googlegemini | Simple Icons（CC0 1.0） | 否 |
-| DeepSeek | `/tool-logos/deepseek.svg` | Simple Icons · https://simple-icons.org/deepseek | Simple Icons（CC0 1.0） | 否 |
-| Kimi | `/tool-logos/kimi.svg` | Simple Icons · https://simple-icons.org/kimi | Simple Icons（CC0 1.0） | 是 |
-| Qwen Chat | `/tool-logos/qwen.svg` | Simple Icons · https://simple-icons.org/qwen | Simple Icons（CC0 1.0） | 否 |
-| 豆包 | `/tool-logos/doubao.webp` | https://www.doubao.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（doubao.com） | 否 |
-| Z.ai | `/tool-logos/zai.webp` | https://chat.z.ai/（官方站点图标 logo.svg，去掉浅色底板后的 Z 标志） | 品牌官网图标，仅用于识别该产品（chat.z.ai） | 是 |
-| Codex | `/tool-logos/chatgpt.svg` | https://openai.com/（官方站点图标 favicon.svg） | 品牌官网图标，仅用于识别该产品（openai.com） | 是 |
-| Claude Code | `/tool-logos/claudecode.svg` | Simple Icons · https://simple-icons.org/claudecode | Simple Icons（CC0 1.0） | 否 |
-| Gemini CLI | `/tool-logos/googlegemini.svg` | Simple Icons · https://simple-icons.org/googlegemini | Simple Icons（CC0 1.0） | 否 |
-| OpenCode | `/tool-logos/opencode.svg` | Simple Icons · https://simple-icons.org/opencode | Simple Icons（CC0 1.0） | 是 |
-| DeepSeek Harness | `/tool-logos/deepseek.svg` | Simple Icons · https://simple-icons.org/deepseek | Simple Icons（CC0 1.0） | 否 |
-| Cursor | `/tool-logos/cursor.svg` | Simple Icons · https://simple-icons.org/cursor | Simple Icons（CC0 1.0） | 是 |
-| Cline | `/tool-logos/cline.svg` | https://cline.bot/assets/branding/（官方品牌资源） | 品牌方公开的品牌资源，仅用于识别该产品 | 否 |
-| Midjourney | `/tool-logos/midjourney.webp` | https://www.midjourney.com/（官方站点图标，已去掉白色底板） | 品牌官网图标，仅用于识别该产品（midjourney.com） | 是 |
-| ComfyUI | `/tool-logos/comfyui.svg` | https://www.comfy.org/icons/logomark.svg（官方 logomark，单色版） | 品牌官网图标，仅用于识别该产品（comfy.org） | 是 |
-| FLUX | `/tool-logos/bfl.svg` | https://bfl.ai/icon0.svg（官方站点图标，已去掉白色底板） | 品牌官网图标，仅用于识别该产品（bfl.ai） | 是 |
-| Stable Diffusion | `/tool-logos/stability.webp` | https://stability.ai/（官方站点图标） | 品牌官网图标，仅用于识别该产品（stability.ai） | 否 |
-| Qwen-Image | `/tool-logos/qwen.svg` | Simple Icons · https://simple-icons.org/qwen | Simple Icons（CC0 1.0） | 否 |
-| Nano Banana | `/tool-logos/googlegemini.svg` | Simple Icons · https://simple-icons.org/googlegemini | Simple Icons（CC0 1.0） | 否 |
-| 可灵 AI | `/tool-logos/kling.webp` | https://kling.ai/（官方站点图标，已去掉深色底板） | 品牌官网图标，仅用于识别该产品（kling.ai） | 是 |
-| Veo | `/tool-logos/deepmind.svg` | Simple Icons · https://simple-icons.org/deepmind | Simple Icons（CC0 1.0） | 否 |
-| Runway | `/tool-logos/runway.webp` | https://runway.com/（官方站点图标，已去掉浅色底板） | 品牌官网图标，仅用于识别该产品（runway.com） | 是 |
-| LTX-Video | `/tool-logos/ltx.webp` | https://ltx.io/（官方站点图标，已去掉深色底板） | 品牌官网图标，仅用于识别该产品（ltx.io） | 是 |
-| ElevenLabs | `/tool-logos/elevenlabs.svg` | Simple Icons · https://simple-icons.org/elevenlabs | Simple Icons（CC0 1.0） | 是 |
-| Fish Speech | `/tool-logos/fishaudio.svg` | Simple Icons · https://simple-icons.org/fishaudio | Simple Icons（CC0 1.0） | 否 |
-| Qwen3-ASR | `/tool-logos/qwen.svg` | Simple Icons · https://simple-icons.org/qwen | Simple Icons（CC0 1.0） | 否 |
-| Suno | `/tool-logos/suno.svg` | Simple Icons · https://simple-icons.org/suno | Simple Icons（CC0 1.0） | 是 |
-| Udio | `/tool-logos/udio.webp` | https://www.udio.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（udio.com） | 否 |
-| Perplexity | `/tool-logos/perplexity.svg` | Simple Icons · https://simple-icons.org/perplexity | Simple Icons（CC0 1.0） | 否 |
-| NotebookLM | `/tool-logos/notebooklm.svg` | Simple Icons · https://simple-icons.org/notebooklm | Simple Icons（CC0 1.0） | 是 |
-| 秘塔 AI 搜索 | `/tool-logos/metaso.webp` | https://metaso.cn/（官方站点图标） | 品牌官网图标，仅用于识别该产品（metaso.cn） | 否 |
-| Elicit | `/tool-logos/elicit.webp` | https://elicit.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（elicit.com） | 否 |
-| Dify | `/tool-logos/dify.svg` | Simple Icons · https://simple-icons.org/dify | Simple Icons（CC0 1.0） | 否 |
-| n8n | `/tool-logos/n8n.svg` | Simple Icons · https://simple-icons.org/n8n | Simple Icons（CC0 1.0） | 否 |
-| 扣子 Coze | `/tool-logos/coze.svg` | Simple Icons · https://simple-icons.org/coze | Simple Icons（CC0 1.0） | 否 |
-| Ollama | `/tool-logos/ollama.svg` | Simple Icons · https://simple-icons.org/ollama | Simple Icons（CC0 1.0） | 是 |
-| LM Studio | `/tool-logos/lmstudio.svg` | Simple Icons · https://simple-icons.org/lmstudio | Simple Icons（CC0 1.0） | 是 |
-| vLLM | `/tool-logos/vllm.svg` | Simple Icons · https://simple-icons.org/vllm | Simple Icons（CC0 1.0） | 否 |
+| ChatGPT | `/tool-logos/chatgpt.webp` | https://chatgpt.com/cdn/assets/favicon-180x180-od45eci6.webp | 品牌官网图标，仅用于识别该产品 | 否 |
+| Claude | `/tool-logos/claude.webp` | https://claude.ai/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Gemini | `/tool-logos/gemini.webp` | https://www.gstatic.com/lamda/images/gemini_sparkle_4g_512_lt_f94943af3be039176192d.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| DeepSeek | `/tool-logos/deepseek.webp` | https://fe-static.deepseek.com/chat/icon-180.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Kimi | `/tool-logos/kimi.webp` | https://www.kimi.com/pwa-192.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Qwen Chat | `/tool-logos/qwen-chat.webp` | https://assets.alicdn.com/g/qwenweb/qwen-chat-fe/0.3.22/favicon.png | 品牌官网图标，仅用于识别该产品 | 是 |
+| 豆包 | `/tool-logos/doubao.webp` | https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/favicon/new-doubao/128x128.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Z.ai | `/tool-logos/zai.svg` | https://z-cdn.chatglm.cn/z-ai/static/logo.svg | 品牌官网图标，仅用于识别该产品 | 否 |
+| Codex | `/tool-logos/codex.webp` | https://github.com/openai.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| Claude Code | `/tool-logos/claude-code.webp` | https://github.com/anthropics.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| Gemini CLI | `/tool-logos/gemini-cli.webp` | https://avatars.githubusercontent.com/google-gemini | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| OpenCode | `/tool-logos/opencode.webp` | https://opencode.ai/apple-touch-icon-v3.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| DeepSeek Harness | `/tool-logos/deepseek-harness.webp` | https://avatars.githubusercontent.com/deepseek-ai | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| Cursor | `/tool-logos/cursor.webp` | https://cursor.com/marketing-static/icon-192x192-light.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Cline | `/tool-logos/cline.webp` | https://cline.bot/assets/branding/favicons/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 是 |
+| Midjourney | `/tool-logos/midjourney.webp` | https://www.midjourney.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品 | 否 |
+| ComfyUI | `/tool-logos/comfyui.webp` | https://www.comfy.org/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| FLUX | `/tool-logos/flux.webp` | https://bfl.ai/apple-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Stable Diffusion | `/tool-logos/stable-diffusion.webp` | https://stability.ai/favicon.ico | 品牌官网图标，仅用于识别该产品 | 否 |
+| Qwen-Image | `/tool-logos/qwen-image.webp` | https://github.com/QwenLM.png | 官方 GitHub 组织头像，仅用于识别该产品 | 是 |
+| Nano Banana | `/tool-logos/nano-banana.webp` | https://storage.googleapis.com/gdm-deepmind-com-prod-public/icons/google_deepmind_icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| 即梦 AI | `/tool-logos/jimeng.webp` | https://lf3-lv-buz.vlabstatic.com/obj/image-lvweb-buz/common/images/dreamina-v1.ico | 品牌官网图标，仅用于识别该产品 | 否 |
+| 可灵 AI | `/tool-logos/kling.webp` | https://s16-kling.klingai.com/kos/s101/nlav112918/kling-homepage-aio/logo-180x180.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Veo | `/tool-logos/veo.webp` | https://storage.googleapis.com/gdm-deepmind-com-prod-public/icons/google_deepmind_icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Runway | `/tool-logos/runway.webp` | https://runway.com/icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| LTX-Video | `/tool-logos/ltx-video.webp` | https://cdn.prod.website-files.com/68872d15af29880764eac4aa/6982091f71fd2f946ca88f53_ltx-favicon-256x256.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| ElevenLabs | `/tool-logos/elevenlabs.webp` | https://elevenlabs.io/apple-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| CosyVoice | `/tool-logos/cosyvoice.webp` | https://github.com/QwenAudio.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| Fish Speech | `/tool-logos/fish-speech.webp` | https://github.com/fishaudio.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| IndexTTS | `/tool-logos/index-tts.webp` | https://github.com/index-tts.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| Whisper | `/tool-logos/whisper.webp` | https://github.com/openai.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| FunASR | `/tool-logos/funasr.webp` | https://github.com/modelscope.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
+| Qwen3-ASR | `/tool-logos/qwen3-asr.webp` | https://github.com/QwenLM.png | 官方 GitHub 组织头像，仅用于识别该产品 | 是 |
+| Suno | `/tool-logos/suno.webp` | https://cdn-o.suno.com/favicon-192x192.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Udio | `/tool-logos/udio.webp` | https://www.udio.com/favicon.ico | 品牌官网图标，仅用于识别该产品 | 是 |
+| Perplexity | `/tool-logos/perplexity.webp` | https://www.perplexity.ai/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| NotebookLM | `/tool-logos/notebooklm.svg` | https://notebook.google/_/static/branding/v6/light_mode/favicon/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| 秘塔 AI 搜索 | `/tool-logos/metaso.webp` | https://metaso.cn/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Elicit | `/tool-logos/elicit.webp` | https://elicit.com/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 是 |
+| Dify | `/tool-logos/dify.svg` | https://dify.ai/favicon.svg | 品牌官网图标，仅用于识别该产品 | 否 |
+| n8n | `/tool-logos/n8n.webp` | https://n8n.io/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| 扣子 Coze | `/tool-logos/coze.svg` | https://simple-icons.org/coze | CC0 1.0（Simple Icons）；商标归品牌方 | 是 |
+| Ollama | `/tool-logos/ollama.webp` | https://ollama.com/public/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| LM Studio | `/tool-logos/lmstudio.webp` | https://lmstudio.ai/assets/marketing/logo-192x192.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| vLLM | `/tool-logos/vllm.svg` | https://vllm.ai/vLLM-Logo.svg | 品牌官网图标，仅用于识别该产品 | 否 |
 
-## 暂用首字母兜底的条目
+## 处理说明
 
-以下项目在官网与官方仓库里都没有可用的透明方形标志（官方素材要么是带渐变底色的应用图标，要么是深色底上的浅色字标），按规则回退为名称首字母：
-
-- 即梦 AI
-- CosyVoice
-- IndexTTS
-- Whisper
-- FunASR
-
-## 图标库与处理说明
-
-- [Simple Icons](https://simple-icons.org)：本项目使用其中 20 个图标，图标本身以 CC0 1.0 释出（https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md），每个图标的官方来源写在 `logo.source`；商标权仍归各品牌方。
-- 官网 favicon / apple-touch-icon / 站点 logomark：从品牌官网自身资源下载后自托管，不做外链热链。
-- 位图统一转为 96×96 WebP（保留透明通道），矢量图保留原始 SVG；单个文件均在 12KB 以内。
-- 近黑色单色标志标记 `mono: true`，深色主题下用 `filter: invert(1)` 反色，避免在深底上看不见。
-- 「已去掉底板」= 官方素材自带纯色/渐变背景，脚本按背景色生成 alpha 通道后导出透明 WebP，标志形状与比例未改。
+- 产品类工具优先取官网 180×180 以上的 apple-touch-icon / PWA 图标，其次 favicon；开源项目取官方 GitHub 组织头像。
+- 位图统一压到 96×96 WebP（保留原图透明通道），矢量图保留原始 SVG；单个文件均在 12KB 以内。
+- 图标区不带底色和描边：图标自己有底板就显示底板，本身透明的就浮在卡片上，不额外加白框。
+- 少数图标是深色单色标志（Qwen、Cline、Udio、Elicit、Coze 等），标 `mono: true`，深色主题用 `filter: invert(1)` 反色，否则在深底上看不见。
+- 图标加载失败时 `onerror` 会移除图片并显示首字母，这条兜底不会在正常状态下出现。

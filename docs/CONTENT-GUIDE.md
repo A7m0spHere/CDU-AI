@@ -228,20 +228,22 @@ frontmatter：
 
 按优先级取图，并在 `logo.source` 写清出处、在 `logo.license` 写清授权：
 
-1. **官方 Brand Assets / Media Kit**（如 `github.com/logos`、`elevenlabs.io/brand`）；
-2. **官方网站或官方仓库里的 logomark**（优先 `/icons/logomark.svg` 这类纯标志，而不是带底板的 app icon）；
-3. **有明确授权的开源品牌图标库**：本项目多用 [Simple Icons](https://simple-icons.org)（CC0 1.0，每个图标的官方来源写在 `logo.source`）；
-4. **确实拿不到合规透明标志时**：省略 `logo` 字段，页面自动回退成名称首字母——这比用错图更诚实。
+1. **官网图标本体**：品牌官网的 apple-touch-icon / PWA 图标（≥180×180 最好），其次 favicon；
+2. **官方 Brand Assets / Media Kit**（如 `github.com/logos`、`elevenlabs.io/brand`）；
+3. **开源项目的官方 GitHub 组织头像**；
+4. **有明确授权的开源品牌图标库**：本项目个别条目用 [Simple Icons](https://simple-icons.org)（CC0 1.0）；
+5. **确实拿不到官方图标时**：省略 `logo` 字段，页面回退成名称首字母。
 
-**一律用透明底标志**：卡片不再给图标铺白底或色块。官方只提供带底色的方形图标时（黑底、白底、渐变底都算），用脚本按背景色生成 alpha 通道抠掉底板，保留原标志轮廓，并在 `logo.source` 注明「已去掉底板」。不要自己重画标志，也不要把底板换成别的颜色。
+**保留官方图标的底板**：官方图标是白底、深底或圆角方块就照原样显示，不要抠成透明，也不要自己再加白框。卡片图标区本身不带底色和描边——图标有底板就显示底板，本身透明就浮在卡片上。
 
-禁止：搜索引擎里的随机图片、带水印图、来源不明的 CDN 热链、用 AI 重画的官方 Logo、把带底板的图标直接塞进卡片。
+**首字母只是加载失败的兜底**：有 `logo` 时首字母默认隐藏（`hidden`），只有 `onerror` 触发后才显示。不要让它垫在透明图标下面，否则会从透明区域透出来，很难看。
+
+禁止：搜索引擎里的随机图片、带水印图、来源不明的 CDN 热链、用 AI 重画的官方 Logo。
 
 技术细节：
 
-- 优先 SVG（如官方 logomark）；位图转成 96×96 WebP（保留透明通道），单个文件控制在 12KB 以内。
-- 近黑色的单色标志（Cursor、Ollama、Suno、可灵等）要加 `mono: true`，深色主题会自动反色，否则在深底上看不见。
-- 图片加载失败时卡片会露出首字母兜底，不需要额外处理。
+- 位图转成 96×96 WebP（保留原图透明通道），矢量图保留原始 SVG，单个文件控制在 12KB 以内。
+- 深色单色标志（Qwen、Cline、Udio、Elicit、Coze 等）要加 `mono: true`，深色主题会自动反色。
 - 授权与出处汇总见 [`docs/TOOL-LOGOS.md`](TOOL-LOGOS.md)。
 
 ### 6.5 链接与失效处理

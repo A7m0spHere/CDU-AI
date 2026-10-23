@@ -721,7 +721,12 @@
   background: transparent;
 }
 
-/* 官方 Logo：透明底、等比缩放；加载失败时由 onerror 移除，露出首字母兜底 */
+/* 首字母兜底：有图标时默认隐藏（display:none 覆盖 inline-grid），只有加载失败才露出 */
+.tool-mark__fallback[hidden] {
+  display: none;
+}
+
+/* 官方 Logo：等比缩放铺满图标区；加载失败时由 onerror 移除并露出首字母 */
 .tool-mark__img {
   position: absolute;
   inset: 0;

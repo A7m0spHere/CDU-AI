@@ -54,17 +54,22 @@ const basisLabel = toolBasisLabels[tool.basis] ?? '官网核对';
 >
   <div class="tool-card__top">
     <span class={tool.logo ? `tool-mark tool-mark--logo` : `tool-mark tool-mark--${tone}`}>
-      <span class="tool-mark__fallback" aria-hidden="true">{initial}</span>
-      {tool.logo && (
-        <img
-          class="tool-mark__img"
-          src={tool.logo.src}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          data-mono={tool.logo.mono ? 'true' : undefined}
-          onerror="this.remove()"
-        />
+      {tool.logo ? (
+        <>
+          {/* 首字母只在图标加载失败时出现：默认隐藏，避免透底后字母从透明区域露出来 */}
+          <span class="tool-mark__fallback" aria-hidden="true" data-fallback hidden>{initial}</span>
+          <img
+            class="tool-mark__img"
+            src={tool.logo.src}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            data-mono={tool.logo.mono ? 'true' : undefined}
+            onerror="this.remove(); var fb = this.parentElement.querySelector('[data-fallback]'); if (fb) fb.hidden = false;"
+          />
+        </>
+      ) : (
+        <span class="tool-mark__fallback" aria-hidden="true">{initial}</span>
       )}
     </span>
     <div class="tool-card__identity">
