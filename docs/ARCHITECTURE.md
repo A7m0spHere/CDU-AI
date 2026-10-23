@@ -88,6 +88,24 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 `src/data/*.ts` 承载工具、活动、导航等短内容，由 `src/data/types.ts` 约束。术语的词条正文改为 content collection（`src/content/glossary/*.md`）：frontmatter 存结构、别名和一句话释义，正文写白话详解；分类仍由 `src/data/glossary.ts` 维护，搜索索引与详情页都从同一份内容生成。未来接 CMS 或 API 时，页面只改数据获取层，UI 不动。
 
+### 工具目录的数据模型
+
+工具目录（`src/data/tools.ts`）在 2026-10-23 完成首批填充，结构上把三个层次分开，避免把「产品 / 模型 / 框架 / 工作流工具」混为一谈：
+
+| 维度 | 字段 | 取值 |
+| --- | --- | --- |
+| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、图像、视频、TTS、STT、音乐、搜索科研、工作流、本地部署） |
+| 资源形态 | `kind` | 在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 |
+| 技术类型 | `tech` | LLM 对话应用、扩散模型、Agent Harness、TTS、STT 等自由文本 |
+| 能力标签 | `capabilities` | open-source / local / beginner / zh（页面上可多选筛选） |
+| 收录依据 | `tier` / `basis` / `verifiedOn` | 主流产品 / 社区热门 / 小众探索；官网核对 / 官方文档 / 社区整理；核对日期 |
+
+配套约定：
+
+- **图标自托管**：官方 Logo 放在 `public/tool-logos/`（SVG 或 96×96 WebP），来源与授权逐条记录在数据里，汇总见 [`TOOL-LOGOS.md`](TOOL-LOGOS.md)；取不到合规图标时省略 `logo`，卡片回退为名称首字母。
+- **检查器同源**：`scripts/check-content.mjs` 导出 `parseToolsFromSource` / `validateTools`，测试与内容检查复用同一份解析逻辑，避免「页面一套规则、检查另一套」导致静默失效。
+- **扩展方向**：新增分类只需往 `toolCategories` 追加；未来加 MCP、AI 3D、AI for Science、具身智能等方向时不需要改页面。
+
 ### 内容与页面解耦的边界
 
 - **同学维护内容不需要改页面代码**：指南、示例写 Markdown；工具与活动改数据数组。

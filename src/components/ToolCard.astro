@@ -1,6 +1,7 @@
 ---
 import type { Tool } from '../data/types';
 import Icon from './Icon.astro';
+import { toolBasisLabels, toolCapabilities } from '../data/tools';
 
 interface Props {
   tool: Tool;
@@ -10,29 +11,62 @@ interface Props {
 const { tool, categoryLabel } = Astro.props;
 
 const toneByCategory: Record<string, string> = {
-  dialog: 'sage',
-  search: 'sky',
-  write: 'sand',
-  visual: 'rose',
-  build: 'violet',
-  study: 'sage',
+  'llm-chat': 'sage',
+  agent: 'violet',
+  image: 'rose',
+  video: 'rose',
+  tts: 'sky',
+  stt: 'sky',
+  music: 'sand',
+  research: 'sky',
+  workflow: 'violet',
+  local: 'sage',
 };
 
 const tone = toneByCategory[tool.category] ?? 'sage';
 const initial = tool.name.trim().slice(0, 1).toUpperCase();
-const searchText = [tool.name, tool.summary, tool.description, tool.bestFor, categoryLabel, ...tool.tags]
+const capabilityLabels = toolCapabilities.filter((cap) => tool.capabilities.includes(cap.id)).map((cap) => cap.label);
+// 搜索框匹配的范围：名称、别名、技术类型、形态、分类、能力与标签。
+const searchText = [
+  tool.name,
+  ...(tool.aliases ?? []),
+  tool.summary,
+  tool.description,
+  tool.bestFor,
+  tool.tech,
+  tool.kind,
+  categoryLabel,
+  ...(tool.alsoIn ?? []).map((id) => (id === 'workflow' ? '工作流' : id)),
+  ...capabilityLabels,
+  ...tool.tags,
+]
   .join(' ')
   .toLowerCase();
+const basisLabel = toolBasisLabels[tool.basis] ?? '官网核对';
 ---
 
 <article
   class="tool-card card"
   data-filter-card
-  data-category={tool.category}
+  data-category={[tool.category, ...(tool.alsoIn ?? [])].join(' ')}
+  data-capabilities={tool.capabilities.join(' ')}
   data-search={searchText}
 >
   <div class="tool-card__top">
-    <span class={`tool-mark tool-mark--${tone}`} aria-hidden="true">{initial}</span>
+    <span class={tool.logo ? `tool-mark tool-mark--logo` : `tool-mark tool-mark--${tone}`}>
+      <span class="tool-mark__fallback" aria-hidden="true">{initial}</span>
+      {tool.logo && (
+        <img
+          class="tool-mark__img"
+          src={tool.logo.src}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          data-mono={tool.logo.mono ? 'true' : undefined}
+          onerror="this.remove()"
+        />
+      )}
+    </span>
     <div class="tool-card__identity">
       <h3>
         <a href={tool.url} target="_blank" rel="noopener noreferrer">
@@ -40,7 +74,7 @@ const searchText = [tool.name, tool.summary, tool.description, tool.bestFor, cat
           <Icon name="external-link" size={15} />
         </a>
       </h3>
-      <p>{categoryLabel}</p>
+      <p>{tool.kind} · {tool.tech}</p>
     </div>
     {tool.featured && <span class="badge badge--brand">新手先试</span>}
   </div>
@@ -55,12 +89,14 @@ const searchText = [tool.name, tool.summary, tool.description, tool.bestFor, cat
   <div class="tool-card__meta">
     <span class="badge">{tool.pricing}</span>
     <span class="badge">{tool.difficulty}</span>
+    <span class="tool-card__category">{categoryLabel}</span>
   </div>
 
   <details class="tool-card__details">
     <summary>展开细节</summary>
     <p class="tool-card__description">{tool.description}</p>
     <ul class="tag-list" aria-label="标签">
+      {capabilityLabels.map((label) => <li class="tag tag--cap">{label}</li>)}
       {tool.tags.map((tag) => <li class="tag">{tag}</li>)}
     </ul>
     {tool.caution && (
@@ -69,6 +105,10 @@ const searchText = [tool.name, tool.summary, tool.description, tool.bestFor, cat
         {tool.caution}
       </p>
     )}
+    <p class="tool-card__verify">
+      核验 {tool.verifiedOn} · {basisLabel}
+      {tool.logo && <span class="tool-card__logo-src">图标：{tool.logo.source}</span>}
+    </p>
   </details>
 
   <div class="tool-card__foot">
@@ -76,5 +116,11 @@ const searchText = [tool.name, tool.summary, tool.description, tool.bestFor, cat
       打开官网
       <Icon name="arrow-up-right" size={15} />
     </a>
+    {tool.githubUrl && (
+      <a class="tool-card__repo" href={tool.githubUrl} target="_blank" rel="noopener noreferrer">
+        <Icon name="github" size={15} />
+        代码仓库
+      </a>
+    )}
   </div>
 </article>

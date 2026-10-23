@@ -4,7 +4,13 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadContentContext, validateCollection } from '../scripts/check-content.mjs';
+import {
+  loadContentContext,
+  parseToolCategoryIds,
+  parseToolsFromSource,
+  validateCollection,
+  validateTools,
+} from '../scripts/check-content.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
@@ -29,15 +35,13 @@ const guideSlugs = guideFiles.map((file) => file.replace(/\.md$/, ''));
 const workSlugs = workFiles.map((file) => file.replace(/\.md$/, ''));
 const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
 
-// 工具目录当前仍是 TypeScript 数据，测试从源文件解析；迁移为 Markdown（#8）后同步调整这里。
+// 工具目录当前仍是 TypeScript 数据。解析与字段校验复用内容检查器的同一份实现，
+// 避免「页面渲染用一套规则、检查脚本用另一套」而静默失效（见 #8 迁移计划）。
 const toolsSource = await readFile(path.join(root, 'src/data/tools.ts'), 'utf8');
-const toolsBlock = toolsSource.slice(toolsSource.indexOf('export const tools'));
-const parsedTools = [...toolsBlock.matchAll(/id: '([^']+)',\s*\n\s*name: '([^']+)'/g)].map((match) => ({
-  id: match[1],
-  name: match[2],
-}));
+const parsedTools = parseToolsFromSource(toolsSource);
+const toolCategoryIds = parseToolCategoryIds(toolsSource);
 // 工具目录允许为空（只由维护者按需添加），但文件结构必须可解析
-assert.ok(toolsBlock.includes('export const tools'), '无法定位 src/data/tools.ts 中的 tools 数组');
+assert.ok(toolsSource.includes('export const tools'), '无法定位 src/data/tools.ts 中的 tools 数组');
 
 const expectedRoutes = [
   'index.html',
@@ -744,5 +748,76 @@ test('学习指南目录：六个分组、规划条目不是死链、站内链�
     checkGuideNavCoverage({ slugs: ['not-registered'], registeredSlugs }).length,
     1,
     '未登记的文章必须被内容检查器拦下',
+  );
+});
+
+
+test('工具目录数据自洽：字段合法、分类存在、Logo 文件齐全', async () => {
+  const { errors } = validateTools({ source: toolsSource, root });
+  assert.deepEqual(errors, [], '工具数据校验未通过：' + JSON.stringify(errors));
+
+  assert.ok(toolCategoryIds.length >= 10, '工具分类应至少保留 10 个场景，实际：' + toolCategoryIds.length);
+  assert.equal(new Set(parsedTools.map((tool) => tool.id)).size, parsedTools.length, '工具 id 必须唯一');
+  assert.equal(new Set(parsedTools.map((tool) => tool.name)).size, parsedTools.length, '工具名称必须唯一');
+
+  for (const tool of parsedTools) {
+    assert.ok(toolCategoryIds.includes(tool.category), tool.id + ' 的分类不在 toolCategories 中');
+    assert.ok(tool.url && tool.url.startsWith('https://'), tool.id + ' 缺少 https 官方链接');
+    assert.ok(tool.verifiedOn, tool.id + ' 缺少最近核验日期');
+  }
+
+  // 每个分类都要有工具，避免出现空分类导航
+  for (const id of toolCategoryIds) {
+    assert.ok(
+      parsedTools.some((tool) => tool.category === id || tool.alsoIn.includes(id)),
+      '分类下没有任何工具：' + id,
+    );
+  }
+});
+
+test('工具页展示官方 Logo、能力筛选与建议收录入口', async () => {
+  if (parsedTools.length === 0) return;
+  const html = await read('tools/index.html');
+
+  // 官方 Logo：卡片里是 <img>，并且保留首字母兜底（图片加载失败时露出）
+  const logoFiles = parsedTools.filter((tool) => tool.logo).map((tool) => tool.logo);
+  assert.ok(logoFiles.length >= parsedTools.length - 5, '绝大多数工具应有官方 Logo');
+  for (const file of logoFiles) {
+    assert.ok(existsSync(path.join(root, 'public', file)), 'Logo 文件缺失：' + file);
+    assert.ok(html.includes(file), '工具页没有引用 Logo：' + file);
+  }
+  assert.match(html, /class="tool-mark__fallback"/, '缺少首字母兜底');
+  assert.match(html, /onerror="this\.remove\(\)"/, 'Logo 加载失败时应有回退');
+  assert.match(html, /data-mono="true"/, '单色标志需要 data-mono 钩子做深色反色');
+
+  // 能力筛选与场景筛选
+  assert.match(html, /data-filter-cap="open-source"/, '缺少「开源」能力筛选');
+  assert.match(html, /data-filter-cap="local"/, '缺少「本地部署」能力筛选');
+  assert.match(html, /data-filter-cap="beginner"/, '缺少「入门友好」能力筛选');
+  assert.match(html, /data-capabilities=/, '卡片缺少能力标签数据属性');
+
+  // 建议收录入口指向现有的 GitHub Issue 模板
+  assert.match(html, /issues\/new\?template=tool-suggestion\.yml/, '缺少工具建议 Issue 入口');
+  assert.match(html, /收录不等于推荐/, '缺少「收录不等于推荐」说明');
+});
+
+test('工具数据进入搜索索引：别名、技术类型与能力标签都可搜', async () => {
+  if (parsedTools.length === 0) return;
+  const data = JSON.parse(await read('search-index.json'));
+  const toolItems = data.filter((item) => item.type === '工具');
+  assert.equal(toolItems.length, parsedTools.length, '搜索索引中的工具数量与目录不一致');
+
+  for (const tool of parsedTools) {
+    const item = toolItems.find((entry) => entry.title === tool.name);
+    assert.ok(item, '搜索索引缺少工具：' + tool.name);
+    for (const alias of tool.aliases) {
+      assert.ok(item.keywords.includes(alias), '搜索索引缺少别名：' + tool.name + ' / ' + alias);
+    }
+  }
+
+  // 技术类型关键词可用于区分「模型 / 产品 / 工作流」
+  assert.ok(
+    toolItems.some((item) => item.keywords.includes('扩散模型')),
+    '搜索索引应包含技术类型关键词',
   );
 });

@@ -165,16 +165,102 @@ frontmatter：
 
 ## 6. 工具数据
 
-**现状**：工具目录当前为空，且只由维护者按需添加（不开放社区提交、不迁移 Markdown）。页面在目录为空时显示占位说明，新增第一条工具后筛选与搜索会自动恢复。
+工具目录只由维护者审核后入库（不开放自动发布、不迁移 Markdown），全部数据在 [`src/data/tools.ts`](../src/data/tools.ts)，字段由 [`src/data/types.ts`](../src/data/types.ts) 的 `Tool` 约束。**改数据就能加工具**：页面、筛选计数、首页推荐、搜索索引都由这份数组推导，不需要动组件。
 
-新增条目时编辑 `src/data/tools.ts`：
+### 6.1 分类与技术类型不是一回事
 
-- `url` 必须是官方入口，不写聚合站、网盘或邀请码链接。
+分类回答「我想做什么」，技术类型回答「它靠什么实现」。两者必须分开写，否则页面会变成一锅粥：
+
+| 层次 | 例子 | 写在哪里 |
+| --- | --- | --- |
+| 场景分类 | 语言模型与对话 / 图像生成与编辑 | `category`（`toolCategories` 里的 id） |
+| 资源形态 | 在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 | `kind` |
+| 技术类型 | LLM 对话应用 / 扩散模型 / Agent Harness / TTS / STT | `tech` |
+
+常见错误：把 ChatGPT 写成「LLM」（它是产品，LLM 是模型类别）；把 Claude Code 写成「开源项目」（产品闭源，仓库只放文档）；把 ComfyUI 写成「扩散模型」（它是跑模型的工作流工具）。**收录前先确认它属于哪一层。**
+
+### 6.2 一条工具的字段
+
+```ts
+{
+  id: 'deepseek',            // 稳定唯一，用于筛选与未来的详情页
+  name: 'DeepSeek',
+  category: 'llm-chat',      // 主分类
+  alsoIn: ['workflow'],      // 可选：还能在哪些场景被找到
+  aliases: ['深度求索'],      // 可选：别名，参与搜索
+  summary: '一句话：它是什么',
+  description: '两三句话：新手拿它做什么',
+  bestFor: '最适合的具体场景，不要写「提效」这类空话',
+  difficulty: '零门槛',        // 零门槛 / 稍加摸索 / 需要动手
+  pricing: '免费可用',         // 免费可用 / 免费增值 / 需要付费（不写具体价格）
+  url: 'https://chat.deepseek.com/',
+  githubUrl: 'https://github.com/...', // 可选：开源项目或官方仓库
+  tech: 'LLM 对话应用',
+  kind: '在线产品',
+  capabilities: ['beginner', 'zh'],    // open-source / local / beginner / zh
+  tier: '主流产品',                    // 主流产品 / 社区热门 / 小众探索
+  verifiedOn: '2026-10-23',           // 最近一次核对官网的日期
+  basis: 'official',                  // official / docs / community
+  logo: { src: '/tool-logos/deepseek.svg', source: '...', license: '...' },
+  tags: ['对话', '推理'],
+  caution: '使用前值得知道的一句话',
+}
+```
+
+写作要求：
+
 - `summary` 一句话；`description` 2–3 句；`bestFor` 写具体任务。
-- `difficulty`：零门槛 / 稍加摸索 / 需要动手。
-- `pricing`：免费可用 / 免费增值 / 需要付费；价格与额度会变化，不要写死具体价格。
-- `caution` 提醒隐私、版权、幻觉或需要登录等真实限制。
-- 收录 ≠ 推荐。测试时用真实官网核对链接与名称。
+- `caution` 写真实限制：隐私、版权、地区限制、额度、需要登录，不写营销话术。
+- 不写「最强」「必备」「吊打」；没有实际长期使用的项目，不写「亲测」「社区推荐」。
+- 价格与额度会变化：只写模式（免费可用 / 免费增值 / 需要付费），不写具体金额。
+- `verifiedOn` 只在真的打开过官网/仓库并核对名称与归属后填写。
+
+### 6.3 新增一条工具的完整流程
+
+1. **核验**：打开官网，确认名称、归属（哪家公司/哪个团队）、当前是否可用；开源项目再看仓库的许可与最近提交。
+2. **定层次**：先定 `category`，再定 `kind` 与 `tech`，最后才写文案。
+3. **准备 Logo**（见 6.4），放进 `public/tool-logos/`。
+4. **写条目**：在 `tools` 数组末尾追加对象，字段顺序不必固定，但不要漏 `verifiedOn` 与 `logo.source`。
+5. **跑检查**：`npm run verify`。内容检查器会校验分类是否存在、枚举是否合法、id/名称是否重复、Logo 文件是否真的存在、外链协议是否安全。
+6. **看页面**：`npm run dev` 打开 `/tools/`，确认筛选计数、深色主题下的 Logo、移动端布局。
+
+### 6.4 Logo 从哪里来
+
+按优先级取图，并在 `logo.source` 写清出处、在 `logo.license` 写清授权：
+
+1. **官方 Brand Assets / Media Kit**（如 `github.com/logos`、`elevenlabs.io/brand`）；
+2. **官方网站或官方仓库里的图标**（favicon、apple-touch-icon、仓库内的 logo 资源）；
+3. **有明确授权的开源品牌图标库**：本项目多用 [Simple Icons](https://simple-icons.org)（CC0 1.0，每个图标的官方来源写在 `logo.source`）；
+4. **确实拿不到合规图片时**：省略 `logo` 字段，页面自动回退成名称首字母——这比用错图更诚实。
+
+禁止：搜索引擎里的随机图片、带水印图、来源不明的 CDN 热链、用 AI 重画的官方 Logo。
+
+技术细节：
+
+- 优先 SVG；位图转成 96×96 的 WebP（透明底），单个文件控制在 10KB 以内。
+- 近黑色的单色标志（Cursor、Ollama、Suno 等）要加 `mono: true`，深色主题会自动反色，否则在深底上看不见。
+- 图片加载失败时卡片会露出首字母兜底，不需要额外处理。
+- 授权与出处汇总见 [`docs/TOOL-LOGOS.md`](TOOL-LOGOS.md)。
+
+### 6.5 链接与失效处理
+
+- `url` 只写官方入口：不写聚合站、网盘、邀请码、第三方镜像。
+- 开源项目可额外填 `githubUrl`；仓库改名或迁移时（例如 CosyVoice 从 FunAudioLLM 迁到 QwenAudio），要更新为跳转后的新地址，并在 `caution` 里说明旧链接会跳转。
+- **产品停运或长期不可用**：直接从数组里删除该条目，并在 PR 说明里写清依据；不要为了凑数保留失效链接。
+- **只改了价格/额度**：更新 `caution` 文案与 `verifiedOn`，不动其他字段。
+- **拿不准来源**：先不收录。工具目录空着比放错更安全。
+
+### 6.6 页面上的筛选规则
+
+- 场景分类：单选，代表「当前浏览的分支」；输入关键词时暂时让位给搜索。
+- 能力筛选（开源 / 本地部署 / 入门友好 / 中文界面）：多选，取交集，搜索时依然生效。
+- 搜索范围：名称、别名、技术类型、形态、分类、能力与标签。
+- 三者都满足才显示，结果数量、空状态与 URL（`?category=&caps=&q=`）始终一致。
+- 不按热度或「综合评分」排序：数组顺序就是展示顺序，`featured: true` 只影响首页三张卡。
+
+### 6.7 社区建议
+
+页面底部与页头卡片都有「建议收录工具」入口，指向仓库已有的 [工具建议 Issue 模板](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)。入库仍由维护者审核，不提供无需审查的自动发布。
 
 ## 7. 活动数据
 

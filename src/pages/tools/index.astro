@@ -3,17 +3,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Icon from '../../components/Icon.astro';
 import ToolCard from '../../components/ToolCard.astro';
-import { tools, toolCategories } from '../../data/tools';
+import { tools, toolCategories, toolCapabilities } from '../../data/tools';
 
-const counts = new Map(toolCategories.map((category) => [category.id, tools.filter((tool) => tool.category === category.id).length]));
+const counts = new Map(toolCategories.map((category) => [category.id, tools.filter((tool) => tool.category === category.id || (tool.alsoIn ?? []).includes(category.id)).length]));
+const capCounts = new Map(toolCapabilities.map((cap) => [cap.id, tools.filter((tool) => tool.capabilities.includes(cap.id)).length]));
 const hasTools = tools.length > 0;
+const suggestionUrl = 'https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml';
+const categoryName = (id: string) => toolCategories.find((category) => category.id === id)?.name ?? '工具';
 ---
 
 <BaseLayout
   title="AI 工具资源"
   description={
     hasTools
-      ? `按使用场景整理的 AI 工具索引，共 ${tools.length} 个工具、${toolCategories.length} 个分类。标注门槛、费用与限制。`
+      ? `按使用场景整理的 AI 工具索引，共 ${tools.length} 个工具、${toolCategories.length} 个分类。标注类型、门槛、费用与限制。`
       : '工具目录由维护者按需补充：标注使用场景、上手门槛、费用模式与限制，收录不等于推荐。'
   }
 >
@@ -21,7 +24,7 @@ const hasTools = tools.length > 0;
     index="03"
     eyebrow="工具资源"
     title="AI 工具资源"
-    lede="按使用场景分类。标注上手门槛、费用模式与限制；收录不等于推荐。"
+    lede="按使用场景分类，写清技术类型、上手门槛、费用与限制。收录不等于推荐，也不按热度排名。"
     meta={
       hasTools
         ? [
@@ -41,6 +44,10 @@ const hasTools = tools.length > 0;
           <div><dt>场景分类</dt><dd>{String(toolCategories.length).padStart(2, '0')}</dd></div>
         </dl>
         <p>{hasTools ? '持续补充中，收录不等于推荐。' : '由维护者按需补充，收录不等于推荐。'}</p>
+        <a class="aside-card__link" href={suggestionUrl} target="_blank" rel="noopener noreferrer">
+          建议收录工具
+          <Icon name="arrow-up-right" size={14} />
+        </a>
       </div>
     </Fragment>
   </PageHeader>
@@ -49,20 +56,20 @@ const hasTools = tools.length > 0;
     <div class="container">
       <div class="notice notice--warm" data-reveal>
         <Icon name="info" size={17} />
-        <p><strong>收录不等于推荐，也不是广告。</strong>工具能力、价格和可用地区会变化，请以官网为准。不要输入个人敏感信息。</p>
+        <p><strong>收录不等于推荐，也不是广告。</strong>工具能力、价格和可用地区会变化，请以官网为准。不要输入个人敏感信息；生成内容发布前先确认版权与授权。</p>
       </div>
 
       <h2 class="sr-only">工具目录</h2>
       {hasTools && (
       <div class="catalog-layout" data-filter-root data-reveal>
         <aside class="catalog-sidebar" aria-label="工具筛选">
-          <label class="sr-only" for="tool-search">搜索工具名、使用场景或标签</label>
+          <label class="sr-only" for="tool-search">搜索工具名、别名、场景或技术类型</label>
           <div class="search-field">
             <Icon name="search" size={18} />
             <input
               id="tool-search"
               type="search"
-              placeholder="搜索工具或场景…"
+              placeholder="搜索工具、别名或技术类型…"
               autocomplete="off"
               data-filter-search
             />
@@ -79,7 +86,13 @@ const hasTools = tools.length > 0;
                 <span class="filter-chip__count">{tools.length}</span>
               </button>
               {toolCategories.map((category) => (
-                <button class="filter-chip" type="button" data-filter-value={category.id} aria-pressed="false">
+                <button
+                  class="filter-chip"
+                  type="button"
+                  data-filter-value={category.id}
+                  aria-pressed="false"
+                  title={category.techHint}
+                >
                   {category.name}
                   <span class="filter-chip__count">{counts.get(category.id) ?? 0}</span>
                 </button>
@@ -87,9 +100,30 @@ const hasTools = tools.length > 0;
             </div>
           </nav>
 
+          <div class="catalog-nav">
+            <div class="catalog-nav__head">
+              <span>能力筛选</span>
+              <span class="filter-count">可多选</span>
+            </div>
+            <div class="filter-chips filter-chips--vertical" role="group" aria-label="按能力筛选">
+              {toolCapabilities.map((cap) => (
+                <button
+                  class="filter-chip filter-chip--cap"
+                  type="button"
+                  data-filter-cap={cap.id}
+                  aria-pressed="false"
+                  title={cap.hint}
+                >
+                  {cap.label}
+                  <span class="filter-chip__count">{capCounts.get(cap.id) ?? 0}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <p class="catalog-sidebar__note">
             <Icon name="info" size={14} />
-            按真实使用场景整理，不按热度排名。收录不等于推荐。
+            场景是单选，能力可多选并取交集；搜索会忽略场景筛选，但保留能力筛选。
           </p>
         </aside>
 
@@ -103,7 +137,7 @@ const hasTools = tools.length > 0;
             {tools.map((tool) => (
               <ToolCard
                 tool={tool}
-                categoryLabel={toolCategories.find((category) => category.id === tool.category)?.name ?? '工具'}
+                categoryLabel={categoryName(tool.category)}
               />
             ))}
           </div>
@@ -111,7 +145,18 @@ const hasTools = tools.length > 0;
           <div class="empty-state" data-empty-state hidden>
             <Icon name="search" size={28} />
             <h2>没有找到匹配的工具</h2>
-            <p>试试更短的关键词、换一个分类，或者点击「清除筛选」看看全部条目。</p>
+            <p>试试更短的关键词、换一个场景，或者点击「清除筛选」看看全部条目。</p>
+          </div>
+
+          <div class="catalog-cta">
+            <div>
+              <h2>发现好用的工具？</h2>
+              <p>工具目录由维护者审核后入库，不收自动提交。请用仓库的「工具建议」Issue 模板说明用途、官网与限制。</p>
+            </div>
+            <a class="btn btn--soft btn--sm" href={suggestionUrl} target="_blank" rel="noopener noreferrer">
+              建议收录工具
+              <Icon name="arrow-up-right" size={14} />
+            </a>
           </div>
         </div>
       </div>

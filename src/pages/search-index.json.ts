@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import { tools, toolCategories } from '../data/tools';
+import { tools, toolCategories, toolCapabilities } from '../data/tools';
 import { glossaryCategoryName } from '../data/glossary';
 
 interface SearchItem {
@@ -127,7 +127,17 @@ export const GET: APIRoute = async () => {
       title: tool.name,
       description: `${tool.summary} ${tool.bestFor}`,
       href: `/tools/?q=${encodeURIComponent(tool.name)}`,
-      keywords: [categoryName(tool.category), ...tool.tags, tool.difficulty, tool.pricing].join(' '),
+      // 别名、技术类型与能力标签都进关键词：搜「扩散模型」「开源」「千问」都能命中。
+      keywords: [
+        ...(tool.aliases ?? []),
+        categoryName(tool.category),
+        tool.tech,
+        tool.kind,
+        ...toolCapabilities.filter((cap) => tool.capabilities.includes(cap.id)).map((cap) => cap.label),
+        ...tool.tags,
+        tool.difficulty,
+        tool.pricing,
+      ].join(' '),
     })),
     ...glossary.map((term) => ({
       type: '术语' as const,
