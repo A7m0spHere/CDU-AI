@@ -717,8 +717,8 @@
 
 /* 有官方 Logo 时用中性底色，避免品牌色与分类色调互相干扰 */
 .tool-mark--logo {
-  border-color: var(--line);
-  background: var(--surface);
+  border-color: transparent;
+  background: transparent;
 }
 
 /* 官方 Logo：透明底、等比缩放；加载失败时由 onerror 移除，露出首字母兜底 */
@@ -728,7 +728,7 @@
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: 6px;
+  padding: 2px;
   object-fit: contain;
 }
 

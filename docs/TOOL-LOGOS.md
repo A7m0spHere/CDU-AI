@@ -7,7 +7,9 @@
 1. 只用官方 Brand Assets、官方网站/官方仓库里的图标，或有明确授权的开源品牌图标库；
 2. 图标只用于**识别对应产品**，不代表品牌方对本站的认可或背书；商标归各品牌方所有；
 3. 不使用搜索引擎随机图片、带水印图片、来源不明的 CDN 热链，也不用 AI 重绘官方 Logo；
-4. 拿不到合规图标时省略 `logo` 字段，页面自动回退为名称首字母。
+4. **一律使用透明底标志**：卡片不给图标加白底或色块，避免深浅主题下出现「白色方块」；
+5. 官方只提供带底色的应用图标时，按背景色抠掉底板、保留原标志形状（下表「已去掉底板」条目），不改变标志轮廓；
+6. 拿不到合规透明标志时省略 `logo` 字段，页面回退为名称首字母。
 
 ## 图标清单
 
@@ -20,25 +22,24 @@
 | Kimi | `/tool-logos/kimi.svg` | Simple Icons · https://simple-icons.org/kimi | Simple Icons（CC0 1.0） | 是 |
 | Qwen Chat | `/tool-logos/qwen.svg` | Simple Icons · https://simple-icons.org/qwen | Simple Icons（CC0 1.0） | 否 |
 | 豆包 | `/tool-logos/doubao.webp` | https://www.doubao.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（doubao.com） | 否 |
-| Z.ai | `/tool-logos/zai.svg` | https://chat.z.ai/（官方站点图标） | 品牌官网图标，仅用于识别该产品（chat.z.ai） | 否 |
-| Codex | `/tool-logos/openai.svg` | https://openai.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（openai.com） | 是 |
+| Z.ai | `/tool-logos/zai.webp` | https://chat.z.ai/（官方站点图标 logo.svg，去掉浅色底板后的 Z 标志） | 品牌官网图标，仅用于识别该产品（chat.z.ai） | 是 |
+| Codex | `/tool-logos/chatgpt.svg` | https://openai.com/（官方站点图标 favicon.svg） | 品牌官网图标，仅用于识别该产品（openai.com） | 是 |
 | Claude Code | `/tool-logos/claudecode.svg` | Simple Icons · https://simple-icons.org/claudecode | Simple Icons（CC0 1.0） | 否 |
 | Gemini CLI | `/tool-logos/googlegemini.svg` | Simple Icons · https://simple-icons.org/googlegemini | Simple Icons（CC0 1.0） | 否 |
 | OpenCode | `/tool-logos/opencode.svg` | Simple Icons · https://simple-icons.org/opencode | Simple Icons（CC0 1.0） | 是 |
 | DeepSeek Harness | `/tool-logos/deepseek.svg` | Simple Icons · https://simple-icons.org/deepseek | Simple Icons（CC0 1.0） | 否 |
 | Cursor | `/tool-logos/cursor.svg` | Simple Icons · https://simple-icons.org/cursor | Simple Icons（CC0 1.0） | 是 |
 | Cline | `/tool-logos/cline.svg` | https://cline.bot/assets/branding/（官方品牌资源） | 品牌方公开的品牌资源，仅用于识别该产品 | 否 |
-| Midjourney | `/tool-logos/midjourney.webp` | https://www.midjourney.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（midjourney.com） | 否 |
-| ComfyUI | `/tool-logos/comfyui.svg` | https://www.comfy.org/（官方站点图标） | 品牌官网图标，仅用于识别该产品（comfy.org） | 否 |
-| FLUX | `/tool-logos/bfl.svg` | https://bfl.ai/（官方站点图标） | 品牌官网图标，仅用于识别该产品（bfl.ai） | 否 |
+| Midjourney | `/tool-logos/midjourney.webp` | https://www.midjourney.com/（官方站点图标，已去掉白色底板） | 品牌官网图标，仅用于识别该产品（midjourney.com） | 是 |
+| ComfyUI | `/tool-logos/comfyui.svg` | https://www.comfy.org/icons/logomark.svg（官方 logomark，单色版） | 品牌官网图标，仅用于识别该产品（comfy.org） | 是 |
+| FLUX | `/tool-logos/bfl.svg` | https://bfl.ai/icon0.svg（官方站点图标，已去掉白色底板） | 品牌官网图标，仅用于识别该产品（bfl.ai） | 是 |
 | Stable Diffusion | `/tool-logos/stability.webp` | https://stability.ai/（官方站点图标） | 品牌官网图标，仅用于识别该产品（stability.ai） | 否 |
 | Qwen-Image | `/tool-logos/qwen.svg` | Simple Icons · https://simple-icons.org/qwen | Simple Icons（CC0 1.0） | 否 |
 | Nano Banana | `/tool-logos/googlegemini.svg` | Simple Icons · https://simple-icons.org/googlegemini | Simple Icons（CC0 1.0） | 否 |
-| 即梦 AI | `/tool-logos/jimeng.webp` | https://jimeng.jianying.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（jimeng.jianying.com） | 否 |
-| 可灵 AI | `/tool-logos/kling.webp` | https://kling.ai/（官方站点图标） | 品牌官网图标，仅用于识别该产品（kling.ai） | 否 |
+| 可灵 AI | `/tool-logos/kling.webp` | https://kling.ai/（官方站点图标，已去掉深色底板） | 品牌官网图标，仅用于识别该产品（kling.ai） | 是 |
 | Veo | `/tool-logos/deepmind.svg` | Simple Icons · https://simple-icons.org/deepmind | Simple Icons（CC0 1.0） | 否 |
-| Runway | `/tool-logos/runway.webp` | https://runway.com/（官方站点图标） | 品牌官网图标，仅用于识别该产品（runway.com） | 否 |
-| LTX-Video | `/tool-logos/ltx.webp` | https://ltx.io/（官方站点图标） | 品牌官网图标，仅用于识别该产品（ltx.io） | 否 |
+| Runway | `/tool-logos/runway.webp` | https://runway.com/（官方站点图标，已去掉浅色底板） | 品牌官网图标，仅用于识别该产品（runway.com） | 是 |
+| LTX-Video | `/tool-logos/ltx.webp` | https://ltx.io/（官方站点图标，已去掉深色底板） | 品牌官网图标，仅用于识别该产品（ltx.io） | 是 |
 | ElevenLabs | `/tool-logos/elevenlabs.svg` | Simple Icons · https://simple-icons.org/elevenlabs | Simple Icons（CC0 1.0） | 是 |
 | Fish Speech | `/tool-logos/fishaudio.svg` | Simple Icons · https://simple-icons.org/fishaudio | Simple Icons（CC0 1.0） | 否 |
 | Qwen3-ASR | `/tool-logos/qwen.svg` | Simple Icons · https://simple-icons.org/qwen | Simple Icons（CC0 1.0） | 否 |
@@ -57,16 +58,18 @@
 
 ## 暂用首字母兜底的条目
 
-以下项目在官网与官方仓库里都没有可用的独立品牌图标，按规则回退为名称首字母，后续找到官方资源可再补：
+以下项目在官网与官方仓库里都没有可用的透明方形标志（官方素材要么是带渐变底色的应用图标，要么是深色底上的浅色字标），按规则回退为名称首字母：
 
+- 即梦 AI
 - CosyVoice
 - IndexTTS
 - Whisper
 - FunASR
 
-## 图标库说明
+## 图标库与处理说明
 
 - [Simple Icons](https://simple-icons.org)：本项目使用其中 20 个图标，图标本身以 CC0 1.0 释出（https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md），每个图标的官方来源写在 `logo.source`；商标权仍归各品牌方。
-- 官网 favicon / apple-touch-icon / 站点 logo：从品牌官网自身资源下载后自托管，不做外链热链。
+- 官网 favicon / apple-touch-icon / 站点 logomark：从品牌官网自身资源下载后自托管，不做外链热链。
 - 位图统一转为 96×96 WebP（保留透明通道），矢量图保留原始 SVG；单个文件均在 12KB 以内。
 - 近黑色单色标志标记 `mono: true`，深色主题下用 `filter: invert(1)` 反色，避免在深底上看不见。
+- 「已去掉底板」= 官方素材自带纯色/渐变背景，脚本按背景色生成 alpha 通道后导出透明 WebP，标志形状与比例未改。
