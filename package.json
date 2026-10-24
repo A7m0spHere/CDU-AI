@@ -16,7 +16,8 @@
     "check:content": "node scripts/check-content.mjs",
     "check:docs": "node scripts/check-docs.mjs",
     "check:links": "node scripts/check-links.mjs",
-    "test": "node --test tests/site.test.mjs tests/docs.test.mjs",
+    "test": "node --test tests/site.test.mjs tests/docs.test.mjs tests/theme.test.mjs",
+    "test:browser": "node --test tests/theme.browser.test.mjs",
     "verify": "npm run check && npm run check:content && npm run check:docs && npm run build && npm run test && npm run check:links",
     "astro": "astro"
   },
@@ -27,6 +28,7 @@
     "@astrojs/check": "0.9.10",
     "github-slugger": "2.0.0",
     "js-yaml": "^4.3.2",
+    "playwright": "1.62.1",
     "remark-parse": "11.0.0",
     "typescript": "5.9.3",
     "unified": "11.0.5"

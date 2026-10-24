@@ -142,12 +142,25 @@ export function luminance(color: string): number {
 }
 
 export function isDarkColor(color: string): boolean {
-  return luminance(color) < 0.5;
+  return contrastRatio(color, '#ffffff') > contrastRatio(color, '#000000');
+}
+
+export function contrastRatio(a: string, b: string): number {
+  const la = luminance(a);
+  const lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/** 优先保留中性灰阶；中间亮度下用黑白兜底，保证自动配色可读。 */
+function readableText(bg: string, dark: string, light: string): string {
+  const best = contrastRatio(bg, dark) >= contrastRatio(bg, light) ? dark : light;
+  if (contrastRatio(bg, best) >= 4.5) return best;
+  return isDarkColor(bg) ? '#ffffff' : '#000000';
 }
 
 /** 根据背景亮度自动推荐主文字颜色 */
 export function autoInk(bg: string): string {
-  return isDarkColor(bg) ? '#f5f5f7' : '#1a1a1f';
+  return readableText(bg, '#1a1a1f', '#f5f5f7');
 }
 
 /** hex → HSV（h: 0-360, s/v: 0-1），供自绘取色器使用 */
@@ -192,7 +205,7 @@ export function hsvToHex(h: number, s: number, v: number): string {
 
 /** 根据背景亮度自动推荐次要文字颜色 */
 export function autoMuted(bg: string): string {
-  return isDarkColor(bg) ? '#a2a2ad' : '#55555e';
+  return readableText(bg, '#55555e', '#a2a2ad');
 }
 
 /** 根据代码块底色自动推荐代码文字 / 注释颜色 */
@@ -200,8 +213,8 @@ export function autoCode(codeBg: string): CodeConfig {
   const dark = isDarkColor(codeBg);
   return {
     bg: normalizeColor(codeBg, dark ? '#101014' : '#f4f4f5'),
-    fg: dark ? '#e8e8ec' : '#1a1a1f',
-    muted: dark ? '#9a9aa4' : '#6b6b74',
+    fg: readableText(codeBg, '#1a1a1f', '#e8e8ec'),
+    muted: readableText(codeBg, '#6b6b74', '#9a9aa4'),
   };
 }
 
@@ -221,8 +234,24 @@ export function sanitizeImageUrl(rawUrl: string): string {
    参数归一化与默认值
    --------------------------------------------------------- */
 
+function record(input: unknown): Record<string, unknown> {
+  return input && typeof input === 'object' && !Array.isArray(input)
+    ? input as Record<string, unknown>
+    : {};
+}
+
+function text(input: unknown): string {
+  return typeof input === 'string' ? input : '';
+}
+
+function numeric(input: unknown): number {
+  return typeof input === 'number' || (typeof input === 'string' && input.trim())
+    ? Number(input)
+    : NaN;
+}
+
 function normalizeGradient(input: unknown, fallback: GradientConfig): GradientConfig {
-  const source = (input ?? {}) as Partial<GradientConfig>;
+  const source = record(input);
   const stops = Array.isArray(source.stops)
     ? source.stops
         .filter((stop): stop is string => typeof stop === 'string')
@@ -233,7 +262,7 @@ function normalizeGradient(input: unknown, fallback: GradientConfig): GradientCo
   while (merged.length < MIN_GRADIENT_STOPS) {
     merged.push(fallback.stops[merged.length % fallback.stops.length]);
   }
-  const angle = Number(source.angle);
+  const angle = numeric(source.angle);
   return {
     enabled: source.enabled === true,
     angle: Number.isFinite(angle) ? clamp(Math.round(angle), 0, 360) : fallback.angle,
@@ -243,14 +272,14 @@ function normalizeGradient(input: unknown, fallback: GradientConfig): GradientCo
 
 /** 将任意输入（如导入的 JSON）归一化为合法 ThemeParams，不合法字段回退默认值 */
 export function normalizeParams(input: unknown): ThemeParams {
-  const source = (input ?? {}) as Record<string, unknown>;
+  const source = record(input);
   const fallback = defaultParams();
-  const codeSource = (source.code ?? {}) as Record<string, unknown>;
-  const imageSource = (source.bgImage ?? {}) as Record<string, unknown>;
+  const codeSource = record(source.code);
+  const imageSource = record(source.bgImage);
   const base: ThemeBase = source.base === 'dark' ? 'dark' : 'light';
-  const bg = normalizeColor(String(source.bg ?? ''), fallback.bg);
-  const radius = Number(source.radius);
-  const overlay = Number(imageSource.overlay);
+  const bg = normalizeColor(text(source.bg), fallback.bg);
+  const radius = numeric(source.radius);
+  const overlay = numeric(imageSource.overlay);
   return {
     name:
       typeof source.name === 'string' && source.name.trim()
@@ -258,22 +287,22 @@ export function normalizeParams(input: unknown): ThemeParams {
         : fallback.name,
     base,
     bg,
-    ink: normalizeColor(String(source.ink ?? ''), autoInk(bg)),
-    muted: normalizeColor(String(source.muted ?? ''), autoMuted(bg)),
-    accent: normalizeColor(String(source.accent ?? ''), fallback.accent),
+    ink: normalizeColor(text(source.ink), autoInk(bg)),
+    muted: normalizeColor(text(source.muted), autoMuted(bg)),
+    accent: normalizeColor(text(source.accent), fallback.accent),
     pageGradient: normalizeGradient(source.pageGradient, fallback.pageGradient),
     headerGradient: normalizeGradient(source.headerGradient, fallback.headerGradient),
     footerGradient: normalizeGradient(source.footerGradient, fallback.footerGradient),
     bgImage: {
       enabled: imageSource.enabled === true,
-      url: sanitizeImageUrl(String(imageSource.url ?? '')),
+      url: sanitizeImageUrl(text(imageSource.url)),
       overlay: Number.isFinite(overlay) ? clamp(Math.round(overlay), 0, 100) : 46,
     },
     radius: Number.isFinite(radius) ? clamp(Math.round(radius), 0, 10) : 5,
     code: {
-      bg: normalizeColor(String(codeSource.bg ?? ''), fallback.code.bg),
-      fg: normalizeColor(String(codeSource.fg ?? ''), fallback.code.fg),
-      muted: normalizeColor(String(codeSource.muted ?? ''), fallback.code.muted),
+      bg: normalizeColor(text(codeSource.bg), fallback.code.bg),
+      fg: normalizeColor(text(codeSource.fg), fallback.code.fg),
+      muted: normalizeColor(text(codeSource.muted), fallback.code.muted),
     },
   };
 }
@@ -337,7 +366,7 @@ export function swatchBackground(params: ThemeParams): string {
 export function resolveThemeVars(params: ThemeParams): Record<string, string> {
   const { bg, ink, muted, accent } = params;
   const darkBg = isDarkColor(bg);
-  const lightAccent = !isDarkColor(accent);
+  const onBrand = readableText(accent, '#12151c', '#ffffff');
 
   const vars: Record<string, string> = {};
 
@@ -362,12 +391,10 @@ export function resolveThemeVars(params: ThemeParams): Record<string, string> {
 
   /* brand / accent */
   vars['--brand'] = accent;
-  vars['--brand-strong'] = lightAccent
-    ? mixColor(accent, '#000000', 0.16)
-    : mixColor(accent, '#ffffff', 0.2);
+  vars['--brand-strong'] = mixColor(accent, isDarkColor(onBrand) ? '#ffffff' : '#000000', 0.16);
   vars['--brand-soft'] = mixColor(bg, accent, darkBg ? 0.16 : 0.08);
   vars['--brand-tint'] = mixColor(bg, accent, 0.04);
-  vars['--on-brand'] = lightAccent ? '#12151c' : '#ffffff';
+  vars['--on-brand'] = onBrand;
   vars['--accent'] = accent;
   vars['--accent-vivid'] = darkBg
     ? mixColor(accent, '#000000', 0.22)
@@ -434,6 +461,8 @@ export function resolveThemeVars(params: ThemeParams): Record<string, string> {
   vars['--code-bg'] = params.code.bg;
   vars['--code-fg'] = params.code.fg;
   vars['--code-muted'] = params.code.muted;
+  vars['--theme-code-token-fg'] = params.code.fg;
+  vars['--theme-code-token-muted'] = params.code.muted;
 
   return vars;
 }

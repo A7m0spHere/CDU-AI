@@ -905,6 +905,23 @@
 /* ---------- 小屏适配 ---------- */
 
 @media (max-width: 560px) {
+  .header-actions {
+    position: relative;
+  }
+
+  .theme-picker {
+    position: static;
+  }
+
+  .theme-panel {
+    max-height: calc(100dvh - var(--header-h) - 1.5rem);
+    overflow-y: auto;
+  }
+
+  .theme-panel::before {
+    display: none;
+  }
+
   .theme-editor__body {
     padding: 0.85rem 0.9rem 1rem;
   }

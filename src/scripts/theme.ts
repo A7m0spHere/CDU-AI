@@ -95,9 +95,10 @@ if (picker && panel && trigger && editor && importDialog) {
      --------------------------------------------------------- */
 
   /** 持久化自定义主题；失败（如图片超出配额）返回 false */
-  function persistCustomThemes(): boolean {
+  function persistCustomThemes(nextThemes: StoredTheme[]): boolean {
     try {
-      localStorage.setItem(CUSTOM_THEMES_STORAGE_KEY, JSON.stringify(customThemes));
+      localStorage.setItem(CUSTOM_THEMES_STORAGE_KEY, JSON.stringify(nextThemes));
+      customThemes = nextThemes;
       return true;
     } catch {
       return false;
@@ -162,15 +163,22 @@ if (picker && panel && trigger && editor && importDialog) {
   }
 
   let previewTimer = 0;
+  let editorSession = 0;
+
+  function cancelPreview(): void {
+    window.clearTimeout(previewTimer);
+    previewTimer = 0;
+  }
 
   function preview(): void {
+    if (!editor.open) return;
     clearInlineVars();
     applyVars(draft);
     updateMetaColor();
   }
 
   function schedulePreview(): void {
-    window.clearTimeout(previewTimer);
+    cancelPreview();
     previewTimer = window.setTimeout(preview, 60);
   }
 
@@ -333,6 +341,8 @@ if (picker && panel && trigger && editor && importDialog) {
     window.clearTimeout(closeTimer);
     panel.hidden = false;
     trigger.setAttribute('aria-expanded', 'true');
+    const error = panel.querySelector<HTMLElement>('[data-theme-menu-error]');
+    if (error) error.hidden = true;
   }
 
   function closeMenu(): void {
@@ -407,8 +417,14 @@ if (picker && panel && trigger && editor && importDialog) {
       return;
     }
     const theme = customThemes.find((item) => item.id === id);
-    customThemes = customThemes.filter((item) => item.id !== id);
-    persistCustomThemes();
+    if (!persistCustomThemes(customThemes.filter((item) => item.id !== id))) {
+      const error = panel.querySelector<HTMLElement>('[data-theme-menu-error]');
+      if (error) {
+        error.textContent = '无法保存删除操作，请检查浏览器本地存储权限后重试。';
+        error.hidden = false;
+      }
+      return;
+    }
     if (activeThemeId === id) {
       applyTheme(theme ? theme.params.base : 'light');
     } else {
@@ -561,8 +577,9 @@ if (picker && panel && trigger && editor && importDialog) {
     if (event.key === 'Escape' && !colorPop.hidden) {
       event.preventDefault();
       event.stopPropagation();
+      const anchor = popAnchor;
       closeColorPop();
-      popAnchor?.focus();
+      anchor?.focus();
     }
   }, true);
 
@@ -690,7 +707,7 @@ if (picker && panel && trigger && editor && importDialog) {
     renderStops(kind);
   }
 
-  function fillImageFields(): void {
+  function fillImageFields(keepUrlInput = false): void {
     const enabledInput = form?.querySelector<HTMLInputElement>('[data-theme-image-enabled]');
     const body = form?.querySelector<HTMLElement>('[data-theme-image-body]');
     const url = form?.querySelector<HTMLInputElement>('[data-theme-image-url]');
@@ -699,7 +716,7 @@ if (picker && panel && trigger && editor && importDialog) {
     const overlayOut = form?.querySelector<HTMLElement>('[data-theme-overlay-out]');
     if (enabledInput) enabledInput.checked = draft.bgImage.enabled;
     if (body) body.hidden = !draft.bgImage.enabled;
-    if (url) url.value = draft.bgImage.url;
+    if (url && !keepUrlInput) url.value = draft.bgImage.url;
     if (thumb) {
       if (draft.bgImage.url.startsWith('data:image/')) {
         thumb.style.backgroundImage = `url("${draft.bgImage.url}")`;
@@ -799,6 +816,8 @@ if (picker && panel && trigger && editor && importDialog) {
   }
 
   function openEditor(existingId: string | null): void {
+    cancelPreview();
+    editorSession += 1;
     editingId = existingId;
     themeBeforePreview = activeThemeId;
     const stored = existingId ? customThemes.find((item) => item.id === existingId) : null;
@@ -815,35 +834,30 @@ if (picker && panel && trigger && editor && importDialog) {
   }
 
   function cancelEditor(): void {
+    cancelPreview();
     editor.close();
-    applyTheme(themeBeforePreview);
+    applyTheme(themeBeforePreview, { persist: false });
   }
 
   function saveEditor(): void {
+    cancelPreview();
     const params = normalizeParams(draft);
     const vars = resolveThemeVars(params);
-    if (!editingId) {
-      editingId = `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-      customThemes.push({ id: editingId, createdAt: Date.now(), params, vars });
-    } else {
-      const stored = customThemes.find((item) => item.id === editingId);
-      if (stored) {
-        stored.params = params;
-        stored.vars = vars;
-      } else {
-        customThemes.push({ id: editingId, createdAt: Date.now(), params, vars });
-      }
-    }
-    if (!persistCustomThemes()) {
-      /* 图片体积超出浏览器存储配额：主题仍应用于当前会话，但不落盘 */
-      draft = params;
+    const id = editingId ?? `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+    const previous = customThemes.find((item) => item.id === id);
+    const nextTheme = { id, createdAt: previous?.createdAt ?? Date.now(), params, vars };
+    const nextThemes = previous
+      ? customThemes.map((item) => item.id === id ? nextTheme : item)
+      : [...customThemes, nextTheme];
+    if (!persistCustomThemes(nextThemes)) {
       setEditorError(
-        '主题已在当前页面生效，但背景图片过大，超出浏览器本地存储上限（约 5MB），刷新后会丢失。请换用小于 1.5MB 的图片后再保存。',
+        '主题未保存：浏览器本地存储不可用或空间不足。请缩小背景图片、减少已存主题后重试，也可导出 JSON 或取消修改。',
       );
       preview();
       return;
     }
-    applyTheme(editingId);
+    editingId = id;
+    applyTheme(id);
     editor.close();
     trigger.focus();
   }
@@ -919,7 +933,7 @@ if (picker && panel && trigger && editor && importDialog) {
       setImageError(
         target.value.trim() && !sanitized ? '图片地址无效：仅支持 https:// 、站内 / 路径' : '',
       );
-      fillImageFields();
+      fillImageFields(true);
       schedulePreview();
       return;
     }
@@ -1064,7 +1078,9 @@ if (picker && panel && trigger && editor && importDialog) {
       return;
     }
     const reader = new FileReader();
+    const session = editorSession;
     reader.addEventListener('load', () => {
+      if (!editor.open || session !== editorSession) return;
       const dataUrl = sanitizeImageUrl(String(reader.result ?? ''));
       if (!dataUrl) {
         setImageError('图片读取失败，请换一个文件重试');
@@ -1155,6 +1171,8 @@ if (picker && panel && trigger && editor && importDialog) {
   editor.querySelector('[data-theme-save]')?.addEventListener('click', saveEditor);
   editor.querySelector('[data-theme-export]')?.addEventListener('click', handleExport);
   editor.addEventListener('close', () => {
+    cancelPreview();
+    editorSession += 1;
     closeColorPop();
     /* Esc / 点关闭等同取消：还原预览前主题（保存流程已在 close 前应用新主题） */
     applyTheme(activeThemeId, { persist: false });
@@ -1233,7 +1251,7 @@ if (picker && panel && trigger && editor && importDialog) {
     const rawParams = container && typeof container === 'object' && container.params
       ? container.params
       : container;
-    if (!rawParams || typeof rawParams !== 'object') {
+    if (!rawParams || typeof rawParams !== 'object' || Array.isArray(rawParams)) {
       if (importError) {
         importError.textContent = '无法识别的主题 JSON，请检查内容是否完整。';
         importError.hidden = false;
@@ -1242,12 +1260,13 @@ if (picker && panel && trigger && editor && importDialog) {
     }
     const params = normalizeParams(rawParams);
     const id = `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-    customThemes.push({ id, createdAt: Date.now(), params, vars: resolveThemeVars(params) });
-    if (!persistCustomThemes()) {
+    const nextThemes = [...customThemes, { id, createdAt: Date.now(), params, vars: resolveThemeVars(params) }];
+    if (!persistCustomThemes(nextThemes)) {
       if (importError) {
-        importError.textContent = '主题已应用，但内容超出浏览器存储上限，无法保存，刷新后会丢失。';
+        importError.textContent = '主题未导入：浏览器本地存储不可用或空间不足。请缩小背景图片或减少已存主题后重试。';
         importError.hidden = false;
       }
+      return;
     }
     importDialog.close();
     applyTheme(id);

@@ -31,3 +31,7 @@ jobs:
         run: npm ci
       - name: Type, content and docs checks, build, tests and site links
         run: npm run verify
+      - name: Install Chromium for theme regression checks
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression checks
+        run: npm run test:browser
