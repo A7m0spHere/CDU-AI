@@ -170,7 +170,7 @@ function checkSources(data, file, errors) {
 }
 
 /** 内容状态字段的组合校验（与 docs/CONTENT-REVIEW.md 第 3 节一致）。 */
-function checkReviewFields(data, file, errors) {
+export function checkReviewFields(data, file, errors) {
   if (data.reviewedBy !== undefined) {
     if (!isNonEmptyString(data.reviewedBy)) {
       errors.push({ file, message: 'reviewedBy 必须是非空字符串（可用笔名）' });
@@ -232,11 +232,147 @@ function checkPositiveInteger(value) {
   return Number.isInteger(value) && value > 0;
 }
 
-function loadToolNamesFromSource(source) {
+/**
+ * 从 src/data/tools.ts 解析工具条目（纯函数，便于测试）。
+ *
+ * 为什么不用一条正则匹配 id/name：工具条目字段多，维护者可能调整字段顺序，
+ * 旧写法「id 与 name 必须相邻」会在不知不觉中解析失败，让检查与测试静默通过。
+ * 这里先按顶层对象切块，再逐行读取字段，字段顺序无关；缺字段由 validateTools 报错。
+ */
+export function parseToolsFromSource(source) {
   const start = source.indexOf('export const tools');
   if (start === -1) return [];
   const block = source.slice(start);
-  return [...block.matchAll(/id: '([^']+)',\s*\n\s*name: '([^']+)'/g)].map((match) => match[2]);
+  const end = block.indexOf('\n];');
+  const body = end === -1 ? block : block.slice(0, end);
+  const chunks = body.split(/^\s{2}\{\s*$/m).slice(1);
+
+  return chunks
+    .map((chunk) => {
+      const obj = chunk.split(/^\s{2}\},?\s*$/m)[0] ?? '';
+      const lines = obj
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const readString = (key) => {
+        const line = lines.find((item) => item.startsWith(key + ': '));
+        if (!line) return undefined;
+        const match = line.match(/^[\w-]+: '(.*)',$/);
+        return match ? match[1] : undefined;
+      };
+      const readArray = (key) => {
+        const line = lines.find((item) => item.startsWith(key + ': ['));
+        if (!line) return [];
+        const inner = line.slice(line.indexOf('[') + 1, line.lastIndexOf(']'));
+        return inner
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .map((item) => item.replace(/^'|'$/g, ''));
+      };
+      const logoLine = lines.find((item) => item.startsWith('src: '));
+      const logoMatch = logoLine ? logoLine.match(/^src: '(.*)',$/) : null;
+      return {
+        id: readString('id'),
+        name: readString('name'),
+        category: readString('category'),
+        alsoIn: readArray('alsoIn'),
+        capabilities: readArray('capabilities'),
+        aliases: readArray('aliases'),
+        url: readString('url'),
+        githubUrl: readString('githubUrl'),
+        kind: readString('kind'),
+        tier: readString('tier'),
+        basis: readString('basis'),
+        verifiedOn: readString('verifiedOn'),
+        logo: logoMatch ? logoMatch[1] : undefined,
+      };
+    })
+    .filter((tool) => tool.id || tool.name);
+}
+
+/** 解析工具分类 id（只取 toolCategories 数组，避免把能力标签与工具 id 混进来）。 */
+export function parseToolCategoryIds(source) {
+  const start = source.indexOf('export const toolCategories');
+  if (start === -1) return [];
+  const end = source.indexOf('export const toolCapabilities');
+  const block = source.slice(start, end === -1 ? undefined : end);
+  return [...block.matchAll(/id: '([^']+)'/g)].map((match) => match[1]);
+}
+
+/** 工具条目的字段级校验：枚举、唯一性、引用完整性、图标文件是否存在。 */
+export function validateTools({ source, root, toolNames = [] } = {}) {
+  const errors = [];
+  const file = 'src/data/tools.ts';
+  const push = (message) => errors.push({ file, message });
+
+  if (!source.includes('export const tools')) {
+    push('无法定位 tools 数组，请确认文件结构未被破坏');
+    return { errors, tools: [] };
+  }
+
+  const categories = parseToolCategoryIds(source);
+  if (categories.length === 0) push('无法解析工具分类（toolCategories），页面筛选会失效');
+
+  const tools = parseToolsFromSource(source);
+  const kinds = ['在线产品', '开源项目', '模型', '工作流工具', '开发工具'];
+  const tiers = ['主流产品', '社区热门', '小众探索'];
+  const bases = ['official', 'docs', 'community'];
+  const caps = ['open-source', 'local', 'beginner', 'zh'];
+
+  const seenIds = new Set();
+  const seenNames = new Set();
+
+  for (const tool of tools) {
+    const label = tool.id || '(缺少 id 的条目)';
+    if (!tool.id) push('存在缺少 id 的工具条目');
+    if (!tool.name) push(label + ' 缺少 name');
+    if (!tool.category) push(label + ' 缺少 category');
+    else if (!categories.includes(tool.category)) push(label + ' 的 category 不在 toolCategories 中：' + tool.category);
+
+    for (const also of tool.alsoIn) {
+      if (!categories.includes(also)) push(label + ' 的 alsoIn 引用了不存在的分类：' + also);
+      if (also === tool.category) push(label + ' 的 alsoIn 不应重复主分类');
+    }
+    for (const cap of tool.capabilities) {
+      if (!caps.includes(cap)) push(label + ' 的 capabilities 含未知取值：' + cap);
+    }
+    if (tool.kind && !kinds.includes(tool.kind)) push(label + ' 的 kind 不合法：' + tool.kind);
+    if (tool.tier && !tiers.includes(tool.tier)) push(label + ' 的 tier 不合法：' + tool.tier);
+    if (tool.basis && !bases.includes(tool.basis)) push(label + ' 的 basis 不合法：' + tool.basis);
+    if (tool.verifiedOn && !isoDateRe.test(tool.verifiedOn)) push(label + ' 的 verifiedOn 必须是 YYYY-MM-DD');
+
+    if (tool.url && !isSafeExternalUrl(tool.url)) {
+      push(label + ' 的 url 只允许 http(s) 外链：' + tool.url);
+    }
+    if (tool.githubUrl && !isSafeExternalUrl(tool.githubUrl)) {
+      push(label + ' 的 githubUrl 只允许 http(s) 外链：' + tool.githubUrl);
+    }
+    if (tool.logo) {
+      if (!tool.logo.startsWith('/tool-logos/')) {
+        push(label + ' 的 logo 必须放在 /tool-logos/ 下：' + tool.logo);
+      } else if (root && !existsSync(path.join(root, 'public', tool.logo))) {
+        push(label + ' 的 logo 文件不存在：public' + tool.logo);
+      }
+    }
+
+    if (tool.id) {
+      if (seenIds.has(tool.id)) push('工具 id 重复：' + tool.id);
+      seenIds.add(tool.id);
+    }
+    if (tool.name) {
+      if (seenNames.has(tool.name)) push('工具名称重复：' + tool.name);
+      seenNames.add(tool.name);
+    }
+  }
+
+  // 指南 / 作品的 tools 字段引用必须能在工具目录里找到
+  const knownNames = new Set(tools.map((tool) => tool.name));
+  for (const name of toolNames) {
+    if (!knownNames.has(name)) push('引用了工具目录中不存在的工具：' + name);
+  }
+
+  return { errors, tools };
 }
 
 /** 从 src/data/guide-nav.ts 解析已登记的目录条目 slug（含规划中条目）。 */
@@ -271,7 +407,9 @@ function loadGlossaryCategoryIdsFromSource(source) {
 export async function loadContentContext(root) {
   const toolsSource = await readFile(path.join(root, 'src', 'data', 'tools.ts'), 'utf8');
   const glossarySource = await readFile(path.join(root, 'src', 'data', 'glossary.ts'), 'utf8');
-  const toolNames = loadToolNamesFromSource(toolsSource);
+  const toolNames = parseToolsFromSource(toolsSource)
+    .map((tool) => tool.name)
+    .filter(Boolean);
   const glossaryCategoryIds = loadGlossaryCategoryIdsFromSource(glossarySource);
   // 工具目录允许为空（只由维护者按需添加），此时无法解析出名字是正常的；
   // 但文件本身必须仍有 tools 数组，避免误删结构后检查静默通过。
@@ -439,7 +577,7 @@ export async function validateCollection({ collection, dir, context }) {
   for (const { file, data } of rows) {
     if (!checkPositiveInteger(data.order)) continue;
     let key;
-    if (collection === 'guide') key = 'stage:' + data.stage;
+    if (collection === 'guide') key = 'guide';
     else if (collection === 'glossary') key = 'category:' + data.category;
     else key = 'works';
     const composed = key + '#' + data.order;

@@ -9,7 +9,7 @@
 | 学习指南 `guide` | ✅ | 每个模块在页面底部展示内容状态 |
 | 术语表 `glossary` | ✅ | 每个词条在页面底部展示内容状态 |
 | 作品广场 `works` | ✅ | 策划示例默认按「初稿 + 教学示例」展示 |
-| 工具目录 `tools` | ⏳ 暂不适用 | 当前为 TypeScript 数据；在 [#8](https://github.com/A7m0spHere/CDU-AI/issues/8) 迁移为 Markdown 后接入同一套字段，迁移前不写「亲测」「已审校」 |
+| 工具目录 `tools` | 独立规则 | 继续维护 TypeScript 数据，由维护者核对后入库；使用 `verifiedOn` 与工具自身的 `basis`，不套用本文的 frontmatter，也不显示「亲测」「已人工核校」。见 [工具条目规范](CONTENT-GUIDE.md#6-工具数据) |
 | 社区 | — | 功能已关闭，页面仅提示暂不开放 |
 | 活动 | — | 使用「筹备中 / 暂无排期」状态字段，不套用本文审校状态 |
 
@@ -29,8 +29,8 @@
 
 - **未审核条目默认不得显示成「已审核」**：缺失字段一律按初稿展示。
 - **存量内容不需要一次性迁移**：所有字段都有保守默认值。
-- **撤销审校**：删除 `reviewed`（或标记 `needsUpdate` 并写明原因），页面立即回到「初稿 / 待更新」，不能静默保留旧的已审核标记。
-- **实质改动重新审校**：修改数据、结论、步骤、工具能力/价格等事实内容后，必须移除或更新 `reviewed` 日期，重新审校后才能再次标记。
+- **撤销审校**：同时删除 `reviewed` 与 `reviewedBy`，可保留 `reviewNote` 说明原因；也可保留上次审校记录，设置 `needsUpdate: true` 并写明原因，页面会优先显示「待更新」。
+- **实质改动重新审校**：修改数据、结论、步骤、工具能力/价格等事实内容后，先同时移除 `reviewed` / `reviewedBy`，或标记 `needsUpdate: true`；复审完成后填写新的审校日期与署名，再清除待更新标记。
 
 ## 3. 两个维度：内容依据（basis）与人工核校（reviewed）
 
@@ -68,17 +68,35 @@
 
 ### 3.5 完整字段示例
 
-```yaml
-# 学习指南 / 术语 / 作品通用的审校字段
-reviewed: "2026-11-02"        # 真人逐条核校完成日期；没有就显示初稿
+以下均为字段写法示例，不代表实际审校记录；请按真实情况填写。标有 `review-fields` 的代码块由 `npm run check:docs` 复用内容检查器验证。
+
+资料整理：不填写亲测日期与环境。
+
+```yaml review-fields
+reviewed: "2026-10-21"        # 仅在真人逐条核校完成后填写
 reviewedBy: "小林"             # 审校人署名（可笔名）
 needsUpdate: false            # 发现过期或问题、等待更新时改 true
 reviewNote: "核对了事实与链接，未实测付费额度"  # 可选，≤200 字
-basis: "desk-research"        # first-hand | desk-research | teaching-example
+basis: "desk-research"
 aiUsage: "assisted"           # none | assisted | drafted
-testedOn: "2026-10-30"        # 仅 basis: first-hand 时必填
-testedEnvironment: "网页版，Chrome 130，免费账号"  # 仅 first-hand 时必填
 contributors: ["小林", "阿哲"] # 可选，≤5 个代称
+```
+
+真实使用经验：必须同时提供亲测日期与环境；亲测不等于已经完成人工审校。
+
+```yaml review-fields
+basis: "first-hand"
+testedOn: "2026-10-21"
+testedEnvironment: "网页版，Chrome，免费账号"
+aiUsage: "assisted"
+```
+
+撤销审校后可保留原因，`reviewed` 与 `reviewedBy` 均不保留：
+
+```yaml review-fields
+basis: "desk-research"
+aiUsage: "assisted"
+reviewNote: "正文步骤已调整，等待重新人工核校"
 ```
 
 ## 4. 页面展示规则
@@ -131,10 +149,10 @@ contributors: ["小林", "阿哲"] # 可选，≤5 个代称
 | --- | --- |
 | 新增内容 | 默认显示初稿；PR 中写清依据与 AI 参与；有外部依据时补 `sources` |
 | 小改动（错别字、链接、排版） | 可保留原 `reviewed`；若改动涉及事实，按下一条处理 |
-| 实质改动（数据、结论、步骤、工具能力/价格） | 先移除 `reviewed` 或标记 `needsUpdate`，重新审校后填写新的日期 |
+| 实质改动（数据、结论、步骤、工具能力/价格） | 同时移除 `reviewed` / `reviewedBy`，或设置 `needsUpdate: true`；重新审校后填写新的日期与署名，再清除待更新标记 |
 | 合并 / 拆分条目 | 保留旧 URL 的跳转（M1 需要时）；更新引用与搜索索引；在 PR 说明迁移关系 |
 | 撤下内容 | 先置 `needsUpdate` 并在 issue/PR 记录原因，避免无说明的死链；彻底删除需维护组确认 |
-| 撤销审校 | 移除 `reviewed`（保留 `reviewNote` 说明原因），页面自动回退为初稿 / 待更新 |
+| 撤销审校 | 同时移除 `reviewed` / `reviewedBy`，可保留 `reviewNote`；页面回退为初稿，若 `needsUpdate: true` 则显示待更新 |
 
 复核周期建议：工具与价格类内容 3–6 个月；基础概念 12 个月；发现错误随时置为 `needsUpdate`。
 
@@ -147,10 +165,10 @@ contributors: ["小林", "阿哲"] # 可选，≤5 个代称
   - 非 `first-hand` 却填写了亲测字段；
   - 日期不是 `YYYY-MM-DD` 格式；
   - `contributors` 重复或超过 5 个。
-- 验证命令：`npm run verify`（类型检查 + 构建 + 内容测试 + 链接检查）。
+- 验证命令：`npm run verify`（类型检查、内容与文档校验、构建、测试、站内链接检查）。
 
 ## 9. 后续工作
 
-- 工具目录迁移（[#8](https://github.com/A7m0spHere/CDU-AI/issues/8)）后接入同一套字段并展示状态。
-- 内容数量的回归测试改造见 [#4](https://github.com/A7m0spHere/CDU-AI/issues/4)。
+- 工具目录当前继续使用 TypeScript 数据，不以迁移 Markdown 作为接入前提。未来若统一展示审校状态，需先明确字段含义与迁移方案，避免与工具现有的 `basis: official | docs | community` 混用。
+- 内容与页面数量的回归检查已从内容目录推导；后续新增集合或字段时，同步维护 schema、内容检查器与测试。
 - M1 开放真实投稿时，再补充「作者授权、真实姓名可选、撤稿流程」等字段，不提前收集个人信息。

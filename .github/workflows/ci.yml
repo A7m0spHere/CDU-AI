@@ -29,5 +29,5 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
-      - name: Type check, build, content tests and link check
+      - name: Type, content and docs checks, build, tests and site links
         run: npm run verify

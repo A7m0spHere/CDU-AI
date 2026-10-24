@@ -1,8 +1,10 @@
-# 贡献者
+# 贡献与致谢
 
 > 本项目由同学发起和维护，代码、文档、内容校对、视觉设计、真实使用经验、有效建议与 Bug 反馈都算贡献。
 > 名单里的人名统一使用 **GitHub 账号**，点击可进入对应主页；只收录「能对应到具体 PR / Issue / 实际成果」的贡献，**不做排名，也不按提交次数排序**。
 > 提交 PR 即视为同意以 GitHub 账号署名；想改名或撤下，见 [CONTRIBUTING.md 第 8 节](CONTRIBUTING.md#8-署名与致谢)。
+
+本文统一记录贡献者与参考项目。项目介绍和使用入口见 [README](README.md)，参与方式见 [贡献指南](CONTRIBUTING.md)。
 
 ## 名单
 
@@ -30,6 +32,19 @@
 ## 代码与交互
 
 **[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **PR #26**（2026-10-23）：首页 ASCII「AI」的指针交互从整块视差改为逐字符局部驱散（半径与最大位移按字符格换算、移开后带阻尼回位），并让 `prefers-reduced-motion` 下完全不响应指针，同时修掉指针状态可能残留的问题。
+
+## 参考项目与资料
+
+以下项目为本站的信息组织、作品展示或贡献记录方式提供了参考。这里记录具体借鉴范围，与上方的人员贡献分别列出。
+
+| 项目 | 参考范围 |
+| --- | --- |
+| [AI 科研入门指南](https://github.com/Takamatsu-Hikaru/AI-Research-Guide) | 按阶段组织长文、内容清单，以及从内容生成导航与校验的组织方式；本站沿用自己的 Astro 实现 |
+| [AI Demo 作品集](https://github.com/deepdemos/ds-demos-showcase) | 作品广场的分类、状态标注与记录创作过程的思路 |
+| [WayToAGI](https://github.com/WayToAGI) | 按工具和使用场景组织目录入口的方式 |
+| [dsh-status-rotator](https://github.com/01Virex/dsh-status-rotator) | 按贡献类型分组、关联 PR、支持笔名与匿名的致谢记录方式；本文件按这一组织思路编写 |
+
+页面排版与动效参考的对应关系见 [设计评审记录](docs/DESIGN-REVIEW.md#3-参考与借鉴边界) 和 [设计系统](docs/DESIGN-SYSTEM.md)。第三方工具图标的出处与处理方式单独记录在 [TOOL-LOGOS.md](docs/TOOL-LOGOS.md)。
 
 ## 记录说明
 

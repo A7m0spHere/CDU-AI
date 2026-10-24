@@ -699,11 +699,13 @@
 }
 
 .tool-mark {
+  position: relative;
   display: inline-grid;
   width: 42px;
   height: 42px;
   place-items: center;
   flex: none;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface-muted);
@@ -711,6 +713,33 @@
   font-family: var(--font-mono);
   font-size: 0.98rem;
   font-weight: 700;
+}
+
+/* 有官方 Logo 时用中性底色，避免品牌色与分类色调互相干扰 */
+.tool-mark--logo {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* 首字母兜底：有图标时默认隐藏（display:none 覆盖 inline-grid），只有加载失败才露出 */
+.tool-mark__fallback[hidden] {
+  display: none;
+}
+
+/* 官方 Logo：等比缩放铺满图标区；加载失败时由 onerror 移除并露出首字母 */
+.tool-mark__img {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  object-fit: contain;
+}
+
+/* 近黑单色标志在深色主题下反色，避免在深底上看不见 */
+:root[data-theme='dark'] .tool-mark__img[data-mono='true'] {
+  filter: invert(1);
 }
 
 .tool-mark--sage {
@@ -881,6 +910,99 @@
 
 .filter-chip[aria-pressed='true'] .filter-chip__count {
   background: color-mix(in srgb, var(--on-brand) 16%, transparent);
+}
+
+/* 卡片补充信息：分类名、核验行、仓库链接、能力标签 */
+.tool-card__category {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.02em;
+}
+
+.tool-card__verify {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.6rem;
+  margin-top: 0.7rem;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  line-height: 1.6;
+}
+
+.tool-card__logo-src {
+  opacity: 0.8;
+  word-break: break-all;
+}
+
+.tool-card__repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: 0.74rem;
+  transition: color var(--dur-fast) ease;
+}
+
+.tool-card__repo:hover {
+  color: var(--brand);
+}
+
+.tag--cap {
+  border-color: color-mix(in srgb, var(--brand) 32%, var(--line));
+  color: var(--brand);
+}
+
+.filter-chip--cap {
+  font-size: 0.76rem;
+}
+
+.filter-chip--cap[aria-pressed='true'] {
+  background: var(--surface-muted);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.catalog-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  margin-top: 1.8rem;
+  padding: 1.15rem 1.35rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 14px;
+  background: var(--bg-soft);
+}
+
+.catalog-cta h2 {
+  font-size: 0.98rem;
+}
+
+.catalog-cta p {
+  max-width: 54ch;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.66;
+}
+
+.aside-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .catalog-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* =========================================================
