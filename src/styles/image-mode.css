@@ -1,0 +1,56 @@
+/* =========================================================
+   背景图片模式（html[data-image-bg='true']）
+   由主题系统在图片生效时打在 <html> 上：
+   - 导航栏保持半透明磨砂（底色透明 + 毛玻璃），与整页图片共存
+   - 大块画布层完全透明，图片成为真正的整页背景
+   - 内容卡片平时透明，悬浮 / 聚焦时出现磨砂底（与首页学习
+     路线卡片的既有交互一致）
+   - 长文阅读面板保留轻磨砂玻璃底，保证正文可读
+   可读性由背景图片的「护读遮罩」统一控制。
+   ========================================================= */
+
+/* —— 大块画布层：完全透明，图片作为整页背景铺满 —— */
+html[data-image-bg='true'] .guide-doc-shell,
+html[data-image-bg='true'] .home-hero,
+html[data-image-bg='true'] .home-hero__main,
+html[data-image-bg='true'] .home-section--tint,
+html[data-image-bg='true'] .section--tint,
+html[data-image-bg='true'] .home-status,
+html[data-image-bg='true'] .home-empty,
+html[data-image-bg='true'] .empty-state,
+html[data-image-bg='true'] .empty-state--v2 {
+  background: transparent;
+}
+
+/* —— 内容卡片：平时透明，悬浮 / 聚焦出现磨砂底 —— */
+html[data-image-bg='true'] .card,
+html[data-image-bg='true'] .aside-card,
+html[data-image-bg='true'] .glossary-term {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transition: background-color var(--dur-base) ease;
+}
+
+html[data-image-bg='true'] .card:hover,
+html[data-image-bg='true'] .card:focus-within,
+html[data-image-bg='true'] .aside-card:hover,
+html[data-image-bg='true'] .aside-card:focus-within,
+html[data-image-bg='true'] .glossary-term:hover,
+html[data-image-bg='true'] .glossary-term:focus-within {
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+
+/* —— 长文阅读面板：轻磨砂玻璃，正文可读且图片隐约透出 —— */
+html[data-image-bg='true'] .guide-paper,
+html[data-image-bg='true'] .wiki-table-wrap,
+html[data-image-bg='true'] .wiki-navmap__group,
+html[data-image-bg='true'] .wiki-takeaway,
+html[data-image-bg='true'] .catalog-sidebar,
+html[data-image-bg='true'] .process {
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+}

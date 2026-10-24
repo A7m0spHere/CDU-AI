@@ -4,7 +4,8 @@
    ========================================================= */
 
 body {
-  background: var(--bg);
+  /* 只覆盖颜色层，保留 base.css 中渐变 / 图片背景层的可能性 */
+  background-color: var(--bg);
 }
 
 .section--tint {
@@ -900,7 +901,7 @@ h4 {
 /* Footer -------------------------------------------------- */
 .site-footer {
   margin-top: var(--section-y);
-  background: var(--bg);
+  background: var(--footer-bg, var(--bg));
 }
 
 .site-footer::before {
@@ -1667,10 +1668,10 @@ body.search-open {
 
 /* Collapsible stage groups with soft contrast colors */
 .guide-nav__group {
-  --group-soft: #f4f4f5;
-  --group-active: #e9e9eb;
-  --group-line: #e4e4e7;
-  --group-ink: #3f3f46;
+  --group-soft: var(--surface-muted);
+  --group-active: var(--line);
+  --group-line: var(--line);
+  --group-ink: var(--ink-soft);
   margin-top: 0.5rem;
   border-radius: 6px;
 }

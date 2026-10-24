@@ -15,6 +15,19 @@ npm run verify
 
 修改检查规则时，在 `tests/fixtures/content/` 或检查器测试中补充能暴露该问题的合法 / 错误样例。正式内容不能充当错误样例。
 
+### 主题浏览器回归
+
+修改主题交互后，先完成 `npm run verify`，再运行：
+
+```bash
+npx playwright install chromium
+npm run test:browser
+```
+
+浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。测试覆盖存储失败回滚、真实配额超限、取消预览、手机菜单边界，以及主题与工具目录搜索 / 折叠的兼容性。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。
+
+已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器，测试后用 `Remove-Item Env:PLAYWRIGHT_CHANNEL` 恢复默认。手机视口模拟不等同于真实设备验收。
+
 ### 文档检查范围
 
 `npm run check:docs` 检查根目录、`docs/`、`.github/` 的 Markdown，以及 `src/content/` 下以 `_` 开头的模板：

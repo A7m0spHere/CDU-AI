@@ -1,49 +1,5 @@
 import { initNavDock } from './nav-dock';
-
-const THEME_KEY = 'cdu-ai-theme';
-const root = document.documentElement;
-
-function updateThemeControls(theme: string): void {
-  const toDark = theme !== 'dark';
-  document.querySelectorAll<HTMLElement>('[data-theme-toggle]').forEach((button) => {
-    const label = toDark ? '切换到深色主题' : '切换到浅色主题';
-    button.setAttribute('aria-label', label);
-    button.setAttribute('title', label);
-  });
-}
-
-function applyTheme(theme: string): void {
-  root.dataset.theme = theme;
-  updateThemeControls(theme);
-}
-
-function savedTheme(): string | null {
-  try {
-    const value = localStorage.getItem(THEME_KEY);
-    return value === 'light' || value === 'dark' ? value : null;
-  } catch {
-    return null;
-  }
-}
-
-applyTheme(savedTheme() ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-
-document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((button) => {
-  button.addEventListener('click', () => {
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    try {
-      localStorage.setItem(THEME_KEY, next);
-    } catch {
-      /* 无法持久化时仍切换本次主题 */
-    }
-  });
-});
-
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
-  if (savedTheme()) return;
-  applyTheme(event.matches ? 'dark' : 'light');
-});
+import './theme';
 
 const header = document.querySelector<HTMLElement>('[data-site-header]');
 if (header) {

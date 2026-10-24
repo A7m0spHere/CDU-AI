@@ -1,6 +1,8 @@
 @import './tokens.css';
 @import './base.css';
 @import './components.css';
+@import './theme-picker.css';
 @import './pages.css';
 @import './vibe.css';
 @import './pages-v2.css';
+@import './image-mode.css';

@@ -51,6 +51,7 @@
   --focus: #2563eb;
   --backdrop: rgba(9, 9, 11, 0.48);
   --header-bg: rgba(255, 255, 255, 0.86);
+  --footer-bg: var(--bg);
 
   /* code */
   --code-bg: #18181b;
