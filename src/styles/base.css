@@ -14,7 +14,12 @@ body {
   min-width: 320px;
   margin: 0;
   overflow-x: clip;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--page-bg-image, none);
+  background-size: var(--page-bg-size, auto);
+  background-position: var(--page-bg-pos, center);
+  background-attachment: var(--page-bg-attach, scroll);
+  background-repeat: no-repeat;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-base);

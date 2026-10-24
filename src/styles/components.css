@@ -137,23 +137,6 @@
   transform: scale(0.96);
 }
 
-.theme-icon {
-  display: grid;
-  place-items: center;
-}
-
-.theme-icon--sun {
-  display: none;
-}
-
-:root[data-theme='dark'] .theme-icon--moon {
-  display: none;
-}
-
-:root[data-theme='dark'] .theme-icon--sun {
-  display: grid;
-}
-
 .mobile-menu {
   position: relative;
   display: none;
@@ -744,7 +727,7 @@
   position: relative;
   margin-top: var(--section-y);
   border-top: 1px solid var(--line);
-  background: var(--surface);
+  background: var(--footer-bg, var(--bg));
 }
 
 .site-footer::before {

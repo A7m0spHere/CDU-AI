@@ -2,6 +2,7 @@
 import { site, navItems, repository } from '../data/site';
 import Icon from './Icon.astro';
 import LogoMark from './LogoMark.astro';
+import ThemePicker from './ThemePicker.astro';
 
 const rawPath = Astro.url.pathname;
 const currentPath = rawPath.endsWith('/') ? rawPath : rawPath + '/';
@@ -42,16 +43,7 @@ function isActive(href: string) {
         <kbd class="search-trigger__kbd" aria-hidden="true">Ctrl K</kbd>
       </button>
 
-      <button
-        class="icon-button theme-toggle"
-        type="button"
-        data-theme-toggle
-        aria-label="切换深浅色主题"
-        title="切换深浅色主题"
-      >
-        <span class="theme-icon theme-icon--moon"><Icon name="moon" size={18} /></span>
-        <span class="theme-icon theme-icon--sun"><Icon name="sun" size={18} /></span>
-      </button>
+      <ThemePicker />
 
       <a
         class="icon-button header-github"

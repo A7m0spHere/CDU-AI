@@ -1,0 +1,302 @@
+---
+import Icon from './Icon.astro';
+---
+
+<div class="theme-picker" data-theme-picker>
+  <button
+    class="icon-button theme-picker__trigger"
+    type="button"
+    data-theme-trigger
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls="theme-panel"
+    aria-label="切换主题"
+    title="切换主题"
+  >
+    <Icon name="palette" size={18} />
+  </button>
+
+  <div class="theme-panel" id="theme-panel" data-theme-panel hidden>
+    <p class="theme-panel__label">内置</p>
+    <div class="theme-panel__grid" data-theme-list-built-in></div>
+    <p class="theme-panel__label">预设</p>
+    <div class="theme-panel__grid" data-theme-list-preset></div>
+    <p class="theme-panel__label">我的主题</p>
+    <div class="theme-panel__grid" data-theme-list-custom></div>
+    <div class="theme-panel__foot">
+      <button class="theme-panel__link" type="button" data-theme-import-open>
+        <Icon name="arrow-up-right" size={13} />
+        导入主题 JSON
+      </button>
+      <span class="theme-panel__hint">自定义主题保存在本浏览器</span>
+    </div>
+  </div>
+</div>
+
+<dialog class="theme-editor" data-theme-editor aria-labelledby="theme-editor-title">
+  <div class="theme-editor__inner">
+    <div class="theme-editor__head" data-theme-editor-grip>
+      <h2 class="theme-editor__title" id="theme-editor-title" data-theme-editor-heading>自定义主题</h2>
+      <button class="theme-editor__close" type="button" data-theme-editor-close>
+        <Icon name="close" size={16} />
+        <span class="sr-only">关闭主题编辑器</span>
+        <kbd aria-hidden="true">Esc</kbd>
+      </button>
+    </div>
+
+    <form class="theme-editor__body" data-theme-form>
+      <div class="theme-field">
+        <label class="theme-field__label" for="theme-field-name">主题名称</label>
+        <input
+          class="theme-input"
+          id="theme-field-name"
+          type="text"
+          maxlength="24"
+          placeholder="例如：深夜蓝"
+          data-theme-field="name"
+        />
+      </div>
+
+      <fieldset class="theme-field theme-field--inline">
+        <legend class="theme-field__label">基础模式</legend>
+        <div class="theme-segment" role="radiogroup" aria-label="基础模式">
+          <label class="theme-segment__item">
+            <input type="radio" name="theme-base" value="light" data-theme-field="base" />
+            <span>浅色</span>
+          </label>
+          <label class="theme-segment__item">
+            <input type="radio" name="theme-base" value="dark" data-theme-field="base" />
+            <span>深色</span>
+          </label>
+        </div>
+        <p class="theme-field__hint">决定阴影、滚动条等未定制细节的基调</p>
+      </fieldset>
+
+      <div class="theme-field">
+        <div class="theme-field__head">
+          <span class="theme-field__label">背景主体颜色</span>
+          <button class="theme-mini-btn" type="button" data-theme-auto="text">自动适配文字</button>
+        </div>
+        <div class="theme-color-row">
+          <button class="theme-swatch-btn" type="button" data-theme-color-btn="bg" aria-label="打开背景主体颜色取色器"></button>
+          <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="bg" aria-label="背景主体颜色（十六进制）" />
+          <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="r, g, b" data-theme-rgb="bg" aria-label="背景主体颜色（RGB）" />
+        </div>
+      </div>
+
+      <fieldset class="theme-field theme-field--gradient" data-theme-gradient="pageGradient">
+        <div class="theme-field__head">
+          <legend class="theme-field__label">整页背景渐变</legend>
+          <label class="theme-switch">
+            <input type="checkbox" data-theme-gradient-enabled="pageGradient" />
+            <span class="theme-switch__track" aria-hidden="true"></span>
+            <span class="sr-only">启用整页背景渐变</span>
+          </label>
+        </div>
+        <div class="theme-field__body" data-theme-gradient-body>
+          <div class="theme-range-row">
+            <label class="theme-range-row__label">角度 <output data-theme-angle-out="pageGradient">160°</output></label>
+            <input class="theme-range" type="range" min="0" max="360" step="5" value="160" data-theme-angle="pageGradient" aria-label="渐变角度" />
+          </div>
+          <div class="theme-stops" data-theme-stops="pageGradient"></div>
+          <button class="theme-mini-btn" type="button" data-theme-add-stop="pageGradient">+ 添加颜色</button>
+          <p class="theme-field__hint theme-field__hint--suppressed">背景图片开启时自动停用，避免渐变盖住图片</p>
+        </div>
+      </fieldset>
+
+      <fieldset class="theme-field theme-field--gradient" data-theme-gradient="headerGradient">
+        <div class="theme-field__head">
+          <legend class="theme-field__label">顶部导航栏渐变</legend>
+          <label class="theme-switch">
+            <input type="checkbox" data-theme-gradient-enabled="headerGradient" />
+            <span class="theme-switch__track" aria-hidden="true"></span>
+            <span class="sr-only">启用导航栏渐变</span>
+          </label>
+        </div>
+        <div class="theme-field__body" data-theme-gradient-body>
+          <div class="theme-range-row">
+            <label class="theme-range-row__label">角度 <output data-theme-angle-out="headerGradient">120°</output></label>
+            <input class="theme-range" type="range" min="0" max="360" step="5" value="120" data-theme-angle="headerGradient" aria-label="导航栏渐变角度" />
+          </div>
+          <div class="theme-stops" data-theme-stops="headerGradient"></div>
+          <button class="theme-mini-btn" type="button" data-theme-add-stop="headerGradient">+ 添加颜色</button>
+          <p class="theme-field__hint">开启背景图片时：导航栏底色自动透明、仅留半透明磨砂，图片隐约透过；也可在此设置渐变覆盖</p>
+        </div>
+      </fieldset>
+
+      <fieldset class="theme-field theme-field--gradient" data-theme-gradient="footerGradient">
+        <div class="theme-field__head">
+          <legend class="theme-field__label">底部页脚渐变</legend>
+          <label class="theme-switch">
+            <input type="checkbox" data-theme-gradient-enabled="footerGradient" />
+            <span class="theme-switch__track" aria-hidden="true"></span>
+            <span class="sr-only">启用页脚渐变</span>
+          </label>
+        </div>
+        <div class="theme-field__body" data-theme-gradient-body>
+          <div class="theme-range-row">
+            <label class="theme-range-row__label">角度 <output data-theme-angle-out="footerGradient">180°</output></label>
+            <input class="theme-range" type="range" min="0" max="360" step="5" value="180" data-theme-angle="footerGradient" aria-label="页脚渐变角度" />
+          </div>
+          <div class="theme-stops" data-theme-stops="footerGradient"></div>
+          <button class="theme-mini-btn" type="button" data-theme-add-stop="footerGradient">+ 添加颜色</button>
+          <p class="theme-field__hint">未启用时页脚保持透明，整页渐变或背景图片自然延伸到底</p>
+        </div>
+      </fieldset>
+
+      <fieldset class="theme-field">
+        <div class="theme-field__head">
+          <legend class="theme-field__label">背景图片</legend>
+          <label class="theme-switch">
+            <input type="checkbox" data-theme-image-enabled />
+            <span class="theme-switch__track" aria-hidden="true"></span>
+            <span class="sr-only">启用背景图片</span>
+          </label>
+        </div>
+        <div class="theme-field__body" data-theme-image-body>
+          <div
+            class="theme-drop"
+            data-theme-image-drop
+            role="button"
+            tabindex="0"
+            aria-label="拖放图片文件到此处，或按回车选择文件"
+          >
+            <span class="theme-drop__icon"><Icon name="image" size={20} /></span>
+            <span class="theme-drop__text">
+              <strong>拖放图片文件到这里</strong>
+              <small>或点击选择文件 · PNG / JPG / WebP / SVG</small>
+            </span>
+            <span class="theme-drop__thumb" data-theme-image-thumb hidden></span>
+          </div>
+          <input class="theme-input" type="text" spellcheck="false" placeholder="或粘贴图片地址（https://…）" data-theme-image-url aria-label="背景图片地址" />
+          <p class="theme-field__error" data-theme-image-error role="alert" hidden></p>
+          <div class="theme-range-row">
+            <label class="theme-range-row__label">背景色遮罩（护读） <output data-theme-overlay-out>46%</output></label>
+            <input class="theme-range" type="range" min="0" max="100" step="2" value="46" data-theme-image-overlay aria-label="背景遮罩不透明度" />
+          </div>
+          <p class="theme-field__hint">拖入的图片以 Base64 保存在本浏览器（建议小于 2MB）；开启后整页渐变自动停用，页面大块底色为图片让位、卡片平时透明悬浮显磨砂，导航栏呈半透明磨砂、页脚保持透明，也可为它们单独设置渐变</p>
+        </div>
+      </fieldset>
+
+      <div class="theme-field">
+        <div class="theme-field__head">
+          <span class="theme-field__label">文字颜色</span>
+        </div>
+        <div class="theme-color-grid">
+          <div class="theme-color-cell">
+            <span class="theme-color-cell__label">主文字</span>
+            <div class="theme-color-row">
+              <button class="theme-swatch-btn" type="button" data-theme-color-btn="ink" aria-label="打开主文字颜色取色器"></button>
+              <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="ink" aria-label="主文字颜色（十六进制）" />
+            </div>
+          </div>
+          <div class="theme-color-cell">
+            <span class="theme-color-cell__label">次要文字</span>
+            <div class="theme-color-row">
+              <button class="theme-swatch-btn" type="button" data-theme-color-btn="muted" aria-label="打开次要文字颜色取色器"></button>
+              <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="muted" aria-label="次要文字颜色（十六进制）" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="theme-field">
+        <div class="theme-field__head">
+          <span class="theme-field__label">品牌 / 交互强调色</span>
+        </div>
+        <div class="theme-color-row">
+          <button class="theme-swatch-btn" type="button" data-theme-color-btn="accent" aria-label="打开强调色取色器"></button>
+          <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="accent" aria-label="强调色（十六进制）" />
+          <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="r, g, b" data-theme-rgb="accent" aria-label="强调色（RGB）" />
+        </div>
+        <p class="theme-field__hint">用于按钮、链接、选中态等交互元素</p>
+      </div>
+
+      <div class="theme-field">
+        <div class="theme-field__head">
+          <span class="theme-field__label">界面圆角</span>
+          <output class="theme-field__output" data-theme-radius-out>默认</output>
+        </div>
+        <input class="theme-range theme-range--block" type="range" min="0" max="10" step="1" value="5" data-theme-radius aria-label="界面圆角程度" />
+        <div class="theme-range__ends" aria-hidden="true"><span>锐利</span><span>圆润</span></div>
+      </div>
+
+      <fieldset class="theme-field">
+        <div class="theme-field__head">
+          <legend class="theme-field__label">代码块配色</legend>
+          <button class="theme-mini-btn" type="button" data-theme-auto="code">按底色自动</button>
+        </div>
+        <div class="theme-color-grid">
+          <div class="theme-color-cell">
+            <span class="theme-color-cell__label">代码底色</span>
+            <div class="theme-color-row">
+              <button class="theme-swatch-btn" type="button" data-theme-color-btn="code.bg" aria-label="打开代码底色取色器"></button>
+              <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="code.bg" aria-label="代码底色（十六进制）" />
+            </div>
+          </div>
+          <div class="theme-color-cell">
+            <span class="theme-color-cell__label">代码文字</span>
+            <div class="theme-color-row">
+              <button class="theme-swatch-btn" type="button" data-theme-color-btn="code.fg" aria-label="打开代码文字颜色取色器"></button>
+              <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="code.fg" aria-label="代码文字颜色（十六进制）" />
+            </div>
+          </div>
+          <div class="theme-color-cell">
+            <span class="theme-color-cell__label">注释 / 弱化</span>
+            <div class="theme-color-row">
+              <button class="theme-swatch-btn" type="button" data-theme-color-btn="code.muted" aria-label="打开注释颜色取色器"></button>
+              <input class="theme-input theme-input--mono" type="text" spellcheck="false" placeholder="#rrggbb" data-theme-hex="code.muted" aria-label="注释颜色（十六进制）" />
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <p class="theme-field__error" data-theme-editor-error role="alert" hidden></p>
+    </form>
+
+    <div class="theme-editor__foot">
+      <button class="btn btn--ghost" type="button" data-theme-export>导出 JSON</button>
+      <span class="theme-editor__foot-spacer"></span>
+      <button class="btn btn--ghost" type="button" data-theme-cancel>取消</button>
+      <button class="btn btn--primary" type="button" data-theme-save>保存并应用</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="theme-import" data-theme-import aria-labelledby="theme-import-title">
+  <div class="theme-import__inner">
+    <h2 class="theme-import__title" id="theme-import-title">导入主题</h2>
+    <p class="theme-import__hint">粘贴他人分享的主题 JSON，或选择 .json 文件。</p>
+    <textarea
+      class="theme-import__textarea"
+      data-theme-import-json
+      rows="7"
+      spellcheck="false"
+      placeholder='{"format":"cdu-ai-theme","version":1,"params":{…}}'
+      aria-label="主题 JSON 内容"
+    ></textarea>
+    <input class="theme-import__file" type="file" accept="application/json,.json" data-theme-import-file aria-label="选择主题 JSON 文件" />
+    <p class="theme-import__error" data-theme-import-error role="alert" hidden></p>
+    <div class="theme-import__foot">
+      <button class="btn btn--ghost" type="button" data-theme-import-cancel>取消</button>
+      <button class="btn btn--primary" type="button" data-theme-import-confirm>导入并应用</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- JS 渲染色板时克隆的图标模板 -->
+<template data-theme-template-add>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+</template>
+<template data-theme-template-edit>
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="m4 20 4-.8L20 7.2 16.8 4 4.8 16 4 20Z" />
+  </svg>
+</template>
+<template data-theme-template-del>
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+    <path d="m6 6 12 12M18 6 6 18" />
+  </svg>
+</template>

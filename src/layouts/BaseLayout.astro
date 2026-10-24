@@ -3,6 +3,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import { site } from '../data/site';
+import { presetThemes } from '../data/themes';
+import { resolveThemeVars } from '../lib/theme-core';
 import '../styles/global.css';
 
 interface Props {
@@ -20,6 +22,13 @@ const {
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.tagline}`;
+
+/* 预设主题在构建期解析为变量表，供首屏防闪烁脚本直接应用 */
+const bootPresets = presetThemes.map((preset) => ({
+  id: preset.id,
+  base: preset.params.base,
+  vars: resolveThemeVars(preset.params),
+}));
 ---
 
 <!doctype html>
@@ -47,25 +56,46 @@ const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.t
     <noscript>
       <style>
         .search-trigger,
-        .theme-toggle {
+        .theme-picker {
           display: none !important;
         }
       </style>
     </noscript>
 
-    <script is:inline>
+    <script is:inline define:vars={{ bootPresets }}>
       (() => {
+        const root = document.documentElement;
         try {
           const saved = localStorage.getItem('cdu-ai-theme');
-          const theme =
-            saved === 'light' || saved === 'dark'
-              ? saved
-              : window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'light';
-          document.documentElement.dataset.theme = theme;
+          let theme = null;
+          if (saved && saved !== 'light' && saved !== 'dark') {
+            if (saved.indexOf('preset-') === 0) {
+              theme = bootPresets.find((item) => item.id === saved) || null;
+            } else {
+              const list = JSON.parse(localStorage.getItem('cdu-ai-custom-themes') || '[]');
+              theme = Array.isArray(list)
+                ? list.find((item) => item && item.id === saved && item.params) || null
+                : null;
+            }
+          }
+          if (theme) {
+            const base = theme.base || (theme.params && theme.params.base);
+            root.dataset.theme = base === 'dark' ? 'dark' : 'light';
+            const vars = theme.vars || {};
+            for (const key in vars) root.style.setProperty(key, vars[key]);
+            /* 图片生效标记：让导航栏 / 画布层在首屏就为图片让位 */
+            root.dataset.imageBg = String(vars['--page-bg-image'] || '').indexOf('url(') > -1 ? 'true' : 'false';
+          } else {
+            root.dataset.theme =
+              saved === 'light' || saved === 'dark'
+                ? saved
+                : window.matchMedia('(prefers-color-scheme: dark)').matches
+                  ? 'dark'
+                  : 'light';
+            root.dataset.imageBg = 'false';
+          }
         } catch {
-          document.documentElement.dataset.theme = 'light';
+          root.dataset.theme = 'light';
         }
       })();
     </script>
