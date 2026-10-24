@@ -191,7 +191,7 @@ AI 主分支分节：
 
 2026-10-24 的 Agent 补充、社区项目维护状态与仓库迁移依据见 [AGENT-CATALOG-REVIEW.md](AGENT-CATALOG-REVIEW.md)。
 
-书签增补的取舍、重复入口与新旧域名核对见 [工具目录增补记录](TOOL-CATALOG-REVIEW.md)。新增条目优先成熟生态与明确使用场景，同类只保留少量代表。
+书签增补、工具页缺项补充的取舍、重复入口与新旧域名核对见 [工具目录增补记录](TOOL-CATALOG-REVIEW.md)。新增条目优先成熟生态与明确使用场景，同类只保留少量代表。
 
 **默认展示**：Agent 与 Harness 分类里，tier 为主流产品的条目与 agentSpotlightIds 列出的常用社区项目（OpenCode、Pi、Hermes Agent、OpenClaw）直接显示；其余社区 / 小众条目收进页面上的「更多社区 Agent 与 Harness」折叠区。折叠只影响默认展开状态，不改变收录范围——搜索、筛选计数与搜索索引始终覆盖完整目录。需要调整默认展示时，改 agentSpotlightIds，不要删条目。
 
@@ -210,6 +210,10 @@ AI 主分支分节：
 Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模型与数据社区」，使用 `kind: '资源社区'`。托管开源资源不等于整个平台开源或可本地部署，不因此添加 `open-source` / `local` 能力标签；具体模型、数据集的许可与算力限制分别核对。
 
 模型 API 与开发工作台归入 `api`，使用 `kind: '开发平台'`；云端 GPU 实例归入 `compute`。同一厂商的聊天产品和 API 后台按不同任务分别记录，同一个平台的登录页、文档页与控制台不重复建条目。租用云端算力不标为 `local`；Google AI Studio 与飞桨 AI Studio 保留完整厂商名称，避免同名混淆。
+
+演示文稿、设计排版与办公整理归入 `office`；双语翻译、OCR 和结构化文档解析归入 `document`。同一工具兼有录音、科研或图像用途时用 `alsoIn` 补充入口，不复制条目。Google Colab 按云端实验环境归入 `compute`，不标为本地部署。
+
+能力标签按当前实现和许可核对。Open WebUI 与 MinerU 的代码可获取，但当前许可含附加条件，条目在 `caution` 说明边界，并省略 `open-source` 标签；有本地部署能力不代表连接云端模型时数据仍留在本机。
 
 ### 6.2 一条工具的字段
 

@@ -110,3 +110,27 @@
 - 只有黑白灰的近黑标志（如 Cline、Midjourney）才标 `mono: true`，深色主题用 `filter: invert(1)` 提高可见性；Qwen、Udio、Elicit、Coze 等彩色图标不反色，保留品牌原色。
 - 没有配置 `logo` 时显示首字母；已配置图标时默认隐藏字母，`onerror` 移除失败图片后显示首字母。
 - Pi 的官方 SVG 带系统主题媒体查询；保留图形路径，固定为官方浅色单色样式，再由本站主题控制反色，避免系统主题与站点主题不一致。
+
+## 本轮新增资源图标（2026-10-24）
+
+| 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
+| --- | --- | --- | --- | --- |
+| Cherry Studio | `/tool-logos/cherry-studio.webp` | https://cherryai.com/assets/favicon-BmbgeFTf.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| 腾讯元宝 | `/tool-logos/yuanbao.webp` | https://static.yuanbao.tencent.com/m/yuanbao-web/favicon_new@32.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| Gamma | 首字母 G | https://gamma.app/ | 官方图标资源本轮未成功获取，暂用首字母，不以来源不明的图片替代 | 不适用 |
+| Canva AI | `/tool-logos/canva.webp` | https://static.canva.com/domain-assets/canva/static/images/favicon-1.ico | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| 沉浸式翻译 | `/tool-logos/immersive-translate.webp` | https://immersivetranslate.com/_next/static/media/logo.761c1cd1.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| 通义听悟 | `/tool-logos/tingwu.webp` | https://g.alicdn.com/idst-fe/mind-meeting-assistant2/0.0.189/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| Consensus | `/tool-logos/consensus.webp` | https://consensus.app/images/icon-384.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| MinerU | `/tool-logos/mineru.webp` | https://mineru.net/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| 硅基流动 SiliconFlow | `/tool-logos/siliconflow.webp` | https://cloud.siliconflow.cn/favicon.ico | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| OpenRouter | `/tool-logos/openrouter.webp` | https://openrouter.ai/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| 火山方舟 | `/tool-logos/volcengine-ark.webp` | https://portal.volccdn.com/obj/volcfe/misc/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| Google Colab | `/tool-logos/google-colab.webp` | https://colab.research.google.com/img/colab_favicon_256px.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| Open WebUI | `/tool-logos/open-webui.webp` | https://openwebui.com/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| RAGFlow | `/tool-logos/ragflow.svg` | https://ragflow.io/img/logo.svg | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| Browser Use | `/tool-logos/browser-use.webp` | https://browser-use.com/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| CrewAI | `/tool-logos/crewai.webp` | https://crewai.com/favicon.ico | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| llama.cpp | `/tool-logos/llama-cpp.svg` | https://llama.app/ | 品牌官网图标，仅用于识别该产品或项目 | 是 |
+| 万相 Wan | `/tool-logos/wan.webp` | https://avatars.githubusercontent.com/u/200620180?v=4 | 官方 GitHub 组织头像，仅用于识别该项目 | 否 |
+| 海螺 AI | `/tool-logos/hailuo.webp` | https://cdn.hailuoai.video/open-hailuo-video-web/public_assets/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |

@@ -1,6 +1,6 @@
 # 工具目录增补与去重记录
 
-核对日期：2026-10-24。输入为维护者提供的书签截图，入库数据见 [`tools.ts`](../src/data/tools.ts)。本轮优先成熟生态、明确使用场景与现有目录的缺项，同类只保留少量代表；不设置市场份额或热度排名。
+核对日期：2026-10-24。输入包括维护者提供的书签截图与工具页缺项核对，入库数据见 [`tools.ts`](../src/data/tools.ts)。本轮优先成熟生态、明确使用场景与现有目录的缺项，同类只保留少量代表；不设置市场份额或热度排名。
 
 信息依据为官方入口、页面说明和官方开发文档。本轮未逐个平台注册账号、配置密钥或完成真实模型任务测试。
 
@@ -46,3 +46,41 @@
 | Home | 通用标题不足以确认目标网址，不按图标猜测收录 |
 
 暂缓条目在后续出现明确使用场景时重新核对。收录仍需填写实际核对日期、说明用途与限制；不写零成本使用承诺，不将平台托管的开放资源等同于平台本身开源或可本地部署。
+
+## 工具页缺项补充（2026-10-24）
+
+按用户确认的候选清单新增 19 项，总目录为 102 项、15 个场景分类。新增「办公与演示」和「翻译与文档处理」；同一资源通过 `alsoIn` 在相关场景可见，不复制条目。
+
+| 工具 | 主分类 | 核对入口 | 具体用途 |
+| --- | --- | --- | --- |
+| Cherry Studio | 语言模型与对话 | [官方入口](https://cherryai.com/) / [仓库](https://github.com/CherryHQ/cherry-studio) | 在一个客户端里比较不同模型，并反复查询课程资料与个人笔记。 |
+| 腾讯元宝 | 语言模型与对话 | [官方入口](https://yuanbao.tencent.com/) | 梳理中文材料、起草活动通知，或把一个问题拆成可继续追问的步骤。 |
+| Gamma | 办公与演示 | [官方入口](https://gamma.app/) | 把已有提纲或课程材料整理成一份演示文稿初稿。 |
+| Canva AI | 办公与演示 | [官方入口](https://www.canva.com/) | 制作课程展示、活动海报和社团宣传图，并继续手工调整细节。 |
+| 沉浸式翻译 | 翻译与文档处理 | [官方入口](https://immersivetranslate.com/zh-Hans/) | 对照原文阅读外文论文、技术文档和课程视频字幕。 |
+| 通义听悟 | STT 语音识别 | [官方入口](https://tingwu.aliyun.com/) | 整理课堂录音、访谈和会议记录，先转写再核对重要发言。 |
+| Consensus | AI 搜索与科研 | [官方入口](https://consensus.app/) | 查找一个研究问题已有的论文证据，比较不同研究的结论。 |
+| MinerU | 翻译与文档处理 | [官方入口](https://mineru.net/) / [仓库](https://github.com/opendatalab/MinerU) | 把复杂 PDF 中的文字、表格和公式提取出来，供检索或进一步整理。 |
+| 硅基流动 SiliconFlow | API 与开发平台 | [官方入口](https://www.siliconflow.cn/) | 为客户端或自己的小应用接入模型，比较不同模型的任务表现。 |
+| OpenRouter | API 与开发平台 | [官方入口](https://openrouter.ai/) | 让同一个应用切换不同模型，或配置模型不可用时的回退。 |
+| 火山方舟 | API 与开发平台 | [官方入口](https://www.volcengine.com/product/ark) | 给自己的应用接入豆包等模型，先体验能力再配置 API 调用。 |
+| Google Colab | 云端算力与部署 | [官方入口](https://colab.research.google.com/) | 跟随课程运行 Python 或机器学习 Notebook，分享实验代码与结果。 |
+| Open WebUI | 本地模型与部署 | [官方入口](https://openwebui.com/) / [仓库](https://github.com/open-webui/open-webui) | 给本地模型搭一个网页聊天界面，并查询自己的文档。 |
+| RAGFlow | Agent 工作流与开发 | [官方入口](https://ragflow.io/) / [仓库](https://github.com/infiniflow/ragflow) | 用一批项目文档搭建可检索来源的问答知识库。 |
+| Browser Use | Agent 工作流与开发 | [官方入口](https://browser-use.com/) / [仓库](https://github.com/browser-use/browser-use) | 为 Agent 接入浏览器，自动整理网页信息并记录执行结果。 |
+| CrewAI | Agent 工作流与开发 | [官方入口](https://crewai.com/) / [仓库](https://github.com/crewAIInc/crewAI) | 学习多 Agent 分工，搭建资料收集、整理与审阅的实验流程。 |
+| llama.cpp | 本地模型与部署 | [官方入口](https://llama.app/) / [仓库](https://github.com/ggml-org/llama.cpp) | 在自己的电脑上尝试量化模型，比较内存占用和推理速度。 |
+| 万相 Wan | 视频生成 | [官方入口](https://wan.video/) / [仓库](https://github.com/Wan-Video/Wan2.2) | 生成短视频素材，或进一步学习开放视频模型的部署与工作流。 |
+| 海螺 AI | 视频生成 | [官方入口](https://hailuoai.video/) | 把分镜描述或参考图变成短视频片段，尝试不同镜头想法。 |
+
+### 形态、许可与入口边界
+
+- Cherry Studio 是客户端，模型调用条件由所选服务决定；Google Colab 是托管 Notebook，不是模型或模型下载社区。
+- Open WebUI 的当前许可含品牌保留条件，MinerU 的当前许可含商业门槛及在线服务标识义务。两项保留仓库与本地部署入口，并在卡片说明许可边界，不加入无条件的「开源」能力筛选。许可原文分别见 [Open WebUI LICENSE](https://github.com/open-webui/open-webui/blob/main/LICENSE) 与 [MinerU LICENSE.md](https://github.com/opendatalab/MinerU/blob/master/LICENSE.md)。
+- Cherry Studio（AGPL-3.0）、RAGFlow（Apache-2.0）、Browser Use、CrewAI、llama.cpp（MIT）及 Wan2.2（Apache-2.0）的仓库均未归档，并核对了最近提交和许可。框架、客户端的许可不替代所接模型的许可。
+- llama.cpp 保留引擎名称与源码入口，官网链接采用仓库声明的 [llama.app](https://llama.app/)；文案说明该站同时提供 Llama 应用，避免把引擎与桌面产品混成同一个实现。
+- 万相网页产品与 Wan2.2 开放模型可能属于不同版本；开源、本地部署标签仅对应已发布模型，不能理解成网页所有功能都可离线复现。
+- 所有新增项目优先使用官网；8 项代码项目分别填写 `githubUrl`，不将组织主页、SDK 或示例仓库作为闭源产品的实现仓库。
+- 图标保留官方底板和颜色，来源见 [TOOL-LOGOS.md](TOOL-LOGOS.md)。Gamma 本轮未成功获取官方图标，暂用首字母 G。
+
+核对范围为官方页面、文档与仓库，不代表已逐项登录、部署或完成真实模型任务。价格仅说明使用条件，不记录具体金额或固定额度。
