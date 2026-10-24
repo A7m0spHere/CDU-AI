@@ -110,6 +110,12 @@
 }
 
 .home-hero__wordmark-cdu {
+  /* 斜体字形顶部会向右溢出字形框（Georgia Bold Italic 约 0.14em）。
+     background-clip: text 只绘制 padding box 内的渐变，溢出的笔画会被裁掉，
+     表现为「U」右侧缺一块。用 padding-right 把绘制区向右撑开，再用等量的
+     负 margin-right 抵消，ASCII「AI」的位置和整块品牌字宽度都不变。 */
+  padding-right: 0.18em;
+  margin-right: -0.18em;
   background: linear-gradient(90deg, #707079 0%, #333338 55%, #1a1a1e 100%);
   -webkit-background-clip: text;
   background-clip: text;

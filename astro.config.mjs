@@ -12,9 +12,9 @@ console.warn = (...args) => {
   originalWarn(...args);
 };
 
-// 部署到自有域名后，在这里补充 site（例如 https://ai.example.edu.cn），
-// Astro 才能生成绝对 URL。M0 不预设任何未经确认的线上地址。
+// Sites 公开开发预览地址，用于生成绝对 URL。
 export default defineConfig({
+  site: 'https://cdu-ai-commons.a7m0sphere.chatgpt.site',
   output: 'static',
   devToolbar: {
     enabled: false,

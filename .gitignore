@@ -18,6 +18,7 @@ Thumbs.db
 .idea/
 # local agent / tool state
 .local/
+.openai/
 
 # local visual QA artifacts
 work/

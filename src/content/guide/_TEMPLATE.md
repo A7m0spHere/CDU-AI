@@ -21,7 +21,7 @@ sources: [] # 可选；有外部依据时补充 - title / url 两项
 # basis: "teaching-example" # first-hand（亲测）/ desk-research（资料整理）/ teaching-example（教学示例）
 # aiUsage: "drafted" # none / assisted / drafted
 # testedOn: "2026-10-21" # 仅 basis: first-hand 时必填
-# testedEnvironment: "网页版，Chrome 130，免费账号" # 仅 basis: first-hand 时必填
+# testedEnvironment: "网页版，Chrome 130，个人账号" # 仅 basis: first-hand 时必填
 # contributors: ["贡献者笔名"]
 ---
 

@@ -1,16 +1,18 @@
 # 内容维护规范
 
-> 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。完整文件地图和新增流程见 [`CONTRIBUTING.md`](https://github.com/A7m0spHere/CDU-AI/blob/main/CONTRIBUTING.md)。
+> 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。完整文件地图和新增流程见 [贡献指南](../CONTRIBUTING.md)，其他说明见 [文档导航](README.md)。
 
 ## 0. 从模板开始
 
-三个内容目录当前只保留 `_TEMPLATE.md`（旧内容已于 2026-10-20 清空）：
+各内容目录保留 `_TEMPLATE.md` 写作模板。指南与作品正文待补充，术语库已有「AI 幻觉」示范词条，新增内容仍从对应模板开始：
 
 - `src/content/guide/_TEMPLATE.md`：学习指南模板
 - `src/content/works/_TEMPLATE.md`：作品示例模板
 - `src/content/glossary/_TEMPLATE.md`：术语模板
 
 复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会进入构建**，可以作为草稿模板长期保留。内容为空时列表页会显示「内容准备中」占位。
+
+新增指南时，还需在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts) 登记相同的 slug 与目录分组；只创建 Markdown 文件而未登记会被内容检查器拒绝。
 
 ## 1. 三条底线
 
@@ -34,7 +36,7 @@
 
 侧边栏的**分组（栏目）**单独维护在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts)，与文章的 `stage` / `order` 解耦：
 
-- `stage` + `order` 只决定「上一篇 / 下一篇」的阅读顺序；
+- `stage` 决定学习阶段归属；`order` 是指南集合内全局唯一的正整数，决定「上一篇 / 下一篇」的跨阶段阅读顺序，不在新阶段从 1 重编号；
 - `guideNavGroups` 决定文章出现在侧边栏哪个栏目、栏目内第几条、以及目录总览卡片；
 - 只登记 `slug` 没有对应文件 = 「规划中」占位（灰色不可点，不生成路由）；
 - 建了文件但没登记 = `npm run check:content` 报错（避免文章写了却不在目录里）。
@@ -43,7 +45,7 @@
 
 1. 在 `guide-nav.ts` 找到目标栏目，确认已有占位条目（如 `{ label: '任务描述', slug: 'task-description' }`）；没有就加一条；
 2. 用同一个 `slug` 建文件 `src/content/guide/<slug>.md`（可先复制 `_TEMPLATE.md`）；
-3. 填 frontmatter（`stage` 决定阅读顺序、`order` 决定同阶段排序）与正文；
+3. 填 frontmatter（`stage` 决定阶段归属、`order` 决定全局阅读顺序）与正文；
 4. 跑 `npm run verify`：侧边栏自动变成真实链接，标题取文章 `title`，目录计数同步。
 
 调整栏目（改名、加分组、换顺序）只改 `guide-nav.ts`，不需要动组件或页面。
@@ -53,7 +55,7 @@
 title: "先建立使用 AI 的基本姿势"
 summary: "用一句话说明这个模块能帮上什么忙。"
 stage: "start" # start | make | share
-order: 1
+order: 1 # 指南集合内全局唯一；跨阶段也不能重号，可以留空档
 level: "零基础"
 outcome: "读完后你能做到的一件具体小事。"
 forWho: "最适合哪类同学，避免写给所有人。"
@@ -137,7 +139,25 @@ frontmatter：
 - `aiUsage`：`none` / `assisted` / `drafted`（默认），如实标注 AI 参与程度。
 - `contributors`：最多 5 个贡献者代称，不写真实姓名、学号等隐私。
 
-正文固定分节，每节都要能被零基础读者读懂：
+可选页面区块与约束：
+
+| 字段 | 用途与约束 |
+| --- | --- |
+| `youMaySay` | 读者会问出口的一句话，最多 240 字 |
+| `scenario` | 场景标题与 2–4 步可点击流程；每步必填 `label` / `body`，可选 `quote` / `meta` / `note` |
+| `quiz` | 最多 3 题；每题 2–4 个选项，且恰好一个 `correct: true`；可用 `explain` 解释答案 |
+| `agentPrompt` | 可复制给 Agent 的提示词，最多 600 字 |
+
+写法示例放在 [`术语模板`](../src/content/glossary/_TEMPLATE.md)，不写可选区块时页面不渲染。分类与选题批次见 [术语库规划](GLOSSARY-PLAN.md)。
+
+两类词条的正文结构不同：
+
+| 分支 | 分类 id | 正文要求 |
+| --- | --- | --- |
+| AI 主分支 | `basics` / `prompt` / `tools` / `agents` / `safety` / `cost` | 使用下列六段结构，最后一段可选 |
+| 延伸分支 | `vibecoding` / `frontend` / `backend` / `product` / `testing` / `git` | 300–500 字；是什么 / 什么时候会遇到 / 和 AI 的关系 /（可选）想深入再看；只解释术语，不教操作步骤或 Git 命令 |
+
+AI 主分支分节：
 
 - `一句话说清`：它是什么，为什么重要；
 - `打个比方`：一个生活化的类比；
@@ -148,10 +168,12 @@ frontmatter：
 
 写作要求：面向非计算机专业同学，不假设读者知道 API、模型、上下文等前置概念；必须出现的术语要当场解释清楚，或链接到本表另一条。
 
+新词条至少提供 1 条支持正文事实的官方文档或原始论文；`definition` 不超过 60 字。`order` 在同一分类内唯一，`related` 只能引用已存在的词条。词条正文由人规划、起草和确定判断，AI 可协助查证、润色、排版与工程校验；人工核校签字仍按 [审校规范](CONTENT-REVIEW.md) 执行。
+
 来源标注要与实际情况一致，分两层写：
 
 - 词条定义、别名与一句话释义由本站独立撰写，事实与数字以 `sources` 中列出的官方文档为准；
-- 详情页正文（类比、步骤、场景、常见误解）同样由本站撰写，初稿可由 AI 协助。**页面状态由 `reviewed` 字段自动推导**：没有审校日期就显示「初稿 · 尚未人工核校」，真人逐条核校后填写 `reviewed` / `reviewedBy` 才会显示「已人工核校」。不要为了消掉提示而提前填日期。
+- 详情页正文（类比、步骤、场景、常见误解）同样由本站独立撰写。**页面状态由 frontmatter 推导**：`needsUpdate: true` 优先显示待更新；没有审校日期时显示「初稿 · 尚未人工核校」，真人逐条核校后填写 `reviewed` / `reviewedBy` 才会显示「已人工核校」。不要为了消掉提示而提前填日期。
 
 校准一条术语的标准：能指出它「不成立」的边界（例如微调不能可靠记住新事实），并且没有写死会变化的价格、额度、版本号。
 
@@ -165,16 +187,124 @@ frontmatter：
 
 ## 6. 工具数据
 
-**现状**：工具目录当前为空，且只由维护者按需添加（不开放社区提交、不迁移 Markdown）。页面在目录为空时显示占位说明，新增第一条工具后筛选与搜索会自动恢复。
+工具目录只由维护者审核后入库（不开放自动发布、不迁移 Markdown），全部数据在 [`src/data/tools.ts`](../src/data/tools.ts)，字段由 [`src/data/types.ts`](../src/data/types.ts) 的 `Tool` 约束。**改数据就能加工具**：页面、筛选计数、首页推荐、搜索索引都由这份数组推导，不需要动组件。
 
-新增条目时编辑 `src/data/tools.ts`：
+2026-10-24 的 Agent 补充、社区项目维护状态与仓库迁移依据见 [AGENT-CATALOG-REVIEW.md](AGENT-CATALOG-REVIEW.md)。
 
-- `url` 必须是官方入口，不写聚合站、网盘或邀请码链接。
+书签增补、工具页缺项补充的取舍、重复入口与新旧域名核对见 [工具目录增补记录](TOOL-CATALOG-REVIEW.md)。新增条目优先成熟生态与明确使用场景，同类只保留少量代表。
+
+**默认展示**：Agent 与 Harness 分类里，tier 为主流产品的条目与 agentSpotlightIds 列出的常用社区项目（OpenCode、Pi、Hermes Agent、OpenClaw）直接显示；其余社区 / 小众条目收进页面上的「更多社区 Agent 与 Harness」折叠区。折叠只影响默认展开状态，不改变收录范围——搜索、筛选计数与搜索索引始终覆盖完整目录。需要调整默认展示时，改 agentSpotlightIds，不要删条目。
+
+### 6.1 分类与技术类型不是一回事
+
+分类回答「我想做什么」，技术类型回答「它靠什么实现」。两者必须分开写，否则页面会变成一锅粥：
+
+| 层次 | 例子 | 写在哪里 |
+| --- | --- | --- |
+| 场景分类 | 语言模型与对话 / 图像生成与编辑 | `category`（`toolCategories` 里的 id） |
+| 资源形态 | 在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 / 资源社区 / 开发平台 | `kind` |
+| 技术类型 | LLM 对话应用 / 扩散模型 / Agent Harness / TTS / STT | `tech` |
+
+常见错误：把 ChatGPT 写成「LLM」（它是产品，LLM 是模型类别）；把 Claude Code 写成「开源项目」（产品闭源，仓库只放文档）；把 ComfyUI 写成「扩散模型」（它是跑模型的工作流工具）。**收录前先确认它属于哪一层。**
+
+Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模型与数据社区」，使用 `kind: '资源社区'`。托管开源资源不等于整个平台开源或可本地部署，不因此添加 `open-source` / `local` 能力标签；具体模型、数据集的许可与算力限制分别核对。
+
+模型 API 与开发工作台归入 `api`，使用 `kind: '开发平台'`；云端 GPU 实例归入 `compute`。同一厂商的聊天产品和 API 后台按不同任务分别记录，同一个平台的登录页、文档页与控制台不重复建条目。租用云端算力不标为 `local`；Google AI Studio 与飞桨 AI Studio 保留完整厂商名称，避免同名混淆。
+
+演示文稿、设计排版与办公整理归入 `office`；双语翻译、OCR 和结构化文档解析归入 `document`。同一工具兼有录音、科研或图像用途时用 `alsoIn` 补充入口，不复制条目。Google Colab 按云端实验环境归入 `compute`，不标为本地部署。
+
+能力标签按当前实现和许可核对。Open WebUI 与 MinerU 的代码可获取，但当前许可含附加条件，条目在 `caution` 说明边界，并省略 `open-source` 标签；有本地部署能力不代表连接云端模型时数据仍留在本机。
+
+### 6.2 一条工具的字段
+
+```ts
+{
+  id: 'deepseek',            // 稳定唯一，用于筛选与未来的详情页
+  name: 'DeepSeek',
+  category: 'llm-chat',      // 主分类
+  alsoIn: ['workflow'],      // 可选：还能在哪些场景被找到
+  aliases: ['深度求索'],      // 可选：别名，参与搜索
+  summary: '一句话：它是什么',
+  description: '两三句话：新手拿它做什么',
+  bestFor: '最适合的具体场景，不要写「提效」这类空话',
+  difficulty: '零门槛',        // 零门槛 / 稍加摸索 / 需要动手
+  // pricing: '需要付费',      // 可选，仅在核实付费要求后填写；此示例未设置
+  url: 'https://chat.deepseek.com/',
+  githubUrl: 'https://github.com/...', // 可选：开源项目或官方仓库
+  tech: 'LLM 对话应用',
+  kind: '在线产品',
+  capabilities: ['beginner', 'zh'],    // open-source / local / beginner / zh
+  tier: '主流产品',                    // 主流产品 / 社区热门 / 小众探索
+  verifiedOn: '2026-10-23',           // 最近一次核对官网的日期
+  basis: 'official',                  // official / docs / community
+  logo: { src: '/tool-logos/deepseek.webp', source: '...', license: '...' },
+  tags: ['对话', '推理'],
+  caution: '使用前值得知道的一句话',
+}
+```
+
+写作要求：
+
 - `summary` 一句话；`description` 2–3 句；`bestFor` 写具体任务。
-- `difficulty`：零门槛 / 稍加摸索 / 需要动手。
-- `pricing`：免费可用 / 免费增值 / 需要付费；价格与额度会变化，不要写死具体价格。
-- `caution` 提醒隐私、版权、幻觉或需要登录等真实限制。
-- 收录 ≠ 推荐。测试时用真实官网核对链接与名称。
+- `caution` 写真实限制：隐私、版权、地区限制、额度、需要登录，不写营销话术。
+- 不写「最强」「必备」「吊打」；没有实际长期使用的项目，不写「亲测」「社区推荐」。
+- 价格与额度会变化：仅保留已核实的付费要求，不标注零成本承诺或具体金额；未确认时省略 `pricing`，使用条件与限制写入 `caution`。
+- `verifiedOn` 只在真的打开过官网/仓库并核对名称与归属后填写。
+
+### 6.3 新增一条工具的完整流程
+
+1. **核验**：打开官网，确认名称、归属（哪家公司/哪个团队）、当前是否可用；开源项目再看仓库的许可与最近提交。
+2. **定层次**：先定 `category`，再定 `kind` 与 `tech`，最后才写文案。
+3. **准备 Logo**（见 6.4），放进 `public/tool-logos/`。
+4. **写条目**：在 `tools` 数组末尾追加对象，字段顺序不必固定，但不要漏 `verifiedOn` 与 `logo.source`。
+5. **跑检查**：`npm run verify`。类型检查和构建后的测试共同校验分类、枚举、id/名称、Logo 文件及外链协议，不能只凭 `npm run check:content` 判断工具条目已完整通过验证。
+6. **看页面**：`npm run dev` 打开 `/tools/`，确认筛选计数、深色主题下的 Logo、移动端布局。
+
+### 6.4 Logo 从哪里来
+
+按优先级取图，并在 `logo.source` 写清出处、在 `logo.license` 写清授权：
+
+1. **官网图标本体**：品牌官网的 apple-touch-icon / PWA 图标（≥180×180 最好），其次 favicon；
+2. **官方 Brand Assets / Media Kit**（如 `github.com/logos`、`elevenlabs.io/brand`）；
+3. **开源项目的官方 GitHub 组织头像**；
+4. **有明确授权的开源品牌图标库**：本项目个别条目用 [Simple Icons](https://simple-icons.org)（CC0 1.0）；
+5. **没有适合小尺寸展示的官方图标时**：省略 `logo` 字段，页面回退成名称首字母；不要使用 GitHub 自动生成头像代替产品标志。
+
+**保留官方图标的底板**：官方图标是白底、深底或圆角方块就照原样显示，不要抠成透明，也不要自己再加白框。卡片图标区本身不带底色和描边——图标有底板就显示底板，本身透明就浮在卡片上。
+
+**首字母只作加载失败兜底**：有 `logo` 时字母默认隐藏（`hidden`），图片加载失败后移除图片并显示首字母；没有配置图标时直接使用首字母。不要让字母垫在正常图标下面，从透明区域透出来。
+
+禁止：搜索引擎里的随机图片、带水印图、来源不明的 CDN 热链、用 AI 重画的官方 Logo。
+
+技术细节：
+
+- 位图转成 96×96 WebP（保留原图透明通道），矢量图保留原始 SVG，单个文件控制在 12KB 以内。
+- 只有黑白灰的近黑标志（如 Cline）才加 `mono: true`，深色主题会自动反色；Qwen、Udio、Elicit、Coze 等彩色图标必须保留品牌原色，不设置此字段。
+- 授权与出处汇总见 [`docs/TOOL-LOGOS.md`](TOOL-LOGOS.md)。
+
+### 6.5 链接与失效处理
+
+- `url` 优先填写独立官网或官方项目介绍页，供工具名称和「打开官网」使用；只有没有可用官网时才回退到官方仓库。不写聚合站、网盘、邀请码、第三方镜像。
+- 有官方 GitHub 仓库的项目单独填写 `githubUrl`，供 GitHub 图标旁的「代码仓库」入口使用；不要因为项目开源，就让「打开官网」也跳到仓库。
+- `url` 回退到 GitHub 时，卡片只显示带 GitHub 图标的「代码仓库」，不把仓库标为官网，也不重复展示两个相同的入口。
+- 回退到仓库时同时填写相同的 `url` 和 `githubUrl`。GitHub Copilot 等产品的官网也在 `github.com` 下，不能只凭域名把产品页认成仓库。
+- 仓库改名或迁移时（例如 OpenCode 从 sst 迁到 anomalyco、CosyVoice 从 FunAudioLLM 迁到 QwenAudio），更新 `githubUrl` 为当前地址；有独立官网时保留官网入口。
+- **产品停运或长期不可用**：直接从数组里删除该条目，并在 PR 说明里写清依据；不要为了凑数保留失效链接。
+- **只改了价格/额度**：更新 `caution` 文案与 `verifiedOn`，不动其他字段。
+- **拿不准来源**：先不收录。工具目录空着比放错更安全。
+
+### 6.6 页面上的筛选规则
+
+- 场景分类：单选，代表「当前浏览的分支」；输入关键词时暂时让位给搜索。
+- 能力筛选（开源 / 本地部署 / 入门友好 / 中文界面）：多选，取交集，搜索时依然生效。
+- 搜索范围：名称、别名、技术类型、形态、分类、能力与标签。
+- Agent 与 Harness 的社区条目默认收在折叠区；一旦输入关键词或启用任一筛选，折叠区会自动展开，保证「收录了就能搜到 / 筛到」。
+- 三者都满足才显示，结果数量、空状态与 URL（`?category=&caps=&q=`）始终一致。
+- 不按热度或「综合评分」排序：数组顺序就是展示顺序，`featured: true` 只影响首页三张卡。
+
+### 6.7 社区建议
+
+页面底部与页头卡片都有「建议收录工具」入口，指向仓库已有的 [工具建议 Issue 模板](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)。入库仍由维护者审核，不提供无需审查的自动发布。
 
 ## 7. 活动数据
 

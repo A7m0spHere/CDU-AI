@@ -14,9 +14,10 @@
     "preview": "astro preview",
     "check": "astro check",
     "check:content": "node scripts/check-content.mjs",
+    "check:docs": "node scripts/check-docs.mjs",
     "check:links": "node scripts/check-links.mjs",
-    "test": "node --test tests/site.test.mjs",
-    "verify": "npm run check && npm run check:content && npm run build && npm run test && npm run check:links",
+    "test": "node --test tests/site.test.mjs tests/docs.test.mjs",
+    "verify": "npm run check && npm run check:content && npm run check:docs && npm run build && npm run test && npm run check:links",
     "astro": "astro"
   },
   "dependencies": {
@@ -24,7 +25,10 @@
   },
   "devDependencies": {
     "@astrojs/check": "0.9.10",
+    "github-slugger": "2.0.0",
     "js-yaml": "^4.3.2",
-    "typescript": "5.9.3"
+    "remark-parse": "11.0.0",
+    "typescript": "5.9.3",
+    "unified": "11.0.5"
   }
 }
