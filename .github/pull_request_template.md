@@ -11,7 +11,7 @@
 
 ## 验证方式
 
-- [ ] 已运行 `npm run verify`（类型检查 + 构建 + 内容测试 + 站内链接检查）
+- [ ] 已运行 `npm run verify`（类型检查 + 内容与文档校验 + 构建 + 测试 + 站内链接检查）
 - [ ] 只改了 Markdown 文案，未在本地运行命令（CI 会自动检查；维护者合并前以 CI 结果为准）
 
 ## 事实与来源
@@ -25,7 +25,7 @@
 - [ ] 引用文字、图片、截图有来源或授权说明
 - [ ] 同意本次贡献按仓库 LICENSE（MIT）发布
 
-> 提交 PR 即视为同意以 GitHub 账号记入 [CONTRIBUTORS.md](CONTRIBUTORS.md)；不希望署名可以在 PR 里说明，也可以改用笔名或匿名。
+> 提交 PR 即视为同意以 GitHub 账号记入 [CONTRIBUTORS.md](https://github.com/A7m0spHere/CDU-AI/blob/main/CONTRIBUTORS.md)；不希望署名可以在 PR 里说明，也可以改用笔名或匿名。
 
 ## AI 辅助声明（仅文档 / 内容 / 文案类修改填写）
 

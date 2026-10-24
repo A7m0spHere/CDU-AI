@@ -1,8 +1,8 @@
-# 参与内容与文档维护
+# 参与共建
 
-> 内容组织参考 [AI-Research-Guide](https://github.com/Takamatsu-Hikaru/AI-Research-Guide) 的做法：正文、导航、搜索和校验尽量来自同一份内容源，先定义内容，再让页面自动消费。我们不复制它的代码、品牌或页面结构。
+这是一个开放共建的站点，**不需要会写代码**也能参与：在 GitHub 网页上点几下，就能改一个错别字、指出一处错误，或分享一次真实使用经验。本文说明网页贡献、本地验证、审稿与署名流程；字段细节和维护操作通过链接查阅。
 
-这是一个开放共建的站点，**不需要会写代码**也能参与：在 GitHub 网页上点几下，就能改一个错别字、指出一处错误，或分享一次真实使用经验。本文先讲网页贡献路径，再讲内容规范；最后给出维护者的审稿清单与仓库设置清单。
+贡献者名单和参考项目统一收录在 [贡献与致谢](CONTRIBUTORS.md)，技术文档入口见 [文档导航](docs/README.md)。
 
 ## 1. 入口一览
 
@@ -53,151 +53,48 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | --- | --- |
 | 学习指南正文 | [`src/content/guide/`](src/content/guide/)，一篇 Markdown = 一个模块 |
 | 指南阶段名称、阶段说明 | [`src/data/site.ts`](src/data/site.ts) 中的 `guideStages` |
-| 指南排序与分级 | 指南 frontmatter 中的 `stage` 与 `order` |
+| 指南阶段与阅读顺序 | frontmatter 的 `stage` 决定阶段归属，`order` 决定全局阅读顺序 |
+| 指南目录分组与规划条目 | [`src/data/guide-nav.ts`](src/data/guide-nav.ts)；新增指南必须登记对应 slug |
 | 作品示例 | [`src/content/works/`](src/content/works/) |
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
 | 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |
-| 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)——**只由维护者按需添加**，暂不开放社区提交，也不迁移 Markdown |
+| 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)；社区通过工具建议 Issue 提供线索，由维护者核对后入库，暂不迁移 Markdown |
 | 活动、首页入口 | `src/data/events.ts`、`home.ts` |
 | 全站搜索索引 | [`src/pages/search-index.json.ts`](src/pages/search-index.json.ts)，构建时生成，不要手工编辑 |
 | 技术文档 | [`docs/`](docs/)：架构、内容规范、设计系统 |
 | 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
 | 内容与页面测试 | [`tests/site.test.mjs`](tests/site.test.mjs) |
 | 内容一致性检查 | [`scripts/check-content.mjs`](scripts/check-content.mjs) 与 `tests/fixtures/content/`（合法 / 错误条目样例） |
-| 写作模板 | `src/content/{guide,works,glossary}/_TEMPLATE.md`（当前三个内容目录只保留模板） |
+| 写作模板 | `src/content/{guide,works,glossary}/_TEMPLATE.md`，以 `_` 开头，不参与构建 |
 | 协作模板与 CI | [`.github/`](.github/)：Issue 表单、PR 模板、CODEOWNERS、工作流 |
 
 ## 5. 各内容类型的字段与写法
 
-### 从模板开始（当前内容重建中）
+从对应目录的 `_TEMPLATE.md` 复制文件，去掉文件名开头的下划线，再填写正文与 frontmatter。模板不参与站点构建；正式内容逐步补充即可。
 
-三个内容目录目前只保留 `_TEMPLATE.md` 写作模板，旧内容已清空：
+| 内容 | 按哪份规范填写 |
+| --- | --- |
+| 学习指南 | [指南字段与新增流程](docs/CONTENT-GUIDE.md#3-学习指南-frontmatter)：登记目录 slug；`stage` 负责阶段归属，`order` 在指南集合内全局唯一 |
+| 作品 | [作品示例规范](docs/CONTENT-GUIDE.md#4-作品示例-frontmatter)：M0 保留 `status: example`，不写成真实学生投稿 |
+| 术语 | [术语写作规范](docs/CONTENT-GUIDE.md#5-术语表)：区分 AI 与延伸分支，正文由人规划起草；可选交互区块见模板 |
+| 工具 | [工具数据规范](docs/CONTENT-GUIDE.md#6-工具数据)：维护 TypeScript 数组，核对官方入口、来源与图标 |
+| 内容状态 | [审校规范](docs/CONTENT-REVIEW.md)：依据、AI 参与、亲测环境与审校记录按实际填写；真人核校前保留初稿状态 |
 
-1. 复制对应目录的 `_TEMPLATE.md`，改名为内容文件（例如 `src/content/guide/09-my-first-guide.md`）；
-2. **去掉文件名开头的下划线**——以 `_` 开头的文件不会进入构建，只作为模板；
-3. 按模板里的注释填写 frontmatter 和正文，运行 `npm run verify` 检查；
-4. 内容为空时，列表页会显示「内容准备中」占位；加入第一篇内容后会自动恢复正常列表与详情页。
-
-### 学习指南
-
-在 [`src/content/guide/`](src/content/guide/) 新建 Markdown，文件名就是 URL slug。frontmatter 至少包含：
-
-```yaml
----
-title: "一篇指南的标题"
-summary: "一句话说清这篇解决什么问题。"
-stage: "start" # start | make | share
-order: 9
-level: "零基础"
-outcome: "读完后能完成的一件具体小事。"
-forWho: "最适合哪类同学。"
-updated: "2026-10-18"
-sources: # 可选；有外部依据时填写，必须可打开
-  - title: "来源标题"
-    url: "https://example.com/source"
-tools: ["DeepSeek"] # 必须是工具目录里已有的名字
-tags: ["示例"]
-# 内容状态字段（可选；不写则按「初稿 + 教学示例 + AI 辅助起草」展示）
-# reviewed / reviewedBy / needsUpdate / reviewNote / basis / aiUsage / testedOn / testedEnvironment / contributors
----
-```
-
-- 正文从 `##` 二级标题开始；页面会自动生成阶段目录、右侧「本页内容」、上一篇/下一篇和章节级搜索记录。
-- 一个新模块 = 一个新文件，不需要手改导航或搜索索引；`order` 在同一阶段内排序。
-- 正文 900–1500 汉字为宜，一个模块只解决一个问题；至少包含一个真实场景、一个可照做的步骤、一个常见坑或边界提醒。
-- 不写作者个人经历冒充普遍结论；如需举例，用明确标注的假设/示例。
-
-### 作品示例
-
-在 [`src/content/works/`](src/content/works/) 新建 Markdown。M0 阶段必须保留：
-
-```yaml
-status: "example"
-updated: "2026-10-18"
-```
-
-不能把策划示例写成真实学生投稿，也不能编造作者、时间和数据。UI 会统一展示「策划示例」。
-
-### 术语
-
-在 [`src/content/glossary/`](src/content/glossary/) 新建 Markdown，文件名（去掉 `.md`）就是 URL 与锚点。frontmatter 与现有词条保持一致；重点字段：
-
-- `term` / `en`：中文名与英文名；
-- `category`：必须使用已有分类 id（见 [`src/data/glossary.ts`](src/data/glossary.ts)）；
-- `definition`：一句话释义，列表卡片、搜索与页面标题都会用它；
-- `example`：校园或学习场景示例；
-- `order`：同一分类内排序，从 1 连续；
-- `related`：相关词条的 id，详情页会渲染成「接着看」；
-- `updated`：最后核对日期；
-- `sources`：支持正文事实的官方文档或原始论文（`title` + `url`），详情页会展示为参考来源；不能只写网站名；
-- `reviewed` / `reviewedBy`：**实际完成逐条人工核校**后再填日期与审校人（可笔名）。仅补充来源或由 AI 校订不能算人工核校完成。
-- `needsUpdate` / `reviewNote`、`basis`、`aiUsage`、`testedOn` / `testedEnvironment`、`contributors`：内容状态与依据字段，定义见 [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)；`basis: first-hand` 必须填写亲测日期与环境。
-
-正文用二级标题分成固定几节：`一句话说清`、`打个比方`、`它是怎么运作的`、`你会碰到它的场景`、`常见误解`，需要时再加 `想再深入一点`。面向零基础读者，不堆术语；必须出现的术语要当场讲清或指向本表另一条。
-
-### 工具内容
-
-- 工具只收录官方入口，不写聚合站、网盘和邀请码；
-- 价格、额度、可用性会变化，不写死具体数字；收录不等于推荐；
-- 活动只写已确认的形式和流程，不虚构日期、场地、嘉宾和人数；
-- 作品示例要有明确状态标注。
-- 社区功能已关闭，不再维护社区数据；如需重启，先走设计/内容评审。
+外链协议、来源格式和提交前内容检查统一见 [内容维护规范](docs/CONTENT-GUIDE.md)。指南与作品目前待补充，术语库已有「AI 幻觉」示范词条；新增内容仍从模板开始。
 
 ## 6. 本地开发与验证（可选）
 
-环境：Node.js ≥ 22。只想改文字时可以跳过这一节，CI 会在 PR 上运行同样的检查。
+环境：Node.js ≥ 22。只改文字可以使用 GitHub 网页，CI 会在 PR 上执行同样的检查。
 
 ```bash
-npm install
+npm ci
 npm run dev        # http://localhost:4321
-npm run verify     # 类型检查 + 生产构建 + 内容测试 + 站内链接检查
+npm run verify     # 类型检查、内容与文档校验、构建、测试、站内链接检查
 ```
 
-其他命令：`npm run check`（类型检查）、`npm run check:content`（内容与审校字段一致性检查）、`npm run build`（生成 `dist/`）、`npm run preview`（预览构建产物）、`npm run test`、`npm run check:links`。
+快速检查：`npm run check:content` 检查内容字段与引用；`npm run check:docs` 检查文档链接、图片、锚点和 YAML 示例。完整验证使用 `npm run verify`，单独运行页面测试前先构建。
 
-### 新增或修改内容后的验证流程
-
-1. `npm run check:content`：检查必填字段、日期格式、order 重复、工具 / 术语引用、审校字段组合等文件级规则；
-2. `npm run build`（或直接 `npm run verify`）：Zod schema 校验 + 页面构建 + 内容与搜索测试 + 站内链接检查；
-3. 修改了检查规则时，在 [`tests/fixtures/content/`](tests/fixtures/content/) 里补充「合法 / 错误」样例，运行 `npm test` 验证检查器仍然生效，不会污染正式内容。
-
-### 内容缓存排查
-
-**典型症状**：删改 Markdown 后，本地 `npm run verify` 仍按旧内容失败（构建页数、搜索索引或「初稿 / 已人工核校」断言的报错里出现已经删掉的文件），而 CI 是绿的。
-
-原因：Astro 5 把内容层缓存放在 **`node_modules/.astro`**（不是根目录的 `.astro/`），删文件不会自动让它失效。先清缓存再重试：
-
-```powershell
-# Windows PowerShell
-Remove-Item -Recurse -Force node_modules/.astro, .astro, dist
-npm run verify
-```
-
-```bash
-# macOS / Linux
-rm -rf node_modules/.astro .astro dist && npm run verify
-```
-
-CI 不受影响：每次 `npm ci` 都是全新的 `node_modules`，不存在旧缓存。
-
-顺带说明：内容检查器会拒绝 schema 之外的**未知字段**（例如已废弃的 `duration`）。Zod 本身会静默忽略这类字段，所以由 `npm run check:content` 显式拦截，避免数据被悄悄丢掉。
-
-### 文档是怎样串起来的
-
-```text
-src/content/guide/*.md
-        │  frontmatter: stage / order / updated / sources / reviewed
-        ▼
-GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
-        │
-        └── 构建 → HTML → 内容测试 → 内部链接检查
-```
-
-- **Zod schema** 在 [`src/content.config.ts`](src/content.config.ts) 校验字段；字段写错会在构建时失败。
-- **导航**从内容集合与 `guideStages` 生成，新增模块不需要改组件。
-- **搜索索引**按页面、指南章节、工具、作品和术语生成；章节结果可以跳到正文锚点。
-- **页面元信息**从 `updated` 与 `sources` 渲染，编辑链接指向仓库中的真实文件。
-- **CI** 在推送和 PR 上运行 `npm run verify`；静态站发布前必须通过。
+缓存排障、检查器维护和各命令的边界见 [维护者操作说明](docs/MAINTAINING.md)；内容如何生成导航与搜索见 [架构说明](docs/ARCHITECTURE.md#4-内容模型)。
 
 ## 7. 审稿与合并：维护者检查清单
 
@@ -223,7 +120,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 
 **合并之后**：把贡献者记进 [CONTRIBUTORS.md](CONTRIBUTORS.md)（默认用 GitHub 账号并加链接，也可用笔名或匿名），规则见第 8 节。
 
-**节奏建议**：错别字与死链可以当天合；事实类内容必须核实来源再合；结构与视觉改动先走设计评审（[#5](https://github.com/A7m0spHere/CDU-AI/issues/5)），不要用内容 PR 顺带改版。
+**节奏建议**：错别字与死链可以当天合；事实类内容必须核实来源再合；结构与视觉改动先说明方案，按[现行设计系统](docs/DESIGN-SYSTEM.md)评审，并提供相关截图，不要用内容 PR 顺带改版。
 
 ## 8. 署名与致谢
 
@@ -237,7 +134,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 
 | 位置 | 内容 | 谁维护 |
 | --- | --- | --- |
-| [CONTRIBUTORS.md](CONTRIBUTORS.md) | 站点级名单：参与者、参与方向、具体贡献与对应的 PR / Issue | 维护组，随合并更新 |
+| [CONTRIBUTORS.md](CONTRIBUTORS.md) | 站点级贡献名单与参考项目：记录参与方向、具体成果及来源 | 维护组，随贡献与资料更新 |
 | 内容页 frontmatter `contributors` | 单篇指南 / 术语 / 作品的贡献者代称（≤ 5 个），显示在页面底部「内容状态」 | 该内容的贡献者与审校人 |
 
 字段规则见 [docs/CONTENT-REVIEW.md](docs/CONTENT-REVIEW.md) 第 3.4 节。
@@ -266,7 +163,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 ## 9. AI 辅助贡献的规则
 
 - **适用范围**：仅文档、内容与文案类贡献需要在 PR / issue 中声明 AI 辅助情况；纯工程、样式、测试、构建与配置类 PR 不要求填写 AI 声明。
-- **允许**：用 AI 做提纲、润色、翻译、校对，甚至起草初稿。
+- **允许**：一般内容可用 AI 做提纲、润色、翻译、校对或起草初稿。术语库按[专属写作规范](docs/CONTENT-GUIDE.md#5-术语表)由人规划起草，AI 协助查证、润色与工程校验。
 - **必须（文档 / 内容类）**：在 issue 或 PR 模板里声明具体用途；较大篇幅由 AI 起草时，写清哪一部分。
 - **禁止**：虚构经历、访谈、数据、评价；把 AI 生成内容写成「亲测」；把 AI 初稿当作已人工审校；批量生成低质量词条充数量。
 - **责任**：真实性与版权由贡献者和审阅人承担。AI 不是作者，CI 绿灯也不等于内容可信。
@@ -274,39 +171,7 @@ GuideNav + 指南首页 + 搜索索引 + 上一篇/下一篇
 
 ## 10. 仓库管理设置（需要管理员权限）
 
-以下为 **2026-10-20 通过 GitHub API 核实**的现状，仅记录事实，不代表已经开启：
-
-| 项目 | 当前状态 |
-| --- | --- |
-| `main` 分支保护 | 未开启（`GET /branches/main/protection` 返回 404） |
-| Rulesets | 无（返回空数组） |
-| CODEOWNERS | 已添加 [`.github/CODEOWNERS`](.github/CODEOWNERS)，尚未强制要求 Code Owner 审阅 |
-| GitHub Actions | 已启用，`allowed_actions: all`，未要求 SHA pinning |
-| 仓库 secrets | CI 未使用；外部 fork 的 PR 默认拿不到 secrets |
-| 合并方式 | merge / squash / rebase 均允许，尚未统一 |
-
-建议由维护者按顺序完成（GitHub 网页设置）：
-
-1. Settings → Branches → Add branch protection rule（或 Settings → Rulesets）作用于 `main`：
-   - Require a pull request before merging（建议至少 1 位审阅人；单人维护阶段可先保留管理员绕过，或暂不要求 approval）
-   - Require status checks to pass：勾选 `verify`，并勾选 Require branches to be up to date
-   - Require conversation resolution before merging
-   - Block force pushes、Restrict deletions
-2. 有第二位维护者后，再开启 Require review from Code Owners；否则单人维护会被自己的 PR 卡住。
-3. Settings → Actions → General：Workflow permissions 设为 **Read repository contents only**；非必要不勾选允许 Actions 创建或批准 PR。
-4. 统一合并方式：建议只保留 Squash merging，减少历史噪音。
-5. 定期检查外部 fork PR 的 CI 日志；CI 只应有 `contents: read` 权限、不读取 secrets（当前 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 已按此配置）。
-
-核对命令（只读，需要 [GitHub CLI](https://cli.github.com/)）：
-
-```bash
-gh api repos/A7m0spHere/CDU-AI/branches/main/protection   # 404 表示未开启
-gh api repos/A7m0spHere/CDU-AI/rulesets
-```
-
-### 外链协议（安全）
-
-外部链接只允许 `http:` / `https:` 绝对地址。`javascript:`、`data:`、`file:`、`vbscript:`、协议相对的 `//host` 都会被拒绝：frontmatter 里的 `sources`、工具 `url` 在构建或 `npm run check:content` 阶段报错；正文 Markdown 里的链接在渲染阶段直接去掉 `href`。站内链接用 `/guide/`、`#anchor` 这类相对路径。
+分支保护、Rulesets、Actions 权限、合并方式和只读核对命令见 [维护者操作说明](docs/MAINTAINING.md#仓库管理设置)。其中保留了 2026-10-20 的核对快照；使用前需重新核实远端状态。
 
 ## 11. 提交信息规范
 
@@ -322,8 +187,8 @@ chore: 更新依赖
 
 描述要说明「改了什么、为什么改」，避免只写 `update`、`changes` 或「修改」。
 
-## 12. 参考与边界
+## 12. 资料与阶段边界
 
-本项目的内容管理方式参考了 AI-Research-Guide 的清单、内容分层和构建时校验思路，但保留 Astro 的内容集合与静态构建方案；术语定义与正文由本站独立撰写，事实依据以词条 `sources` 中列出的官方文档为准（不再参考第三方术语图鉴）。我们不复制上述项目的代码、品牌或视觉资产。
+参考项目与借鉴范围集中记录在 [贡献与致谢](CONTRIBUTORS.md#参考项目与资料)。内容的事实依据仍需逐篇写进 `sources`，不能用项目致谢代替引用。
 
 未来如果增加投稿、评论或成员工作台，再单独设计数据与审核流程；M0 不引入登录、CMS 或后台，也不把生成文本冒充真实经验。

@@ -1,16 +1,18 @@
 # 内容维护规范
 
-> 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。完整文件地图和新增流程见 [`CONTRIBUTING.md`](https://github.com/A7m0spHere/CDU-AI/blob/main/CONTRIBUTING.md)。
+> 面向协会内容维护者。先读这里，再改 `src/content/` 或 `src/data/`。完整文件地图和新增流程见 [贡献指南](../CONTRIBUTING.md)，其他说明见 [文档导航](README.md)。
 
 ## 0. 从模板开始
 
-三个内容目录当前只保留 `_TEMPLATE.md`（旧内容已于 2026-10-20 清空）：
+各内容目录保留 `_TEMPLATE.md` 写作模板。指南与作品正文待补充，术语库已有「AI 幻觉」示范词条，新增内容仍从对应模板开始：
 
 - `src/content/guide/_TEMPLATE.md`：学习指南模板
 - `src/content/works/_TEMPLATE.md`：作品示例模板
 - `src/content/glossary/_TEMPLATE.md`：术语模板
 
 复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会进入构建**，可以作为草稿模板长期保留。内容为空时列表页会显示「内容准备中」占位。
+
+新增指南时，还需在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts) 登记相同的 slug 与目录分组；只创建 Markdown 文件而未登记会被内容检查器拒绝。
 
 ## 1. 三条底线
 
@@ -34,7 +36,7 @@
 
 侧边栏的**分组（栏目）**单独维护在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts)，与文章的 `stage` / `order` 解耦：
 
-- `stage` + `order` 只决定「上一篇 / 下一篇」的阅读顺序；
+- `stage` 决定学习阶段归属；`order` 是指南集合内全局唯一的正整数，决定「上一篇 / 下一篇」的跨阶段阅读顺序，不在新阶段从 1 重编号；
 - `guideNavGroups` 决定文章出现在侧边栏哪个栏目、栏目内第几条、以及目录总览卡片；
 - 只登记 `slug` 没有对应文件 = 「规划中」占位（灰色不可点，不生成路由）；
 - 建了文件但没登记 = `npm run check:content` 报错（避免文章写了却不在目录里）。
@@ -43,7 +45,7 @@
 
 1. 在 `guide-nav.ts` 找到目标栏目，确认已有占位条目（如 `{ label: '任务描述', slug: 'task-description' }`）；没有就加一条；
 2. 用同一个 `slug` 建文件 `src/content/guide/<slug>.md`（可先复制 `_TEMPLATE.md`）；
-3. 填 frontmatter（`stage` 决定阅读顺序、`order` 决定同阶段排序）与正文；
+3. 填 frontmatter（`stage` 决定阶段归属、`order` 决定全局阅读顺序）与正文；
 4. 跑 `npm run verify`：侧边栏自动变成真实链接，标题取文章 `title`，目录计数同步。
 
 调整栏目（改名、加分组、换顺序）只改 `guide-nav.ts`，不需要动组件或页面。
@@ -53,7 +55,7 @@
 title: "先建立使用 AI 的基本姿势"
 summary: "用一句话说明这个模块能帮上什么忙。"
 stage: "start" # start | make | share
-order: 1
+order: 1 # 指南集合内全局唯一；跨阶段也不能重号，可以留空档
 level: "零基础"
 outcome: "读完后你能做到的一件具体小事。"
 forWho: "最适合哪类同学，避免写给所有人。"
@@ -137,7 +139,25 @@ frontmatter：
 - `aiUsage`：`none` / `assisted` / `drafted`（默认），如实标注 AI 参与程度。
 - `contributors`：最多 5 个贡献者代称，不写真实姓名、学号等隐私。
 
-正文固定分节，每节都要能被零基础读者读懂：
+可选页面区块与约束：
+
+| 字段 | 用途与约束 |
+| --- | --- |
+| `youMaySay` | 读者会问出口的一句话，最多 240 字 |
+| `scenario` | 场景标题与 2–4 步可点击流程；每步必填 `label` / `body`，可选 `quote` / `meta` / `note` |
+| `quiz` | 最多 3 题；每题 2–4 个选项，且恰好一个 `correct: true`；可用 `explain` 解释答案 |
+| `agentPrompt` | 可复制给 Agent 的提示词，最多 600 字 |
+
+写法示例放在 [`术语模板`](../src/content/glossary/_TEMPLATE.md)，不写可选区块时页面不渲染。分类与选题批次见 [术语库规划](GLOSSARY-PLAN.md)。
+
+两类词条的正文结构不同：
+
+| 分支 | 分类 id | 正文要求 |
+| --- | --- | --- |
+| AI 主分支 | `basics` / `prompt` / `tools` / `agents` / `safety` / `cost` | 使用下列六段结构，最后一段可选 |
+| 延伸分支 | `vibecoding` / `frontend` / `backend` / `product` / `testing` / `git` | 300–500 字；是什么 / 什么时候会遇到 / 和 AI 的关系 /（可选）想深入再看；只解释术语，不教操作步骤或 Git 命令 |
+
+AI 主分支分节：
 
 - `一句话说清`：它是什么，为什么重要；
 - `打个比方`：一个生活化的类比；
@@ -148,10 +168,12 @@ frontmatter：
 
 写作要求：面向非计算机专业同学，不假设读者知道 API、模型、上下文等前置概念；必须出现的术语要当场解释清楚，或链接到本表另一条。
 
+新词条至少提供 1 条支持正文事实的官方文档或原始论文；`definition` 不超过 60 字。`order` 在同一分类内唯一，`related` 只能引用已存在的词条。词条正文由人规划、起草和确定判断，AI 可协助查证、润色、排版与工程校验；人工核校签字仍按 [审校规范](CONTENT-REVIEW.md) 执行。
+
 来源标注要与实际情况一致，分两层写：
 
 - 词条定义、别名与一句话释义由本站独立撰写，事实与数字以 `sources` 中列出的官方文档为准；
-- 详情页正文（类比、步骤、场景、常见误解）同样由本站撰写，初稿可由 AI 协助。**页面状态由 `reviewed` 字段自动推导**：没有审校日期就显示「初稿 · 尚未人工核校」，真人逐条核校后填写 `reviewed` / `reviewedBy` 才会显示「已人工核校」。不要为了消掉提示而提前填日期。
+- 详情页正文（类比、步骤、场景、常见误解）同样由本站独立撰写。**页面状态由 frontmatter 推导**：`needsUpdate: true` 优先显示待更新；没有审校日期时显示「初稿 · 尚未人工核校」，真人逐条核校后填写 `reviewed` / `reviewedBy` 才会显示「已人工核校」。不要为了消掉提示而提前填日期。
 
 校准一条术语的标准：能指出它「不成立」的边界（例如微调不能可靠记住新事实），并且没有写死会变化的价格、额度、版本号。
 
@@ -203,7 +225,7 @@ frontmatter：
   tier: '主流产品',                    // 主流产品 / 社区热门 / 小众探索
   verifiedOn: '2026-10-23',           // 最近一次核对官网的日期
   basis: 'official',                  // official / docs / community
-  logo: { src: '/tool-logos/deepseek.svg', source: '...', license: '...' },
+  logo: { src: '/tool-logos/deepseek.webp', source: '...', license: '...' },
   tags: ['对话', '推理'],
   caution: '使用前值得知道的一句话',
 }
@@ -223,7 +245,7 @@ frontmatter：
 2. **定层次**：先定 `category`，再定 `kind` 与 `tech`，最后才写文案。
 3. **准备 Logo**（见 6.4），放进 `public/tool-logos/`。
 4. **写条目**：在 `tools` 数组末尾追加对象，字段顺序不必固定，但不要漏 `verifiedOn` 与 `logo.source`。
-5. **跑检查**：`npm run verify`。内容检查器会校验分类是否存在、枚举是否合法、id/名称是否重复、Logo 文件是否真的存在、外链协议是否安全。
+5. **跑检查**：`npm run verify`。类型检查和构建后的测试共同校验分类、枚举、id/名称、Logo 文件及外链协议，不能只凭 `npm run check:content` 判断工具条目已完整通过验证。
 6. **看页面**：`npm run dev` 打开 `/tools/`，确认筛选计数、深色主题下的 Logo、移动端布局。
 
 ### 6.4 Logo 从哪里来
@@ -238,7 +260,7 @@ frontmatter：
 
 **保留官方图标的底板**：官方图标是白底、深底或圆角方块就照原样显示，不要抠成透明，也不要自己再加白框。卡片图标区本身不带底色和描边——图标有底板就显示底板，本身透明就浮在卡片上。
 
-**首字母只是加载失败的兜底**：有 `logo` 时首字母默认隐藏（`hidden`），只有 `onerror` 触发后才显示。不要让它垫在透明图标下面，否则会从透明区域透出来，很难看。
+**首字母只作加载失败兜底**：有 `logo` 时字母默认隐藏（`hidden`），图片加载失败后移除图片并显示首字母；没有配置图标时直接使用首字母。不要让字母垫在正常图标下面，从透明区域透出来。
 
 禁止：搜索引擎里的随机图片、带水印图、来源不明的 CDN 热链、用 AI 重画的官方 Logo。
 

@@ -170,7 +170,7 @@ function checkSources(data, file, errors) {
 }
 
 /** 内容状态字段的组合校验（与 docs/CONTENT-REVIEW.md 第 3 节一致）。 */
-function checkReviewFields(data, file, errors) {
+export function checkReviewFields(data, file, errors) {
   if (data.reviewedBy !== undefined) {
     if (!isNonEmptyString(data.reviewedBy)) {
       errors.push({ file, message: 'reviewedBy 必须是非空字符串（可用笔名）' });
@@ -577,7 +577,7 @@ export async function validateCollection({ collection, dir, context }) {
   for (const { file, data } of rows) {
     if (!checkPositiveInteger(data.order)) continue;
     let key;
-    if (collection === 'guide') key = 'stage:' + data.stage;
+    if (collection === 'guide') key = 'guide';
     else if (collection === 'glossary') key = 'category:' + data.category;
     else key = 'works';
     const composed = key + '#' + data.order;

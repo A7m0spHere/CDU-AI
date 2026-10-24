@@ -525,6 +525,8 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
     invalidErrors.push(...result.errors);
   }
   const report = invalidErrors.map((error) => error.file + '  ' + error.message).join('\n');
+  assert.ok(invalidErrors.some(error => error.file === 'guide/09-cross-stage-order.md' && error.message.includes('重复')),
+    '不同 stage 的指南也不能使用相同 order，否则上一篇 / 下一篇会出现顺序冲突');
   for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category', '未知字段', '危险协议']) {
     assert.ok(report.includes(expected), '错误 fixture 未被识别：' + expected + '\n' + report);
   }
