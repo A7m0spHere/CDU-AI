@@ -136,7 +136,7 @@ export const GET: APIRoute = async () => {
         ...toolCapabilities.filter((cap) => tool.capabilities.includes(cap.id)).map((cap) => cap.label),
         ...tool.tags,
         tool.difficulty,
-        tool.pricing,
+        ...(tool.pricing ? [tool.pricing] : []),
       ].join(' '),
     })),
     ...glossary.map((term) => ({

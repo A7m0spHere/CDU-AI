@@ -12,6 +12,7 @@
 | 新增、更新或核对工具条目 | [工具条目规范](CONTENT-GUIDE.md#6-工具数据) |
 | 替换工具图标、追溯来源 | [工具图标来源与处理](TOOL-LOGOS.md) |
 | 查看 Agent 收录、旧名和仓库迁移依据 | [Agent 目录核对记录](AGENT-CATALOG-REVIEW.md) |
+| 查看书签增补、去重与暂缓收录依据 | [工具目录增补记录](TOOL-CATALOG-REVIEW.md) |
 | 调整栏目、内容模型、构建或部署 | [架构说明](ARCHITECTURE.md) |
 | 调整视觉、组件与交互 | [设计系统](DESIGN-SYSTEM.md) / [设计评审与修订记录](DESIGN-REVIEW.md) |
 | 参与术语库规划与分类治理 | [术语库规划](GLOSSARY-PLAN.md) |

@@ -87,7 +87,7 @@ contributors: ["小林", "阿哲"] # 可选，≤5 个代称
 ```yaml review-fields
 basis: "first-hand"
 testedOn: "2026-10-21"
-testedEnvironment: "网页版，Chrome，免费账号"
+testedEnvironment: "网页版，Chrome，个人账号"
 aiUsage: "assisted"
 ```
 

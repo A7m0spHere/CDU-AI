@@ -388,6 +388,7 @@ test('外链带新窗口与安全的 rel 属性，页面无占位废话', async 
     const html = await readFile(file, 'utf8');
     const display = path.relative(dist, file);
     assert.doesNotMatch(html, /Lorem ipsum/i, display + ' 出现 Lorem ipsum');
+    assert.doesNotMatch(html, /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, display + ' 不应包含零成本使用表述');
     const externalLinks = html.match(/<a\b[^>]*href="https?:\/\/[^"]+"[^>]*>/g) || [];
     for (const link of externalLinks) {
       if (link.includes('target="_blank"')) {
@@ -805,6 +806,34 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /收录不等于推荐/, '缺少「收录不等于推荐」说明');
 });
 
+test('Agent 与 Harness 默认收起社区条目，展开控件与自动展开逻辑存在', async () => {
+  if (parsedTools.length === 0) return;
+  const html = await read('tools/index.html');
+  assert.match(html, /data-collapse/, '缺少社区 Agent 折叠区');
+  assert.match(html, /更多社区 Agent 与 Harness/, '折叠区缺少标题');
+  assert.match(html, /默认收起，搜索或筛选时自动展开/, '折叠区缺少展开说明');
+
+  const cardTag = (id) => html.match(new RegExp('<article\\b[^>]*data-tool-id="' + id + '"[^>]*>'))?.[0] ?? '';
+  for (const id of ['opencode', 'pi', 'hermes-agent', 'openclaw']) {
+    assert.ok(cardTag(id), '缺少直接显示的社区工具：' + id);
+    assert.doesNotMatch(cardTag(id), /data-collapsed="true"/, id + ' 应直接显示');
+  }
+  // 厂商自家 Agent 属于主流产品，默认直接显示，不进入社区折叠区
+  for (const id of ['zcode', 'workbuddy', 'qoder', 'kimi-code', 'minimax-code']) {
+    assert.ok(parsedTools.some((tool) => tool.id === id), '缺少厂商 Agent：' + id);
+    assert.ok(cardTag(id), '工具页缺少厂商 Agent 卡片：' + id);
+    assert.doesNotMatch(cardTag(id), /data-collapsed="true"/, id + ' 应直接显示');
+  }
+  for (const id of ['deepseek-harness', 'cline', 'qwen-code', 'openhands', 'oh-my-pi', 'goose', 'aider', 'open-interpreter', 'mini-swe-agent']) {
+    assert.ok(parsedTools.some((tool) => tool.id === id), '折叠清单里的工具不存在：' + id);
+    assert.match(cardTag(id), /data-collapsed="true"/, id + ' 应默认收起');
+  }
+
+  // 搜索或筛选生效时必须自动展开折叠区，否则会出现「收录了却搜不到」的假漏结果。
+  const filterSource = await readFile(path.join(root, 'src/scripts/filter.ts'), 'utf8');
+  assert.match(filterSource, /details\.open = filtering/, '筛选生效时应自动展开折叠区');
+});
+
 test('图标加载失败时移除图片并显示首字母，不能访问已脱离的父节点', async () => {
   if (!parsedTools.some(tool => tool.logo)) return;
   const html = await read('tools/index.html');
@@ -845,6 +874,7 @@ test('GitHub 产品官网不会被误当成代码仓库', async () => {
 test('工具数据进入搜索索引：别名、技术类型与能力标签都可搜', async () => {
   if (parsedTools.length === 0) return;
   const data = JSON.parse(await read('search-index.json'));
+  assert.doesNotMatch(JSON.stringify(data), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, '搜索索引不应保留零成本使用表述');
   const toolItems = data.filter((item) => item.type === '工具');
   assert.equal(toolItems.length, parsedTools.length, '搜索索引中的工具数量与目录不一致');
 

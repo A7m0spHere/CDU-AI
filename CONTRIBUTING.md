@@ -8,7 +8,7 @@
 
 | 我想…… | 从哪里开始 | 需要什么 |
 | --- | --- | --- |
-| 改几个字、修一句话 | 打开对应页面 → 底部的「在 GitHub 编辑本页」 | 免费 GitHub 账号 |
+| 改几个字、修一句话 | 打开对应页面 → 底部的「在 GitHub 编辑本页」 | GitHub 账号 |
 | 指出错误，但不确定怎么改 | [文档纠错 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=doc-correction.yml) | GitHub 账号 |
 | 分享一次真实使用经验 | [经验投稿 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=experience-submission.yml) | GitHub 账号、真实经历 |
 | 推荐或更新工具 | [工具建议 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml) | GitHub 账号 |
@@ -23,7 +23,7 @@
 
 1. 打开要修改的页面。学习指南、术语和作品详情页的底部都有「在 GitHub 编辑本页」。
 2. 点击链接，会直接跳到仓库里对应的 Markdown 文件（`src/content/…/*.md`）。
-3. 没有登录时 GitHub 会提示登录，免费注册即可；GitHub 会自动 Fork 一份到你的账号下。
+3. 没有登录时 GitHub 会提示登录或注册；GitHub 会自动 Fork 一份到你的账号下。
 4. 在网页编辑框里修改 Markdown。正文就是普通文字；frontmatter 字段的写法见第 5 节和 [docs/CONTENT-GUIDE.md](docs/CONTENT-GUIDE.md)。
 5. 在页面底部「Commit changes」里写清改了什么（例如「修正：术语表 token 定义中的错别字」），选择 **Create a new branch for this commit**，点 **Propose changes**。
 6. 点 **Create pull request**，按模板填写验证方式、事实来源与隐私版权；文档 / 内容 / 文案类修改再填写 AI 辅助声明。

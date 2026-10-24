@@ -1,10 +1,10 @@
 /** 全站共享的内容类型。页面只依赖这些结构，方便 M1 换成 CMS / JSON / 数据库。 */
 
 export type ToolDifficulty = '零门槛' | '稍加摸索' | '需要动手';
-export type ToolPricing = '免费可用' | '免费增值' | '需要付费';
+export type ToolPricing = '需要付费';
 
 /** 资源形态：区分「能直接用的产品」和「要自己搭的模型 / 代码」。 */
-export type ToolKind = '在线产品' | '开源项目' | '模型' | '工作流工具' | '开发工具';
+export type ToolKind = '在线产品' | '开源项目' | '模型' | '工作流工具' | '开发工具' | '资源社区' | '开发平台';
 
 /** 收录标签：说明它凭什么被收录，不用来做热度排名。 */
 export type ToolTier = '主流产品' | '社区热门' | '小众探索';
@@ -50,14 +50,15 @@ export interface Tool {
   /** 最适合的具体场景，避免只写「提效」这类空话 */
   bestFor: string;
   difficulty: ToolDifficulty;
-  pricing: ToolPricing;
+  /** 仅记录已核实的付费要求；没有明确结论时省略。 */
+  pricing?: ToolPricing;
   /** 优先填写独立官网或官方项目介绍页；没有时才回退到官方仓库 */
   url: string;
   /** 官方 GitHub 仓库，供 GitHub 图标入口使用，与官网入口分别维护 */
   githubUrl?: string;
   /** 技术类型：LLM、扩散模型、Harness、TTS、STT 等 */
   tech: string;
-  /** 资源形态：在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 */
+  /** 资源形态：在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 / 资源社区 / 开发平台 */
   kind: ToolKind;
   capabilities: ToolCapability[];
   tier: ToolTier;

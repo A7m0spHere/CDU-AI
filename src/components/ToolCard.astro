@@ -6,9 +6,11 @@ import { toolBasisLabels, toolCapabilities } from '../data/tools';
 interface Props {
   tool: Tool;
   categoryLabel: string;
+  /** 是否渲染在默认收起的区域：只作为标记，展开/收起由页面上的 <details> 控制。 */
+  collapsed?: boolean;
 }
 
-const { tool, categoryLabel } = Astro.props;
+const { tool, categoryLabel, collapsed = false } = Astro.props;
 
 const toneByCategory: Record<string, string> = {
   'llm-chat': 'sage',
@@ -21,6 +23,9 @@ const toneByCategory: Record<string, string> = {
   research: 'sky',
   workflow: 'violet',
   local: 'sage',
+  community: 'sky',
+  api: 'violet',
+  compute: 'sky',
 };
 
 const tone = toneByCategory[tool.category] ?? 'sage';
@@ -53,9 +58,11 @@ const githubUrl = tool.githubUrl;
 <article
   class="tool-card card"
   data-filter-card
+  data-tool-id={tool.id}
   data-category={[tool.category, ...(tool.alsoIn ?? [])].join(' ')}
   data-capabilities={tool.capabilities.join(' ')}
   data-search={searchText}
+  data-collapsed={collapsed ? 'true' : undefined}
 >
   <div class="tool-card__top">
     <span class={tool.logo ? `tool-mark tool-mark--logo` : `tool-mark tool-mark--${tone}`}>
@@ -97,7 +104,7 @@ const githubUrl = tool.githubUrl;
   </div>
 
   <div class="tool-card__meta">
-    <span class="badge">{tool.pricing}</span>
+    {tool.pricing && <span class="badge">{tool.pricing}</span>}
     <span class="badge">{tool.difficulty}</span>
     <span class="tool-card__category">{categoryLabel}</span>
   </div>

@@ -43,7 +43,7 @@ body:
     id: limits
     attributes:
       label: 门槛、限制与隐私提示
-      description: 注册条件、免费额度是否够用、地区限制、数据是否会上传等。
+      description: 注册条件、账号与额度限制、地区限制、数据是否会上传等。
     validations:
       required: true
   - type: input

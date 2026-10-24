@@ -7,6 +7,7 @@ interface FilterOptions {
   countSelector?: string;
   emptySelector?: string;
   clearSelector?: string;
+  collapseSelector?: string;
 }
 
 function normalize(value: string): string {
@@ -35,6 +36,7 @@ export function initFilter(options: FilterOptions = {}): void {
     countSelector = '[data-filter-count]',
     emptySelector = '[data-empty-state]',
     clearSelector = '[data-clear-filters]',
+    collapseSelector = '[data-collapse]',
   } = options;
 
   const root = document.querySelector<HTMLElement>(rootSelector);
@@ -48,6 +50,7 @@ export function initFilter(options: FilterOptions = {}): void {
   const empty = root.querySelector<HTMLElement>(emptySelector);
   const clear = root.querySelector<HTMLButtonElement>(clearSelector);
   const groups = Array.from(root.querySelectorAll<HTMLElement>('[data-filter-group]'));
+  const collapses = Array.from(root.querySelectorAll<HTMLDetailsElement>(collapseSelector));
 
   // 默认分支：页面加载、清除筛选时回到这一项（术语页默认停在「AI 主线」）。
   const defaultChip =
@@ -109,6 +112,17 @@ export function initFilter(options: FilterOptions = {}): void {
         (card) => !card.hidden,
       );
       group.hidden = !hasVisibleCard;
+    });
+
+    // 默认收起的社区条目区：有匹配结果才显示；搜索或任一筛选生效时直接展开，
+    // 保证关键词与筛选能到达完整目录，不会因为折叠而漏掉结果。
+    const filtering = searching || activeCaps.size > 0 || activeValue !== defaultValue;
+    collapses.forEach((details) => {
+      const hasVisibleCard = Array.from(details.querySelectorAll<HTMLElement>(cardSelector)).some(
+        (card) => !card.hidden,
+      );
+      details.hidden = !hasVisibleCard;
+      if (hasVisibleCard) details.open = filtering;
     });
 
     chips.forEach((chip) => {
