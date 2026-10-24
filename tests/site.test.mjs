@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import {
   loadContentContext,
   parseToolCategoryIds,
@@ -791,8 +792,6 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /class="tool-mark__fallback"/, '缺少首字母兜底');
   // 有图标时首字母必须默认隐藏：否则透明图标的空白处会露出字母，观感很差
   assert.match(html, /class="tool-mark__fallback"[^>]*data-fallback hidden/, '有 Logo 时首字母兜底必须默认隐藏');
-  assert.match(html, /onerror="this\.remove\(\);/, 'Logo 加载失败时应移除图片并露出首字母');
-  assert.match(html, /fb\.hidden = false/, 'Logo 加载失败时应恢复首字母兜底');
   assert.match(html, /data-mono="true"/, '单色标志需要 data-mono 钩子做深色反色');
 
   // 能力筛选与场景筛选
@@ -804,6 +803,31 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   // 建议收录入口指向现有的 GitHub Issue 模板
   assert.match(html, /issues\/new\?template=tool-suggestion\.yml/, '缺少工具建议 Issue 入口');
   assert.match(html, /收录不等于推荐/, '缺少「收录不等于推荐」说明');
+});
+
+test('图标加载失败时移除图片并显示首字母，不能访问已脱离的父节点', async () => {
+  if (!parsedTools.some(tool => tool.logo)) return;
+  const html = await read('tools/index.html');
+  const handler = html.match(/<img\b[^>]*class="tool-mark__img"[^>]*onerror="([^"]+)"/)?.[1];
+  assert.ok(handler, '工具图标缺少加载失败处理');
+  const fallback = { hidden: true };
+  const image = {
+    parentElement: {
+      querySelector(selector) {
+        assert.equal(selector, '[data-fallback]');
+        return fallback;
+      },
+    },
+    removed: false,
+    remove() {
+      this.parentElement = null;
+      this.removed = true;
+    },
+  };
+  // 执行构建产物中的真实处理函数；remove 后 parentElement 与浏览器一样变为 null。
+  assert.doesNotThrow(() => runInNewContext('(function () { ' + handler + ' }).call(image)', { image }));
+  assert.equal(image.removed, true, '失败图片应被移除');
+  assert.equal(fallback.hidden, false, '首字母兜底应恢复显示');
 });
 
 test('GitHub 产品官网不会被误当成代码仓库', async () => {

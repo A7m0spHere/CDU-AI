@@ -70,7 +70,7 @@ const githubUrl = tool.githubUrl;
             loading="lazy"
             decoding="async"
             data-mono={tool.logo.mono ? 'true' : undefined}
-            onerror="this.remove(); var fb = this.parentElement.querySelector('[data-fallback]'); if (fb) fb.hidden = false;"
+            onerror="var fb = this.parentElement?.querySelector('[data-fallback]'); this.remove(); if (fb) fb.hidden = false;"
           />
         </>
       ) : (
