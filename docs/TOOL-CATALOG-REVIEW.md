@@ -84,3 +84,36 @@
 - 图标保留官方底板和颜色，来源见 [TOOL-LOGOS.md](TOOL-LOGOS.md)。Gamma 本轮未成功获取官方图标，暂用首字母 G。
 
 核对范围为官方页面、文档与仓库，不代表已逐项登录、部署或完成真实模型任务。价格仅说明使用条件，不记录具体金额或固定额度。
+
+## 聊天客户端补充（2026-10-24）
+
+按用户指定新增 [RikkaHub](https://rikka-ai.com/)，主分类为「语言模型与对话」，放在 Cherry Studio 之后。新增后目录为 103 项、15 个场景分类。
+
+- [官方仓库](https://github.com/rikkahub/rikkahub)声明的官网为 `rikka-ai.com`，官网与代码仓库分别填写；核对时仓库未归档，代码许可为 AGPL-3.0。
+- 依据[官方介绍](https://rikka-ai.com/)与[仓库 README](https://github.com/rikkahub/rikkahub/blob/master/README.md)，标明 Android 多模型聊天客户端、消息分支、文件输入、MCP 与 Agent 工作区等用途。
+- 标注「开源」「中文界面」；需要自行配置模型服务，不将客户端运行在手机上等同于模型离线推理，不添加 `local` 能力标签。
+- 图标来自仓库 `docs/icon.png`，按现有规范保留官方底板与颜色，缩放为 96×96 WebP 并自托管。来源同步记录在 [TOOL-LOGOS.md](TOOL-LOGOS.md)。
+
+本次仅核对官方资料与仓库状态，未安装应用或执行真实模型任务。
+
+## 目录精简（2026-10-24）
+
+按维护者要求移除 Open WebUI，当前目录为 102 项、15 个场景分类。工具页、搜索索引与图标清单不再收录该项；上文保留此前增补与核对的历史记录。
+
+## AIGC 分类与模型条目精简（2026-10-24）
+
+按维护者要求将图片、视频创作合并为「AIGC」一级分类，页内按图片创作、视频创作、创作工作流、资源社区细分。当前目录为 91 项、14 个一级分类，其中 AIGC 覆盖 10 项资源。模型与数据社区、API 与开发平台、云端算力与部署保留独立入口。
+
+- 暂时移除 11 个独立模型条目：FLUX、Stable Diffusion、Qwen-Image、Nano Banana、Veo、LTX-Video、CosyVoice、Fish Speech、IndexTTS、Whisper、Qwen3-ASR。同步清理当前图标清单与无其他条目引用的图标文件。
+- 万相只保留网页创作产品，移除模型下载仓库、模型版本别名与开源/本地部署标签。网页创作入口见 [万相官网](https://wan.video/)，网页与 API 体验入口依据[通义实验室的产品介绍](https://tongyi.aliyun.com/news?id=pxwhvf%2Fsuodqg%2Fusofpg66drzae5s1)。
+- ComfyUI、RunningHub 保留为创作工作流；Civitai 保留为资源社区；Canva 通过次要分类在 AIGC 图片创作区可见。
+- fal.ai 继续收录在 API 与开发平台，不再作为 AIGC 创作产品混排；API、算力与通用资源社区的原有条目均保留。
+- 原 `?category=image`、`?category=video` 链接兼容选择 AIGC；搜索索引补充 AIGC 页内分区与次要分类名称。
+
+上文保留历史收录与核对记录，不代表当前仍收录独立模型。
+
+### AIGC 主要用途复核（2026-10-24）
+
+即梦此前沿用旧的图片分类，现依据[官网](https://jimeng.jianying.com/)优先展示的视频创作场景移入「视频创作」，保留绘画和智能画布能力说明。分区表示主要用途，不代表工具只支持图片或只支持视频；当前图片创作 2 项、视频创作 5 项，工作流与资源社区不变，总数仍为 10 项。可灵、Runway 继续按视频创作用途展示；其官网同样提供图片或综合创作能力，不能把视频分区理解为单一能力限制。
+
+依据 [Midjourney 官网](https://www.midjourney.com/)、[Canva AI](https://www.canva.com/canva-ai/)、[可灵官网](https://kling.ai/)与 [Runway 官网](https://runway.com/)，补充这些平台兼有图片、视频能力的简介与搜索标签。Midjourney、Canva 保留图片与设计的主要展示位置，可灵、Runway 保留视频创作的主要展示位置。

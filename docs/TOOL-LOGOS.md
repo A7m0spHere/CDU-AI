@@ -32,22 +32,11 @@
 | Cline | `/tool-logos/cline.webp` | https://cline.bot/assets/branding/favicons/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 是 |
 | Midjourney | `/tool-logos/midjourney.svg` | https://docs.midjourney.com/hc/theming_assets/01K1K3SHJHG4BTD9YK9VH9G86N | 官方文档帆船 SVG，仅用于识别该产品 | 是 |
 | ComfyUI | `/tool-logos/comfyui.webp` | https://www.comfy.org/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
-| FLUX | `/tool-logos/flux.webp` | https://bfl.ai/apple-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
-| Stable Diffusion | `/tool-logos/stable-diffusion.webp` | https://stability.ai/favicon.ico | 品牌官网图标，仅用于识别该产品 | 否 |
-| Qwen-Image | `/tool-logos/qwen-image.webp` | https://github.com/QwenLM.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
-| Nano Banana | `/tool-logos/nano-banana.svg` | https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__dm__nano-banana__large.svg | 官方模型导航图标，仅用于识别该模型 | 否 |
 | 即梦 AI | `/tool-logos/jimeng.webp` | https://lf3-lv-buz.vlabstatic.com/obj/image-lvweb-buz/common/images/dreamina-v1.ico | 品牌官网图标，仅用于识别该产品 | 否 |
 | 可灵 AI | `/tool-logos/kling.webp` | https://s16-kling.klingai.com/kos/s101/nlav112918/kling-homepage-aio/logo-180x180.png | 品牌官网图标，仅用于识别该产品 | 否 |
-| Veo | `/tool-logos/veo.svg` | https://storage.googleapis.com/gdm-deepmind-com-prod-public/media/original_images/nav__dm__veo__large.svg | 官方模型导航图标，仅用于识别该模型 | 否 |
 | Runway | `/tool-logos/runway.webp` | https://runway.com/icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
-| LTX-Video | `/tool-logos/ltx-video.webp` | https://cdn.prod.website-files.com/68872d15af29880764eac4aa/6982091f71fd2f946ca88f53_ltx-favicon-256x256.png | 品牌官网图标，仅用于识别该产品 | 否 |
 | ElevenLabs | `/tool-logos/elevenlabs.webp` | https://elevenlabs.io/apple-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
-| CosyVoice | `/tool-logos/cosyvoice.webp` | https://github.com/QwenAudio.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
-| Fish Speech | `/tool-logos/fish-speech.webp` | https://github.com/fishaudio.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
-| IndexTTS | 首字母 I | https://github.com/index-tts/index-tts/tree/main/assets | 官方仓库仅提供宽幅字标，小尺寸使用首字母，避免默认组织头像 | 不适用 |
-| Whisper | `/tool-logos/whisper.webp` | https://github.com/openai.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
 | FunASR | `/tool-logos/funasr.webp` | https://github.com/modelscope.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
-| Qwen3-ASR | `/tool-logos/qwen3-asr.webp` | https://github.com/QwenLM.png | 官方 GitHub 组织头像，仅用于识别该产品 | 否 |
 | Suno | `/tool-logos/suno.webp` | https://cdn-o.suno.com/favicon-192x192.png | 品牌官网图标，仅用于识别该产品 | 否 |
 | Udio | `/tool-logos/udio.webp` | https://www.udio.com/favicon.ico | 品牌官网图标，仅用于识别该产品 | 否 |
 | Perplexity | `/tool-logos/perplexity.webp` | https://www.perplexity.ai/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
@@ -127,10 +116,10 @@
 | OpenRouter | `/tool-logos/openrouter.webp` | https://openrouter.ai/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | 火山方舟 | `/tool-logos/volcengine-ark.webp` | https://portal.volccdn.com/obj/volcfe/misc/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | Google Colab | `/tool-logos/google-colab.webp` | https://colab.research.google.com/img/colab_favicon_256px.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
-| Open WebUI | `/tool-logos/open-webui.webp` | https://openwebui.com/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | RAGFlow | `/tool-logos/ragflow.svg` | https://ragflow.io/img/logo.svg | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | Browser Use | `/tool-logos/browser-use.webp` | https://browser-use.com/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | CrewAI | `/tool-logos/crewai.webp` | https://crewai.com/favicon.ico | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | llama.cpp | `/tool-logos/llama-cpp.svg` | https://llama.app/ | 品牌官网图标，仅用于识别该产品或项目 | 是 |
 | 万相 Wan | `/tool-logos/wan.webp` | https://avatars.githubusercontent.com/u/200620180?v=4 | 官方 GitHub 组织头像，仅用于识别该项目 | 否 |
 | 海螺 AI | `/tool-logos/hailuo.webp` | https://cdn.hailuoai.video/open-hailuo-video-web/public_assets/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
+| RikkaHub | `/tool-logos/rikkahub.webp` | https://raw.githubusercontent.com/rikkahub/rikkahub/master/docs/icon.png | 官方仓库应用图标，仅用于识别该项目 | 否 |

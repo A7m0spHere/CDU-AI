@@ -678,6 +678,30 @@
   align-items: stretch;
 }
 
+.tool-group {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.tool-group__heading {
+  margin-bottom: 0.85rem;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tool-group__heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.tool-group__heading p {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
 /*
  * Agent 与 Harness：默认收起的社区条目区。
  * 外层 details 是网格的一整行，展开后内部复用 .tool-grid 的三列卡片布局。
@@ -908,25 +932,6 @@
   color: var(--muted);
   font-size: 0.79rem;
   line-height: 1.72;
-}
-
-.tool-card__best {
-  margin-top: 0.95rem;
-  padding: 0.62rem 0.72rem;
-  border: 1px dashed var(--line);
-  border-radius: 11px;
-  background: var(--bg);
-  color: var(--ink-soft);
-  font-size: 0.76rem;
-  line-height: 1.62;
-}
-
-.tool-card__best span {
-  margin-right: 0.35rem;
-  color: var(--brand);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 700;
 }
 
 .tool-card__meta {

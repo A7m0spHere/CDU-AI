@@ -276,6 +276,8 @@ export function parseToolsFromSource(source) {
         id: readString('id'),
         name: readString('name'),
         category: readString('category'),
+        catalogGroup: readString('catalogGroup'),
+        aigcSection: readString('aigcSection'),
         alsoIn: readArray('alsoIn'),
         capabilities: readArray('capabilities'),
         aliases: readArray('aliases'),
@@ -315,7 +317,7 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
   if (categories.length === 0) push('无法解析工具分类（toolCategories），页面筛选会失效');
 
   const tools = parseToolsFromSource(source);
-  const kinds = ['在线产品', '开源项目', '模型', '工作流工具', '开发工具', '资源社区', '开发平台'];
+  const kinds = ['在线产品', '开源项目', '工作流工具', '开发工具', '资源社区', '开发平台'];
   const tiers = ['主流产品', '社区热门', '小众探索'];
   const bases = ['official', 'docs', 'community'];
   const caps = ['open-source', 'local', 'beginner', 'zh'];
@@ -338,6 +340,14 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
       if (!caps.includes(cap)) push(label + ' 的 capabilities 含未知取值：' + cap);
     }
     if (tool.kind && !kinds.includes(tool.kind)) push(label + ' 的 kind 不合法：' + tool.kind);
+    if (tool.catalogGroup && !['domestic', 'overseas', 'open-source', 'community'].includes(tool.catalogGroup)) {
+      push(label + ' 的 catalogGroup 不合法：' + tool.catalogGroup);
+    }
+    const isAigc = tool.category === 'aigc' || tool.alsoIn.includes('aigc');
+    if (isAigc && !['image', 'video', 'workflow', 'resources'].includes(tool.aigcSection)) {
+      push(label + ' 缺少合法的 AIGC 页内分区（aigcSection）');
+    }
+    if (!isAigc && tool.aigcSection) push(label + ' 填写 aigcSection 时必须属于 AIGC 分类');
     if (tool.tier && !tiers.includes(tool.tier)) push(label + ' 的 tier 不合法：' + tool.tier);
     if (tool.basis && !bases.includes(tool.basis)) push(label + ' 的 basis 不合法：' + tool.basis);
     if (tool.verifiedOn && !isoDateRe.test(tool.verifiedOn)) push(label + ' 的 verifiedOn 必须是 YYYY-MM-DD');

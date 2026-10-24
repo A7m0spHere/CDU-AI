@@ -114,9 +114,8 @@ export function initFilter(options: FilterOptions = {}): void {
       group.hidden = !hasVisibleCard;
     });
 
-    // 默认收起的社区条目区：有匹配结果才显示；搜索或任一筛选生效时直接展开，
-    // 保证关键词与筛选能到达完整目录，不会因为折叠而漏掉结果。
-    const filtering = searching || activeCaps.size > 0 || activeValue !== defaultValue;
+    // 浏览场景分类时保持默认收起，仅搜索或能力筛选时展开匹配的社区条目。
+    const filtering = searching || activeCaps.size > 0;
     collapses.forEach((details) => {
       const hasVisibleCard = Array.from(details.querySelectorAll<HTMLElement>(cardSelector)).some(
         (card) => !card.hidden,
@@ -135,7 +134,11 @@ export function initFilter(options: FilterOptions = {}): void {
 
   const setFromUrl = () => {
     const params = new URLSearchParams(window.location.search);
-    const category = params.get('category');
+    const requestedCategory = params.get('category');
+    // 原图片、视频分类链接统一落到 AIGC，避免旧书签退回全部工具。
+    const category = ['image', 'video'].includes(requestedCategory ?? '') && chips.some((chip) => chip.dataset.filterValue === 'aigc')
+      ? 'aigc'
+      : requestedCategory;
     const q = params.get('q');
     const caps = params.get('caps');
     if (category && chips.some((chip) => chip.dataset.filterValue === category)) {

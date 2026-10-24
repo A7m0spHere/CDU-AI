@@ -779,6 +779,28 @@ test('工具目录数据自洽：字段合法、分类存在、Logo 文件齐全
   }
 });
 
+test('AIGC 合并图片与视频入口，区分创作工具和资源社区，暂不收录独立模型', async () => {
+  assert.ok(toolCategoryIds.includes('aigc'), '缺少 AIGC 一级分类');
+  assert.ok(!toolCategoryIds.includes('image') && !toolCategoryIds.includes('video'), '图片、视频应成为 AIGC 页内分区');
+  assert.ok(parsedTools.every((tool) => tool.kind !== '模型'), '当前目录不收录独立模型');
+  const html = await read('tools/index.html');
+  const groups = ['image', 'video', 'workflow', 'resources'].map((id) => (
+    html.match(new RegExp('<section\\b[^>]*data-tool-group="aigc-' + id + '"[\\s\\S]*?<\\/section>'))?.[0] ?? ''
+  ));
+  assert.ok(groups.every(Boolean), 'AIGC 应展示图片、视频、工作流与资源社区四个分区');
+  assert.ok(groups[0].includes('data-tool-id="midjourney"'), '图片产品应归入图片创作');
+  assert.ok(groups[1].includes('data-tool-id="kling"'), '视频产品应归入视频创作');
+  assert.ok(groups[2].includes('data-tool-id="comfyui"'), 'ComfyUI 是工作流工具，应保留');
+  assert.ok(groups[3].includes('data-tool-id="civitai"'), '创作资源社区应保留');
+  assert.ok(!groups.join('').includes('data-tool-id="fal"'), 'API 平台应保留在独立 API 分类');
+  const wan = parsedTools.find((tool) => tool.id === 'wan');
+  assert.equal(wan?.kind, '在线产品', '万相仅保留网页创作产品入口');
+  assert.equal(wan?.githubUrl, undefined, '万相不再提供独立模型仓库入口');
+  for (const [id, category] of [['fal', 'api'], ['aliyun-bailian', 'api'], ['autodl', 'compute'], ['google-colab', 'compute'], ['hugging-face', 'community'], ['modelscope', 'community']]) {
+    assert.equal(parsedTools.find((tool) => tool.id === id)?.category, category, '应保留原有资源入口：' + id);
+  }
+});
+
 test('工具页展示官方 Logo、能力筛选与建议收录入口', async () => {
   if (parsedTools.length === 0) return;
   const html = await read('tools/index.html');
@@ -806,30 +828,50 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /收录不等于推荐/, '缺少「收录不等于推荐」说明');
 });
 
-test('Agent 与 Harness 默认收起社区条目，展开控件与自动展开逻辑存在', async () => {
+test('Agent 按国内、海外和非官方社区分组，官方开源工具不进入社区折叠区', async () => {
   if (parsedTools.length === 0) return;
   const html = await read('tools/index.html');
   assert.match(html, /data-collapse/, '缺少社区 Agent 折叠区');
   assert.match(html, /更多社区 Agent 与 Harness/, '折叠区缺少标题');
-  assert.match(html, /默认收起，搜索或筛选时自动展开/, '折叠区缺少展开说明');
+  assert.match(html, /默认收起，搜索或能力筛选时自动展开/, '折叠区缺少展开说明');
+
+  const groups = Object.fromEntries(['domestic', 'overseas', 'community'].map((id) => [
+    id,
+    html.match(new RegExp('<section\\b[^>]*data-tool-group="agent-' + id + '"[\\s\\S]*?<\\/section>'))?.[0] ?? '',
+  ]));
+  for (const [id, group] of Object.entries(groups)) assert.ok(group, '缺少 Agent 分组：' + id);
+  assert.ok(html.indexOf(groups.domestic) < html.indexOf(groups.overseas), '国内工具应排在海外工具之前');
+  assert.ok(html.indexOf(groups.overseas) < html.indexOf(groups.community), '社区项目应排在海外工具之后');
+  const agentTools = parsedTools.filter((tool) => tool.category === 'agent' || tool.alsoIn.includes('agent'));
+  for (const tool of agentTools) {
+    assert.ok(groups[tool.catalogGroup]?.includes('data-tool-id="' + tool.id + '"'), 'Agent 条目未进入所属分组：' + tool.id);
+  }
+  const renderedIds = [...html.matchAll(/data-tool-id="([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(renderedIds.length, parsedTools.length, '工具分组后不应遗漏或额外复制卡片');
+  assert.equal(new Set(renderedIds).size, parsedTools.length, '同一个工具不能因次要分类而重复渲染');
 
   const cardTag = (id) => html.match(new RegExp('<article\\b[^>]*data-tool-id="' + id + '"[^>]*>'))?.[0] ?? '';
-  for (const id of ['opencode', 'pi', 'hermes-agent', 'openclaw']) {
+  for (const id of ['opencode', 'pi', 'openclaw']) {
     assert.ok(cardTag(id), '缺少直接显示的社区工具：' + id);
     assert.doesNotMatch(cardTag(id), /data-collapsed="true"/, id + ' 应直接显示');
   }
-  // 厂商自家 Agent 属于主流产品，默认直接显示，不进入社区折叠区
-  for (const id of ['zcode', 'workbuddy', 'qoder', 'kimi-code', 'minimax-code']) {
+  // 厂商自家 Agent 即使开源或标为社区热门，也必须直接展示，不进入社区区。
+  for (const id of ['deepseek-harness', 'qwen-code', 'hermes-agent', 'zcode', 'workbuddy', 'qoder', 'kimi-code', 'minimax-code']) {
     assert.ok(parsedTools.some((tool) => tool.id === id), '缺少厂商 Agent：' + id);
     assert.ok(cardTag(id), '工具页缺少厂商 Agent 卡片：' + id);
     assert.doesNotMatch(cardTag(id), /data-collapsed="true"/, id + ' 应直接显示');
+    assert.ok(!groups.community.includes('data-tool-id="' + id + '"'), id + ' 不属于非官方社区项目');
   }
-  for (const id of ['deepseek-harness', 'cline', 'qwen-code', 'openhands', 'oh-my-pi', 'goose', 'aider', 'open-interpreter', 'mini-swe-agent']) {
+  for (const id of ['deepseek-harness', 'qwen-code']) {
+    assert.ok(groups.domestic.includes('data-tool-id="' + id + '"'), id + ' 应归入国内工具');
+  }
+  assert.ok(groups.overseas.includes('data-tool-id="hermes-agent"'), 'Hermes Agent 应归入海外工具');
+  for (const id of ['cline', 'openhands', 'oh-my-pi', 'goose', 'aider', 'open-interpreter', 'mini-swe-agent', 'langgraph', 'browser-use', 'crewai']) {
     assert.ok(parsedTools.some((tool) => tool.id === id), '折叠清单里的工具不存在：' + id);
     assert.match(cardTag(id), /data-collapsed="true"/, id + ' 应默认收起');
   }
 
-  // 搜索或筛选生效时必须自动展开折叠区，否则会出现「收录了却搜不到」的假漏结果。
+  // 搜索或能力筛选生效时自动展开折叠区，场景分类本身不触发展开。
   const filterSource = await readFile(path.join(root, 'src/scripts/filter.ts'), 'utf8');
   assert.match(filterSource, /details\.open = filtering/, '筛选生效时应自动展开折叠区');
 });
@@ -886,9 +928,9 @@ test('工具数据进入搜索索引：别名、技术类型与能力标签都�
     }
   }
 
-  // 技术类型关键词可用于区分「模型 / 产品 / 工作流」
+  // 产品与工作流的技术类型仍应进入索引。
   assert.ok(
-    toolItems.some((item) => item.keywords.includes('扩散模型')),
+    toolItems.some((item) => item.keywords.includes('图像工作流')),
     '搜索索引应包含技术类型关键词',
   );
 });

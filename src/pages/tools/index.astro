@@ -3,8 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Icon from '../../components/Icon.astro';
 import ToolCard from '../../components/ToolCard.astro';
-import { tools, toolCategories, toolCapabilities, agentSpotlightIds } from '../../data/tools';
-import type { Tool } from '../../data/types';
+import { tools, toolCategories, toolCapabilities, agentSpotlightIds, llmChatGroups, agentGroups, aigcGroups } from '../../data/tools';
 
 const counts = new Map(toolCategories.map((category) => [category.id, tools.filter((tool) => tool.category === category.id || (tool.alsoIn ?? []).includes(category.id)).length]));
 const capCounts = new Map(toolCapabilities.map((cap) => [cap.id, tools.filter((tool) => tool.capabilities.includes(cap.id)).length]));
@@ -12,17 +11,32 @@ const hasTools = tools.length > 0;
 const suggestionUrl = 'https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml';
 const categoryName = (id: string) => toolCategories.find((category) => category.id === id)?.name ?? '工具';
 
-// Agent 与 Harness 的默认展示：主流产品与少量常用社区条目直接显示，
-// 其余社区 / 小众 Agent 收进折叠区。搜索或筛选生效时折叠区自动展开（见 scripts/filter.ts），
-// 结果数量与搜索索引始终按完整目录计算，避免折叠后漏掉收录。
 const spotlightAgentIds = new Set(agentSpotlightIds);
-const isAgentTool = (tool: Tool) => tool.category === 'agent';
-const isCollapsedAgent = (tool: Tool) =>
-  isAgentTool(tool) && tool.tier !== '主流产品' && !spotlightAgentIds.has(tool.id);
-const collapsedAgentTools = tools.filter(isCollapsedAgent);
-const visibleTools = tools.filter((tool) => !isCollapsedAgent(tool));
-const collapseAfterId = [...visibleTools].reverse().find(isAgentTool)?.id;
-const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAfterId);
+const catalogGroups = [
+  { category: 'llm-chat', groups: llmChatGroups },
+  { category: 'agent', groups: agentGroups },
+  { category: 'aigc', groups: aigcGroups },
+].flatMap(({ category, groups }) => groups.map((group) => {
+  const members = tools.filter((tool) =>
+    (tool.category === category || (tool.alsoIn ?? []).includes(category)) &&
+    (category === 'aigc' ? tool.aigcSection : tool.catalogGroup) === group.id,
+  );
+  // 只折叠非官方社区项目，不能根据热度标签把官方开源工具混入社区区。
+  const collapsedTools = category === 'agent' && group.id === 'community'
+    ? members.filter((tool) => !spotlightAgentIds.has(tool.id))
+    : [];
+  const collapsedIds = new Set(collapsedTools.map((tool) => tool.id));
+  return {
+    ...group,
+    key: `${category}-${group.id}`,
+    category,
+    tools: members,
+    visibleTools: members.filter((tool) => !collapsedIds.has(tool.id)),
+    collapsedTools,
+  };
+})).filter((group) => group.tools.length > 0);
+const groupedToolIds = new Set(catalogGroups.flatMap((group) => group.tools.map((tool) => tool.id)));
+const visibleTools = tools.filter((tool) => !groupedToolIds.has(tool.id));
 ---
 
 <BaseLayout
@@ -136,7 +150,7 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
 
           <p class="catalog-sidebar__note">
             <Icon name="info" size={14} />
-            场景是单选，能力可多选并取交集；搜索会忽略场景筛选，但保留能力筛选。Agent 与 Harness 的社区条目默认收起，搜索或筛选时会自动展开。
+            场景是单选，能力可多选并取交集；搜索会忽略场景筛选，但保留能力筛选。Agent 与 Harness 的更多社区条目默认收起，仅搜索或能力筛选时会自动展开。
           </p>
         </aside>
 
@@ -147,25 +161,29 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
           </div>
 
           <div class="tool-grid">
-            {visibleTools.map((tool) => (
-              <>
-                <ToolCard
-                  tool={tool}
-                  categoryLabel={categoryName(tool.category)}
-                />
-                {showCollapsedAgents && tool.id === collapseAfterId && (
+            {catalogGroups.map((group) => (
+              <section class="tool-group" data-filter-group data-tool-group={group.key} data-tool-category={group.category} aria-labelledby={`tool-group-${group.key}`}>
+                <div class="tool-group__heading">
+                  <h2 id={`tool-group-${group.key}`}>{group.name}</h2>
+                  <p>{group.description}</p>
+                </div>
+                <div class="tool-grid">
+                  {group.visibleTools.map((tool) => (
+                    <ToolCard tool={tool} categoryLabel={categoryName(tool.category)} />
+                  ))}
+                {group.collapsedTools.length > 0 && (
                   <details class="tool-more" data-filter-group data-collapse>
                     <summary class="tool-more__summary">
                       <span class="tool-more__heading">
                         <span class="tool-more__title">更多社区 Agent 与 Harness</span>
                         <span class="tool-more__meta">
-                          {collapsedAgentTools.length} 个条目 · 默认收起，搜索或筛选时自动展开
+                          {group.collapsedTools.length} 个条目 · 默认收起，搜索或能力筛选时自动展开
                         </span>
                       </span>
                       <Icon name="chevron-down" size={18} class="tool-more__icon" />
                     </summary>
                     <div class="tool-grid tool-more__grid">
-                      {collapsedAgentTools.map((collapsedTool) => (
+                      {group.collapsedTools.map((collapsedTool) => (
                         <ToolCard
                           tool={collapsedTool}
                           categoryLabel={categoryName(collapsedTool.category)}
@@ -175,7 +193,11 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
                     </div>
                   </details>
                 )}
-              </>
+                </div>
+              </section>
+            ))}
+            {visibleTools.map((tool) => (
+              <ToolCard tool={tool} categoryLabel={categoryName(tool.category)} />
             ))}
           </div>
 

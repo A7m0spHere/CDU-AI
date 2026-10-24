@@ -1,7 +1,7 @@
 ---
 import type { Tool } from '../data/types';
 import Icon from './Icon.astro';
-import { toolBasisLabels, toolCapabilities } from '../data/tools';
+import { toolBasisLabels, toolCapabilities, toolCategories, aigcGroups } from '../data/tools';
 
 interface Props {
   tool: Tool;
@@ -15,8 +15,7 @@ const { tool, categoryLabel, collapsed = false } = Astro.props;
 const toneByCategory: Record<string, string> = {
   'llm-chat': 'sage',
   agent: 'violet',
-  image: 'rose',
-  video: 'rose',
+  aigc: 'rose',
   tts: 'sky',
   stt: 'sky',
   music: 'sand',
@@ -43,7 +42,8 @@ const searchText = [
   tool.tech,
   tool.kind,
   categoryLabel,
-  ...(tool.alsoIn ?? []).map((id) => (id === 'workflow' ? '工作流' : id)),
+  ...(tool.alsoIn ?? []).map((id) => toolCategories.find((category) => category.id === id)?.name ?? id),
+  aigcGroups.find((group) => group.id === tool.aigcSection)?.name ?? '',
   ...capabilityLabels,
   ...tool.tags,
 ]
@@ -95,19 +95,11 @@ const githubUrl = tool.githubUrl;
       </h3>
       <p>{tool.kind} · {tool.tech}</p>
     </div>
-    {tool.featured && <span class="badge badge--brand">新手先试</span>}
   </div>
 
   <p class="tool-card__summary">{tool.summary}</p>
 
-  <div class="tool-card__best">
-    <span>适合</span>
-    {tool.bestFor}
-  </div>
-
   <div class="tool-card__meta">
-    {tool.pricing && <span class="badge">{tool.pricing}</span>}
-    <span class="badge">{tool.difficulty}</span>
     <span class="tool-card__category">{categoryLabel}</span>
   </div>
 

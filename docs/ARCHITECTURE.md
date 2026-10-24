@@ -96,8 +96,9 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 | 维度 | 字段 | 取值 |
 | --- | --- | --- |
-| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、图像、视频、TTS、STT、音乐、搜索科研、工作流、本地部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示、翻译与文档处理） |
-| 资源形态 | `kind` | 在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 / 资源社区 / 开发平台 |
+| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、AIGC、TTS、STT、音乐、搜索科研、工作流、本地运行与部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示、翻译与文档处理） |
+| 页内分组 | `catalogGroup` / `aigcSection` | 对话与 Agent 按归属分组；AIGC 按图片、视频、工作流和资源社区分区 |
+| 资源形态 | `kind` | 在线产品 / 开源项目 / 工作流工具 / 开发工具 / 资源社区 / 开发平台；当前暂不收录独立模型 |
 | 技术类型 | `tech` | LLM 对话应用、扩散模型、Agent Harness、TTS、STT 等自由文本 |
 | 能力标签 | `capabilities` | open-source / local / beginner / zh（页面上可多选筛选） |
 | 收录依据 | `tier` / `basis` / `verifiedOn` | 主流产品 / 社区热门 / 小众探索；官网核对 / 官方文档 / 社区整理；核对日期 |
