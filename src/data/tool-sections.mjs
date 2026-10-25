@@ -25,7 +25,7 @@ export const toolSections = {
   ],
   research: [
     { id: 'web', name: '网页搜索', description: '围绕问题检索网页，并核对回答的来源。', toolIds: ['perplexity', 'metaso'] },
-    { id: 'reading', name: '资料阅读与知识库', description: '阅读已有材料，或建立可查询的资料库。', toolIds: ['notebooklm', 'ragflow'] },
+    { id: 'reading', name: '资料阅读与知识库', description: '阅读已有材料，或建立可查询的资料库。', toolIds: ['notebooklm', 'ragflow', 'notion-ai'] },
     { id: 'papers', name: '论文检索', description: '查找论文证据，整理文献与研究结论。', toolIds: ['elicit', 'consensus'] },
     { id: 'related', name: '相关文档与接口', description: '为检索准备文档，或在程序中接入搜索。', toolIds: ['immersive-translate', 'mineru', 'tavily'] },
   ],
@@ -56,12 +56,9 @@ export const toolSections = {
     { id: 'notebooks', name: '在线 Notebook 与实验环境', description: '在浏览器中运行代码、课程实验与数据分析。', toolIds: ['google-colab'] },
   ],
   office: [
-    { id: 'tools', name: '办公与演示工具', toolIds: ['gamma', 'canva', 'tingwu'] },
-  ],
-  document: [
-    { id: 'tools', name: '翻译与文档工具', toolIds: ['immersive-translate', 'mineru'] },
+    { id: 'tools', name: '办公与演示工具', toolIds: ['gamma', 'canva', 'tingwu', 'wps-ai', 'notion-ai'] },
   ],
 };
 
 /** 旧栏目链接保留兼容入口。 */
-export const toolCategoryAliases = { image: 'aigc', video: 'aigc', tts: 'audio', stt: 'audio', music: 'audio' };
+export const toolCategoryAliases = { image: 'aigc', video: 'aigc', tts: 'audio', stt: 'audio', music: 'audio', document: 'research' };
