@@ -96,7 +96,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 | 维度 | 字段 | 取值 |
 | --- | --- | --- |
-| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、AIGC、TTS、STT、音乐、搜索科研、工作流、本地运行与部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示、翻译与文档处理） |
+| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、AIGC、语音与音频、搜索科研、工作流、本地运行与部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示、翻译与文档处理） |
 | 页内分组 | `catalogGroup` / `aigcSection` | 对话与 Agent 按归属分组；AIGC 按图片、视频、工作流和资源社区分区 |
 | 资源形态 | `kind` | 在线产品 / 开源项目 / 工作流工具 / 开发工具 / 资源社区 / 开发平台；当前暂不收录独立模型 |
 | 技术类型 | `tech` | LLM 对话应用、扩散模型、Agent Harness、TTS、STT 等自由文本 |
@@ -108,7 +108,8 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 - **图标自托管**：官方 Logo 放在 `public/tool-logos/`（SVG 或 96×96 WebP），来源与授权逐条记录在数据里，汇总见 [`TOOL-LOGOS.md`](TOOL-LOGOS.md)；取不到合规图标时省略 `logo`，卡片回退为名称首字母。
 - **检查器同源**：内容检查通过 `parseToolsFromSource` 读取工具引用；构建后的测试再调用 `validateTools` 检查分类、枚举、重复项与图标文件。两者共用解析逻辑，完整验证入口为 `npm run verify`。
 - **官网与仓库分开**：`url` 优先使用官网或官方项目介绍页，`githubUrl` 单独提供代码仓库入口。GitHub Copilot 等产品页也在 GitHub 域名下，不能只按域名判断仓库。
-- **扩展方向**：新增分类只需往 `toolCategories` 追加；未来加 MCP、AI 3D、AI for Science、具身智能等方向时不需要改页面。
+- **分类视图**：`tool-sections.mjs` 集中维护页内分区，`tool-catalog.mjs` 生成全目录与单栏目视图并验证覆盖率；全目录仅展示主分类，单栏目使用本栏目的关联工具和分区。客户端移动已有卡片，不克隆条目。搜索限定当前栏目，折叠数量同步更新。
+- **扩展方向**：新增分类时同步 `toolCategories` 和分区配置；未来新增方向时不需要为单个工具改页面。
 
 ### 内容与页面解耦的边界
 

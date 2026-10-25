@@ -683,13 +683,48 @@
   min-width: 0;
 }
 
+.catalog-sections,
+.catalog-category {
+  display: grid;
+  gap: 1.2rem;
+  min-width: 0;
+}
+
+.catalog-sections {
+  gap: 2rem;
+}
+
+.catalog-category__heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.catalog-category__heading p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.catalog-search-scope {
+  margin: 0.45rem 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.tool-group > .tool-more {
+  margin-top: 0.85rem;
+}
+
 .tool-group__heading {
   margin-bottom: 0.85rem;
   padding-block: 0.6rem;
   border-bottom: 1px solid var(--line);
 }
 
-.tool-group__heading h2 {
+.tool-group__heading h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 650;
@@ -883,13 +918,13 @@
   min-width: 0;
 }
 
-.tool-card__identity h3 {
+.tool-card__identity :is(h3, h4) {
   font-size: 1.01rem;
   line-height: 1.4;
   letter-spacing: -0.015em;
 }
 
-.tool-card__identity h3 a {
+.tool-card__identity :is(h3, h4) a {
   display: inline-flex;
   align-items: center;
   gap: 0.28rem;
@@ -897,11 +932,11 @@
   transition: color var(--dur-fast) ease;
 }
 
-.tool-card__identity h3 a:hover {
+.tool-card__identity :is(h3, h4) a:hover {
   color: var(--brand);
 }
 
-.tool-card__identity h3 svg {
+.tool-card__identity :is(h3, h4) svg {
   color: var(--faint);
   opacity: 0.8;
 }

@@ -61,7 +61,7 @@
 - 社区区指独立开发者及第三方社区维护的工具，不代表没有官网或维护组织；模型厂商自己的官方 Agent 不归入这一组。OpenCode、Pi、OpenClaw 默认直接显示，其余社区项目收进「更多社区 Agent 与 Harness」折叠区。
 - Manus 按海外产品展示，其[官方公告](https://manus.im/blog/manus-joins-meta-for-next-era-of-innovation)说明加入 Meta 并继续从新加坡运营。
 
-折叠只影响默认展开状态：进入或切换场景分类时保持收起，可手动展开；搜索或能力筛选生效时自动展开匹配条目，清除后恢复收起。结果数量与搜索索引仍按完整目录计算。默认展示名单在 `src/data/tools.ts` 的 `agentSpotlightIds` 维护；官方工具不会进入社区折叠区。补充 `DSH` 搜索别名，名称仍沿用 DeepSeek Harness。
+折叠只影响默认展开状态：进入或切换场景分类时保持收起，可手动展开；搜索或能力筛选生效时自动展开匹配条目，清除后恢复收起。默认展示名单在 `src/data/tool-sections.mjs` 的 `agent/community/collapse.featuredIds` 维护；官方工具不会进入社区折叠区，其他栏目也不继承这一折叠规则。数量按当前视图匹配条目计算。补充 `DSH` 搜索别名，名称仍沿用 DeepSeek Harness。
 
 ## 未作为活跃工具新增
 

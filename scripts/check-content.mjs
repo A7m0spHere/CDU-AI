@@ -20,6 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 import { isSafeExternalUrl } from '../src/lib/url-guard.mjs';
+import { validateCatalogSections } from '../src/lib/tool-catalog.mjs';
 
 const isoDateRe = /^\d{4}-\d{2}-\d{2}$/;
 const slugFileRe = /^[a-z0-9][a-z0-9-]*\.md$/;
@@ -673,6 +674,9 @@ export async function validateContentRoot(root) {
 async function main() {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const { errors, count } = await validateContentRoot(root);
+  const catalogSource = await readFile(path.join(root, 'src/data/tools.ts'), 'utf8');
+  errors.push(...validateCatalogSections(parseToolsFromSource(catalogSource), parseToolCategoryIds(catalogSource))
+    .map((message) => ({ file: 'src/data/tool-sections.mjs', message })));
   if (errors.length > 0) {
     console.error(`内容一致性检查失败：${errors.length} 个问题（共检查 ${count} 个文件）`);
     for (const error of errors) console.error(`- ${error.file}  ${error.message}`);

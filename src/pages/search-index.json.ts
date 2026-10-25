@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import { tools, toolCategories, toolCapabilities, aigcGroups } from '../data/tools';
+import { tools, toolCategories, toolCapabilities } from '../data/tools';
+import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 import { glossaryCategoryName } from '../data/glossary';
 
 interface SearchItem {
@@ -132,7 +133,7 @@ export const GET: APIRoute = async () => {
         ...(tool.aliases ?? []),
         categoryName(tool.category),
         ...(tool.alsoIn ?? []).map(categoryName),
-        aigcGroups.find((group) => group.id === tool.aigcSection)?.name ?? '',
+        ...getToolSectionLabels(tool),
         tool.tech,
         tool.kind,
         ...toolCapabilities.filter((cap) => tool.capabilities.includes(cap.id)).map((cap) => cap.label),

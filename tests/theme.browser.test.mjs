@@ -59,6 +59,9 @@ async function setup(t, options = {}) {
 
 async function ready(page) {
   await page.waitForFunction(() => document.querySelector('[data-theme-select="light"]'));
+  if (await page.locator('[data-tool-catalog]').count()) {
+    await page.waitForSelector('[data-tool-catalog][data-catalog-ready="true"]');
+  }
 }
 
 async function menu(page) {
@@ -126,6 +129,70 @@ test('预设切换/刷新与 main 工具目录、社区折叠和搜索兼容', a
   await select(page, 'light');
   await page.reload(); await ready(page);
   assert.equal((await state(page)).bg, '#ffffff');
+});
+
+test('工具栏目使用自己的分区，关联条目不重复且搜索限定当前栏目', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/tools/?category=workflow');
+  await ready(page);
+  assert.deepEqual(await page.locator('[data-catalog-category]:visible').evaluateAll(elements => elements.map(element => element.dataset.catalogCategory)), ['workflow']);
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '13');
+  assert.equal(await page.locator('[data-collapse]:visible').count(), 0);
+  assert.equal(await page.locator('[data-tool-id="dify"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'workflow-visual');
+  assert.equal(await page.locator('[data-tool-id="comfyui"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'workflow-creative');
+  assert.equal(await page.locator('[data-tool-id="langgraph"]').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
+
+  await page.locator('[data-filter-value="aigc"]').press('Enter');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '10');
+  assert.equal(await page.locator('[data-tool-id="canva"] [data-tool-category-label]').textContent(), 'AIGC');
+  await page.locator('[data-filter-search]').fill('Perplexity');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '0');
+  assert.equal(await page.locator('[data-empty-state]').isVisible(), true);
+  assert.match(await page.locator('[data-filter-scope]').textContent(), /AIGC/);
+  await page.locator('[data-filter-value="all"]').press('Enter');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '1');
+  assert.equal(await page.locator('[data-tool-id="perplexity"]').isVisible(), true);
+  assert.equal(await page.locator('[data-filter-search]').inputValue(), 'Perplexity');
+  await page.locator('[data-clear-filters]').click();
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+
+  await page.goto(origin + '/tools/?category=tts');
+  await ready(page);
+  assert.equal(await page.locator('[data-filter-value="audio"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '5');
+  assert.equal(await page.locator('[data-tool-group="audio-stt"] [data-tool-id="tingwu"]').count(), 1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
+});
+
+test('社区折叠数量跟随搜索及手动展开，开源筛选不借用模型或源码可用状态', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/tools/?category=agent');
+  await ready(page);
+  const collapsed = page.locator('[data-collapse]');
+  assert.equal(await collapsed.evaluate(element => element.open), false);
+  assert.equal(await page.locator('[data-collapse-count]').textContent(), '10');
+  assert.equal(await page.locator('[data-filter-folded-count]').textContent(), '10');
+  await page.locator('[data-filter-search]').fill('Cline');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '1');
+  assert.equal(await page.locator('[data-collapse-count]').textContent(), '1');
+  assert.equal(await collapsed.evaluate(element => element.open), true);
+  assert.equal(await page.locator('[data-filter-folded-note]').isVisible(), false);
+  await page.locator('[data-filter-search]').fill('');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '32');
+  assert.equal(await collapsed.evaluate(element => element.open), false);
+  assert.equal(await page.locator('[data-collapse-count]').textContent(), '10');
+  await page.locator('[data-collapse] > summary').press('Enter');
+  await page.waitForFunction(() => document.querySelector('[data-filter-folded-note]').hidden);
+  assert.equal(await collapsed.evaluate(element => element.open), true);
+
+  await page.locator('[data-filter-value="llm-chat"]').press('Enter');
+  await page.locator('[data-filter-cap="open-source"]').press('Enter');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '2');
+  assert.equal(await page.locator('[data-tool-id="qwen-chat"]').isVisible(), false);
+  assert.equal(await page.locator('[data-tool-id="cherry-studio"]').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id="rikkahub"]').isVisible(), true);
 });
 
 test('取消、Escape 和保存均终止待执行预览', async t => {

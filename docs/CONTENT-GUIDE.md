@@ -187,17 +187,21 @@ AI 主分支分节：
 
 ## 6. 工具数据
 
-工具目录只由维护者审核后入库（不开放自动发布、不迁移 Markdown），全部数据在 [`src/data/tools.ts`](../src/data/tools.ts)，字段由 [`src/data/types.ts`](../src/data/types.ts) 的 `Tool` 约束。**改数据就能加工具**：页面、筛选计数、首页推荐、搜索索引都由这份数组推导，不需要动组件。
+工具目录只由维护者审核后入库（不开放自动发布、不迁移 Markdown），条目数据在 [`src/data/tools.ts`](../src/data/tools.ts)，字段由 [`src/data/types.ts`](../src/data/types.ts) 的 `Tool` 约束。页内分区和折叠规则集中在 [`src/data/tool-sections.mjs`](../src/data/tool-sections.mjs)，视图生成与分区校验复用 [`src/lib/tool-catalog.mjs`](../src/lib/tool-catalog.mjs)。新增工具时同步所属栏目的分区规则，页面、筛选计数、首页推荐和搜索索引从数据推导。
 
 2026-10-24 的 Agent 补充、社区项目维护状态与仓库迁移依据见 [AGENT-CATALOG-REVIEW.md](AGENT-CATALOG-REVIEW.md)。
 
 书签增补、工具页缺项补充的取舍、重复入口与新旧域名核对见 [工具目录增补记录](TOOL-CATALOG-REVIEW.md)。新增条目优先成熟生态与明确使用场景，同类只保留少量代表。
 
-**对话工具分组**：「语言模型与对话」按 `llmChatGroups` 的顺序展示国内工具、海外工具、开源项目，同时覆盖主分类与 `alsoIn` 中的次要分类。条目的 `catalogGroup` 分别填写 `domestic`、`overseas`、`open-source`；产品与工具按团队归属分类，不能仅因关联模型有开源权重就归入开源项目。开源客户端与项目不分地区。搜索和能力筛选覆盖全部条目，没有匹配结果的分组自动隐藏。
+**对话工具分组**：「语言模型与对话」按 `toolSections['llm-chat']` 的顺序展示国内工具、海外工具、开源项目。条目的 `catalogGroup` 分别填写 `domestic`、`overseas`、`open-source`；不能仅因关联模型有开放权重就给在线产品添加开源能力标签。开源客户端与项目不分地区，没有匹配结果的分组自动隐藏。
 
-**Agent 分组与默认展示**：「Agent 与 Harness」按 `agentGroups` 的顺序展示国内工具、海外工具、社区项目，覆盖主分类与 `alsoIn` 中的次要分类。使用条目的 `catalogGroup` 明确归属：`domestic`、`overseas`、`community`，不根据 `tier` 或是否开源推断。DSH（DeepSeek Harness）、Qwen Code 等厂商官方项目放在国内工具，Hermes Agent 放在海外工具；社区项目仅收独立开发者和第三方社区维护的工具，不混入模型厂商自己的官方 Agent。国内、海外工具默认直接显示；社区区中 `agentSpotlightIds` 列出的 OpenCode、Pi、OpenClaw 直接显示，其余条目收进「更多社区 Agent 与 Harness」折叠区。折叠只影响默认展开状态，搜索、筛选计数与搜索索引始终覆盖完整目录。
+**Agent 分组与默认展示**：「Agent 与 Harness」按 `toolSections.agent` 展示国内工具、海外工具、非官方社区项目，通过 `catalogGroup` 明确归属，不按 `tier` 或是否开源推断。DSH、Qwen Code 放在国内工具，Hermes Agent 放在海外工具。社区区的 `collapse.featuredIds` 列出默认直接显示的 OpenCode、Pi、OpenClaw，其余社区条目默认折叠。折叠数量按当前匹配条目计算；切换栏目保持收起，搜索或能力筛选时展开匹配项，手动展开会同步更新已折叠数量。
 
-**AIGC 分组与收录边界**：图片与视频创作合并为 `aigc` 一级分类，按 `aigcGroups` 展示「图片创作」「视频创作」「创作工作流」「资源社区」。条目使用 `aigcSection` 指定唯一的主要分区：`image`、`video`、`workflow`、`resources`。同时支持图片、视频的产品按当前主要用途归类，不直接沿用旧分类，其余能力通过描述和标签体现，不重复渲染卡片。例如即梦归入视频创作，同时说明其绘画与智能画布能力；Midjourney、Canva 归入图片与设计用途。ComfyUI、RunningHub 等工作流工具以及 Civitai 等相关资源社区保留；API 平台与算力服务仍使用各自独立分类。
+**AIGC 分组与收录边界**：`aigc` 一级分类按 `toolSections.aigc` 展示图片创作、视频创作、创作工作流、资源社区；`aigcSection` 分别填写 `image`、`video`、`workflow`、`resources`。按主要用途归类，兼有能力写入介绍和标签；即梦归入视频创作，Midjourney、Canva 归入图片与设计用途。ComfyUI、RunningHub 和 Civitai 保留，API 平台与算力服务使用独立入口。
+
+**全目录与关联栏目**：「全部工具」按主分类分区，每个条目只出现一次。进入具体栏目时同时显示 `alsoIn` 关联条目，但使用当前栏目的分区规则和标签。例如 Dify、Coze 在工作流栏目属于可视化编排；Canva 在 AIGC 属于图片创作，在办公栏目属于办公工具。规则必须覆盖每个成员且不能重复匹配，失效工具引用也会被检查器拦截。
+
+**其他栏目**：语音合成、录音转写、音乐生成统一到 `audio`；工作流按可视化编排、Harness 与编程框架、浏览器自动化、创作工作流、知识库与文档处理划分。搜索科研、本地运行、API、算力和资源社区也分别维护自身的用途分区。旧 `image`、`video` 链接兼容进入 AIGC，旧 `tts`、`stt`、`music` 链接进入语音与音频。
 
 当前暂不收录独立模型条目，包括图像、视频与语音模型。具有同名网页产品的资源只保留产品入口，例如万相保留网页视频创作介绍，去掉模型下载仓库与本地部署标签；对话助手、开源客户端、运行器与工具包不因底层使用模型而移除。
 
@@ -220,7 +224,7 @@ Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模�
 
 演示文稿、设计排版与办公整理归入 `office`；双语翻译、OCR 和结构化文档解析归入 `document`。同一工具兼有录音、科研或图像用途时用 `alsoIn` 补充入口，不复制条目。Google Colab 按云端实验环境归入 `compute`，不标为本地部署。
 
-能力标签按当前实现和许可核对。MinerU 的代码可获取，但当前许可含附加条件，条目在 `caution` 说明边界，并省略 `open-source` 标签；有本地部署能力不代表连接云端模型时数据仍留在本机。
+能力标签按当前工具本身的实现和许可核对。Qwen Chat 不借用关联模型的开放权重状态；n8n、Dify、MinerU 等源码可获取但许可含附加条件的项目省略 `open-source` 标签，在 `caution` 说明边界。可自托管和采用标准开源许可证是两件事；本地客户端连接云端模型时仍可能发送请求与材料。
 
 ### 6.2 一条工具的字段
 
@@ -302,11 +306,11 @@ Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模�
 
 ### 6.6 页面上的筛选规则
 
-- 场景分类：单选，代表「当前浏览的分支」；输入关键词时暂时让位给搜索。
+- 场景分类：单选，工具页搜索限定在当前栏目，点击「全部工具」扩大搜索范围并保留关键词；术语页仍采用原有的全局搜索规则。
 - 能力筛选（开源 / 本地部署 / 入门友好 / 中文界面）：多选，取交集，搜索时依然生效。
 - 搜索范围：名称、别名、技术类型、形态、分类、能力与标签。
 - Agent 与 Harness 的更多社区条目默认收在折叠区；进入或切换场景分类时保持收起，可手动展开。输入关键词或启用能力筛选时自动展开匹配条目，清除关键词与能力筛选后恢复收起。
-- 三者都满足才显示，结果数量、空状态与 URL（`?category=&caps=&q=`）始终一致。
+- 三者都满足才显示，结果数量、空状态与 URL（`?category=&caps=&q=`）始终一致；计数使用「匹配 N 项」，另标出当前已折叠数量。
 - 不按热度或「综合评分」排序：数组顺序就是展示顺序，`featured: true` 只影响首页三张卡。
 
 ### 6.7 社区建议

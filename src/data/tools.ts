@@ -1,4 +1,4 @@
-import type { Tool, ToolCapability, ToolCategory, ToolCatalogGroup, AigcSection } from './types';
+import type { Tool, ToolCapability, ToolCategory } from './types';
 
 /**
  * 工具分类：按使用场景与资源入口组织，技术类型作为条目标签（tool.tech）。
@@ -7,7 +7,7 @@ import type { Tool, ToolCapability, ToolCategory, ToolCatalogGroup, AigcSection 
  * AIGC 汇集图片、视频创作产品与相关资源，在页面内分区展示。
  * 当前不收录独立模型条目，API、算力与通用资源社区保留独立入口。
  *
- * 新增分类只需在数组末尾追加一项：页面导航、筛选计数、搜索索引都会自动跟上。
+ * 新增分类时同步 tool-sections.mjs 的页内规则，导航、筛选计数与搜索索引由数据推导。
  */
 export const toolCategories: ToolCategory[] = [
   {
@@ -29,22 +29,10 @@ export const toolCategories: ToolCategory[] = [
     techHint: '图片创作 / 视频创作 / 创作工作流 / 资源社区',
   },
   {
-    id: 'tts',
-    name: 'TTS 语音合成',
-    description: '把文稿变成语音，或用少量样本复刻音色。',
-    techHint: '文字转语音 / 零样本音色克隆',
-  },
-  {
-    id: 'stt',
-    name: 'STT 语音识别',
-    description: '把录音转成文字稿、字幕和会议记录。',
-    techHint: '语音转文字 / 转录与字幕',
-  },
-  {
-    id: 'music',
-    name: '音乐与音频生成',
-    description: '生成歌曲、配乐与音效，先看清商用条款。',
-    techHint: '音乐生成 / 歌曲生成',
+    id: 'audio',
+    name: '语音与音频',
+    description: '寻找语音合成、录音转写和音乐生成工具。',
+    techHint: 'TTS 语音合成 / STT 录音转写 / 音乐生成',
   },
   {
     id: 'research',
@@ -98,41 +86,10 @@ export const toolCategories: ToolCategory[] = [
 
 /** 能力标签：页面上的筛选按钮与卡片标签共用这一份定义。 */
 export const toolCapabilities: { id: ToolCapability; label: string; hint: string }[] = [
-  { id: 'open-source', label: '开源', hint: '代码或权重可获取' },
+  { id: 'open-source', label: '开源', hint: '当前工具本身采用标准开源许可证，不借用其模型的开放状态' },
   { id: 'local', label: '本地部署', hint: '可以跑在自己的机器上' },
   { id: 'beginner', label: '入门友好', hint: '打开网页就能用' },
   { id: 'zh', label: '中文界面', hint: '官方提供中文界面' },
-];
-
-/**
- * Agent 与 Harness 默认直接显示的社区条目。
- *
- * 工具页默认展开国内、海外工具与这几个非官方社区项目，其余社区 Agent 收进
- * 「更多社区 Agent 与 Harness」折叠区；搜索或能力筛选生效时折叠区会自动展开，
- * 所以收录数量、筛选计数与搜索索引仍以完整目录为准（见 docs/CONTENT-GUIDE.md 6.6）。
- */
-export const agentSpotlightIds: string[] = ['opencode', 'pi', 'openclaw'];
-
-/** 对话目录的展示顺序：工具按团队归属分组，开源客户端与项目统一放在最后。 */
-export const llmChatGroups: { id: ToolCatalogGroup; name: string; description: string }[] = [
-  { id: 'domestic', name: '国内工具', description: '国内团队提供的在线对话产品，从日常问答、写作和资料阅读开始。' },
-  { id: 'overseas', name: '海外工具', description: '海外团队提供的对话产品与工具，按任务需要了解不同选择。' },
-  { id: 'open-source', name: '开源项目', description: '不分地区，汇集可自行配置模型服务的开源客户端与项目。' },
-];
-
-/** 官方开源工具仍按厂商归属展示；社区区仅用于第三方项目，不按 tier 推断归属。 */
-export const agentGroups: { id: ToolCatalogGroup; name: string; description: string }[] = [
-  { id: 'domestic', name: '国内工具', description: '国内团队推出的 Agent 与 Harness，包含厂商官方开源工具。' },
-  { id: 'overseas', name: '海外工具', description: '海外团队推出的 Agent 产品与开发工具。' },
-  { id: 'community', name: '社区项目', description: '独立开发者与第三方社区维护的 Agent 和 Harness。' },
-];
-
-/** AIGC 一级分类内的展示分区，平台、工作流与社区分别展示。 */
-export const aigcGroups: { id: AigcSection; name: string; description: string }[] = [
-  { id: 'image', name: '图片创作', description: '主要用于图片生成、图片编辑与视觉设计，兼有能力见工具介绍。' },
-  { id: 'video', name: '视频创作', description: '主要用于视频生成、镜头创作与视频编辑，兼有图片能力见工具介绍。' },
-  { id: 'workflow', name: '创作工作流', description: '组合生成与处理步骤，搭建可重复使用的图片、视频创作流程。' },
-  { id: 'resources', name: '资源社区', description: '查找创作素材、工作流和资源示例，使用前核对说明与许可。' },
 ];
 
 /** 内容依据的展示文案。 */
@@ -278,13 +235,13 @@ export const tools: Tool[] = [
     category: 'llm-chat',
     catalogGroup: 'domestic',
     aliases: ['通义千问', 'Qwen', '千问'],
-    summary: '阿里通义千问的对话产品，同系列模型多数开源。',
+    summary: '阿里通义千问的在线对话产品，支持问答、读图与内容创作。',
     description: '网页端可对话、读图、生图。同一系列模型在开源社区有大量可下载版本，方便想从「用产品」过渡到「自己跑模型」的同学。',
     bestFor: '中文问答入门，或者想熟悉 Qwen 系列、为以后自己部署做准备。',
     url: 'https://chat.qwen.ai/',
     tech: 'LLM 对话应用',
     kind: '在线产品',
-    capabilities: ['beginner', 'zh', 'open-source'],
+    capabilities: ['beginner', 'zh'],
     tier: '主流产品',
     verifiedOn: '2026-10-23',
     basis: 'official',
@@ -293,7 +250,7 @@ export const tools: Tool[] = [
       source: 'https://assets.alicdn.com/g/qwenweb/qwen-chat-fe/0.3.22/favicon.png',
       license: '品牌官网图标，仅用于识别该产品',
     },
-    tags: ['对话', '中文', '开源权重'],
+    tags: ['对话', '中文', '多模态'],
     caution: '网页版和开源权重是两套东西：网页版的功能与额度以官网为准，自部署要自己准备算力。',
   },
   {
@@ -1178,7 +1135,7 @@ export const tools: Tool[] = [
   {
     id: 'elevenlabs',
     name: 'ElevenLabs',
-    category: 'tts',
+    category: 'audio',
     aliases: ['Eleven Labs'],
     summary: '主流的语音合成与音色克隆服务，多语言自然度较高。',
     description: '把文字转成接近真人的语音，支持多语言、情绪控制与音色克隆，也提供配音和语音 Agent 相关能力。',
@@ -1201,7 +1158,7 @@ export const tools: Tool[] = [
   {
     id: 'funasr',
     name: 'FunASR',
-    category: 'stt',
+    category: 'audio',
     aliases: ['达摩院 FunASR', 'ModelScope FunASR'],
     summary: '阿里达摩院开源的中文语音识别工具包，含训练与推理全流程。',
     description: '提供中文识别、标点、说话人分离等模型，支持流式识别，中文场景成熟，适合做字幕与会议转写。',
@@ -1226,7 +1183,7 @@ export const tools: Tool[] = [
   {
     id: 'suno',
     name: 'Suno',
-    category: 'music',
+    category: 'audio',
     aliases: ['Suno AI'],
     summary: '用一句话生成整首歌的 AI 音乐产品。',
     description: '描述风格和主题就能得到带人声的完整歌曲，可以续写、换风格。适合做活动主题曲，或者纯玩票。',
@@ -1249,7 +1206,7 @@ export const tools: Tool[] = [
   {
     id: 'udio',
     name: 'Udio',
-    category: 'music',
+    category: 'audio',
     aliases: ['Udio AI'],
     summary: 'AI 音乐生成平台，编曲与混音质感偏精细。',
     description: '按提示词生成歌曲片段，支持延长、重绘与分轨编辑，适合反复打磨同一首曲子。',
@@ -1371,7 +1328,7 @@ export const tools: Tool[] = [
     category: 'workflow',
     alsoIn: ['agent'],
     aliases: ['Dify.AI'],
-    summary: '开源的 LLM 应用开发平台，可视化编排工作流与知识库。',
+    summary: '可自托管的 LLM 应用开发平台，可视化编排工作流与知识库。',
     description: '拖节点就能搭一个带知识库的问答应用，再发布成网页或 API。支持多家模型供应商，也可以自托管。',
     bestFor: '把「社团常见问题 + 文档」做成一个能回答问题的机器人。',
     difficulty: '稍加摸索',
@@ -1379,7 +1336,7 @@ export const tools: Tool[] = [
     githubUrl: 'https://github.com/langgenius/dify',
     tech: 'Agent 工作流平台',
     kind: '工作流工具',
-    capabilities: ['open-source', 'local'],
+    capabilities: ['local'],
     tier: '主流产品',
     verifiedOn: '2026-10-23',
     basis: 'official',
@@ -1389,14 +1346,14 @@ export const tools: Tool[] = [
       license: '品牌官网图标，仅用于识别该产品',
     },
     tags: ['工作流', '知识库', 'Bot'],
-    caution: '云端版有额度限制；自托管要自己维护数据库与升级；品牌使用另有条款。',
+    caution: '项目许可包含附加条件，对外提供服务与使用品牌前应核对许可；自托管需要维护数据库与升级，云端功能和额度以当前方案为准。',
   },
   {
     id: 'n8n',
     name: 'n8n',
     category: 'workflow',
     aliases: ['n8n.io'],
-    summary: '开源自动化平台，把各类服务用节点串起来，可以插入 AI 步骤。',
+    summary: '可自托管的自动化平台，把各类服务用节点串起来，可以插入 AI 步骤。',
     description: '通过可视化节点连接表单、表格、邮件、模型 API 等，实现「收到新邮件就总结并发到群里」这类自动化，也能自托管。',
     bestFor: '想把重复流程自动化，同时在里面插一步 AI 处理。',
     difficulty: '稍加摸索',
@@ -1404,7 +1361,7 @@ export const tools: Tool[] = [
     githubUrl: 'https://github.com/n8n-io/n8n',
     tech: '自动化工作流',
     kind: '工作流工具',
-    capabilities: ['open-source', 'local'],
+    capabilities: ['local'],
     tier: '社区热门',
     verifiedOn: '2026-10-23',
     basis: 'official',
@@ -2104,7 +2061,7 @@ export const tools: Tool[] = [
   {
     id: 'tingwu',
     name: '通义听悟',
-    category: 'stt',
+    category: 'audio',
     alsoIn: ['office'],
     aliases: ['听悟', 'Tongyi Tingwu', 'Tingwu'],
     summary: '把音视频转成文字，并提炼章节摘要、发言要点和待办事项。',

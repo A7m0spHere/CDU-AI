@@ -63,6 +63,12 @@ async function read(relPath) {
   return readFile(path.join(dist, relPath), 'utf8');
 }
 
+function catalogViews(html) {
+  const json = html.match(/<script\b[^>]*data-catalog-config[^>]*>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(json, '工具页缺少栏目视图配置');
+  return JSON.parse(json).views;
+}
+
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
@@ -791,7 +797,8 @@ test('AIGC 合并图片与视频入口，区分创作工具和资源社区，暂
   assert.ok(groups[0].includes('data-tool-id="midjourney"'), '图片产品应归入图片创作');
   assert.ok(groups[1].includes('data-tool-id="kling"'), '视频产品应归入视频创作');
   assert.ok(groups[2].includes('data-tool-id="comfyui"'), 'ComfyUI 是工作流工具，应保留');
-  assert.ok(groups[3].includes('data-tool-id="civitai"'), '创作资源社区应保留');
+  const selectedAigc = catalogViews(html).aigc.categories[0].groups;
+  assert.ok(selectedAigc.find((group) => group.key === 'aigc-resources').toolIds.includes('civitai'), '进入 AIGC 后应显示关联的创作资源社区');
   assert.ok(!groups.join('').includes('data-tool-id="fal"'), 'API 平台应保留在独立 API 分类');
   const wan = parsedTools.find((tool) => tool.id === 'wan');
   assert.equal(wan?.kind, '在线产品', '万相仅保留网页创作产品入口');
@@ -843,8 +850,9 @@ test('Agent 按国内、海外和非官方社区分组，官方开源工具不�
   assert.ok(html.indexOf(groups.domestic) < html.indexOf(groups.overseas), '国内工具应排在海外工具之前');
   assert.ok(html.indexOf(groups.overseas) < html.indexOf(groups.community), '社区项目应排在海外工具之后');
   const agentTools = parsedTools.filter((tool) => tool.category === 'agent' || tool.alsoIn.includes('agent'));
+  const selectedAgent = catalogViews(html).agent.categories[0].groups;
   for (const tool of agentTools) {
-    assert.ok(groups[tool.catalogGroup]?.includes('data-tool-id="' + tool.id + '"'), 'Agent 条目未进入所属分组：' + tool.id);
+    assert.ok(selectedAgent.find((group) => group.key === 'agent-' + tool.catalogGroup)?.toolIds.includes(tool.id), 'Agent 条目未进入所属分组：' + tool.id);
   }
   const renderedIds = [...html.matchAll(/data-tool-id="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(renderedIds.length, parsedTools.length, '工具分组后不应遗漏或额外复制卡片');
@@ -868,7 +876,7 @@ test('Agent 按国内、海外和非官方社区分组，官方开源工具不�
   assert.ok(groups.overseas.includes('data-tool-id="hermes-agent"'), 'Hermes Agent 应归入海外工具');
   for (const id of ['cline', 'openhands', 'oh-my-pi', 'goose', 'aider', 'open-interpreter', 'mini-swe-agent', 'langgraph', 'browser-use', 'crewai']) {
     assert.ok(parsedTools.some((tool) => tool.id === id), '折叠清单里的工具不存在：' + id);
-    assert.match(cardTag(id), /data-collapsed="true"/, id + ' 应默认收起');
+    assert.ok(selectedAgent.find((group) => group.key === 'agent-community').collapsedIds.includes(id), id + ' 在 Agent 栏目中应默认收起');
   }
 
   // 搜索或能力筛选生效时自动展开折叠区，场景分类本身不触发展开。
@@ -905,7 +913,7 @@ test('GitHub 产品官网不会被误当成代码仓库', async () => {
   if (!parsedTools.some((tool) => tool.id === 'github-copilot')) return;
   const html = await read('tools/index.html');
   const cards = html.match(/<article\b[^>]*class="tool-card card"[\s\S]*?<\/article>/g) ?? [];
-  const copilot = cards.find((card) => /<h3>[\s\S]*?GitHub Copilot[\s\S]*?<\/h3>/.test(card));
+  const copilot = cards.find((card) => card.includes('data-tool-id="github-copilot"'));
   assert.ok(copilot, '缺少 GitHub Copilot 卡片');
   const footer = copilot.match(/<div class="tool-card__foot">[\s\S]*?<\/div>/)?.[0] ?? '';
   assert.match(footer, /href="https:\/\/github\.com\/features\/copilot"/, '官网入口应指向 Copilot 产品页');
