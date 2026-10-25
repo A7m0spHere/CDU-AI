@@ -34,7 +34,7 @@ export interface GuideNavGroup {
   id: GuideNavGroupId;
   index: string;
   label: string;
-  /** 一句话说明该栏目的定位，用于目录总览 */
+  /** 一句话说明该栏目的定位，供内容维护时参考 */
   description: string;
   items: GuideNavItem[];
 }

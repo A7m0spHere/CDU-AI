@@ -220,8 +220,9 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
 test('学习指南详情采用 Notion 文档结构', async () => {
   if (guideSlugs.length === 0) {
     const guideIndex = await read('guide/index.html');
-    assert.match(guideIndex, /data-content-empty/, '空指南页缺少「内容准备中」占位');
-    assert.match(guideIndex, /内容准备中/);
+    assert.match(guideIndex, /guide-doc-shell/, '指南首页应保留文档框架');
+    assert.match(guideIndex, /data-guide-home-content/, '指南首页应保留正文容器');
+    assert.doesNotMatch(guideIndex, /data-content-empty|data-page-header|wiki-navmap|wiki-outline|wiki-next/, '指南首页不再显示自动生成的介绍与占位内容');
     return;
   }
   const guide = await read('guide/' + guideSlugs[0] + '/index.html');
@@ -593,7 +594,6 @@ test('内容集合为空时保留框架、写作模板与占位状态', async ()
   }
 
   const expectations = [
-    ['guide/index.html', guideSlugs.length === 0],
     ['glossary/index.html', glossarySlugs.length === 0],
     ['works/index.html', workSlugs.length === 0],
   ];
@@ -612,9 +612,8 @@ test('内容集合为空时保留框架、写作模板与占位状态', async ()
   }
 });
 
-test('阶段二：内容页使用共享页头与 v2 空状态', async () => {
+test('资源列表页使用共享页头与 v2 空状态', async () => {
   const pages = [
-    ['guide/index.html', '01', '学习指南'],
     ['glossary/index.html', '02', '术语表'],
     ['tools/index.html', '03', '工具资源'],
     ['works/index.html', '04', '作品广场'],
@@ -628,7 +627,6 @@ test('阶段二：内容页使用共享页头与 v2 空状态', async () => {
 
   // 空状态断言按实际内容集合推导：有内容时不应再要求 v2 空状态（避免新增内容导致旧断言失败）。
   const emptyRoutes = [];
-  if (guideSlugs.length === 0) emptyRoutes.push('guide/index.html');
   if (glossarySlugs.length === 0) emptyRoutes.push('glossary/index.html');
   if (workSlugs.length === 0) emptyRoutes.push('works/index.html');
   for (const route of emptyRoutes) {

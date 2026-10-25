@@ -403,7 +403,7 @@ export function checkGuideNavCoverage({ slugs, registeredSlugs }) {
     .filter((slug) => !registeredSlugs.includes(slug))
     .map((slug) => ({
       file: `guide/${slug}.md`,
-      message: '未在 src/data/guide-nav.ts 中登记，侧边栏与目录总览不会显示这篇文章',
+      message: '未在 src/data/guide-nav.ts 中登记，侧边栏不会显示这篇文章',
     }));
 }
 

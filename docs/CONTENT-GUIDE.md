@@ -10,7 +10,7 @@
 - `src/content/works/_TEMPLATE.md`：作品示例模板
 - `src/content/glossary/_TEMPLATE.md`：术语模板
 
-复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会进入构建**，可以作为草稿模板长期保留。内容为空时列表页会显示「内容准备中」占位。
+复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会作为内容集合条目加载**，可以作为草稿模板长期保留。指南首页正文是例外：[`src/content/guide/_HOME.md`](../src/content/guide/_HOME.md) 由 `/guide/` 页面直接导入，不生成独立文章路由，也不套用普通指南的 frontmatter。
 
 新增指南时，还需在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts) 登记相同的 slug 与目录分组；只创建 Markdown 文件而未登记会被内容检查器拒绝。
 
@@ -37,7 +37,7 @@
 侧边栏的**分组（栏目）**单独维护在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts)，与文章的 `stage` / `order` 解耦：
 
 - `stage` 决定学习阶段归属；`order` 是指南集合内全局唯一的正整数，决定「上一篇 / 下一篇」的跨阶段阅读顺序，不在新阶段从 1 重编号；
-- `guideNavGroups` 决定文章出现在侧边栏哪个栏目、栏目内第几条、以及目录总览卡片；
+- `guideNavGroups` 决定文章出现在侧边栏哪个栏目、栏目内第几条；指南首页显示维护者提供的 `_HOME.md` 正文，不自动生成目录总览和阶段列表；
 - 只登记 `slug` 没有对应文件 = 「规划中」占位（灰色不可点，不生成路由）；
 - 建了文件但没登记 = `npm run check:content` 报错（避免文章写了却不在目录里）。
 
