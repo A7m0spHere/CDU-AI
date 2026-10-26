@@ -29,7 +29,7 @@ quiz:
     explain: "没提交的改动回不去。"
 agentPrompt: "请说明在让 AI 大改代码前应该做哪些版本控制准备，按步骤列出。"
 order: 1
-related: ["commit"]
+related: ["repository", "commit"]
 updated: "2026-10-26"
 sources:
   - title: "About version control · Pro Git"
