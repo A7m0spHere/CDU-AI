@@ -78,9 +78,9 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 | `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
 | `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
 
-三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：没有 `reviewed` 一律显示「初稿 · 尚未人工核校」。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
+三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时显示「初稿 · 尚未审核」，同时填写且未标记待更新才显示「已审核无误」。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
-**内容重建状态**：2026-10-20 开始内容重建，之后已加入「AI 幻觉」人工核校示范词条与维护者提供的指南首页正文。普通指南与作品仍待补充，各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不作为内容集合条目加载**；`src/content/guide/_HOME.md` 由指南首页直接导入并显示在 `/guide/`，不生成单独的文章路由，不自动追加介绍、目录总览或阶段列表。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
+**内容重建状态**：2026-10-20 开始内容重建，之后已加入「AI 幻觉」人工核校示范词条与维护者提供的指南首页正文。普通指南与作品仍待补充，各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不作为内容集合条目加载**；`src/content/guide/_HOME.md` 由指南首页直接导入并显示在 `/guide/`，不生成单独的文章路由，不自动追加介绍、目录总览或阶段列表。首页审核规则与记录方式见 [内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)，不增加页面审核信息栏。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
 
 指南的阶段归属、阅读顺序与六个目录分组分别维护：`stage` 决定学习阶段，`order` 是指南集合内全局唯一的正整数，决定跨阶段的上一篇 / 下一篇；`src/data/guide-nav.ts` 决定目录位置与规划条目。新增指南需要同时创建 Markdown 并登记 slug，不在新阶段重置 `order`。
 
@@ -119,7 +119,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 ## 5. 设计系统
 
-- 视觉方向：白底、蓝色交互色、目录式信息密度；不复制任何第三方项目的代码、品牌或页面。
+- 视觉方向：跟随浅色、深色与自定义主题的语义配色、目录式信息密度；不复制任何第三方项目的代码、品牌或页面。
 - 语义化 CSS 令牌：颜色、字体、间距、圆角、阴影、动效时长集中管理。
 - 支持内置深浅色、预设和本浏览器自定义主题，读取 `localStorage` 或系统偏好。`theme-core.ts` 推导令牌，`theme.ts` 管理预览与保存；持久化失败保留原主题并显示错误。禁用 JS 时默认浅色且内容完整可读。
 - 断点：480 / 760 / 1020 / 1180 / 1280；主要按钮 ≥ 42px，移动菜单 48px。

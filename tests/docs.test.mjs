@@ -36,7 +36,7 @@ test('文档检查支持中文重名标题、引用式链接与 HTML 图片，�
 test('审校字段示例复用内容校验：资料整理不能填写亲测字段，撤销审校不能留下审校人', async t => {
   const root = await fixture(t);
   const file = path.join(root, 'README.md');
-  for (const fields of ['basis: desk-research\ntestedOn: "2026-10-21"', 'reviewedBy: 示例审校人']) {
+  for (const fields of ['basis: desk-research\ntestedOn: "2026-10-21"', 'reviewedBy: 示例审校人', 'reviewed: "2026-10-21"']) {
     await writeFile(file, '```yaml review-fields\n' + fields + '\n```');
     assert.equal((await checkDocumentation(root)).errors.length, 1);
   }

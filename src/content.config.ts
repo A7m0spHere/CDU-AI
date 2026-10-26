@@ -10,8 +10,8 @@ import { isSafeExternalUrl } from './lib/url-guard.mjs';
  *
  * 设计原则：
  * - 所有字段都有保守默认值，存量 Markdown 不需要一次性迁移；
- * - 没有 reviewed 日期就视为「初稿 · 尚未人工核校」，不允许默认显示成已审核；
- * - basis（内容依据）与 reviewed（人工核校）是两个维度：核验过事实不等于亲自实测。
+ * - reviewed 日期与 reviewedBy 必须同时填写，缺少审核记录不得显示成已审核；
+ * - basis（内容依据）与 reviewed（审核结论）是两个维度：审核不等于亲自实测。
  */
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日期格式应为 YYYY-MM-DD');
 
@@ -27,7 +27,7 @@ const sourceUrl = z
   .refine(isSafeExternalUrl, '来源链接只允许 http(s) 协议，不要写 javascript: / data: / file: 等');
 
 const reviewFields = {
-  /** 人工逐条核校完成的日期；填写后才允许在页面显示「已人工核校」。 */
+  /** 开发者确认审核结论的日期；可使用 AI 初审与辅助审核。 */
   reviewed: isoDate.optional(),
   /** 审校人署名，可用笔名或匿名；必须与 reviewed 同时填写。 */
   reviewedBy: z.string().trim().min(1).max(40).optional(),
@@ -62,7 +62,15 @@ function refineReview(data: ReviewMeta, ctx: z.RefinementCtx) {
     ctx.addIssue({
       code: 'custom',
       path: ['reviewedBy'],
-      message: '填写 reviewedBy 时必须同时填写 reviewed（人工审校日期）',
+      message: '填写 reviewedBy 时必须同时填写 reviewed（审核日期）',
+    });
+  }
+
+  if (data.reviewed && !data.reviewedBy) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['reviewedBy'],
+      message: '填写 reviewed 时必须同时填写 reviewedBy（审核负责人）',
     });
   }
 

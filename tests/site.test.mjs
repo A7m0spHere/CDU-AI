@@ -17,7 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
 async function listMarkdown(dir) {
-  // 以 _ 开头的文件是写作模板（如 _TEMPLATE.md），不参与构建，也不进入测试清单。
+  // 以 _ 开头的文件不进入内容集合；_HOME.md 作为首页正文另行测试。
   return (await readdir(dir)).filter((file) => file.endsWith('.md') && !file.startsWith('_')).sort();
 }
 
@@ -325,7 +325,7 @@ test('术语来源展示真实链接，并保留未人工核校提示', async ()
     } else {
       assert.doesNotMatch(html, /aria-label="延伸阅读"/, slug + ' 不应显示空来源区');
     }
-    if (!fields.reviewed) assert.match(html, /尚未人工核校/, slug + ' 丢失核校状态说明');
+    if (!fields.reviewed) assert.match(html, /尚未审核/, slug + ' 丢失核校状态说明');
   }
 });
 
@@ -408,7 +408,7 @@ test('外链带新窗口与安全的 rel 属性，页面无占位废话', async 
 /** 内容状态由 frontmatter 推导：needsUpdate 优先，其次 reviewed，缺省为 draft。 */
 function expectedContentStatus(fields) {
   if ((fields.needsUpdate || '').toLowerCase() === 'true') return 'needs-update';
-  if (fields.reviewed) return 'reviewed';
+  if (fields.reviewed && fields.reviewedBy) return 'reviewed';
   return 'draft';
 }
 
@@ -423,14 +423,14 @@ function assertContentStatus(html, fields, label) {
   assert.match(html, /AI 参与：/, label + ' 缺少「AI 参与」说明');
 
   if (status === 'reviewed') {
-    assert.match(html, /已人工核校/, label + ' 应显示「已人工核校」');
+    assert.match(html, /已审核无误/, label + ' 应显示「已审核无误」');
     assert.ok(html.includes(fields.reviewed), label + ' 未显示审校日期 ' + fields.reviewed);
   } else if (status === 'needs-update') {
     assert.match(html, /待更新/, label + ' 应显示「待更新」');
-    assert.doesNotMatch(html, /已人工核校/, label + ' 待更新内容不得显示「已人工核校」');
+    assert.doesNotMatch(html, /已审核无误/, label + ' 待更新内容不得显示「已审核无误」');
   } else {
-    assert.match(html, /尚未人工核校/, label + ' 未审校内容必须显示「尚未人工核校」');
-    assert.doesNotMatch(html, /已人工核校/, label + ' 未审校内容不得显示「已人工核校」');
+    assert.match(html, /尚未审核/, label + ' 未审校内容必须显示「尚未审核」');
+    assert.doesNotMatch(html, /已审核无误/, label + ' 未审校内容不得显示「已审核无误」');
   }
 }
 
@@ -468,6 +468,7 @@ test('审校字段组合合法：reviewedBy / basis / testedOn 保持一致', as
       assert.ok(fields.reviewed, label + ' 填写 reviewedBy 时必须同时填写 reviewed');
     }
     if (fields.reviewed) {
+      assert.ok(fields.reviewedBy, label + ' 填写 reviewed 时必须同时填写 reviewedBy');
       assert.match(fields.reviewed, /^\d{4}-\d{2}-\d{2}$/, label + ' reviewed 日期格式不合法');
     }
     if (fields.testedOn) {
@@ -534,6 +535,8 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
     invalidErrors.push(...result.errors);
   }
   const report = invalidErrors.map((error) => error.file + '  ' + error.message).join('\n');
+  assert.ok(invalidErrors.some(error => error.file === 'guide/10-reviewed-without-author.md' && error.message.includes('reviewedBy')),
+    '只填审核日期、不填负责人必须被拒绝');
   assert.ok(invalidErrors.some(error => error.file === 'guide/09-cross-stage-order.md' && error.message.includes('重复')),
     '不同 stage 的指南也不能使用相同 order，否则上一篇 / 下一篇会出现顺序冲突');
   for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category', '未知字段', '危险协议']) {

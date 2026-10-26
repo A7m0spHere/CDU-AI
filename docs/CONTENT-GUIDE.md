@@ -10,7 +10,7 @@
 - `src/content/works/_TEMPLATE.md`：作品示例模板
 - `src/content/glossary/_TEMPLATE.md`：术语模板
 
-复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会作为内容集合条目加载**，可以作为草稿模板长期保留。指南首页正文是例外：[`src/content/guide/_HOME.md`](../src/content/guide/_HOME.md) 由 `/guide/` 页面直接导入，不生成独立文章路由，也不套用普通指南的 frontmatter。
+复制模板 → 去掉文件名开头的下划线并改成正式文件名 → 按注释填写 frontmatter 与正文。**以 `_` 开头的文件不会作为内容集合条目加载**，可以作为草稿模板长期保留。指南首页正文是例外：[`src/content/guide/_HOME.md`](../src/content/guide/_HOME.md) 由 `/guide/` 页面直接导入，不生成独立文章路由，也不套用普通指南的 frontmatter。首页不新增审核信息栏，审核方式与记录保存在 GitHub，见[独立页面正文的审核规则](CONTENT-REVIEW.md#指南首页与独立页面正文)。
 
 新增指南时，还需在 [`src/data/guide-nav.ts`](../src/data/guide-nav.ts) 登记相同的 slug 与目录分组；只创建 Markdown 文件而未登记会被内容检查器拒绝。
 
@@ -133,7 +133,7 @@ frontmatter：
 - `related`：相关词条 id；
 - `updated`：最后核对日期。
 - `sources`：正文事实的官方文档或原始论文，包含 `title` 与 `url`，详情页自动渲染参考来源。
-- `reviewed` / `reviewedBy`：真人逐条核校完成的日期与审校人署名（可笔名）；只补来源或由 AI 校订不算人工核校完成。
+- `reviewed` / `reviewedBy`：审核负责人确认结论的日期与署名（可笔名），必须同时填写；开发者可使用 AI 初审与辅助审核，具体方式记录在 GitHub。
 - `needsUpdate` / `reviewNote`：发现过期或问题时标记待更新，并写明原因（≤200 字）。
 - `basis`：`first-hand`（亲自实测）/ `desk-research`（资料整理）/ `teaching-example`（默认，教学示例）；`first-hand` 必须同时填写 `testedOn` 与 `testedEnvironment`。
 - `aiUsage`：`none` / `assisted` / `drafted`（默认），如实标注 AI 参与程度。
@@ -168,12 +168,12 @@ AI 主分支分节：
 
 写作要求：面向非计算机专业同学，不假设读者知道 API、模型、上下文等前置概念；必须出现的术语要当场解释清楚，或链接到本表另一条。
 
-新词条至少提供 1 条支持正文事实的官方文档或原始论文；`definition` 不超过 60 字。`order` 在同一分类内唯一，`related` 只能引用已存在的词条。词条正文由人规划、起草和确定判断，AI 可协助查证、润色、排版与工程校验；人工核校签字仍按 [审校规范](CONTENT-REVIEW.md) 执行。
+新词条至少提供 1 条支持正文事实的官方文档或原始论文；`definition` 不超过 60 字。`order` 在同一分类内唯一，`related` 只能引用已存在的词条。词条正文由人规划、起草和确定判断，AI 可协助查证、润色、排版与工程校验；审核结论仍按 [审校规范](CONTENT-REVIEW.md) 执行。
 
 来源标注要与实际情况一致，分两层写：
 
 - 词条定义、别名与一句话释义由本站独立撰写，事实与数字以 `sources` 中列出的官方文档为准；
-- 详情页正文（类比、步骤、场景、常见误解）同样由本站独立撰写。**页面状态由 frontmatter 推导**：`needsUpdate: true` 优先显示待更新；没有审校日期时显示「初稿 · 尚未人工核校」，真人逐条核校后填写 `reviewed` / `reviewedBy` 才会显示「已人工核校」。不要为了消掉提示而提前填日期。
+- 详情页正文（类比、步骤、场景、常见误解）同样由本站独立撰写。**页面状态由 frontmatter 推导**：`needsUpdate: true` 优先显示待更新；没有完整审核记录时显示「初稿 · 尚未审核」，审核负责人确认结论后同时填写 `reviewed` / `reviewedBy` 才会显示「已审核无误」。不要为了消掉提示而提前填日期。
 
 校准一条术语的标准：能指出它「不成立」的边界（例如微调不能可靠记住新事实），并且没有写死会变化的价格、额度、版本号。
 
@@ -324,7 +324,7 @@ Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模�
 
 ## 8. 内容状态与审校
 
-每篇指南、术语和作品详情页底部都会展示「内容状态」：初稿（尚未人工核校）/ 已人工核校 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审校人与日期、贡献者。
+每篇指南、术语和作品详情页底部都会展示「内容状态」：初稿（尚未审核）/ 已审核无误 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审核负责人与日期、贡献者。
 
 - 字段定义、状态推导规则、审校清单与生命周期流程见 [`docs/CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 - 默认值保守：不写 `reviewed` 就按初稿展示；不写 `basis` 就按教学示例；不写 `aiUsage` 就按 AI 辅助起草。

@@ -8,7 +8,7 @@
 | --- | --- |
 | 在 GitHub 网页改字、反馈错误或分享经验 | [贡献指南](../CONTRIBUTING.md) |
 | 新增指南、术语或作品示例 | [内容维护规范](CONTENT-GUIDE.md) |
-| 核对来源、标注人工审校或真实经验 | [内容可信度与审校](CONTENT-REVIEW.md) |
+| 核对来源、记录内容审核或真实经验 | [内容可信度与审校](CONTENT-REVIEW.md) |
 | 新增、更新或核对工具条目 | [工具条目规范](CONTENT-GUIDE.md#6-工具数据) |
 | 替换工具图标、追溯来源 | [工具图标来源与处理](TOOL-LOGOS.md) |
 | 查看 Agent 收录、旧名和仓库迁移依据 | [Agent 目录核对记录](AGENT-CATALOG-REVIEW.md) |
@@ -24,19 +24,19 @@
 | 内容 | 源文件 | 维护要点 |
 | --- | --- | --- |
 | 学习指南 | [`src/content/guide/`](../src/content/guide/) | 复制模板后，在 [`guide-nav.ts`](../src/data/guide-nav.ts) 登记 slug 和分组 |
-| 术语 | [`src/content/glossary/`](../src/content/glossary/) | 分类取自 [`glossary.ts`](../src/data/glossary.ts)，人工审校按实际情况标注 |
+| 术语 | [`src/content/glossary/`](../src/content/glossary/) | 分类取自 [`glossary.ts`](../src/data/glossary.ts)，审核结论按实际情况标注 |
 | 作品示例 | [`src/content/works/`](../src/content/works/) | M0 保留 `status: example`，不虚构真实投稿 |
 | 工具目录 | [`src/data/tools.ts`](../src/data/tools.ts) | 官网和仓库入口分别维护，图标来源同步记录 |
 | 活动形式与项目路线 | [`src/data/events.ts`](../src/data/events.ts) | 只写已确认的形式，不填写虚构排期 |
 | 搜索索引 | [`src/pages/search-index.json.ts`](../src/pages/search-index.json.ts) | 构建时从内容与数据生成，不直接编辑构建产物 |
 
-以 `_` 开头的 Markdown 文件是模板，不参与构建。指南、术语和作品允许逐步补充；已有「AI 幻觉」词条可供查看页面结构，新增内容仍从各自模板开始。
+以 `_` 开头的 Markdown 文件不作为内容集合条目加载：`_TEMPLATE.md` 是写作模板；[`_HOME.md`](../src/content/guide/_HOME.md) 是指南首页正文，由页面直接导入并参与构建。首页的审核记录方式见[内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)。指南、术语和作品允许逐步补充，新增内容仍从各自模板开始。
 
 ## 验证入口
 
 本地安装依赖后运行 `npm run verify`，统一执行类型检查、内容与文档校验、构建、测试和站内链接检查。`npm run build` 只生成构建产物，单独运行页面测试前需要先构建。只检查说明文档可运行 `npm run check:docs`，覆盖范围见 [维护者操作说明](MAINTAINING.md#文档检查范围)。
 
-文档或截图更新还需检查本地路径、标题锚点、图像引用及当前内容状态。页面视觉、可访问性与真人内容审阅分别记录，构建成功不等于 M0 阶段验收完成。
+文档或截图更新还需检查本地路径、标题锚点、图像引用及当前内容状态。页面视觉、可访问性与内容审核结论分别记录，构建成功不等于 M0 阶段验收完成。
 
 ## 文档职责
 

@@ -340,6 +340,55 @@ test('手机端菜单及浅色按钮始终在屏幕内，旋转后重新定位',
   }
 });
 
+test('指南首页正文和底色跟随浅色、深色及自定义主题，刷新和手机宽度保持可读', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/'); await ready(page);
+  const palette = async () => page.evaluate(() => {
+    const color = selector => getComputedStyle(document.querySelector(selector)).color;
+    const resolve = token => {
+      const probe = document.createElement('span');
+      probe.style.color = `var(${token})`;
+      document.body.append(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    };
+    return {
+      body: color('.guide-home-prose'),
+      heading: color('.guide-home-prose h1'),
+      strong: color('.guide-home-prose strong'),
+      paper: getComputedStyle(document.querySelector('.guide-home-paper')).backgroundColor,
+      expectedBody: resolve('--ink-soft'),
+      expectedHeading: resolve('--ink'),
+      expectedPaper: resolve('--surface'),
+    };
+  });
+  const check = async () => {
+    const colors = await palette();
+    assert.equal(colors.body, colors.expectedBody);
+    assert.equal(colors.heading, colors.expectedHeading);
+    assert.equal(colors.strong, colors.expectedHeading);
+    assert.equal(colors.paper, colors.expectedPaper);
+    return colors;
+  };
+  await select(page, 'light');
+  const light = await check();
+  await select(page, 'dark');
+  const dark = await check();
+  assert.notEqual(dark.paper, light.paper, '深色主题必须改变指南纸面底色');
+  assert.notEqual(dark.body, light.body, '正文不能固定黑字');
+  await openImport(page, { name: 'guide-reading', base: 'dark', bg: '#203040', ink: '#f4e8d0', accent: '#34d399' });
+  await page.locator('[data-theme-import-confirm]').click();
+  await page.reload(); await ready(page);
+  const custom = await check();
+  assert.notEqual(custom.paper, dark.paper);
+  assert.equal(custom.heading, 'rgb(244, 232, 208)');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await check();
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '手机宽度下不应横向溢出');
+  assert.equal(await page.locator('[data-content-status]').count(), 0, '首页不新增审核信息栏');
+});
+
 test('指南样式中代码底色、文字和注释色实际生效，切回内置主题恢复高亮', async t => {
   const page = await setup(t);
   await openImport(page, { code: { bg: '#123456', fg: '#ffffff', muted: '#ccddaa' } });

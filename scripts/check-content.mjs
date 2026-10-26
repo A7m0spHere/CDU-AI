@@ -177,8 +177,12 @@ export function checkReviewFields(data, file, errors) {
       errors.push({ file, message: 'reviewedBy 必须是非空字符串（可用笔名）' });
     }
     if (!data.reviewed) {
-      errors.push({ file, message: '填写 reviewedBy 时必须同时填写 reviewed（人工审校日期）' });
+      errors.push({ file, message: '填写 reviewedBy 时必须同时填写 reviewed（审核日期）' });
     }
+  }
+
+  if (data.reviewed && !isNonEmptyString(data.reviewedBy)) {
+    errors.push({ file, message: '填写 reviewed 时必须同时填写 reviewedBy（审核负责人）' });
   }
 
   checkDateString(data, 'reviewed', file, errors);

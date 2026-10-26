@@ -16,7 +16,7 @@ import '../../styles/notion.css';
     <div class="container guide-doc-layout">
       <GuideSidebar />
 
-      <div class="guide-paper guide-paper--index guide-home-paper">
+      <div class="guide-paper guide-paper--index guide-home-paper notion-page">
         <div class="wiki-main">
           <GuideMobileNav />
           <article class="prose wiki-prose notion-prose guide-home-prose" aria-label="指南首页正文" data-guide-home-content>
@@ -29,26 +29,15 @@ import '../../styles/notion.css';
 </BaseLayout>
 
 <style>
-  .guide-home-paper {
-    background: #fff;
-  }
-
   .guide-home-prose {
-    --ink: #000;
-    --ink-soft: #000;
-    --brand: #000;
-    --notion-ink: #000;
-    --notion-ink-soft: #000;
-    --notion-muted: #000;
-    --notion-faint: #000;
     max-width: 48rem;
-    color: #000;
+    color: var(--notion-ink-soft);
     line-height: 1.9;
   }
 
   .guide-home-prose :global(h1),
   .guide-home-prose :global(h2) {
-    color: #000;
+    color: var(--notion-ink);
     font-weight: 700;
     line-height: 1.35;
     letter-spacing: -0.02em;
@@ -66,7 +55,7 @@ import '../../styles/notion.css';
   }
 
   .guide-home-prose :global(strong) {
-    color: #000;
+    color: var(--notion-ink);
     font-weight: 700;
   }
 
