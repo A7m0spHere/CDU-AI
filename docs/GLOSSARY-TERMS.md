@@ -80,12 +80,12 @@
 | # | 术语 | 文件 | 口径草稿（≤60 字） | 不成立边界 / 写作要点 | related（目标态） |
 | --- | --- | --- | --- | --- | --- |
 | 1 | 按量计费 Usage-based Billing | `usage-based-billing.md` | 按实际用掉的 token 数量收费，用得多付得多。 | **不写死金额**；价格会变；长对话可能比想象贵 | `token` `subscription` |
-| 2 | 订阅制 Subscription | `subscription.md` | 按月或按年买套餐，获得一定用量或功能的付费方式。 | 额度会用完；订阅≠无限；个人与团队计价不同 | `usage-based-billing` `free-tier` |
-| 3 | 免费额度 Free Tier | `free-tier.md` | 产品先给的一点试用量，用完要等刷新或转付费。 | 规则经常变；免费≠永久；超了可能限速或停用 | `rate-limit` `subscription` |
-| 4 | 速率限制 Rate Limit | `rate-limit.md` | 单位时间内允许请求次数的上限，超了会被拒绝或排队。 | 被限速≠账号有问题；反复重试只会更糟 | `free-tier` `truncation` |
+| 2 | 订阅制 Subscription | `subscription.md` | 按月或按年买套餐，获得一定用量或功能的付费方式。 | 额度会用完；订阅≠无限；个人与团队计价不同 | `usage-based-billing` `trial-quota` |
+| 3 | 试用额度 Trial Quota | `trial-quota.md` | 产品先给的一点试用量，用完要等刷新或转付费。 | 规则经常变；试用≠长期；超了可能限速或停用 | `rate-limit` `subscription` |
+| 4 | 速率限制 Rate Limit | `rate-limit.md` | 单位时间内允许请求次数的上限，超了会被拒绝或排队。 | 被限速≠账号有问题；反复重试只会更糟 | `trial-quota` `truncation` |
 | 5 | 截断 Truncation | `truncation.md` | 回答写到一半被字数或 token 上限切断，话说不完。 | 续写可能前后不一致；长任务主动分段要结果 | `context-window` `rate-limit` |
 
-## 2. 延伸分支（18 条）——四段短文
+## 2. 延伸分支（24 条）——四段短文
 
 延伸分支统一用「是什么 / 什么时候会遇到 / 和 AI 的关系 /（可选）想深入再看」，300–500 字，**只解释术语，不教操作步骤**。
 
@@ -130,12 +130,18 @@
 | 1 | Bug 缺陷 | `bug.md` | 程序行为与预期不一致的地方，小到错别字，大到数据丢失。 | 修一个可能引入新的；复现步骤比吐槽有用 | `test-case` `debugging` |
 | 2 | 测试用例 Test Case | `test-case.md` | 一组「输入什么、应该得到什么」的具体检查条目。 | 通过≠全对，只说明这几种情况没坏 | `bug` `acceptance` |
 
-### 2.6 Git git（2 条）
+### 2.6 Git git（8 条，含 6 条 GitHub 功能词条）
 
 | # | 术语 | 文件 | 口径草稿（≤60 字） | 不成立边界 / 写作要点 | related（目标态） |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 版本控制 Version Control | `version-control.md` | 记录文件每次改动的系统；改坏了能退回以前的版本。 | 没提交的改动回不去；它不是网盘同步 | `commit` |
+| 1 | 版本控制 Version Control | `version-control.md` | 记录文件每次改动的系统；改坏了能退回以前的版本。 | 没提交的改动回不去；它不是网盘同步 | `repository` `commit` |
 | 2 | 提交 Commit | `commit.md` | 把当前改动存成一个历史节点，并附上说明，便于回退与协作。 | 提交信息糊弄，以后就查不到为什么改 | `version-control` |
+| 3 | 仓库 Repository | `repository.md` | 存放项目文件与全部修改历史的地方。 | 公开仓库的内容与历史所有人都能看到；仓库不是普通文件夹 | `branch` `fork` `version-control` |
+| 4 | 分支 Branch | `branch.md` | 从主线分出来的一条独立修改线，改完再合回去。 | 改错分支会把无关改动带进 PR；分支不是备份 | `repository` `merge` |
+| 5 | Fork（派生）Fork | `fork.md` | 把别人的仓库复制一份到自己账号下，随便改不影响原仓库。 | 改的是自己的副本，要经 PR 才进入上游 | `pull-request` `branch` |
+| 6 | Pull Request | `pull-request.md` | 请求把某个分支的改动合并进目标分支，附说明供人审阅。 | PR 不等于自动合并，由维护者审阅决定 | `fork` `merge` `issue` |
+| 7 | Issue（议题）Issue | `issue.md` | 在仓库里记录问题、建议或任务，便于讨论和跟踪。 | 不是文件存储；现象与地址要真实具体 | `pull-request` `fork` |
+| 8 | 合并 Merge | `merge.md` | 把一个分支的改动并入另一个分支。 | 冲突要人工选择保留哪一版；合并后仍要验证 | `branch` `pull-request` |
 
 ## 3. 分批与 PR 切法
 
@@ -147,7 +153,7 @@
 | 批 1 | `basics` 8（含已有 1 条）+ `prompt` 8 | 15 | 2 个 PR（basics / prompt 各一） | 批 0 合并后 |
 | 批 2 | `tools` 6 + `safety` 6 | 12 | 2 个 PR（tools / safety 各一） | — |
 | 批 3 | `cost` 5 + `agents` 7 | 12 | 2 个 PR（cost / agents 各一） | — |
-| 批 3 | 延伸分支 18 条 | 18 | 按分类 6 个小 PR（vibecoding 5 / frontend 3 / backend 3 / product 3 / testing 2 / git 2，批 0 的 `vibe-coding` 已计入） | 每个 PR 合并前人审校对应分类 |
+| 批 3 | 延伸分支 24 条 | 24 | 按分类 6 个小 PR（vibecoding 5 / frontend 3 / backend 3 / product 3 / testing 2 / git 8，批 0 的 `vibe-coding` 已计入） | 每个 PR 合并前人审校对应分类 |
 
 条目落地顺序注意事项：
 
@@ -173,7 +179,7 @@ frontmatter 要点：`category: "vibecoding"`、`basis: "desk-research"`、`aiUs
 | 基础 / 提示词 | OpenAI、Anthropic、Google 的官方模型文档与提示词指南；原始论文（如介绍思维链、少样本的论文） |
 | 工具 / Agent | 各产品官方文档（DeepSeek、Kimi 等官方帮助页）；MCP 官方规范站点；产品官方定价说明页（只写计费方式，不抄数字） |
 | 安全 | OWASP 关于 LLM 应用的安全指南；厂商安全文档；Deepfake 相关的官方反诈提示 |
-| 成本 | 厂商官方计费 / 限速文档；只写「按量 / 订阅 / 免费额度」等机制，不写死金额 |
+| 成本 | 厂商官方计费 / 限速文档；只写「按量 / 订阅 / 试用额度」等机制，不写死金额 |
 | 延伸分支 | MDN（前端 / 后端基础概念）、Git 官方文档、产品与测试领域的权威入门资料 |
 
 规则重申：来源必须支持正文结论而不只是同名；链接核实可打开再写入 `sources`；找不到官方文档或原始论文的条目先不发布。
