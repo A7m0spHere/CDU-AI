@@ -6,6 +6,28 @@ aliases: ["Few-shot", "少样本", "示例提示"]
 definition: "在问题里给几个「输入→输出」样例，让模型照着格式答。"
 example: "整理课堂笔记时先给 AI 两条「原始记录→摘要」的示例，再让它按同样格式处理剩下的段落。"
 youMaySay: "怎么让它每次输出的格式都一样？"
+scenario:
+  title: "统一笔记格式"
+  steps:
+    - label: "给两条样例"
+      body: "先贴两条「录音原文→整理后的笔记」，再让它处理第三段。"
+      note: "样例说明格式与颗粒度。"
+    - label: "检查输出"
+      body: "格式基本一致，但有一条把推测写成了事实。"
+      meta: "内容仍需核对"
+    - label: "补一句规则"
+      body: "加一句「不确定的内容标注待核实」再试。"
+quiz:
+  - question: "少样本示例最擅长教会模型什么？"
+    options:
+      - text: "事实准确性"
+        correct: false
+      - text: "输出格式、口径与颗粒度"
+        correct: true
+      - text: "联网能力"
+        correct: false
+    explain: "示例主要传递格式与风格，不保证事实正确。"
+agentPrompt: "请按下面两条示例的格式处理第三段材料；不确定的内容标注「待核实」，不要补造。"
 order: 4
 related: ["prompt", "output-format"]
 updated: "2026-10-26"

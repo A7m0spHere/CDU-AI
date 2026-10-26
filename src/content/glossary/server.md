@@ -5,6 +5,29 @@ category: "backend"
 aliases: ["Server", "主机", "服务端"]
 definition: "一直开着、负责存数据和回应请求的计算机。"
 example: "网页打不开弹出「服务器错误」，说明背后那台回应用的机器出了问题。"
+youMaySay: "网站打不开，说是「服务器错误」，跟我有什么关系？"
+scenario:
+  title: "社团工具突然打不开"
+  steps:
+    - label: "正常访问"
+      body: "同学打开工具报名，一切正常。"
+      note: "服务器在回请求。"
+    - label: "出现故障"
+      body: "页面提示服务器错误，所有人都打不开。"
+      meta: "服务中断"
+    - label: "排查恢复"
+      body: "查看服务状态与日志，恢复后通知同学。"
+quiz:
+  - question: "服务器在网站里的角色是？"
+    options:
+      - text: "存放和展示所有网页文件"
+        correct: false
+      - text: "接收请求、处理数据并返回结果"
+        correct: true
+      - text: "只负责美化页面"
+        correct: false
+    explain: "服务器是后端运行的机器。"
+agentPrompt: "请帮我列一份社团工具上线前的服务器检查清单，覆盖备份、权限、监控和故障通知。"
 order: 1
 related: ["deployment", "database"]
 updated: "2026-10-26"

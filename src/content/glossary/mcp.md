@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["Model Context Protocol", "模型上下文协议"]
 definition: "让 AI 连接外部工具和数据源的一种开放协议标准。"
 example: "同一个 MCP 服务，可以让不同的 AI 客户端都能读你的本地笔记、查数据库。"
+youMaySay: "配置里那些 server 命令是干什么的？"
+scenario:
+  title: "给 AI 接本地笔记"
+  steps:
+    - label: "添加服务"
+      body: "在客户端配置一个 MCP 服务，指向本地笔记目录。"
+      note: "协议统一接入方式。"
+    - label: "授权范围"
+      body: "只开放只读权限，避免误改。"
+      meta: "最小权限"
+    - label: "使用工具"
+      body: "AI 能检索笔记，但不能删除文件。"
+quiz:
+  - question: "MCP 解决的核心问题是？"
+    options:
+      - text: "让模型更聪明"
+        correct: false
+      - text: "统一 AI 与外部工具、数据源的接入方式"
+        correct: true
+      - text: "替代所有 API"
+        correct: false
+    explain: "MCP 是接入标准，不是模型能力。"
+agentPrompt: "请只读取我的笔记目录回答下面的问题，不要修改或删除任何文件；找不到就说不确定。"
 order: 6
 related: ["tool-use", "ai-agent"]
 updated: "2026-10-26"

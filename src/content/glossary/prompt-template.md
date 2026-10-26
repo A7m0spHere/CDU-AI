@@ -6,6 +6,28 @@ aliases: ["Prompt Template", "提示词框架", "模板"]
 definition: "把常用指令写成可复用框架，换任务只改细节。"
 example: "把「总结课程资料」的要求写成模板：读者大一、保留公式、输出三段，每次只换材料。"
 youMaySay: "每次都要重写一遍要求，有没有省事的办法？"
+scenario:
+  title: "每周实验报告"
+  steps:
+    - label: "总结固定要求"
+      body: "把「读者大一、保留公式、三段结构、不写结论外推」整理成模板。"
+      note: "固定部分沉淀下来。"
+    - label: "套用模板"
+      body: "每周只替换实验材料，输出保持稳定。"
+      meta: "模板复用"
+    - label: "定期调整"
+      body: "换课程后修改模板约束，避免过期要求。"
+quiz:
+  - question: "提示词模板最适合什么场景？"
+    options:
+      - text: "一次性提问"
+        correct: false
+      - text: "同一类任务反复出现、要求稳定"
+        correct: true
+      - text: "完全开放的发散创作"
+        correct: false
+    explain: "模板把重复要求固定下来，适合高频同类任务。"
+agentPrompt: "请根据下面的要求帮我写一个每周实验报告整理模板，留出「实验材料」空位，并说明哪些部分需要我每次替换。"
 order: 8
 related: ["prompt", "few-shot"]
 updated: "2026-10-26"

@@ -5,6 +5,32 @@ category: "basics"
 aliases: ["LLM", "大模型", "语言模型"]
 definition: "用海量文本训练、按概率生成文字的 AI 模型，是对话产品的底座。"
 example: "你问 AI「成都秋天适合穿什么」，它没有查天气，而是根据学过的文字接着写出一段回答。"
+youMaySay: "AI 说得头头是道，可它到底是在查资料还是在编？"
+scenario:
+  title: "AI 回答一道课后题"
+  steps:
+    - label: "学员提问"
+      body: "把题目截图发给对话助手，等它给出完整解答。"
+      quote: "帮我解一下这道电路题。"
+      meta: "学生会话"
+      note: "题目里有图，模型需要先看懂图。"
+    - label: "逐字生成"
+      body: "模型根据题目文字预测下一步该出现的公式与步骤，逐步写出答案。"
+      note: "每一步都来自学过的文字规律。"
+    - label: "核对结果"
+      body: "把答案代回题目检查单位与数值，或和同学对答案。"
+      note: "流畅不等于正确。"
+quiz:
+  - question: "大语言模型回答问题时，最准确的理解是？"
+    options:
+      - text: "它先搜索网页再复制答案"
+        correct: false
+      - text: "它根据学过的文字规律逐字生成回答"
+        correct: true
+      - text: "它查询了学校数据库"
+        correct: false
+    explain: "模型不检索也不查库，只是按概率生成文字；事实类问题要自己核对。"
+agentPrompt: "请解释下面这个概念，并给出一个校园里的例子；如果涉及具体事实或数字，请标明不确定的地方，不要编造来源。"
 order: 2
 related: ["token", "training-data", "hallucination"]
 updated: "2026-10-26"

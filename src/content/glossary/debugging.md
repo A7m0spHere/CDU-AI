@@ -5,6 +5,29 @@ category: "vibecoding"
 aliases: ["Debugging", "排错", "找 bug"]
 definition: "找出程序为什么不按预期工作并修好它的过程。"
 example: "页面点了按钮没反应，先看报错、再定位到那一行代码——这就是调试。"
+youMaySay: "它说「已修复」，就真的修好了吗？"
+scenario:
+  title: "页面按钮没反应"
+  steps:
+    - label: "描述现象"
+      body: "告诉 AI 点了没反应，附上报错。"
+      note: "复现步骤很关键。"
+    - label: "得到修改"
+      body: "它改了事件绑定，但引入了新问题。"
+      meta: "修复可能带来新问题"
+    - label: "回归验证"
+      body: "重新测试原功能和相邻功能。"
+quiz:
+  - question: "AI 修复 bug 后，你必须做的是？"
+    options:
+      - text: "相信它说修好了"
+        correct: false
+      - text: "自己复现验证并检查相邻功能"
+        correct: true
+      - text: "直接提交"
+        correct: false
+    explain: "修复需要验证，可能引入新问题。"
+agentPrompt: "请根据下面的报错和代码分析原因，给出最小修改方案，并说明如何验证不会影响其他功能。"
 order: 4
 related: ["bug", "code-generation"]
 updated: "2026-10-26"

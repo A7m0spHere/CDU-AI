@@ -5,6 +5,29 @@ category: "tools"
 aliases: ["接口", "应用程序接口", "API Key"]
 definition: "让程序调用模型的接口；和网页版是同一个模型的两种用法。"
 example: "做个自动整理实验数据的小工具，就要用 API 把模型接进程序，而不是手动复制粘贴。"
+youMaySay: "为什么网页能用，写脚本就要另外申请 Key？"
+scenario:
+  title: "把模型接进脚本"
+  steps:
+    - label: "申请密钥"
+      body: "在平台创建 API Key，按文档发请求。"
+      note: "密钥等于账号，要保密。"
+    - label: "看到计费"
+      body: "网页版不单独计费，API 按 token 计费。"
+      meta: "计费方式不同"
+    - label: "处理错误"
+      body: "遇到限速与超时，加重试与退避。"
+quiz:
+  - question: "API 和网页版最本质的区别是？"
+    options:
+      - text: "API 用的模型更强"
+        correct: false
+      - text: "API 面向程序调用，网页版面向人操作"
+        correct: true
+      - text: "API 不需要联网"
+        correct: false
+    explain: "同一模型两种用法，接口对象不同。"
+agentPrompt: "请按以下 JSON 结构输出三条待办事项：title、due、owner；缺失字段填 null，不要编造。"
 order: 2
 related: ["chatbot", "usage-based-billing", "deployment"]
 updated: "2026-10-26"

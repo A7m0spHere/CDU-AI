@@ -6,6 +6,28 @@ aliases: ["Role Prompting", "角色扮演", "人设"]
 definition: "给模型一个身份与口吻，比如「你是耐心的辅导员」。"
 example: "让 AI「用宿管阿姨的口吻」写宿舍安全提醒，措辞会立刻接地气。"
 youMaySay: "让它假装专家，回答是不是就更专业了？"
+scenario:
+  title: "换口吻写通知"
+  steps:
+    - label: "普通提问"
+      body: "直接让 AI 写宿舍安全提醒，语气像说明书。"
+      note: "表达方式取决于提示。"
+    - label: "加角色"
+      body: "要求「用宿管阿姨的口吻，对新生说话」。"
+      meta: "角色设定"
+    - label: "对比效果"
+      body: "内容差不多，但更接地气；涉及规定仍要核对原文。"
+quiz:
+  - question: "角色设定改变的主要是什么？"
+    options:
+      - text: "模型掌握的知识"
+        correct: false
+      - text: "表达的语气、视角与举例方式"
+        correct: true
+      - text: "模型的权限"
+        correct: false
+    explain: "角色影响表达，不增加知识或权限。"
+agentPrompt: "请分别用「辅导员」和「同班同学」两种口吻写同一份通知，内容事实保持一致。"
 order: 6
 related: ["prompt", "system-prompt"]
 updated: "2026-10-26"

@@ -5,6 +5,30 @@ category: "basics"
 aliases: ["Multimodal", "多模态模型"]
 definition: "不只处理文字，还能理解或生成图像、声音等形式的模型。"
 example: "拍一张食堂菜单问 AI「这份菜热量大概多少」，能看图回答的模型就是多模态模型。"
+youMaySay: "发张图给它，它真能看懂吗？"
+scenario:
+  title: "拍菜单问热量"
+  steps:
+    - label: "拍照上传"
+      body: "拍食堂菜单发给支持看图的模型。"
+      note: "不同模型支持的图片能力不同。"
+    - label: "得到估算"
+      body: "它给出大致热量范围，但把「红烧」看成了「清蒸」。"
+      meta: "识别错误"
+    - label: "人工核对"
+      body: "对着菜单原文再确认一次。"
+      note: "看图不等于精确识字。"
+quiz:
+  - question: "多模态模型看图回答时，哪种风险仍然存在？"
+    options:
+      - text: "小字和手写内容识别错误"
+        correct: true
+      - text: "完全不能处理图片"
+        correct: false
+      - text: "只能处理黑白图片"
+        correct: false
+    explain: "多模态能看图，但小字、表格、手写仍容易出错。"
+agentPrompt: "请描述这张图里能确认的信息和不确定的信息，分开列出；看不清的地方不要猜。"
 order: 8
 related: ["llm", "copyright", "deepfake"]
 updated: "2026-10-26"

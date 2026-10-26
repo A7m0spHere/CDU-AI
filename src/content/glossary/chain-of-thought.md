@@ -6,6 +6,28 @@ aliases: ["Chain-of-Thought", "CoT", "逐步推理"]
 definition: "让模型把推理步骤一步步写出来，而不是直接甩结论。"
 example: "算社团活动预算时，让 AI 先列每项开销和计算过程，再给总额，方便你逐项核对哪里算错了。"
 youMaySay: "它给的答案看着对，但我不知道是怎么来的，能信吗？"
+scenario:
+  title: "核对预算计算"
+  steps:
+    - label: "要求写过程"
+      body: "让 AI 先列每项开销与计算，再给总额。"
+      note: "步骤可检查。"
+    - label: "逐项核对"
+      body: "发现它把一项数量乘错了。"
+      meta: "过程暴露错误"
+    - label: "修正后复算"
+      body: "改数量重新计算，再抽查一遍。"
+quiz:
+  - question: "要求模型写推理步骤，最大的好处是？"
+    options:
+      - text: "保证结论一定正确"
+        correct: false
+      - text: "过程可检查，便于发现错误"
+        correct: true
+      - text: "让回答更短"
+        correct: false
+    explain: "步骤提高可检查性，不保证正确。"
+agentPrompt: "请一步步列出计算过程再给结论，标明每一步的数据来源；最后单独列出可能算错的地方。"
 order: 5
 related: ["prompt", "hallucination"]
 updated: "2026-10-26"

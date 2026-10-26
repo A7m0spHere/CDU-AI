@@ -5,6 +5,30 @@ category: "basics"
 aliases: ["Fine-tuning", "模型微调", "指令微调"]
 definition: "用一批自己的例子继续训练模型，让它更贴合特定任务。"
 example: "实验室想让模型按固定格式写周报，用几十份历史周报做微调，比每次写长提示词更省事。"
+youMaySay: "能不能把我们的资料喂给它，让它学会？"
+scenario:
+  title: "社团想让 AI 按固定格式写通知"
+  steps:
+    - label: "收集样本"
+      body: "整理几十份历史活动通知作为「输入→输出」样本。"
+      note: "样本质量决定效果。"
+    - label: "先试提示词"
+      body: "先用提示词模板加示例；格式要求稳定且量大时再考虑微调。"
+      meta: "方案对比"
+    - label: "验证边界"
+      body: "发现微调后它仍会编造没见过的活动日期。"
+      note: "微调不能可靠记住新事实。"
+quiz:
+  - question: "想让模型稳定按固定格式写通知，最稳妥的起步做法是？"
+    options:
+      - text: "直接微调，不用提示词"
+        correct: false
+      - text: "先用提示词模板加示例，不够再考虑微调"
+        correct: true
+      - text: "把通知全文塞进微调让它背下来"
+        correct: false
+    explain: "微调擅长行为与格式，不适合当知识库；先用提示词成本更低。"
+agentPrompt: "请总结这批通知的固定格式，帮我写成一个可复用的提示词模板，不要编造没出现过的信息。"
 order: 7
 related: ["training-data", "llm"]
 updated: "2026-10-26"

@@ -5,6 +5,30 @@ category: "basics"
 aliases: ["训练集", "预训练数据"]
 definition: "模型学习时见过的文本集合，决定了它会什么、偏向什么。"
 example: "模型能聊几年前就有的公开话题，却对今年新开的食堂窗口一无所知——训练数据里没有。"
+youMaySay: "它怎么知道这些？是网上现查的吗？"
+scenario:
+  title: "问一个刚发生的事"
+  steps:
+    - label: "提问新事件"
+      body: "问 AI 昨天校园里发生的事，它答得含糊或直接编造。"
+      note: "训练数据通常没覆盖到。"
+    - label: "追问来源"
+      body: "让它说明依据，它说不出具体来源。"
+      note: "模型很难指出「从哪条数据学的」。"
+    - label: "改用检索"
+      body: "打开官方通知或搜索工具核实。"
+      note: "新事实要靠外部来源。"
+quiz:
+  - question: "模型答不上最近发生的事，最可能的原因是？"
+    options:
+      - text: "模型故意隐瞒"
+        correct: false
+      - text: "训练数据没有覆盖这段时间的信息"
+        correct: true
+      - text: "网络断了"
+        correct: false
+    explain: "训练数据有时间范围，截止后的事模型没学过。"
+agentPrompt: "请区分回答里哪些来自你训练过的常见知识、哪些属于新近事件；不确定的部分直接说不确定。"
 order: 4
 related: ["llm", "bias", "knowledge-cutoff"]
 updated: "2026-10-26"

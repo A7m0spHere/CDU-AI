@@ -5,6 +5,29 @@ category: "tools"
 aliases: ["Open-source Model", "开放权重", "开源大模型"]
 definition: "公开了权重或代码的模型，可以自己下载、部署和改造。"
 example: "有的模型把权重放在网上，你可以下载到本地跑；但许可条款可能限制商用。"
+youMaySay: "开源模型是不是就能随便商用？"
+scenario:
+  title: "用开源模型做社团工具"
+  steps:
+    - label: "下载权重"
+      body: "从官方渠道拿到模型文件。"
+      note: "先看许可条款。"
+    - label: "读许可"
+      body: "发现商用需要满足署名或用户数条件。"
+      meta: "许可限制"
+    - label: "决定方案"
+      body: "超出许可就换模型或申请授权。"
+quiz:
+  - question: "「开源模型」最准确的理解是？"
+    options:
+      - text: "公开权重就可以随意商用"
+        correct: false
+      - text: "公开权重或代码，但使用受许可约束"
+        correct: true
+      - text: "一定比闭源模型弱"
+        correct: false
+    explain: "开放不等于无条件使用，许可条款才是边界。"
+agentPrompt: "请帮我对比这两个开源模型的许可条款，重点看商用、署名与再分发要求，并列出不确定的地方。"
 order: 6
 related: ["local-deployment", "llm"]
 updated: "2026-10-26"

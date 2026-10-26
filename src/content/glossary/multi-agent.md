@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["Multi-Agent", "多 Agent", "多代理"]
 definition: "多个各有分工的 Agent 协作完成同一个任务。"
 example: "一个负责查资料、一个负责写作、一个负责检查，最后汇总成一份报告。"
+youMaySay: "多个 AI 一起上，是不是就更靠谱？"
+scenario:
+  title: "分工写调研报告"
+  steps:
+    - label: "分配角色"
+      body: "一个查资料、一个写作、一个审查。"
+      note: "分工边界要清楚。"
+    - label: "发现问题"
+      body: "写作 Agent 引用了查资料 Agent 编的数据。"
+      meta: "错误会被传递"
+    - label: "加审查规则"
+      body: "要求每条结论附来源，审查者逐条核对。"
+quiz:
+  - question: "多智能体系统最容易出现的问题？"
+    options:
+      - text: "Agent 数量不够"
+        correct: false
+      - text: "错误在 Agent 之间传递放大"
+        correct: true
+      - text: "无法使用工具"
+        correct: false
+    explain: "多 Agent 会放大错误，不会自动纠错。"
+agentPrompt: "请把任务拆给三个角色：资料、写作、审查；每条结论必须带来源，审查角色逐条核对后再汇总。"
 order: 7
 related: ["ai-agent", "workflow"]
 updated: "2026-10-26"

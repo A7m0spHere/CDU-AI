@@ -5,6 +5,29 @@ category: "cost"
 aliases: ["Rate Limit", "限流", "请求频率限制"]
 definition: "单位时间内允许请求次数的上限，超了会被拒绝或排队。"
 example: "批量让 AI 处理 200 条数据时，程序突然报错「请求过于频繁」，就是撞上了速率限制。"
+youMaySay: "脚本跑一半突然报「请求过于频繁」？"
+scenario:
+  title: "批量处理 200 条数据"
+  steps:
+    - label: "批量请求"
+      body: "循环调用接口处理数据。"
+      note: "短时间请求过多。"
+    - label: "触发限流"
+      body: "错误码提示超过速率限制。"
+      meta: "限流保护"
+    - label: "退避重试"
+      body: "加等待与重试，分批处理。"
+quiz:
+  - question: "遇到速率限制，正确的处理方式是？"
+    options:
+      - text: "立刻高频重试"
+        correct: false
+      - text: "退避等待、分批请求"
+        correct: true
+      - text: "换一个账号继续刷"
+        correct: false
+    explain: "重试风暴只会加重拥堵。"
+agentPrompt: "请为这个批量任务设计一个不会触发限流的请求节奏，说明分批与重试策略。"
 order: 4
 related: ["trial-quota", "truncation"]
 updated: "2026-10-26"

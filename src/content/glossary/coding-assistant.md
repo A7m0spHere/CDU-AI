@@ -5,6 +5,29 @@ category: "tools"
 aliases: ["Coding Assistant", "AI 写代码", "编程助手"]
 definition: "写代码场景的 AI 产品，能补全、解释、改写和生成代码。"
 example: "在编辑器里边写边得到补全建议，或者把报错贴给 AI 让它解释——都是编程助手。"
+youMaySay: "它写的代码能直接交作业吗？"
+scenario:
+  title: "让 AI 写数据处理脚本"
+  steps:
+    - label: "描述需求"
+      body: "让 AI 写一个读取 CSV 并画图的脚本。"
+      note: "生成初稿很快。"
+    - label: "运行报错"
+      body: "运行时提示列名不匹配。"
+      meta: "生成代码需验证"
+    - label: "调试修改"
+      body: "把报错贴回去，让它按实际列名修改，再自己跑通。"
+quiz:
+  - question: "使用 AI 生成的代码，最重要的一步是？"
+    options:
+      - text: "直接复制提交"
+        correct: false
+      - text: "运行、理解并检查后再使用"
+        correct: true
+      - text: "只要格式正确就行"
+        correct: false
+    explain: "生成代码可能过时或有误，必须验证。"
+agentPrompt: "请解释这段代码每一部分的作用，并指出可能出错的地方；不要直接给我一整段未说明的代码。"
 order: 3
 related: ["code-generation", "debugging"]
 updated: "2026-10-26"

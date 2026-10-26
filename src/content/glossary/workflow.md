@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["Workflow", "流程编排", "自动化流程"]
 definition: "把多个 AI 与工具步骤固定成流水线，按设定自动跑。"
 example: "每周把课程群消息汇总成周报：抓取、总结、排版三步固定下来自动执行。"
+youMaySay: "这个每周都要做的事，能不能自动跑？"
+scenario:
+  title: "自动汇总周报"
+  steps:
+    - label: "设计流程"
+      body: "抓取群消息、总结、排版三步固定。"
+      note: "规则明确才适合自动化。"
+    - label: "定时执行"
+      body: "每周五自动运行，产出草稿。"
+      meta: "按预设走"
+    - label: "处理异常"
+      body: "接口变动导致失败，流程卡住并报警。"
+quiz:
+  - question: "工作流和 Agent 的关键区别是？"
+    options:
+      - text: "工作流不需要模型"
+        correct: false
+      - text: "工作流按预设步骤执行，Agent 自行决定下一步"
+        correct: true
+      - text: "Agent 不能调用工具"
+        correct: false
+    explain: "流程固定是工作流的优点，也是它的边界。"
+agentPrompt: "请把「每周汇总课程群消息」设计成一个固定工作流，列出步骤、输入输出和失败时的处理方式。"
 order: 5
 related: ["ai-agent", "task-planning"]
 updated: "2026-10-26"

@@ -5,6 +5,30 @@ category: "basics"
 aliases: ["Knowledge Cutoff", "训练截止", "知识有效期"]
 definition: "训练资料的最后时间点；之后发生的事模型没学过。"
 example: "问 AI 今年校历的放假安排，它可能按往年的规律编一个——因为训练数据里没有今年的通知。"
+youMaySay: "它说的「今年」到底是哪一年？"
+scenario:
+  title: "问今年的校历"
+  steps:
+    - label: "直接问日期"
+      body: "问 AI 今年寒假从哪天开始，它给了一个具体日期。"
+      note: "日期可能是按往年规律推的。"
+    - label: "核对官方通知"
+      body: "打开教务处通知，发现日期完全不同。"
+      meta: "教务处官网"
+    - label: "以后先问截止"
+      body: "凡涉及日期、政策，先问它的知识截止到什么时候。"
+      note: "截止后的事一律自己核对。"
+quiz:
+  - question: "关于知识截止，哪种理解正确？"
+    options:
+      - text: "截止之后的事模型一定完全不知道"
+        correct: false
+      - text: "截止后的事模型只能推测，需外部核实"
+        correct: true
+      - text: "模型会自动每天更新知识"
+        correct: false
+    explain: "截止后的事并非全错，但有规律可循不代表可靠。"
+agentPrompt: "请先说明你的知识截止时间，再回答下面的问题；涉及截止后的事件请明确标注「需要核实」。"
 order: 5
 related: ["llm", "hallucination"]
 updated: "2026-10-26"

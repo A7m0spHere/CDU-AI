@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["Tool Use", "Function Calling", "函数调用"]
 definition: "模型决定该查资料、读文件或发请求，由外接程序代为执行。"
 example: "让 AI「查一下明天的课表」，它先判断需要调用日历工具，再由程序去取数据。"
+youMaySay: "它说「我查一下」，是真的查了吗？"
+scenario:
+  title: "调用日历工具"
+  steps:
+    - label: "提出请求"
+      body: "让 AI 查明天的课表。"
+      note: "模型先判断需要工具。"
+    - label: "生成参数"
+      body: "它输出「调用日历工具，日期=明天」。"
+      meta: "模型不执行，程序执行"
+    - label: "返回结果"
+      body: "程序取回课表，模型再整理成回答。"
+quiz:
+  - question: "工具调用中，真正执行操作的是？"
+    options:
+      - text: "模型本身"
+        correct: false
+      - text: "外接程序按模型给出的参数执行"
+        correct: true
+      - text: "用户手动执行"
+        correct: false
+    explain: "模型只决定用什么工具、传什么参数。"
+agentPrompt: "请判断回答下面的问题需要调用哪些工具、参数是什么；不要假装已经查到结果。"
 order: 2
 related: ["ai-agent", "mcp"]
 updated: "2026-10-26"

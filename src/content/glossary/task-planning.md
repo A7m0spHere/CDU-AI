@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["Task Planning", "任务拆解", "规划"]
 definition: "把大目标拆成可执行的小步骤，再按顺序推进或试错调整。"
 example: "「做一份社团招新方案」会被拆成定目标、查往届资料、写流程、列预算、排版几步。"
+youMaySay: "这么大的任务，它真的知道先做什么吗？"
+scenario:
+  title: "做社团招新方案"
+  steps:
+    - label: "生成计划"
+      body: "Agent 先列：定目标、查往届资料、写流程、列预算、排版。"
+      note: "计划可检查。"
+    - label: "执行中调整"
+      body: "发现往届资料缺失，改为访谈学长。"
+      meta: "计划随反馈调整"
+    - label: "阶段确认"
+      body: "每完成一步向你汇报，再继续。"
+quiz:
+  - question: "任务规划中最应该警惕的是？"
+    options:
+      - text: "计划太短"
+        correct: false
+      - text: "目标模糊导致计划整体跑偏"
+        correct: true
+      - text: "步骤有编号"
+        correct: false
+    explain: "目标不清时，规划越细错得越远。"
+agentPrompt: "请先把「办一场迎新分享会」拆成步骤清单，标注每步的产出和风险，等我确认后再执行。"
 order: 3
 related: ["ai-agent", "workflow"]
 updated: "2026-10-26"

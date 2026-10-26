@@ -5,6 +5,29 @@ category: "basics"
 aliases: ["Temperature", "随机性", "采样温度"]
 definition: "控制回答随机程度的设置：调低更稳定，调高更多样。"
 example: "同一道通知让 AI 写三遍，每次都不同，是因为温度不为零；调到很低时三遍会非常接近。"
+youMaySay: "同样的问题问两遍，答案怎么不一样？"
+scenario:
+  title: "让 AI 写三版通知"
+  steps:
+    - label: "连续生成"
+      body: "同一段要求让 AI 写三遍，得到三个略有不同的版本。"
+      note: "默认随机性不为零。"
+    - label: "调低温度"
+      body: "在 API 里把 temperature 调低，再生成三遍，结果高度接近。"
+      meta: "API 参数"
+    - label: "按需选择"
+      body: "要稳定用低温度，要创意用高温度。"
+quiz:
+  - question: "把温度调低，最直接的变化是？"
+    options:
+      - text: "回答更正确"
+        correct: false
+      - text: "回答更稳定、更接近最常见写法"
+        correct: true
+      - text: "模型会联网查资料"
+        correct: false
+    explain: "温度影响随机性，不影响事实准确性。"
+agentPrompt: "请用两种不同的表达风格各写一版下面这段话，并说明两版的主要差异。"
 order: 6
 related: ["llm", "prompt"]
 updated: "2026-10-26"

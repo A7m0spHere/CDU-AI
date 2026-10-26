@@ -5,6 +5,29 @@ category: "tools"
 aliases: ["Local Deployment", "本地运行", "私有化部署"]
 definition: "把模型下载到自己的电脑或服务器上运行，不依赖官方网页。"
 example: "宿舍电脑装个本地模型跑问答，断网也能用，但显卡和内存要够。"
+youMaySay: "把模型装自己电脑上，是不是就什么都不用管了？"
+scenario:
+  title: "宿舍电脑跑本地模型"
+  steps:
+    - label: "下载模型"
+      body: "按工具文档下载小模型并加载。"
+      note: "硬件决定能跑多大。"
+    - label: "对比效果"
+      body: "回答质量明显不如网页版，速度也慢。"
+      meta: "能力与硬件相关"
+    - label: "检查网络"
+      body: "发现工具仍在联网下载组件，并非完全离线。"
+quiz:
+  - question: "本地部署的主要代价不包括哪一项？"
+    options:
+      - text: "硬件与维护成本"
+        correct: false
+      - text: "模型许可与更新"
+        correct: false
+      - text: "数据必须上传到厂商服务器"
+        correct: true
+    explain: "本地部署的意义之一就是数据不出本机。"
+agentPrompt: "请列出在普通笔记本上本地运行小模型的三个限制，并给出对应的规避建议。"
 order: 5
 related: ["open-source-model", "server"]
 updated: "2026-10-26"

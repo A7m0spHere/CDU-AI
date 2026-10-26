@@ -6,6 +6,28 @@ aliases: ["Context Window", "上下文长度", "窗口"]
 definition: "模型一次能读进去的文字总量；超出部分会被挤掉或截断。"
 example: "把 80 页的课程 PDF 一次粘进对话框问细节，后面的内容可能根本没进入模型视野。"
 youMaySay: "聊到后面它怎么把我前面说的事忘了？"
+scenario:
+  title: "长对话丢失最初设定"
+  steps:
+    - label: "开头设定"
+      body: "先说明「回答控制在 100 字以内」。"
+      note: "设定进入上下文。"
+    - label: "聊了很多轮"
+      body: "对话越来越长，后面的回答又开始长篇大论。"
+      meta: "早期内容被挤出"
+    - label: "重复关键要求"
+      body: "把关键约束重新贴一次，或新开会话只带必要材料。"
+quiz:
+  - question: "对话变长后模型忘记早期要求，主要因为？"
+    options:
+      - text: "模型故意不遵守"
+        correct: false
+      - text: "早期内容超出上下文窗口被挤掉"
+        correct: true
+      - text: "网络延迟"
+        correct: false
+    explain: "窗口有限，长对话会把早期内容挤出视野。"
+agentPrompt: "请记住以下三条约束并在整个对话中遵守：回答不超过 100 字、先给结论、不确定就说不确定。"
 order: 3
 related: ["prompt"]
 updated: "2026-10-26"

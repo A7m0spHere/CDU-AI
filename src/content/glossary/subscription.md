@@ -5,6 +5,29 @@ category: "cost"
 aliases: ["Subscription", "会员", "包月"]
 definition: "按月或按年买套餐，获得一定用量或功能的付费方式。"
 example: "网页版 AI 的会员通常是订阅制：每月固定费用，换取更高额度或更强模型。"
+youMaySay: "会员到底值不值？"
+scenario:
+  title: "选个人版还是按量"
+  steps:
+    - label: "评估用量"
+      body: "统计自己每周大概用多少次、什么功能。"
+      note: "先看需求。"
+    - label: "对比方案"
+      body: "个人版有固定额度，超了限速；按量更透明。"
+      meta: "两种计费"
+    - label: "试用后再定"
+      body: "先用试用额度跑一周再决定。"
+quiz:
+  - question: "订阅制最适合哪类用户？"
+    options:
+      - text: "偶尔用一次的人"
+        correct: false
+      - text: "使用频率稳定、需要固定功能的人"
+        correct: true
+      - text: "批量自动化脚本"
+        correct: false
+    explain: "高频稳定使用订阅更省心；批量任务按量更可控。"
+agentPrompt: "请根据我每周的使用频率和任务类型，帮我比较订阅与按量计费哪种更合适，并说明假设。"
 order: 2
 related: ["usage-based-billing", "trial-quota"]
 updated: "2026-10-26"

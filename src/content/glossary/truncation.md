@@ -5,6 +5,29 @@ category: "cost"
 aliases: ["Truncation", "输出截断", "回答被切断"]
 definition: "回答写到一半被字数或 token 上限切断，话说不完。"
 example: "让 AI 写完整报告，结果最后一句突然断掉——输出长度撞到了上限。"
+youMaySay: "回答怎么写到一半就没了？"
+scenario:
+  title: "长报告生成"
+  steps:
+    - label: "要求长文"
+      body: "让 AI 写一份完整报告。"
+      note: "输出有长度上限。"
+    - label: "被截断"
+      body: "最后一句突然停住。"
+      meta: "max tokens"
+    - label: "分段生成"
+      body: "先要提纲，再逐段写，最后合并校对。"
+quiz:
+  - question: "输出被截断后，最好的补救方式是？"
+    options:
+      - text: "让它「继续」并期待无缝衔接"
+        correct: false
+      - text: "分段生成并在合并时校对"
+        correct: true
+      - text: "换一个更贵的模型"
+        correct: false
+    explain: "分段加校对比续写更可靠。"
+agentPrompt: "请先给我报告提纲，我确认后再按小节逐个生成，每节不超过 400 字。"
 order: 5
 related: ["context-window", "rate-limit"]
 updated: "2026-10-26"

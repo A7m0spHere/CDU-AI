@@ -6,6 +6,28 @@ aliases: ["Output Format", "结构化输出", "格式约束"]
 definition: "要求回答以清单、表格、JSON 等固定结构给出。"
 example: "让 AI 把课程表整理成「星期｜时间｜课程｜地点」四列表格，方便直接抄进手账。"
 youMaySay: "怎么让它别写一大段，直接给我能复制的表格？"
+scenario:
+  title: "课程表整理"
+  steps:
+    - label: "描述结构"
+      body: "要求输出「星期｜时间｜课程｜地点」四列表格。"
+      note: "列名越明确越稳。"
+    - label: "检查字段"
+      body: "发现「地点」列有空值。"
+      meta: "格式对不代表内容全"
+    - label: "补充规则"
+      body: "要求「缺失信息填待确认，不要猜」。"
+quiz:
+  - question: "要求模型输出固定格式时，哪种做法更可靠？"
+    options:
+      - text: "只说「整理成表格」"
+        correct: false
+      - text: "给出列名、顺序，必要时附一个示例"
+        correct: true
+      - text: "要求写得越长越好"
+        correct: false
+    explain: "结构明确、附示例更稳定；格式对不代表内容对。"
+agentPrompt: "请把下面的信息整理成四列表格：星期、时间、课程、地点；缺失的填「待确认」，不要编造。"
 order: 7
 related: ["few-shot", "prompt"]
 updated: "2026-10-26"

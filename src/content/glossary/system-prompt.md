@@ -6,6 +6,28 @@ aliases: ["System Prompt", "系统消息", "系统指令"]
 definition: "提前设定角色与规则的指令，用户通常看不到，但一直生效。"
 example: "同一个模型，网页版里拒绝帮你写课程论文，换成另一个产品却照写——差别往往在系统提示词。"
 youMaySay: "为什么同一个模型，换个产品就像换了个人？"
+scenario:
+  title: "两个产品两种态度"
+  steps:
+    - label: "同一问题"
+      body: "在 A 产品里问敏感问题被婉拒，在 B 产品里却直接回答。"
+      note: "产品设定的规则不同。"
+    - label: "查看设置"
+      body: "在 B 产品里看到「自定义角色 / 指令」设置项。"
+      meta: "产品设置"
+    - label: "自己写规则"
+      body: "在自建助手里把边界写进系统提示词，并测试是否被绕过。"
+quiz:
+  - question: "系统提示词的主要作用是？"
+    options:
+      - text: "替用户输入问题"
+        correct: false
+      - text: "在用户提问前设定角色、语气和限制"
+        correct: true
+      - text: "存储聊天记录"
+        correct: false
+    explain: "系统提示词是产品预先设定的背景规则。"
+agentPrompt: "请以「社团活动助手」的身份回答：只提供已确认的活动信息，不确定时先问我，不要编造时间地点。"
 order: 2
 related: ["prompt", "role-prompting"]
 updated: "2026-10-26"

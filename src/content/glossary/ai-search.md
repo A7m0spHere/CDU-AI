@@ -5,6 +5,29 @@ category: "tools"
 aliases: ["AI Search", "AI 搜索引擎", "联网搜索"]
 definition: "把检索和 AI 总结结合的工具，回答里常带来源链接。"
 example: "问「学校今年转专业政策」，AI 搜索会先找网页再总结，并列出参考链接。"
+youMaySay: "它给的链接，是不是就代表说对了？"
+scenario:
+  title: "查转专业政策"
+  steps:
+    - label: "提问"
+      body: "问 AI 搜索今年的转专业条件。"
+      note: "先检索再总结。"
+    - label: "点开来源"
+      body: "发现引用的是去年的通知。"
+      meta: "来源过期"
+    - label: "回到官网"
+      body: "打开教务处最新通知核对。"
+quiz:
+  - question: "AI 搜索给出引用链接时，应该怎么用？"
+    options:
+      - text: "有链接就可以直接相信"
+        correct: false
+      - text: "点开核对发布时间与适用范围"
+        correct: true
+      - text: "链接越多结论越可靠"
+        correct: false
+    explain: "链接存在不等于支持结论，要核对日期与范围。"
+agentPrompt: "请检索并总结下面的问题，逐条给出来源链接与发布时间；找不到官方来源的部分标注「未核实」。"
 order: 4
 related: ["hallucination", "chatbot"]
 updated: "2026-10-26"

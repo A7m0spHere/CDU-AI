@@ -5,6 +5,29 @@ category: "frontend"
 aliases: ["UI", "用户界面", "界面"]
 definition: "你在屏幕上看到和操作的一切：按钮、输入框、文字与颜色。"
 example: "同一个报名表，按钮大一点、提示清楚一点，填错的人就少——这就是界面设计的影响。"
+youMaySay: "为什么有的页面一看就会用，有的怎么都找不到按钮？"
+scenario:
+  title: "报名页改版"
+  steps:
+    - label: "旧版界面"
+      body: "按钮小、提示少，同学频繁问怎么填。"
+      note: "界面影响操作。"
+    - label: "改版对比"
+      body: "按钮放大、标签写清，错误提示更具体。"
+      meta: "可视化对比"
+    - label: "观察效果"
+      body: "填错率下降，但仍要测试真实流程。"
+quiz:
+  - question: "界面设计的核心目标是？"
+    options:
+      - text: "好看"
+        correct: false
+      - text: "让人能顺利完成操作"
+        correct: true
+      - text: "颜色丰富"
+        correct: false
+    explain: "界面服务于任务完成。"
+agentPrompt: "请检查这个表单页面的可用性问题，按「找不到、看不懂、填错」三类列出，并给出修改建议。"
 order: 1
 related: ["component"]
 updated: "2026-10-26"

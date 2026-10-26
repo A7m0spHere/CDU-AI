@@ -5,6 +5,29 @@ category: "frontend"
 aliases: ["Responsive Design", "自适应", "移动端适配"]
 definition: "同一套页面自动适配手机、平板和电脑屏幕。"
 example: "社团报名页在电脑上是两列，在手机上变成一列——这就是响应式布局在起作用。"
+youMaySay: "电脑上好好的页面，手机上怎么挤成一团？"
+scenario:
+  title: "手机打开报名页"
+  steps:
+    - label: "电脑预览"
+      body: "两列布局，看起来正常。"
+      note: "桌面宽度大。"
+    - label: "手机打开"
+      body: "内容挤成一列，按钮点不到。"
+      meta: "屏幕变窄"
+    - label: "调整布局"
+      body: "改为单列、加大触控区域，重新预览。"
+quiz:
+  - question: "响应式布局要解决的核心问题是？"
+    options:
+      - text: "让页面在各类屏幕上都可用"
+        correct: true
+      - text: "让页面颜色更好看"
+        correct: false
+      - text: "减少代码行数"
+        correct: false
+    explain: "适配不同屏幕尺寸与操作方式。"
+agentPrompt: "请检查这个页面的移动端布局问题，列出手机宽度下的排版与触控问题并给出修改建议。"
 order: 3
 related: ["ui", "component"]
 updated: "2026-10-26"

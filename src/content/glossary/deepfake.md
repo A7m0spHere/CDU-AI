@@ -5,6 +5,29 @@ category: "safety"
 aliases: ["Deepfake", "AI 换脸", "伪造音视频"]
 definition: "用 AI 伪造的逼真声音、图像或视频，常用于冒充与诈骗。"
 example: "收到「辅导员」的语音借钱消息，声音很像，也可能是伪造的——先通过官方渠道核实。"
+youMaySay: "视频里那个人，真的是我认识的人吗？"
+scenario:
+  title: "收到熟人语音借钱"
+  steps:
+    - label: "收到消息"
+      body: "微信里「辅导员」发语音借钱。"
+      note: "声音可以克隆。"
+    - label: "起疑"
+      body: "语气很像，但账号是新加的。"
+      meta: "换渠道核实"
+    - label: "回拨确认"
+      body: "挂断后用已知号码回拨，或当面确认。"
+quiz:
+  - question: "遇到疑似深度伪造的语音或视频，最可靠的应对是？"
+    options:
+      - text: "反复听几遍确认"
+        correct: false
+      - text: "换一个独立渠道核实身份"
+        correct: true
+      - text: "直接转发给同学判断"
+        correct: false
+    explain: "换渠道核实是防线，单看单听都不可靠。"
+agentPrompt: "请帮我起草一条提醒，告诉同学遇到「熟人」语音借钱时如何通过独立渠道核实，语气简洁。"
 order: 6
 related: ["multimodal", "privacy"]
 updated: "2026-10-26"

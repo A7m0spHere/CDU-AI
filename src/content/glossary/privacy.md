@@ -5,6 +5,29 @@ category: "safety"
 aliases: ["Privacy", "数据隐私", "个人信息保护"]
 definition: "关于谁能看、存多久、拿去做什么的数据边界问题。"
 example: "把身份证照片、成绩单、聊天记录直接发给 AI 之前，先想清楚这些内容会被怎么保存和使用。"
+youMaySay: "把成绩单发给 AI，会有什么后果？"
+scenario:
+  title: "上传含个人信息的表格"
+  steps:
+    - label: "直接上传"
+      body: "把含姓名学号的成绩表发给 AI 分析。"
+      note: "信息可能被留存。"
+    - label: "查看说明"
+      body: "在隐私设置里看到「用于改进服务」的选项。"
+      meta: "数据用途"
+    - label: "脱敏重传"
+      body: "去掉姓名学号，只留成绩数据再分析。"
+quiz:
+  - question: "使用 AI 时保护隐私最有效的第一步是？"
+    options:
+      - text: "删除聊天记录"
+        correct: false
+      - text: "上传前脱敏，只给完成任务必需的信息"
+        correct: true
+      - text: "换一个模型"
+        correct: false
+    explain: "减少敏感信息暴露最直接有效。"
+agentPrompt: "请分析下面表格的成绩分布；我已去掉姓名学号，如果还需要其他字段请先问我，不要推测个人信息。"
 order: 3
 related: ["copyright", "prompt-injection"]
 updated: "2026-10-26"

@@ -5,6 +5,29 @@ category: "backend"
 aliases: ["Database", "DB", "数据库系统"]
 definition: "按结构存、查、改数据的地方；账号、成绩都放在这里。"
 example: "教务系统能秒查你的成绩，是因为成绩存在数据库里，而不是翻文件。"
+youMaySay: "删错一条记录，还能找回来吗？"
+scenario:
+  title: "误删报名数据"
+  steps:
+    - label: "误操作"
+      body: "后台误删了一批报名记录。"
+      note: "数据不等于备份。"
+    - label: "尝试恢复"
+      body: "没有备份，只能从导出文件里找回部分。"
+      meta: "备份缺失"
+    - label: "建立习惯"
+      body: "定期导出备份，删除前二次确认。"
+quiz:
+  - question: "数据库最容易被忽视的风险是？"
+    options:
+      - text: "数据量大"
+        correct: false
+      - text: "没有备份与误删保护"
+        correct: true
+      - text: "颜色不好看"
+        correct: false
+    explain: "数据不等于备份，误删很难恢复。"
+agentPrompt: "请为这个报名数据表设计一个简单的备份与误删保护方案，说明频率、存放位置和恢复步骤。"
 order: 2
 related: ["server", "api"]
 updated: "2026-10-26"

@@ -5,6 +5,29 @@ category: "cost"
 aliases: ["Usage-based Billing", "按量付费", "按 token 计费"]
 definition: "按实际用掉的 token 数量收费，用得多付得多。"
 example: "同一份报告，让 AI 写摘要和让它逐字改写全文，消耗的 token 可能差很多倍。"
+youMaySay: "为什么账单每天都不一样？"
+scenario:
+  title: "一个月的 API 账单"
+  steps:
+    - label: "开始使用"
+      body: "脚本每天处理几十份材料。"
+      note: "token 消耗随时累积。"
+    - label: "查看账单"
+      body: "发现长文档处理的那几天费用明显上升。"
+      meta: "按量计费"
+    - label: "优化"
+      body: "先摘要再处理，控制上下文长度。"
+quiz:
+  - question: "按量计费下，成本主要取决于？"
+    options:
+      - text: "账号注册时间"
+        correct: false
+      - text: "实际消耗的 token 数量"
+        correct: true
+      - text: "电脑性能"
+        correct: false
+    explain: "用量决定费用，长上下文与重复请求影响最大。"
+agentPrompt: "请分析下面这个任务哪些步骤最耗 token，并给出三条降低成本的具体建议。"
 order: 1
 related: ["token", "subscription"]
 updated: "2026-10-26"

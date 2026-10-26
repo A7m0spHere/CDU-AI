@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["Memory", "记忆", "长期记忆"]
 definition: "让 Agent 跨轮次记住你的偏好、目标和已完成的事。"
 example: "连续几天让 AI 帮忙记社团待办，它记得你上周定下的截止日期和负责人。"
+youMaySay: "它怎么记得我上次说过什么？"
+scenario:
+  title: "跨天跟进待办"
+  steps:
+    - label: "第一次交代"
+      body: "告诉助手周五前收集报名表。"
+      note: "关键信息被摘要保存。"
+    - label: "隔天追问"
+      body: "它记得截止时间和负责人。"
+      meta: "记忆跨会话"
+    - label: "发现记错"
+      body: "把错误信息纠正并让它更新记忆。"
+quiz:
+  - question: "Agent 记忆最常见的风险是？"
+    options:
+      - text: "完全无法保存信息"
+        correct: false
+      - text: "记住过时或错误的信息"
+        correct: true
+      - text: "只能记住文字不能记住图片"
+        correct: false
+    explain: "记忆会过时、记混，需要定期核对。"
+agentPrompt: "请记住以下项目约定：每周五汇总报名表、负责人是小林、截止前一天提醒；之后每次回答都按这个约定。"
 order: 4
 related: ["ai-agent", "context-window"]
 updated: "2026-10-26"

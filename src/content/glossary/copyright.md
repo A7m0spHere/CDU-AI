@@ -5,6 +5,29 @@ category: "safety"
 aliases: ["Copyright", "著作权", "AI 版权"]
 definition: "AI 生成内容的来源、引用与商用权利边界。"
 example: "把 AI 生成的插画直接印在社团招新海报上，要先确认素材来源与商用授权。"
+youMaySay: "AI 画的图，我能直接商用吗？"
+scenario:
+  title: "做招新海报"
+  steps:
+    - label: "生成插画"
+      body: "让 AI 生成一张招新海报背景。"
+      note: "生成物可能与他人作品相似。"
+    - label: "查条款"
+      body: "查看平台对生成物使用的约定。"
+      meta: "平台条款"
+    - label: "保留记录"
+      body: "保存生成过程与提示词，必要时替换素材。"
+quiz:
+  - question: "AI 生成内容商用前，最应该做的是？"
+    options:
+      - text: "直接使用，AI 没有版权问题"
+        correct: false
+      - text: "核对平台条款与当地规定，必要时替换素材"
+        correct: true
+      - text: "把图改个颜色就算原创"
+        correct: false
+    explain: "生成物仍可能涉及他人权利。"
+agentPrompt: "请帮我列出这张 AI 生成海报商用前需要确认的授权与合规事项，并标出不确定的部分。"
 order: 4
 related: ["privacy", "hallucination"]
 updated: "2026-10-26"

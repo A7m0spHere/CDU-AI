@@ -5,6 +5,29 @@ category: "cost"
 aliases: ["试用期额度", "赠送额度", "试用次数"]
 definition: "产品先给的一点试用量，用完要等刷新或转付费。"
 example: "新注册的 AI 产品送几天高级模型试用，到期后回到基础版——这就是试用额度。"
+youMaySay: "试用额度用完了怎么办？"
+scenario:
+  title: "新产品的试用期"
+  steps:
+    - label: "注册试用"
+      body: "新产品送几天高级模型试用。"
+      note: "规则随时会变。"
+    - label: "额度用完"
+      body: "提示升级或等次日刷新。"
+      meta: "额度限制"
+    - label: "评估价值"
+      body: "判断它是否值得继续用，再决定是否付费。"
+quiz:
+  - question: "试用额度的正确用法是？"
+    options:
+      - text: "当作长期方案"
+        correct: false
+      - text: "用来评估产品是否适合自己"
+        correct: true
+      - text: "多注册账号延长使用"
+        correct: false
+    explain: "试用是评估期，规则不稳定。"
+agentPrompt: "请帮我在试用期内设计一个一周测试计划，覆盖我最重要的三个使用场景，并记录结果。"
 order: 3
 related: ["rate-limit", "subscription"]
 updated: "2026-10-26"

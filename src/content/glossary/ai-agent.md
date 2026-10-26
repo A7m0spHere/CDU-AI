@@ -5,6 +5,29 @@ category: "agents"
 aliases: ["智能体", "AI 智能体", "Agent"]
 definition: "能自己拆任务、调工具、多步执行，直到完成目标的 AI 系统。"
 example: "让它「查下周三天气并写进班级通知」，它会自己搜索、整理、起草，而不是只回一段话。"
+youMaySay: "它说「我来处理」，到底会自己做什么？"
+scenario:
+  title: "让 Agent 查天气写通知"
+  steps:
+    - label: "下达目标"
+      body: "要求「查下周三天气并写进班级通知」。"
+      note: "目标包含多个步骤。"
+    - label: "自动执行"
+      body: "它先搜索天气，再起草通知。"
+      meta: "多步调用工具"
+    - label: "人工确认"
+      body: "发布前你核对天气来源与措辞。"
+quiz:
+  - question: "AI Agent 与普通聊天最主要的区别是？"
+    options:
+      - text: "回答更长"
+        correct: false
+      - text: "能自己拆步骤并调用工具执行"
+        correct: true
+      - text: "不需要模型"
+        correct: false
+    explain: "Agent 的核心是多步执行与工具调用。"
+agentPrompt: "请把「整理本周社团待办」拆成可执行步骤，逐步完成，并在发布任何内容前等我确认。"
 order: 1
 related: ["tool-use", "task-planning"]
 updated: "2026-10-26"

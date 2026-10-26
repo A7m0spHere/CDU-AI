@@ -5,6 +5,29 @@ category: "safety"
 aliases: ["Jailbreak", "越狱提示词"]
 definition: "用话术绕过模型的使用限制，让它输出本来拒绝的内容。"
 example: "用「假设你在写小说」之类的包装，诱导模型给出本应拒绝的内容，就是越狱尝试。"
+youMaySay: "网上那些「越狱提示词」真的有用吗？"
+scenario:
+  title: "尝试绕过限制"
+  steps:
+    - label: "使用话术"
+      body: "用角色扮演包装，要求输出被禁止的内容。"
+      note: "旧话术常很快失效。"
+    - label: "被拒绝"
+      body: "模型仍拒绝，或给出安全提醒。"
+      meta: "安全底线"
+    - label: "记录风险"
+      body: "不要继续尝试，理解拒绝的原因。"
+quiz:
+  - question: "关于越狱提示词，正确的态度是？"
+    options:
+      - text: "收藏起来反复使用"
+        correct: false
+      - text: "了解其风险，不用于获取违规内容"
+        correct: true
+      - text: "越狱成功说明模型更聪明"
+        correct: false
+    explain: "越狱可能带来违法与安全风险，模型也会修补。"
+agentPrompt: "请解释为什么下面这个请求可能违反使用规则，并给出合规的替代做法。"
 order: 2
 related: ["prompt-injection"]
 updated: "2026-10-26"
