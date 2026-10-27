@@ -83,8 +83,19 @@ const bootPresets = presetThemes.map((preset) => ({
             root.dataset.theme = base === 'dark' ? 'dark' : 'light';
             const vars = theme.vars || {};
             for (const key in vars) root.style.setProperty(key, vars[key]);
-            /* 图片生效标记：让导航栏 / 画布层在首屏就为图片让位 */
-            root.dataset.imageBg = String(vars['--page-bg-image'] || '').indexOf('url(') > -1 ? 'true' : 'false';
+            /* 沉浸背景标记：图片（含 url 层）或场景（--bg-scene） */
+            const scene = vars['--bg-scene'] || '';
+            root.dataset.bgScene = scene;
+            root.dataset.imageBg =
+              String(vars['--page-bg-image'] || '').indexOf('url(') > -1 || scene ? 'true' : 'false';
+            /* 用户导入的字体：尽早注册，减少字体闪烁 */
+            const font = theme.params && theme.params.font;
+            if (font && font.preset === 'custom' && font.name && font.src) {
+              try {
+                const face = new FontFace(font.name, 'url("' + font.src + '")');
+                face.load().then(function (loaded) { document.fonts.add(loaded); }).catch(function () {});
+              } catch {}
+            }
           } else {
             root.dataset.theme =
               saved === 'light' || saved === 'dark'

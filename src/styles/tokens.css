@@ -69,9 +69,11 @@
   --shadow-card: 0 8px 30px -22px rgba(0, 0, 0, 0.28);
   --shadow-float: 0 18px 50px -24px rgba(0, 0, 0, 0.32);
 
-  /* type */
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
-  --font-mono: "SFMono-Regular", "Cascadia Code", "JetBrains Mono", "Roboto Mono", Consolas, monospace;
+  /* type（-default 为项目原始字体栈，主题系统在其上覆盖 --font-sans / --font-mono） */
+  --font-sans-default: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+  --font-mono-default: "SFMono-Regular", "Cascadia Code", "JetBrains Mono", "Roboto Mono", Consolas, monospace;
+  --font-sans: var(--font-sans-default);
+  --font-mono: var(--font-mono-default);
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;

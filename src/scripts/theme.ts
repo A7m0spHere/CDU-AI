@@ -11,9 +11,13 @@ import {
   CUSTOM_THEMES_STORAGE_KEY,
   MIN_GRADIENT_STOPS,
   MAX_GRADIENT_STOPS,
+  MAX_FONT_BYTES,
+  FONT_PRESETS,
   type StoredTheme,
   type ThemeParams,
   type GradientConfig,
+  type FontConfig,
+  type FontPreset,
   type Rgb,
   resolveThemeVars,
   normalizeParams,
@@ -29,6 +33,8 @@ import {
   hsvToHex,
   swatchBackground,
   sanitizeImageUrl,
+  sanitizeFontName,
+  sanitizeFontSrc,
 } from '../lib/theme-core';
 
 type GradientKind = keyof Pick<
@@ -139,12 +145,51 @@ if (picker && panel && trigger && editor && importDialog) {
 
   function applyVars(params: ThemeParams): void {
     root.dataset.theme = params.base;
-    /* 图片生效时打上标记，供 image-mode.css 让整页结构为图片放行 */
-    root.dataset.imageBg = params.bgImage.enabled && params.bgImage.url ? 'true' : 'false';
     const vars = resolveThemeVars(params);
+    /* 沉浸背景（贴图 / 图片 / 场景）打标：image-mode.css 让整页结构为背景让位 */
+    const scene = vars['--bg-scene'] ?? '';
+    const imageActive = params.bgImage.enabled && params.bgImage.url;
+    const hasImageLayer = (vars['--page-bg-image'] ?? '').includes('url(');
+    root.dataset.imageBg = imageActive || hasImageLayer || scene ? 'true' : 'false';
+    root.dataset.bgScene = scene;
+    if (scene === 'techne') ensureTechneCast();
+    ensureFontLoaded(params.font);
     for (const [key, value] of Object.entries(vars)) {
       root.style.setProperty(key, value);
     }
+  }
+
+  /* 用户导入的字体文件：以 FontFace 动态注册（family 名 = 参数里的字体名） */
+  const loadedFontFaces = new Set<string>();
+
+  function ensureFontLoaded(font: FontConfig | undefined): void {
+    if (!font || font.preset !== 'custom' || !font.name || !font.src) return;
+    const key = `${font.name}|${font.src.length}|${font.src.slice(-72)}`;
+    if (loadedFontFaces.has(key)) return;
+    loadedFontFaces.add(key);
+    try {
+      const face = new FontFace(font.name, `url("${font.src}")`);
+      void face
+        .load()
+        .then((loaded) => document.fonts.add(loaded))
+        .catch(() => loadedFontFaces.delete(key));
+    } catch {
+      loadedFontFaces.delete(key);
+    }
+  }
+
+  /* 小计姬场景的角色阵容容器：注入一次常驻，显隐由 data-bg-scene 的 CSS 控制 */
+  function ensureTechneCast(): void {
+    if (document.querySelector('.techne-cast')) return;
+    const cast = document.createElement('div');
+    cast.className = 'techne-cast';
+    cast.setAttribute('aria-hidden', 'true');
+    for (const role of ['smile', 'bubble', 'fixed', 'badge', 'peace', 'cash', 'stand-b']) {
+      const item = document.createElement('i');
+      item.className = `techne-cast__item techne-cast__item--${role}`;
+      cast.append(item);
+    }
+    document.body.append(cast);
   }
 
   function applyTheme(id: string | null, options: { persist?: boolean } = {}): void {
@@ -156,6 +201,7 @@ if (picker && panel && trigger && editor && importDialog) {
     } else {
       root.dataset.theme = id === 'light' || id === 'dark' ? id : systemTheme();
       root.dataset.imageBg = 'false';
+      root.dataset.bgScene = '';
     }
     if (options.persist !== false) persistActiveTheme(id);
     updateMetaColor();
@@ -281,9 +327,11 @@ if (picker && panel && trigger && editor && importDialog) {
 
   function renderMenu(): void {
     const builtInHost = panel.querySelector<HTMLElement>('[data-theme-list-built-in]');
-    const presetHost = panel.querySelector<HTMLElement>('[data-theme-list-preset]');
+    const lightHost = panel.querySelector<HTMLElement>('[data-theme-list-preset-light]');
+    const darkHost = panel.querySelector<HTMLElement>('[data-theme-list-preset-dark]');
+    const featureHost = panel.querySelector<HTMLElement>('[data-theme-list-preset-feature]');
     const customHost = panel.querySelector<HTMLElement>('[data-theme-list-custom]');
-    if (!builtInHost || !presetHost || !customHost) return;
+    if (!builtInHost || !lightHost || !darkHost || !featureHost || !customHost) return;
 
     builtInHost.replaceChildren(
       createSwatch({
@@ -302,16 +350,22 @@ if (picker && panel && trigger && editor && importDialog) {
       }),
     );
 
-    presetHost.replaceChildren(
-      ...presetThemes.map((preset) =>
-        createSwatch({
-          id: preset.id,
-          name: preset.params.name,
-          background: swatchBackground(preset.params),
-          accent: preset.params.accent,
-          active: activeThemeId === preset.id,
-        }),
-      ),
+    const presetSwatch = (preset: (typeof presetThemes)[number]) =>
+      createSwatch({
+        id: preset.id,
+        name: preset.params.name,
+        background: swatchBackground(preset.params),
+        accent: preset.params.accent,
+        active: activeThemeId === preset.id,
+      });
+    lightHost.replaceChildren(
+      ...presetThemes.filter((item) => item.group === 'light').map(presetSwatch),
+    );
+    darkHost.replaceChildren(
+      ...presetThemes.filter((item) => item.group === 'dark').map(presetSwatch),
+    );
+    featureHost.replaceChildren(
+      ...presetThemes.filter((item) => item.group === 'feature').map(presetSwatch),
     );
 
     customHost.replaceChildren(
@@ -759,6 +813,44 @@ if (picker && panel && trigger && editor && importDialog) {
     if (out) out.textContent = radiusLabel(draft.radius);
   }
 
+  function fillFontFields(): void {
+    if (!form) return;
+    const font = draft.font ?? { preset: 'default', name: '', src: '' };
+    form.querySelectorAll<HTMLButtonElement>('[data-theme-font-preset]').forEach((button) => {
+      const active = button.dataset.themeFontPreset === font.preset;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    const customBody = form.querySelector<HTMLElement>('[data-theme-font-custom-body]');
+    if (customBody) customBody.hidden = font.preset !== 'custom';
+    const nameInput = form.querySelector<HTMLInputElement>('[data-theme-font-name]');
+    if (nameInput) nameInput.value = font.name;
+    const urlInput = form.querySelector<HTMLInputElement>('[data-theme-font-url]');
+    if (urlInput) urlInput.value = font.src.startsWith('data:') ? '' : font.src;
+    const thumb = form.querySelector<HTMLElement>('[data-theme-font-thumb]');
+    if (thumb) {
+      if (font.src.startsWith('data:')) {
+        thumb.textContent = 'Aa';
+        thumb.hidden = false;
+      } else {
+        thumb.textContent = '';
+        thumb.hidden = true;
+      }
+    }
+    setFontError('');
+  }
+
+  function setFontError(message: string): void {
+    const el = form?.querySelector<HTMLElement>('[data-theme-font-error]');
+    if (!el) return;
+    if (message) {
+      el.textContent = message;
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
+  }
+
   function fillEditor(): void {
     if (!form) return;
     const nameInput = form.querySelector<HTMLInputElement>('[data-theme-field="name"]');
@@ -778,6 +870,7 @@ if (picker && panel && trigger && editor && importDialog) {
     fillGradientFields('footerGradient');
     fillImageFields();
     fillRadiusField();
+    fillFontFields();
     setEditorError('');
   }
 
@@ -942,6 +1035,32 @@ if (picker && panel && trigger && editor && importDialog) {
       const out = form.querySelector<HTMLElement>('[data-theme-radius-out]');
       if (out) out.textContent = radiusLabel(draft.radius);
       schedulePreview();
+      return;
+    }
+    if (target.matches('[data-theme-font-name]')) {
+      draft.font = {
+        ...(draft.font ?? { preset: 'custom', src: '' }),
+        preset: draft.font?.preset ?? 'custom',
+        name: sanitizeFontName(target.value),
+        src: draft.font?.src ?? '',
+      };
+      schedulePreview();
+      return;
+    }
+    if (target.matches('[data-theme-font-url]')) {
+      const sanitized = sanitizeFontSrc(target.value);
+      draft.font = {
+        ...(draft.font ?? { preset: 'custom', name: '' }),
+        preset: draft.font?.preset ?? 'custom',
+        name: draft.font?.name ?? '',
+        src: sanitized,
+      };
+      setFontError(
+        target.value.trim() && !sanitized
+          ? '字体地址无效：仅支持 https:// 链接或本地导入的字体文件'
+          : '',
+      );
+      schedulePreview();
     }
   });
 
@@ -971,6 +1090,22 @@ if (picker && panel && trigger && editor && importDialog) {
 
   form?.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
+
+    /* 字体风格切换 */
+    const fontPresetButton = target.closest<HTMLElement>('[data-theme-font-preset]');
+    if (fontPresetButton) {
+      const preset = fontPresetButton.dataset.themeFontPreset as FontPreset | undefined;
+      if (preset && FONT_PRESETS.includes(preset)) {
+        draft.font = {
+          preset,
+          name: draft.font?.name ?? '',
+          src: preset === 'custom' ? draft.font?.src ?? '' : '',
+        };
+        fillFontFields();
+        schedulePreview();
+      }
+      return;
+    }
 
     /* 取色器按钮（普通颜色字段） */
     const colorButton = target.closest<HTMLElement>('[data-theme-color-btn]');
@@ -1129,6 +1264,91 @@ if (picker && panel && trigger && editor && importDialog) {
       if (file) readImageFile(file);
     });
   }
+
+  /* ---------------------------------------------------------
+     字体文件：拖放 / 点击选择（Base64 存入主题，FontFace 动态注册）
+     --------------------------------------------------------- */
+
+  const fontDropZone = form?.querySelector<HTMLElement>('[data-theme-font-drop]')!;
+  const fontFileInput = (() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.woff2,.woff,.ttf,.otf,font/*,application/font-woff2';
+    input.hidden = true;
+    input.setAttribute('aria-hidden', 'true');
+    input.tabIndex = -1;
+    form?.append(input);
+    return input;
+  })();
+
+  const isFontFile = (file: File): boolean =>
+    /\.(woff2?|ttf|otf)$/i.test(file.name) ||
+    file.type.startsWith('font/') ||
+    /^application\/(font-woff2?|x-font-ttf|font-sfnt|octet-stream)$/i.test(file.type);
+
+  function readFontFile(file: File): void {
+    if (!isFontFile(file)) {
+      setFontError('仅支持字体文件（WOFF2 / TTF / OTF）');
+      return;
+    }
+    if (file.size > MAX_FONT_BYTES) {
+      setFontError(
+        `字体 ${(file.size / 1024 / 1024).toFixed(1)}MB 超出上限：Base64 存储需小于 2MB，建议使用子集化后的字体`,
+      );
+      return;
+    }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      const dataUrl = sanitizeFontSrc(String(reader.result ?? ''));
+      if (!dataUrl) {
+        setFontError('字体读取失败，请换一个文件重试');
+        return;
+      }
+      const baseName = file.name.replace(/\.[a-z0-9]+$/i, '');
+      draft.font = {
+        preset: 'custom',
+        name: sanitizeFontName(draft.font?.name || baseName) || '自定义字体',
+        src: dataUrl,
+      };
+      setFontError('');
+      fillFontFields();
+      preview();
+    });
+    reader.addEventListener('error', () => setFontError('字体读取失败，请换一个文件重试'));
+    reader.readAsDataURL(file);
+  }
+
+  fontDropZone.addEventListener('click', () => fontFileInput.click());
+  fontDropZone.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      fontFileInput.click();
+    }
+  });
+  fontFileInput.addEventListener('change', () => {
+    const file = fontFileInput.files?.[0];
+    if (file) readFontFile(file);
+    fontFileInput.value = '';
+  });
+
+  function highlightFontDrop(on: boolean): void {
+    fontDropZone.classList.toggle('is-over', on);
+  }
+
+  fontDropZone.addEventListener('dragover', (event) => {
+    if (!event.dataTransfer?.types.includes('Files')) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+    highlightFontDrop(true);
+  });
+  fontDropZone.addEventListener('dragleave', () => highlightFontDrop(false));
+  fontDropZone.addEventListener('drop', (event) => {
+    if (!event.dataTransfer?.types.includes('Files')) return;
+    event.preventDefault();
+    highlightFontDrop(false);
+    const file = event.dataTransfer.files?.[0];
+    if (file) readFontFile(file);
+  });
 
   /* ---------------------------------------------------------
      编辑器对话框：按住标题栏拖动

@@ -824,6 +824,51 @@
   cursor: not-allowed;
 }
 
+/* ---------- 字体风格 ---------- */
+
+.theme-font-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.theme-font-option {
+  padding: 0.3rem 0.72rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease;
+}
+
+.theme-font-option:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.theme-font-option.is-active {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.theme-font-option:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.theme-drop__thumb[data-theme-font-thumb]:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 /* ---------- 导入对话框 ---------- */
 
 .theme-import {

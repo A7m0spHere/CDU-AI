@@ -1,0 +1,245 @@
+/* =========================================================
+   小计姬场景（html[data-bg-scene='techne']）
+   由主题系统在小计姬主题生效时打在 <html> 上：
+   - body::before 主立绘：居中镇场，尺寸按视口自适应（任何窗口
+     比例下形象完整可见），径向遮罩羽化 + multiply 混合融入背景，
+     缓慢漂浮
+   - body::after 圆形贴纸：笑脸头像悬浮左下角，呼吸式浮动 + 辉光
+   - .techne-cast 角色阵容：素材包里的表情 / 立绘以 multiply
+     混合融入页面（白底自动消失，人物像嵌进背景而非贴图），
+     分布在四周避免与居中主立绘重叠，个数随分辨率增删
+     （媒体查询分级显隐），各自不同速率慢慢漂浮
+   - 场景底座（底色渐变 / 网格 / 光斑）走主题变量管线
+   - 沉浸规则（卡片磨砂、外壳让位）由 image-mode.css 承担
+   ========================================================= */
+
+html[data-bg-scene='techne'] body {
+  position: relative;
+}
+
+/* —— 主立绘：居中镇场 + 比例自适应 + 羽化 + multiply 融合 + 漂浮 —— */
+html[data-bg-scene='techne'] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('/images/techne/techne-full.jpg') no-repeat;
+  background-position: center bottom;
+  background-size: auto min(84vh, 94vw);
+  -webkit-mask-image: radial-gradient(ellipse 74% 64% at 50% 50%, #000 50%, transparent 76%);
+  mask-image: radial-gradient(ellipse 74% 64% at 50% 50%, #000 50%, transparent 76%);
+  mix-blend-mode: multiply;
+  animation: techne-drift 16s ease-in-out infinite;
+}
+
+/* —— 圆形贴纸：左下角头像，呼吸浮动 + 辉光 —— */
+html[data-bg-scene='techne'] body::after {
+  content: '';
+  position: fixed;
+  left: 2vw;
+  bottom: 4vh;
+  width: min(23vh, 19vw);
+  aspect-ratio: 1;
+  z-index: -1;
+  pointer-events: none;
+  background: url('/images/techne/techne-face.jpg') center / cover no-repeat;
+  border-radius: 50%;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 56%, transparent 71%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 56%, transparent 71%);
+  filter: saturate(1.06);
+  animation: techne-bob 9s ease-in-out infinite;
+}
+
+/* —— 角色阵容：multiply 融合 + 边缘羽化，随分辨率分级登场 —— */
+.techne-cast {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  display: none;
+}
+
+html[data-bg-scene='techne'] .techne-cast {
+  display: block;
+}
+
+.techne-cast__item {
+  position: absolute;
+  mix-blend-mode: multiply;
+  -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 52%, transparent 74%);
+  mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 52%, transparent 74%);
+  background-repeat: no-repeat;
+}
+
+/* 微笑头像：右上角小圆脸 */
+.techne-cast__item--smile {
+  top: 11vh;
+  right: 3vw;
+  width: min(17vh, 13vw);
+  aspect-ratio: 1;
+  background-image: url('/images/techne/techne-smile.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: techne-drift 12s ease-in-out infinite;
+}
+
+/* 思考气泡：左上角（气泡悬在内容上方，像在提问） */
+.techne-cast__item--bubble {
+  top: 7vh;
+  left: 2vw;
+  width: min(26vh, 19vw);
+  aspect-ratio: 1;
+  background-image: url('/images/techne/techne-bubble.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: techne-drift 14s ease-in-out 1.2s infinite;
+}
+
+/* 「别优化我」表情包：左中下方，贴纸的正上方 */
+.techne-cast__item--fixed {
+  bottom: 30vh;
+  left: 3vw;
+  width: min(21vh, 15vw);
+  aspect-ratio: 1;
+  background-image: url('/images/techne/techne-fixed.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: techne-drift 13s ease-in-out 0.6s infinite;
+}
+
+/* 欢呼徽章：黑底举键盘图做成圆形发光徽章（黑底无法融合，设计化为「夜空徽章」） */
+.techne-cast__item--badge {
+  top: 29vh;
+  right: 3vw;
+  width: min(14vh, 11vw);
+  aspect-ratio: 1;
+  background-image: url('/images/techne/techne-badge.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  box-shadow:
+    0 0 26px rgba(61, 108, 224, 0.45),
+    0 0 0 2px rgba(61, 108, 224, 0.55);
+  animation: techne-bob 10s ease-in-out 1.5s infinite;
+}
+
+/* 比耶 Techne-chan：紧羽化只露人物，左列阵容一员，超宽屏才登场 */
+.techne-cast__item--peace {
+  top: 34vh;
+  left: 2vw;
+  width: min(15vh, 10vw);
+  aspect-ratio: 1;
+  background-image: url('/images/techne/techne-peace.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  -webkit-mask-image: radial-gradient(ellipse 58% 52% at 50% 42%, #000 48%, transparent 72%);
+  mask-image: radial-gradient(ellipse 58% 52% at 50% 42%, #000 48%, transparent 72%);
+  animation: techne-drift 12s ease-in-out 3s infinite;
+}
+
+/* 钞票梗图：右下角，超宽屏才登场 */
+.techne-cast__item--cash {
+  bottom: 4vh;
+  right: 3vw;
+  width: min(30vh, 21vw);
+  aspect-ratio: 2;
+  background-image: url('/images/techne/techne-cash.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: techne-drift 15s ease-in-out 1.8s infinite;
+}
+
+/* 五头身立绘：右侧中段（右上笑脸与右下钞票之间），超宽屏才登场 */
+.techne-cast__item--stand-b {
+  top: 34vh;
+  right: 2vw;
+  width: min(34vh, 15vw);
+  aspect-ratio: 2 / 3;
+  background-image: url('/images/techne/techne-stand-b.jpg');
+  background-size: cover;
+  background-position: top center;
+  animation: techne-drift 17s ease-in-out 2.4s infinite;
+}
+
+@keyframes techne-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes techne-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+    box-shadow: 0 0 34px rgba(61, 108, 224, 0.28);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+    box-shadow: 0 0 54px rgba(61, 108, 224, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-bg-scene='techne'] body::before,
+  html[data-bg-scene='techne'] body::after,
+  .techne-cast__item {
+    animation: none;
+  }
+}
+
+/* —— 分辨率分级：屏幕越宽，登场角色越多 —— */
+
+/* 窄屏（手机）：阵容全部退场，只留主立绘（底部居中）+ 左下贴纸 */
+@media (max-width: 760px) {
+  .techne-cast__item {
+    display: none;
+  }
+
+  html[data-bg-scene='techne'] body::before {
+    background-position: center bottom;
+    background-size: auto min(52vh, 96vw);
+    -webkit-mask-image: radial-gradient(ellipse 88% 62% at 50% 52%, #000 48%, transparent 74%);
+    mask-image: radial-gradient(ellipse 88% 62% at 50% 52%, #000 48%, transparent 74%);
+  }
+
+  html[data-bg-scene='techne'] body::after {
+    width: 21vh;
+    left: -5vw;
+    bottom: 2vh;
+  }
+}
+
+/* 中屏：微笑头像 + 欢呼徽章登场 */
+@media (max-width: 1279px) {
+  .techne-cast__item--bubble,
+  .techne-cast__item--fixed,
+  .techne-cast__item--badge,
+  .techne-cast__item--peace,
+  .techne-cast__item--cash,
+  .techne-cast__item--stand-b {
+    display: none;
+  }
+}
+
+/* 宽屏（1280–1799）：+ 思考气泡、别优化我（主立绘居中，徽章在右中段） */
+@media (max-width: 1799px) {
+  .techne-cast__item--cash,
+  .techne-cast__item--stand-b,
+  .techne-cast__item--peace {
+    display: none;
+  }
+}
+
+/* 超宽屏（≥1800）：全部角色登场，徽章移到主立绘右上方的空隙 */
+@media (min-width: 1800px) {
+  .techne-cast__item--badge {
+    top: 11vh;
+    right: auto;
+    left: 24vw;
+  }
+}
