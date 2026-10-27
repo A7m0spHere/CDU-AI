@@ -8,7 +8,7 @@ import config from '../astro.config.mjs';
 // 沿用项目 Node >=22.0，不依赖较新版本的原生 TypeScript stripping。
 const source = await readFile(new URL('../src/lib/theme-core.ts', import.meta.url), 'utf8');
 const compiled = transpileModule(source, { compilerOptions: { module: ModuleKind.ES2022 } });
-const { autoInk, autoMuted, autoCode, contrastRatio, normalizeParams, resolveThemeVars } =
+const { autoInk, autoMuted, autoCode, contrastRatio, normalizeFont, normalizeParams, resolveThemeVars } =
   await import(`data:text/javascript;base64,${Buffer.from(compiled.outputText).toString('base64')}`);
 
 test('自动文字和代码配色在中等亮度背景上仍有足够对比', () => {
@@ -48,4 +48,16 @@ test('真实 Markdown 高亮产物连接代码文字与注释变量，并保留�
   const { code } = await markdown.render('```js\nconst value = 1; // note\n```');
   assert.match(code, /color:var\(--theme-code-token-fg, #[0-9a-fA-F]+\)/);
   assert.match(code, /color:var\(--theme-code-token-muted, #[0-9a-fA-F]+\)/);
+});
+
+test('字体字段拒绝对象转换，畸形 JSON 不影响其余主题参数', () => {
+  for (const font of [null, [], 'pixel', { name: { toString: null } }, { preset: 'custom', name: [], src: { toString: null } }]) {
+    const params = normalizeParams({ bg: '#123456', font });
+    assert.equal(params.bg, '#123456');
+    assert.equal(params.font.name, '');
+    assert.equal(params.font.src, '');
+  }
+  assert.deepEqual(normalizeFont({ preset: 'custom', name: 'My Font', src: 'javascript:alert(1)' }), {
+    preset: 'custom', name: 'My Font', src: '',
+  });
 });

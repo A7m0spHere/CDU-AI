@@ -19,7 +19,7 @@ body {
   background-size: var(--page-bg-size, auto);
   background-position: var(--page-bg-pos, center);
   background-attachment: var(--page-bg-attach, scroll);
-  background-repeat: no-repeat;
+  background-repeat: var(--page-bg-repeat, no-repeat);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-base);

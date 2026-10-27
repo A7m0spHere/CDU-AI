@@ -75,6 +75,6 @@ npm run preview  # 预览构建产物
 
 ## 许可与素材
 
-代码许可见 [MIT License](LICENSE)。角色插画由维护者提供，复用请先联系维护组；第三方品牌图标的出处与使用说明见 [图标来源记录](docs/TOOL-LOGOS.md)。
+代码许可见 [MIT License](LICENSE)。角色插画由维护者提供，复用请先联系维护组；第三方品牌图标的出处与使用说明见 [图标来源记录](docs/TOOL-LOGOS.md)。主题图片、像素贴图与字体的来源及各自许可见 [主题素材记录](docs/THEME-ASSETS.md)，其中奶鲸为维护者确认的 AI 创作图，鲸鱼娘沿用上游标注的 CC BY-NC-SA 4.0。
 
 贡献者名单与项目致谢统一记录在 [CONTRIBUTORS.md](CONTRIBUTORS.md)。

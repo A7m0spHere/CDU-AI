@@ -6,10 +6,26 @@
 
 export type ThemeBase = 'light' | 'dark';
 
+/** 渐变可选的像素贴图 / 背景场景（预置文件，位于 /images/） */
+export const GRADIENT_TEXTURES = ['grass', 'dirt', 'dirt-deep', 'grass-block', 'techne'] as const;
+export type GradientTexture = (typeof GRADIENT_TEXTURES)[number] | '';
+
+export const TEXTURE_TILE_SIZE = 64;
+
+/* 平铺贴图（techne 为合成场景，走 techne.css 浮层，不在此列） */
+const TEXTURE_TILES: Partial<Record<Exclude<GradientTexture, ''>, string>> = {
+  grass: '/images/mc-grass.svg',
+  dirt: '/images/mc-dirt.svg',
+  'dirt-deep': '/images/mc-dirt-deep.svg',
+  'grass-block': '/images/mc-grass.svg',
+};
+
 export interface GradientConfig {
   enabled: boolean;
   angle: number; // 0-360，单位 deg
   stops: string[]; // 2-5 个十六进制颜色
+  /** 像素方块贴图 id：设置后以平铺贴图代替线性渐变（预置主题专用） */
+  texture?: GradientTexture;
 }
 
 export interface BgImageConfig {
@@ -24,6 +40,22 @@ export interface CodeConfig {
   muted: string;
 }
 
+/** 字体风格：default 项目原字体；pixel 内置像素字体；rounded / serif 系统栈；custom 用户字体 */
+export type FontPreset = 'default' | 'pixel' | 'rounded' | 'serif' | 'custom';
+
+export interface FontConfig {
+  preset: FontPreset;
+  /** custom 时：本机字体名或导入字体的 family 名 */
+  name: string;
+  /** custom 时：导入字体文件的 data URL 或 https 地址（woff2 / ttf / otf） */
+  src: string;
+}
+
+export const FONT_PRESETS: FontPreset[] = ['default', 'pixel', 'rounded', 'serif', 'custom'];
+
+export const PIXEL_FONT_FAMILY = 'Fusion Pixel 12px';
+export const MAX_FONT_BYTES = 2 * 1024 * 1024;
+
 export interface ThemeParams {
   name: string;
   base: ThemeBase;
@@ -37,6 +69,7 @@ export interface ThemeParams {
   bgImage: BgImageConfig; // 背景图片
   radius: number; // 0-10 圆角程度，5 为项目默认
   code: CodeConfig; // 代码块配色
+  font?: FontConfig; // 字体风格（旧存档缺省 = 项目原字体）
 }
 
 /** 存入 localStorage 的自定义主题：同时保存参数与已解析变量（供首屏防闪烁脚本直接使用） */
@@ -230,6 +263,26 @@ export function sanitizeImageUrl(rawUrl: string): string {
   return '';
 }
 
+/** 字体文件地址校验：仅允许 https 与 data:font / data:application 字体类 */
+export function sanitizeFontSrc(rawUrl: string): string {
+  const url = rawUrl.trim();
+  if (!url) return '';
+  if (
+    /^data:(font\/[a-z0-9.+-]+|application\/(font-woff2?|x-font-ttf|font-sfnt|octet-stream));base64,[a-z0-9+/=\s]+$/i.test(
+      url,
+    )
+  ) {
+    return url.replace(/\s+/g, '');
+  }
+  if (/^https:\/\/[^\s"'()<>]+$/i.test(url)) return url;
+  return '';
+}
+
+/** 字体名清洗：去除引号 / 反斜杠 / 分号 / 花括号等可能破坏 CSS 的字符 */
+export function sanitizeFontName(rawName: string): string {
+  return rawName.replace(/["'\\;{}<>]/g, '').trim().slice(0, 48);
+}
+
 /* ---------------------------------------------------------
    参数归一化与默认值
    --------------------------------------------------------- */
@@ -263,10 +316,27 @@ function normalizeGradient(input: unknown, fallback: GradientConfig): GradientCo
     merged.push(fallback.stops[merged.length % fallback.stops.length]);
   }
   const angle = numeric(source.angle);
+  const texture = GRADIENT_TEXTURES.includes(source.texture as never)
+    ? (source.texture as Exclude<GradientTexture, ''>)
+    : '';
   return {
     enabled: source.enabled === true,
     angle: Number.isFinite(angle) ? clamp(Math.round(angle), 0, 360) : fallback.angle,
     stops: merged,
+    texture,
+  };
+}
+
+/** 将任意输入归一化为合法 FontConfig，非法字段回退项目默认字体 */
+export function normalizeFont(input: unknown): FontConfig {
+  const source = record(input);
+  const preset = FONT_PRESETS.includes(source.preset as FontPreset)
+    ? (source.preset as FontPreset)
+    : 'default';
+  return {
+    preset,
+    name: sanitizeFontName(text(source.name)),
+    src: preset === 'custom' ? sanitizeFontSrc(text(source.src)) : '',
   };
 }
 
@@ -304,6 +374,7 @@ export function normalizeParams(input: unknown): ThemeParams {
       fg: normalizeColor(text(codeSource.fg), fallback.code.fg),
       muted: normalizeColor(text(codeSource.muted), fallback.code.muted),
     },
+    font: normalizeFont(source.font),
   };
 }
 
@@ -321,6 +392,7 @@ export function defaultParams(): ThemeParams {
     bgImage: { enabled: false, url: '', overlay: 46 },
     radius: 5,
     code: { bg: '#14151b', fg: '#e9e9ee', muted: '#9a9aa4' },
+    font: { preset: 'default', name: '', src: '' },
   };
 }
 
@@ -336,6 +408,7 @@ export function draftParams(bg: string, accent: string, base: ThemeBase): ThemeP
     muted: autoMuted(bg),
     accent: normalizeColor(accent, params.accent),
     code: autoCode(isDarkColor(bg) ? bg : params.code.bg),
+    font: normalizeFont(params.font),
     pageGradient: { ...params.pageGradient, stops: [mixColor(bg, params.accent, 0.12), bg] },
     headerGradient: {
       ...params.headerGradient,
@@ -407,41 +480,112 @@ export function resolveThemeVars(params: ThemeParams): Record<string, string> {
   const imageActive = params.bgImage.enabled && !!params.bgImage.url;
   /* 顶部 / 底部与背景图片自由共存：
      - 未设渐变且图片开启 → 导航栏底色透明，仅留毛玻璃（半透明磨砂效果）
-     - 页脚未设渐变 → 始终透明，整页渐变或图片自然延伸到底 */
+     - 页脚未设渐变 → 始终透明，整页渐变或图片自然延伸到底
+     - 设有像素贴图 → 以平铺贴图代替线性渐变 */
+  const headerTile = params.headerGradient.enabled ? params.headerGradient.texture : '';
   vars['--header-bg'] = params.headerGradient.enabled
-    ? gradientCss(params.headerGradient)
+    ? headerTile && TEXTURE_TILES[headerTile]
+      ? `url("${TEXTURE_TILES[headerTile]}") repeat top center / ${TEXTURE_TILE_SIZE}px ${TEXTURE_TILE_SIZE}px`
+      : gradientCss(params.headerGradient)
     : imageActive
       ? 'transparent'
       : withAlpha(bg, 0.86);
+  const footerTile = params.footerGradient.enabled ? params.footerGradient.texture : '';
   vars['--footer-bg'] = params.footerGradient.enabled
-    ? gradientCss(params.footerGradient)
+    ? footerTile && TEXTURE_TILES[footerTile]
+      ? `url("${TEXTURE_TILES[footerTile]}") repeat top center / ${TEXTURE_TILE_SIZE}px ${TEXTURE_TILE_SIZE}px`
+      : gradientCss(params.footerGradient)
     : 'transparent';
 
   /* 页面背景层：图片开启时不再叠加整页渐变（两者冲突），只留遮罩与图片 */
   const layers: string[] = [];
   const sizes: string[] = [];
+  const positions: string[] = [];
+  const repeats: string[] = [];
   const attachments: string[] = [];
+
+  const pushLayer = (
+    image: string,
+    size: string,
+    position: string,
+    repeat: string,
+    attachment: string,
+  ): void => {
+    layers.push(image);
+    sizes.push(size);
+    positions.push(position);
+    repeats.push(repeat);
+    attachments.push(attachment);
+  };
+
   if (params.pageGradient.enabled && !imageActive) {
-    layers.push(gradientCss(params.pageGradient));
-    sizes.push('auto');
-    attachments.push('scroll');
+    const pageTexture = params.pageGradient.texture;
+    if (pageTexture === 'grass-block') {
+      /* 草方块侧面：顶部一条草皮与导航栏草面相接，其余为泥土 */
+      pushLayer(
+        `url("${TEXTURE_TILES.grass}")`,
+        `${TEXTURE_TILE_SIZE}px ${TEXTURE_TILE_SIZE}px`,
+        'center top',
+        'repeat-x',
+        'scroll',
+      );
+      pushLayer(
+        `url("${TEXTURE_TILES.dirt}")`,
+        `${TEXTURE_TILE_SIZE}px ${TEXTURE_TILE_SIZE}px`,
+        'center top',
+        'repeat',
+        'scroll',
+      );
+    } else if (pageTexture === 'techne') {
+      /* 小计姬场景底座：光斑 + 科技网格浮在不透明底色渐变之上（立绘 / 贴纸浮层由 techne.css 负责） */
+      const line = withAlpha(ink, 0.07);
+      const glowA = withAlpha(accent, 0.16);
+      const glowB = withAlpha(accent, 0.1);
+      pushLayer(
+        `radial-gradient(circle at 20% 12%, ${glowA}, transparent 42%), radial-gradient(circle at 78% 86%, ${glowB}, transparent 46%)`,
+        'cover',
+        'center',
+        'no-repeat',
+        'scroll',
+      );
+      pushLayer(
+        `repeating-linear-gradient(90deg, ${line} 0 1px, transparent 1px 48px), repeating-linear-gradient(0deg, ${line} 0 1px, transparent 1px 48px)`,
+        'auto',
+        'center',
+        'repeat',
+        'scroll',
+      );
+      pushLayer(gradientCss(params.pageGradient), 'auto', 'center', 'no-repeat', 'scroll');
+    } else if (pageTexture && TEXTURE_TILES[pageTexture]) {
+      pushLayer(
+        `url("${TEXTURE_TILES[pageTexture]}")`,
+        `${TEXTURE_TILE_SIZE}px ${TEXTURE_TILE_SIZE}px`,
+        'center top',
+        'repeat',
+        'scroll',
+      );
+    } else {
+      pushLayer(gradientCss(params.pageGradient), 'auto', 'center', 'no-repeat', 'scroll');
+    }
   }
   if (params.bgImage.enabled && params.bgImage.url) {
     if (params.bgImage.overlay > 0) {
       /* background-image 只接受图像：遮罩需包成同色双向渐变 */
       const alpha = withAlpha(bg, params.bgImage.overlay / 100);
-      layers.push(`linear-gradient(${alpha}, ${alpha})`);
-      sizes.push('cover');
-      attachments.push('fixed');
+      pushLayer(`linear-gradient(${alpha}, ${alpha})`, 'cover', 'center', 'no-repeat', 'fixed');
     }
-    layers.push(`url("${params.bgImage.url}")`);
-    sizes.push('cover');
-    attachments.push('fixed');
+    pushLayer(`url("${params.bgImage.url}")`, 'cover', 'center', 'no-repeat', 'fixed');
   }
   vars['--page-bg-image'] = layers.length > 0 ? layers.join(', ') : 'none';
   vars['--page-bg-size'] = sizes.length > 0 ? sizes.join(', ') : 'auto';
+  vars['--page-bg-pos'] = positions.length > 0 ? positions.join(', ') : 'center';
+  vars['--page-bg-repeat'] = repeats.length > 0 ? repeats.join(', ') : 'no-repeat';
   vars['--page-bg-attach'] = attachments.length > 0 ? attachments.join(', ') : 'scroll';
-  vars['--page-bg-pos'] = 'center';
+  /* 场景标记：techne.css 据此挂载立绘 / 贴纸浮层（无场景时为空） */
+  vars['--bg-scene'] =
+    params.pageGradient.enabled && params.pageGradient.texture === 'techne' && !imageActive
+      ? 'techne'
+      : '';
 
   /* 圆角：radius 滑杆 0-10，5 为项目默认比例 */
   const scale = params.radius / 5;
@@ -463,6 +607,22 @@ export function resolveThemeVars(params: ThemeParams): Record<string, string> {
   vars['--code-muted'] = params.code.muted;
   vars['--theme-code-token-fg'] = params.code.fg;
   vars['--theme-code-token-muted'] = params.code.muted;
+
+  /* font：覆盖 --font-sans / --font-mono（tokens.css 的 -default 值作为回退） */
+  const font = params.font ?? { preset: 'default' as const, name: '', src: '' };
+  if (font.preset === 'pixel') {
+    vars['--font-sans'] = `'${PIXEL_FONT_FAMILY}', var(--font-sans-default)`;
+    vars['--font-mono'] = `'${PIXEL_FONT_FAMILY}', var(--font-mono-default)`;
+  } else if (font.preset === 'rounded') {
+    vars['--font-sans'] =
+      `"ui-rounded", "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Microsoft YaHei", var(--font-sans-default)`;
+  } else if (font.preset === 'serif') {
+    vars['--font-sans'] =
+      `"Georgia", "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif`;
+    vars['--font-mono'] = `"Cascadia Code", "JetBrains Mono", Consolas, var(--font-mono-default)`;
+  } else if (font.preset === 'custom' && font.name) {
+    vars['--font-sans'] = `"${font.name}", var(--font-sans-default)`;
+  }
 
   return vars;
 }

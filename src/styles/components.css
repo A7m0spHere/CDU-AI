@@ -818,6 +818,14 @@
   line-height: inherit;
 }
 
+.footer-theme-credit {
+  padding-bottom: 1.3rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
 .footer-bottom {
   display: flex;
   flex-wrap: wrap;

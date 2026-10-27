@@ -24,7 +24,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。测试覆盖存储失败回滚、真实配额超限、取消预览、手机菜单边界，以及主题与工具目录搜索 / 折叠的兼容性。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。
+浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。测试覆盖存储失败回滚、真实配额超限、取消预览、图片与字体读取的会话隔离、字体拖放与刷新恢复、手机菜单边界，以及主题与工具目录搜索 / 折叠的兼容性。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。
 
 已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器，测试后用 `Remove-Item Env:PLAYWRIGHT_CHANNEL` 恢复默认。手机视口模拟不等同于真实设备验收。
 

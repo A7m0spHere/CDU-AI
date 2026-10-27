@@ -51,6 +51,7 @@
 | 首页角色插画 | [`mascot.webp`](../public/brand/mascot.webp)；原始插画保存在 [`docs/design/brand/`](design/brand/) |
 | 作品封面组件 | [`WorkArt.astro`](../src/components/WorkArt.astro)，当前用于示例版式 |
 | 工具品牌图标 | [`public/tool-logos/`](../public/tool-logos/)，来源与处理方式见 [TOOL-LOGOS.md](TOOL-LOGOS.md) |
+| 主题图片、贴图与字体 | 来源、署名及各自许可见 [THEME-ASSETS.md](THEME-ASSETS.md) |
 | README 界面预览 | [`home.png`](screenshots/home.png) / [`tools.png`](screenshots/tools.png)，2026-10-24 本地构建截图 |
 
 角色插画的复用请联系维护组。`docs/screenshots/` 中其他截图保留为历史版式资料，不用来说明当前内容数量或完成状态。

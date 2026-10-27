@@ -19,8 +19,12 @@ import Icon from './Icon.astro';
   <div class="theme-panel" id="theme-panel" data-theme-panel hidden>
     <p class="theme-panel__label">内置</p>
     <div class="theme-panel__grid" data-theme-list-built-in></div>
-    <p class="theme-panel__label">预设</p>
-    <div class="theme-panel__grid" data-theme-list-preset></div>
+    <p class="theme-panel__label">浅色</p>
+    <div class="theme-panel__grid" data-theme-list-preset-light></div>
+    <p class="theme-panel__label">深色</p>
+    <div class="theme-panel__grid" data-theme-list-preset-dark></div>
+    <p class="theme-panel__label">特色</p>
+    <div class="theme-panel__grid" data-theme-list-preset-feature></div>
     <p class="theme-panel__label">我的主题</p>
     <div class="theme-panel__grid" data-theme-list-custom></div>
     <p class="theme-field__error" data-theme-menu-error role="alert" hidden></p>
@@ -221,6 +225,39 @@ import Icon from './Icon.astro';
         <input class="theme-range theme-range--block" type="range" min="0" max="10" step="1" value="5" data-theme-radius aria-label="界面圆角程度" />
         <div class="theme-range__ends" aria-hidden="true"><span>锐利</span><span>圆润</span></div>
       </div>
+
+      <fieldset class="theme-field">
+        <div class="theme-field__head">
+          <legend class="theme-field__label">字体风格</legend>
+        </div>
+        <div class="theme-font-options" role="radiogroup" aria-label="字体风格" data-theme-font-options>
+          <button class="theme-font-option" type="button" data-theme-font-preset="default" aria-pressed="true">默认</button>
+          <button class="theme-font-option" type="button" data-theme-font-preset="pixel" aria-pressed="false">像素方块</button>
+          <button class="theme-font-option" type="button" data-theme-font-preset="rounded" aria-pressed="false">圆润</button>
+          <button class="theme-font-option" type="button" data-theme-font-preset="serif" aria-pressed="false">衬线</button>
+          <button class="theme-font-option" type="button" data-theme-font-preset="custom" aria-pressed="false">自定义</button>
+        </div>
+        <div class="theme-field__body" data-theme-font-custom-body hidden>
+          <input class="theme-input" type="text" spellcheck="false" placeholder="本机字体名，如 HarmonyOS Sans SC" data-theme-font-name aria-label="自定义字体名称" />
+          <div
+            class="theme-drop"
+            data-theme-font-drop
+            role="button"
+            tabindex="0"
+            aria-label="拖放字体文件到此处，或按回车选择文件"
+          >
+            <span class="theme-drop__icon"><Icon name="type" size={20} /></span>
+            <span class="theme-drop__text">
+              <strong>拖入字体文件（≤2MB）</strong>
+              <small>或点击选择文件 · WOFF2 / TTF / OTF</small>
+            </span>
+            <span class="theme-drop__thumb" data-theme-font-thumb hidden></span>
+          </div>
+          <input class="theme-input" type="text" spellcheck="false" placeholder="或粘贴字体文件地址（https://… .woff2）" data-theme-font-url aria-label="自定义字体文件地址" />
+          <p class="theme-field__error" data-theme-font-error role="alert" hidden></p>
+        </div>
+        <p class="theme-field__hint">像素方块为内置开源「缝合像素字体」（OFL 许可）；导入的字体仅保存在本浏览器，中文字体文件较大、可能超出本地存储配额</p>
+      </fieldset>
 
       <fieldset class="theme-field">
         <div class="theme-field__head">

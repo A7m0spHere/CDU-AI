@@ -293,11 +293,15 @@ test('删除写入失败保留主题，恢复写入后可正常删除', async t 
   assert.equal((await state(page)).id, 'light');
 });
 
-test('非法字段 JSON 安全回退，图片地址可逐字输入', async t => {
+test('非法字段及字体 JSON 安全回退，图片地址可逐字输入', async t => {
   const page = await setup(t);
-  await openImport(page, { bg: { toString: null }, radius: { valueOf: null } });
+  await openImport(page, {
+    bg: { toString: null }, radius: { valueOf: null },
+    font: { preset: 'custom', name: { toString: null }, src: { toString: null } },
+  });
   await page.locator('[data-theme-import-confirm]').click();
   assert.equal((await state(page)).bg, '#f5f6fa');
+  assert.deepEqual((await state(page)).themes[0].params.font, { preset: 'custom', name: '', src: '' });
   await create(page);
   await page.locator('[data-theme-image-enabled]').check();
   await page.locator('[data-theme-image-url]').pressSequentially('https://example.com/image.png');
@@ -314,7 +318,7 @@ test('取消后的异步图片读取不会修改下一次打开的草稿', async
       readAsDataURL(file) { setTimeout(() => super.readAsDataURL(file), 180); }
     };
   });
-  await page.locator('[data-theme-form] input[type="file"]').setInputFiles({
+  await page.locator('[data-theme-image-file]').setInputFiles({
     name: 'pixel.png', mimeType: 'image/png',
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==', 'base64'),
   });
@@ -324,6 +328,67 @@ test('取消后的异步图片读取不会修改下一次打开的草稿', async
   assert.equal(await page.locator('[data-theme-image-enabled]').isChecked(), false);
   await page.locator('[data-theme-save]').click();
   assert.equal((await state(page)).themes[0].params.bgImage.url, '');
+});
+
+test('取消或切换字体风格后，旧字体读取结果不会覆盖当前草稿', async t => {
+  const page = await setup(t);
+  const font = await readFile(new URL('../public/fonts/fusion-pixel/fusion-pixel-12px-monospaced-latin.otf.woff2', import.meta.url));
+  await page.evaluate(() => {
+    const Reader = window.FileReader;
+    window.FileReader = class extends Reader {
+      readAsDataURL(file) {
+        window.finishFontRead = () => new Promise(resolve => {
+          this.addEventListener('loadend', () => resolve(), { once: true });
+          super.readAsDataURL(file);
+        });
+      }
+    };
+  });
+  for (const action of ['cancel', 'preset']) {
+    await create(page);
+    await page.locator('[data-theme-font-preset="custom"]').click();
+    await page.locator('[data-theme-font-file]').setInputFiles({ name: 'cancelled-font.woff2', mimeType: 'font/woff2', buffer: font });
+    if (action === 'cancel') {
+      await page.locator('[data-theme-cancel]').click();
+      await create(page);
+    } else {
+      await page.locator('[data-theme-font-preset="pixel"]').click();
+    }
+    await page.evaluate(() => window.finishFontRead());
+    const expected = action === 'cancel' ? 'default' : 'pixel';
+    assert.equal(await page.locator('[data-theme-font-preset][aria-pressed="true"]').getAttribute('data-theme-font-preset'), expected);
+    await page.locator('[data-theme-save]').click();
+    const saved = (await state(page)).themes.at(-1).params.font;
+    assert.equal(saved.preset, expected);
+    assert.equal(saved.src, '');
+  }
+});
+
+test('拖入字体只触发字体导入，保存和刷新后实际加载字体', async t => {
+  const page = await setup(t);
+  const font = await readFile(new URL('../public/fonts/fusion-pixel/fusion-pixel-12px-monospaced-latin.otf.woff2', import.meta.url));
+  await create(page);
+  await page.locator('[data-theme-font-preset="custom"]').click();
+  await page.evaluate(base64 => {
+    const bytes = Uint8Array.from(atob(base64), character => character.charCodeAt(0));
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(new File([bytes], 'uploaded-font.woff2', { type: 'font/woff2' }));
+    const drop = document.querySelector('[data-theme-font-drop]');
+    for (const type of ['dragover', 'drop']) {
+      drop.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer }));
+    }
+  }, font.toString('base64'));
+  await page.waitForFunction(() => document.querySelector('[data-theme-font-name]').value === 'uploaded-font');
+  assert.equal(await page.locator('[data-theme-image-error]').isVisible(), false);
+  assert.equal(await page.locator('[data-theme-font-error]').isVisible(), false);
+  await page.locator('[data-theme-save]').click();
+  const saved = await state(page);
+  assert.equal(saved.themes[0].params.font.name, 'uploaded-font');
+  assert.match(saved.themes[0].params.font.src, /^data:font\/woff2;base64,/);
+  await page.reload(); await ready(page);
+  assert.deepEqual(await state(page), saved);
+  assert.ok(await page.evaluate(async () => (await document.fonts.load('16px "uploaded-font"')).length > 0));
+  assert.match(await page.locator('body').evaluate(element => getComputedStyle(element).fontFamily), /uploaded-font/);
 });
 
 test('手机端菜单及浅色按钮始终在屏幕内，旋转后重新定位', async t => {
