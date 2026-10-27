@@ -1,6 +1,6 @@
 # 维护者操作说明
 
-本文负责本地排障、文档检查与仓库管理。贡献入口和合并流程见 [贡献指南](../CONTRIBUTING.md)，内容事实与人工核校见 [审校规范](CONTENT-REVIEW.md)。
+本文负责本地排障、文档检查与仓库管理。贡献入口和合并流程见 [贡献指南](../CONTRIBUTING.md)，内容事实与审核见 [审校规范](CONTENT-REVIEW.md)。
 
 ## 验证入口
 
@@ -24,7 +24,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。测试覆盖存储失败回滚、真实配额超限、取消预览、手机菜单边界，以及主题与工具目录搜索 / 折叠的兼容性。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。
+浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。测试覆盖存储失败回滚、真实配额超限、取消预览、图片与字体读取的会话隔离、字体拖放与刷新恢复、手机菜单边界，以及主题与工具目录搜索 / 折叠的兼容性。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。
 
 已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器，测试后用 `Remove-Item Env:PLAYWRIGHT_CHANNEL` 恢复默认。手机视口模拟不等同于真实设备验收。
 
@@ -36,7 +36,7 @@ npm run test:browser
 - YAML 代码块的语法；代码围栏中标为 `yaml review-fields` 的示例，额外复用内容检查器的审校字段规则。
 - 普通行内代码与代码块中的链接示例不当作真实引用。
 
-外部链接不发网络请求；可达性、事实是否得到来源支持仍由维护者核对。文档检查也不能替代页面视觉、可访问性或真人内容审校。
+外部链接不发网络请求；可达性、事实是否得到来源支持仍由维护者核对。文档检查也不能替代页面视觉、可访问性或内容审核与负责人确认。
 
 ## 内容缓存排查
 

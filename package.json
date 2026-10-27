@@ -16,7 +16,7 @@
     "check:content": "node scripts/check-content.mjs",
     "check:docs": "node scripts/check-docs.mjs",
     "check:links": "node scripts/check-links.mjs",
-    "test": "node --test tests/site.test.mjs tests/docs.test.mjs tests/theme.test.mjs",
+    "test": "node --test tests/site.test.mjs tests/docs.test.mjs tests/theme.test.mjs tests/tool-catalog.test.mjs",
     "test:browser": "node --test tests/theme.browser.test.mjs",
     "verify": "npm run check && npm run check:content && npm run check:docs && npm run build && npm run test && npm run check:links",
     "astro": "astro"

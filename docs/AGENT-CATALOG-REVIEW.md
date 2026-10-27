@@ -52,9 +52,16 @@
 - Open Interpreter 当前 CLI 的仓库为 [openinterpreter/openinterpreter](https://github.com/openinterpreter/openinterpreter)，介绍按当前 CLI 架构整理，不沿用旧版 Python 解释器安装说明。
 - Windsurf 的当前名称为 [Devin Desktop](https://devin.ai/desktop)，旧名保留为别名，不重复创建两条工具。
 
-## 默认展示与折叠（2026-10-24）
+## 分组与默认展示（2026-10-24）
 
-工具页默认不再平铺全部 Agent 条目：`tier: '主流产品'` 与 OpenCode、Pi、Hermes Agent、OpenClaw 直接显示，其余社区 / 小众 Agent 与 Harness 收进「更多社区 Agent 与 Harness」折叠区。折叠只影响默认展开状态：搜索或任一筛选生效时自动展开，结果数量与搜索索引仍按完整目录计算。默认展示名单在 `src/data/tools.ts` 的 `agentSpotlightIds` 维护，调整时不要删除条目。
+按维护者要求依次展示「国内工具」「海外工具」「社区项目」，使用 `catalogGroup` 明确归属，不再按 `tier` 判断一个工具是否属于社区。全部 32 个 Agent 相关条目（含次要分类）均保留，不增加重复条目。
+
+- 国内工具包含 DSH（DeepSeek Harness）、TRAE、Qwen Code、ZCode、WorkBuddy、Qoder、Kimi Code、MiniMax Code、扣子 Coze。
+- DSH 和 Qwen Code 属于厂商官方开源工具，从社区区移到国内工具；Hermes Agent 由模型团队 Nous Research 推出，移到海外工具。依据分别见 [DSH 官网](https://deepseek.com/harness/)、[Qwen Code 官方文档](https://qwenlm.github.io/qwen-code-docs/en/index)、[Hermes 官方文档](https://hermes-agent.nousresearch.com/docs/)。
+- 社区区指独立开发者及第三方社区维护的工具，不代表没有官网或维护组织；模型厂商自己的官方 Agent 不归入这一组。OpenCode、Pi、OpenClaw 默认直接显示，其余社区项目收进「更多社区 Agent 与 Harness」折叠区。
+- Manus 按海外产品展示，其[官方公告](https://manus.im/blog/manus-joins-meta-for-next-era-of-innovation)说明加入 Meta 并继续从新加坡运营。
+
+折叠只影响默认展开状态：进入或切换场景分类时保持收起，可手动展开；搜索或能力筛选生效时自动展开匹配条目，清除后恢复收起。默认展示名单在 `src/data/tool-sections.mjs` 的 `agent/community/collapse.featuredIds` 维护；官方工具不会进入社区折叠区，其他栏目也不继承这一折叠规则。数量按当前视图匹配条目计算。补充 `DSH` 搜索别名，名称仍沿用 DeepSeek Harness。
 
 ## 未作为活跃工具新增
 

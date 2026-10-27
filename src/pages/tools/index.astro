@@ -3,26 +3,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import Icon from '../../components/Icon.astro';
 import ToolCard from '../../components/ToolCard.astro';
-import { tools, toolCategories, toolCapabilities, agentSpotlightIds } from '../../data/tools';
-import type { Tool } from '../../data/types';
+import { tools, toolCategories, toolCapabilities } from '../../data/tools';
+import { toolSections, toolCategoryAliases } from '../../data/tool-sections.mjs';
+import { createCatalogView, validateCatalogSections } from '../../lib/tool-catalog.mjs';
 
 const counts = new Map(toolCategories.map((category) => [category.id, tools.filter((tool) => tool.category === category.id || (tool.alsoIn ?? []).includes(category.id)).length]));
 const capCounts = new Map(toolCapabilities.map((cap) => [cap.id, tools.filter((tool) => tool.capabilities.includes(cap.id)).length]));
 const hasTools = tools.length > 0;
 const suggestionUrl = 'https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml';
-const categoryName = (id: string) => toolCategories.find((category) => category.id === id)?.name ?? '工具';
-
-// Agent 与 Harness 的默认展示：主流产品与少量常用社区条目直接显示，
-// 其余社区 / 小众 Agent 收进折叠区。搜索或筛选生效时折叠区自动展开（见 scripts/filter.ts），
-// 结果数量与搜索索引始终按完整目录计算，避免折叠后漏掉收录。
-const spotlightAgentIds = new Set(agentSpotlightIds);
-const isAgentTool = (tool: Tool) => tool.category === 'agent';
-const isCollapsedAgent = (tool: Tool) =>
-  isAgentTool(tool) && tool.tier !== '主流产品' && !spotlightAgentIds.has(tool.id);
-const collapsedAgentTools = tools.filter(isCollapsedAgent);
-const visibleTools = tools.filter((tool) => !isCollapsedAgent(tool));
-const collapseAfterId = [...visibleTools].reverse().find(isAgentTool)?.id;
-const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAfterId);
+const catalogErrors = validateCatalogSections(tools, toolCategories);
+if (catalogErrors.length) throw new Error(catalogErrors.join('\n'));
+const defaultView = createCatalogView('all', tools, toolCategories);
+const defaultGroups = new Map(defaultView.categories.flatMap((category) => category.groups.map((group) => [group.key, group] as const)));
+const toolById = new Map(tools.map((tool) => [tool.id, tool]));
+const foldedDefault = defaultView.categories.flatMap((category) => category.groups).reduce((total, group) => total + group.collapsedIds.length, 0);
+const catalogConfig = JSON.stringify({
+  views: Object.fromEntries(['all', ...toolCategories.map((category) => category.id)].map((id) => [id, createCatalogView(id, tools, toolCategories)])),
+  categoryNames: Object.fromEntries(toolCategories.map((category) => [category.id, category.name])),
+  aliases: toolCategoryAliases,
+}).replace(/</g, '\\u003c');
 ---
 
 <BaseLayout
@@ -74,7 +73,7 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
 
       <h2 class="sr-only">工具目录</h2>
       {hasTools && (
-      <div class="catalog-layout" data-filter-root data-reveal>
+      <div class="catalog-layout" data-filter-root data-tool-catalog data-reveal>
         <aside class="catalog-sidebar" aria-label="工具筛选">
           <label class="sr-only" for="tool-search">搜索工具名、别名、场景或技术类型</label>
           <div class="search-field">
@@ -88,13 +87,15 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
             />
           </div>
 
+          <p class="catalog-search-scope" data-filter-scope>搜索范围：全部工具</p>
+
           <nav class="catalog-nav" aria-label="按场景筛选">
             <div class="catalog-nav__head">
               <span>使用场景</span>
               <span class="filter-count">{tools.length} 个条目</span>
             </div>
             <div class="filter-chips filter-chips--vertical" role="group" aria-label="按场景筛选">
-              <button class="filter-chip" type="button" data-filter-value="all" aria-pressed="true">
+              <button class="filter-chip" type="button" data-filter-value="all" data-filter-label="全部工具" aria-pressed="true">
                 全部工具
                 <span class="filter-chip__count">{tools.length}</span>
               </button>
@@ -103,6 +104,7 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
                   class="filter-chip"
                   type="button"
                   data-filter-value={category.id}
+                  data-filter-label={category.name}
                   aria-pressed="false"
                   title={category.techHint}
                 >
@@ -136,53 +138,68 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
 
           <p class="catalog-sidebar__note">
             <Icon name="info" size={14} />
-            场景是单选，能力可多选并取交集；搜索会忽略场景筛选，但保留能力筛选。Agent 与 Harness 的社区条目默认收起，搜索或筛选时会自动展开。
+            搜索限定在当前栏目；选择「全部工具」可扩大搜索范围。能力可多选并取交集。Agent 的更多社区条目默认收起，搜索或能力筛选时自动展开匹配项。
           </p>
         </aside>
 
         <div class="catalog-main">
           <div class="results-bar">
-            <p aria-live="polite">显示 <strong data-filter-count>{tools.length}</strong> 个工具</p>
+            <p aria-live="polite">匹配 <strong data-filter-count>{tools.length}</strong> 项<span data-filter-folded-note hidden={foldedDefault === 0}>（<strong data-filter-folded-count>{foldedDefault}</strong> 项已折叠）</span></p>
             <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
           </div>
 
-          <div class="tool-grid">
-            {visibleTools.map((tool) => (
-              <>
-                <ToolCard
-                  tool={tool}
-                  categoryLabel={categoryName(tool.category)}
-                />
-                {showCollapsedAgents && tool.id === collapseAfterId && (
-                  <details class="tool-more" data-filter-group data-collapse>
-                    <summary class="tool-more__summary">
-                      <span class="tool-more__heading">
-                        <span class="tool-more__title">更多社区 Agent 与 Harness</span>
-                        <span class="tool-more__meta">
-                          {collapsedAgentTools.length} 个条目 · 默认收起，搜索或筛选时自动展开
-                        </span>
-                      </span>
-                      <Icon name="chevron-down" size={18} class="tool-more__icon" />
-                    </summary>
-                    <div class="tool-grid tool-more__grid">
-                      {collapsedAgentTools.map((collapsedTool) => (
-                        <ToolCard
-                          tool={collapsedTool}
-                          categoryLabel={categoryName(collapsedTool.category)}
-                          collapsed
-                        />
-                      ))}
-                    </div>
-                  </details>
-                )}
-              </>
+          <div class="catalog-sections">
+            {toolCategories.map((category) => (
+              <section class="catalog-category" data-filter-group data-catalog-category={category.id} aria-labelledby={`catalog-category-${category.id}`}>
+                <div class="catalog-category__heading">
+                  <h2 id={`catalog-category-${category.id}`}>{category.name}</h2>
+                  <p>{category.description}</p>
+                </div>
+                {(toolSections[category.id] ?? []).map((section) => {
+                  const key = `${category.id}-${section.id}`;
+                  const group = defaultGroups.get(key)!;
+                  const collapsedIds = new Set(group.collapsedIds);
+                  return (
+                    <section class="tool-group" data-filter-group data-tool-group={key} data-tool-category={category.id} hidden={group.toolIds.length === 0} aria-labelledby={`tool-group-${key}`}>
+                      <div class:list={['tool-group__heading', { 'sr-only': toolSections[category.id].length === 1 }]}>
+                        <h3 id={`tool-group-${key}`}>{section.name}</h3>
+                        {section.description && <p>{section.description}</p>}
+                      </div>
+                      <div class="tool-grid" data-catalog-target={key}>
+                        {group.toolIds.filter((id) => !collapsedIds.has(id)).map((id) => (
+                          <ToolCard tool={toolById.get(id)!} categoryLabel={category.name} headingLevel="h4" />
+                        ))}
+                      </div>
+                      {section.collapse && (
+                        <details class="tool-more" data-filter-group data-collapse hidden={group.collapsedIds.length === 0}>
+                          <summary class="tool-more__summary">
+                            <span class="tool-more__heading">
+                              <span class="tool-more__title">{section.collapse.label}</span>
+                              <span class="tool-more__meta"><span data-collapse-count>{group.collapsedIds.length}</span> 个条目 · 默认收起，搜索或能力筛选时自动展开</span>
+                            </span>
+                            <Icon name="chevron-down" size={18} class="tool-more__icon" />
+                          </summary>
+                          <div class="tool-grid tool-more__grid" data-catalog-target={`${key}-more`}>
+                            {group.collapsedIds.map((id) => (
+                              <ToolCard tool={toolById.get(id)!} categoryLabel={category.name} headingLevel="h4" collapsed />
+                            ))}
+                          </div>
+                        </details>
+                      )}
+                    </section>
+                  );
+                })}
+              </section>
             ))}
           </div>
+
+          <div data-catalog-pool hidden></div>
+          <script type="application/json" data-catalog-config set:html={catalogConfig} />
 
           <div class="empty-state" data-empty-state hidden>
             <Icon name="search" size={28} />
             <h2>没有找到匹配的工具</h2>
-            <p>试试更短的关键词、换一个场景，或者点击「清除筛选」看看全部条目。</p>
+            <p>试试更短的关键词，或选择「全部工具」扩大搜索范围；也可以清除筛选重新浏览。</p>
           </div>
 
           <div class="catalog-cta">
@@ -212,6 +229,6 @@ const showCollapsedAgents = collapsedAgentTools.length > 0 && Boolean(collapseAf
 </BaseLayout>
 
 <script>
-  import { initFilter } from '../../scripts/filter';
-  initFilter();
+  import { initToolCatalog } from '../../scripts/tool-catalog';
+  initToolCatalog();
 </script>

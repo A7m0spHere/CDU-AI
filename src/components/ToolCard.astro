@@ -1,25 +1,25 @@
 ---
 import type { Tool } from '../data/types';
 import Icon from './Icon.astro';
-import { toolBasisLabels, toolCapabilities } from '../data/tools';
+import { toolBasisLabels, toolCapabilities, toolCategories } from '../data/tools';
+import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 
 interface Props {
   tool: Tool;
   categoryLabel: string;
+  headingLevel?: 'h3' | 'h4';
   /** 是否渲染在默认收起的区域：只作为标记，展开/收起由页面上的 <details> 控制。 */
   collapsed?: boolean;
 }
 
 const { tool, categoryLabel, collapsed = false } = Astro.props;
+const Heading = Astro.props.headingLevel ?? 'h3';
 
 const toneByCategory: Record<string, string> = {
   'llm-chat': 'sage',
   agent: 'violet',
-  image: 'rose',
-  video: 'rose',
-  tts: 'sky',
-  stt: 'sky',
-  music: 'sand',
+  aigc: 'rose',
+  audio: 'sky',
   research: 'sky',
   workflow: 'violet',
   local: 'sage',
@@ -43,7 +43,8 @@ const searchText = [
   tool.tech,
   tool.kind,
   categoryLabel,
-  ...(tool.alsoIn ?? []).map((id) => (id === 'workflow' ? '工作流' : id)),
+  ...(tool.alsoIn ?? []).map((id) => toolCategories.find((category) => category.id === id)?.name ?? id),
+  ...getToolSectionLabels(tool),
   ...capabilityLabels,
   ...tool.tags,
 ]
@@ -61,6 +62,7 @@ const githubUrl = tool.githubUrl;
   class="tool-card card"
   data-filter-card
   data-tool-id={tool.id}
+  data-primary-category={tool.category}
   data-category={[tool.category, ...(tool.alsoIn ?? [])].join(' ')}
   data-capabilities={tool.capabilities.join(' ')}
   data-search={searchText}
@@ -87,28 +89,20 @@ const githubUrl = tool.githubUrl;
       )}
     </span>
     <div class="tool-card__identity">
-      <h3>
+      <Heading>
         <a href={tool.url} target="_blank" rel="noopener noreferrer">
           {tool.name}
           <Icon name="external-link" size={15} />
         </a>
-      </h3>
+      </Heading>
       <p>{tool.kind} · {tool.tech}</p>
     </div>
-    {tool.featured && <span class="badge badge--brand">新手先试</span>}
   </div>
 
   <p class="tool-card__summary">{tool.summary}</p>
 
-  <div class="tool-card__best">
-    <span>适合</span>
-    {tool.bestFor}
-  </div>
-
   <div class="tool-card__meta">
-    {tool.pricing && <span class="badge">{tool.pricing}</span>}
-    <span class="badge">{tool.difficulty}</span>
-    <span class="tool-card__category">{categoryLabel}</span>
+    <span class="tool-card__category" data-tool-category-label>{categoryLabel}</span>
   </div>
 
   <details class="tool-card__details">

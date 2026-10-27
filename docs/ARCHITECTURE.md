@@ -78,9 +78,9 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 | `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
 | `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
 
-三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：没有 `reviewed` 一律显示「初稿 · 尚未人工核校」。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
+三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时显示「初稿 · 尚未审核」，同时填写且未标记待更新才显示「已审核无误」。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
-**内容重建状态**：2026-10-20 开始内容重建，之后已加入「AI 幻觉」人工核校示范词条；指南与作品正文仍待补充，各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不参与构建**；集合为空时列表页显示占位，测试与检查器支持空集合。
+**内容重建状态**：2026-10-20 开始内容重建，之后已加入「AI 幻觉」人工核校示范词条与维护者提供的指南首页正文。普通指南与作品仍待补充，各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不作为内容集合条目加载**；`src/content/guide/_HOME.md` 由指南首页直接导入并显示在 `/guide/`，不生成单独的文章路由，不自动追加介绍、目录总览或阶段列表。首页审核规则与记录方式见 [内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)，不增加页面审核信息栏。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
 
 指南的阶段归属、阅读顺序与六个目录分组分别维护：`stage` 决定学习阶段，`order` 是指南集合内全局唯一的正整数，决定跨阶段的上一篇 / 下一篇；`src/data/guide-nav.ts` 决定目录位置与规划条目。新增指南需要同时创建 Markdown 并登记 slug，不在新阶段重置 `order`。
 
@@ -96,8 +96,9 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 | 维度 | 字段 | 取值 |
 | --- | --- | --- |
-| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、图像、视频、TTS、STT、音乐、搜索科研、工作流、本地部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示、翻译与文档处理） |
-| 资源形态 | `kind` | 在线产品 / 开源项目 / 模型 / 工作流工具 / 开发工具 / 资源社区 / 开发平台 |
+| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、AIGC、语音与音频、搜索科研、工作流、本地运行与部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示） |
+| 页内分组 | `catalogGroup` / `aigcSection` | 对话与 Agent 按归属分组；AIGC 按图片、视频、工作流和资源社区分区 |
+| 资源形态 | `kind` | 在线产品 / 开源项目 / 工作流工具 / 开发工具 / 资源社区 / 开发平台；当前暂不收录独立模型 |
 | 技术类型 | `tech` | LLM 对话应用、扩散模型、Agent Harness、TTS、STT 等自由文本 |
 | 能力标签 | `capabilities` | open-source / local / beginner / zh（页面上可多选筛选） |
 | 收录依据 | `tier` / `basis` / `verifiedOn` | 主流产品 / 社区热门 / 小众探索；官网核对 / 官方文档 / 社区整理；核对日期 |
@@ -107,7 +108,8 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 - **图标自托管**：官方 Logo 放在 `public/tool-logos/`（SVG 或 96×96 WebP），来源与授权逐条记录在数据里，汇总见 [`TOOL-LOGOS.md`](TOOL-LOGOS.md)；取不到合规图标时省略 `logo`，卡片回退为名称首字母。
 - **检查器同源**：内容检查通过 `parseToolsFromSource` 读取工具引用；构建后的测试再调用 `validateTools` 检查分类、枚举、重复项与图标文件。两者共用解析逻辑，完整验证入口为 `npm run verify`。
 - **官网与仓库分开**：`url` 优先使用官网或官方项目介绍页，`githubUrl` 单独提供代码仓库入口。GitHub Copilot 等产品页也在 GitHub 域名下，不能只按域名判断仓库。
-- **扩展方向**：新增分类只需往 `toolCategories` 追加；未来加 MCP、AI 3D、AI for Science、具身智能等方向时不需要改页面。
+- **分类视图**：`tool-sections.mjs` 集中维护页内分区，`tool-catalog.mjs` 生成全目录与单栏目视图并验证覆盖率；全目录仅展示主分类，单栏目使用本栏目的关联工具和分区。客户端移动已有卡片，不克隆条目。搜索限定当前栏目，折叠数量同步更新。
+- **扩展方向**：新增分类时同步 `toolCategories` 和分区配置；未来新增方向时不需要为单个工具改页面。
 
 ### 内容与页面解耦的边界
 
@@ -117,12 +119,12 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 ## 5. 设计系统
 
-- 视觉方向：白底、蓝色交互色、目录式信息密度；不复制任何第三方项目的代码、品牌或页面。
+- 视觉方向：跟随浅色、深色与自定义主题的语义配色、目录式信息密度；不复制任何第三方项目的代码、品牌或页面。
 - 语义化 CSS 令牌：颜色、字体、间距、圆角、阴影、动效时长集中管理。
 - 支持内置深浅色、预设和本浏览器自定义主题，读取 `localStorage` 或系统偏好。`theme-core.ts` 推导令牌，`theme.ts` 管理预览与保存；持久化失败保留原主题并显示错误。禁用 JS 时默认浅色且内容完整可读。
 - 断点：480 / 760 / 1020 / 1180 / 1280；主要按钮 ≥ 42px，移动菜单 48px。
 - 动效只做辅助：搜索框淡入、卡片抬升、筛选过渡；全部受 `prefers-reduced-motion` 控制。
-- 站点自身不加载外部字体、追踪脚本或 CDN 资源；外部工具和参考资料依赖各自的网络访问条件。
+- 站点预设字体和素材自托管，不依赖外部字体服务、追踪脚本或 CDN；自定义主题可由用户填写外部图片或 https 字体地址。外部工具和参考资料依赖各自的网络访问条件。
 - 工具页桌面端为「左筛选栏 + 右卡片网格」，移动端折叠为横向分类。
 
 详见 [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md)。

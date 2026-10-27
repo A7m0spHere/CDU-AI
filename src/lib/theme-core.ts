@@ -329,14 +329,14 @@ function normalizeGradient(input: unknown, fallback: GradientConfig): GradientCo
 
 /** 将任意输入归一化为合法 FontConfig，非法字段回退项目默认字体 */
 export function normalizeFont(input: unknown): FontConfig {
-  const source = (input ?? {}) as Record<string, unknown>;
+  const source = record(input);
   const preset = FONT_PRESETS.includes(source.preset as FontPreset)
     ? (source.preset as FontPreset)
     : 'default';
   return {
     preset,
-    name: sanitizeFontName(String(source.name ?? '')),
-    src: preset === 'custom' ? sanitizeFontSrc(String(source.src ?? '')) : '',
+    name: sanitizeFontName(text(source.name)),
+    src: preset === 'custom' ? sanitizeFontSrc(text(source.src)) : '',
   };
 }
 

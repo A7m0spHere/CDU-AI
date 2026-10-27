@@ -20,6 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
 import { isSafeExternalUrl } from '../src/lib/url-guard.mjs';
+import { validateCatalogSections } from '../src/lib/tool-catalog.mjs';
 
 const isoDateRe = /^\d{4}-\d{2}-\d{2}$/;
 const slugFileRe = /^[a-z0-9][a-z0-9-]*\.md$/;
@@ -176,8 +177,12 @@ export function checkReviewFields(data, file, errors) {
       errors.push({ file, message: 'reviewedBy 必须是非空字符串（可用笔名）' });
     }
     if (!data.reviewed) {
-      errors.push({ file, message: '填写 reviewedBy 时必须同时填写 reviewed（人工审校日期）' });
+      errors.push({ file, message: '填写 reviewedBy 时必须同时填写 reviewed（审核日期）' });
     }
+  }
+
+  if (data.reviewed && !isNonEmptyString(data.reviewedBy)) {
+    errors.push({ file, message: '填写 reviewed 时必须同时填写 reviewedBy（审核负责人）' });
   }
 
   checkDateString(data, 'reviewed', file, errors);
@@ -276,6 +281,8 @@ export function parseToolsFromSource(source) {
         id: readString('id'),
         name: readString('name'),
         category: readString('category'),
+        catalogGroup: readString('catalogGroup'),
+        aigcSection: readString('aigcSection'),
         alsoIn: readArray('alsoIn'),
         capabilities: readArray('capabilities'),
         aliases: readArray('aliases'),
@@ -315,7 +322,7 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
   if (categories.length === 0) push('无法解析工具分类（toolCategories），页面筛选会失效');
 
   const tools = parseToolsFromSource(source);
-  const kinds = ['在线产品', '开源项目', '模型', '工作流工具', '开发工具', '资源社区', '开发平台'];
+  const kinds = ['在线产品', '开源项目', '工作流工具', '开发工具', '资源社区', '开发平台'];
   const tiers = ['主流产品', '社区热门', '小众探索'];
   const bases = ['official', 'docs', 'community'];
   const caps = ['open-source', 'local', 'beginner', 'zh'];
@@ -338,6 +345,14 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
       if (!caps.includes(cap)) push(label + ' 的 capabilities 含未知取值：' + cap);
     }
     if (tool.kind && !kinds.includes(tool.kind)) push(label + ' 的 kind 不合法：' + tool.kind);
+    if (tool.catalogGroup && !['domestic', 'overseas', 'open-source', 'community'].includes(tool.catalogGroup)) {
+      push(label + ' 的 catalogGroup 不合法：' + tool.catalogGroup);
+    }
+    const isAigc = tool.category === 'aigc' || tool.alsoIn.includes('aigc');
+    if (isAigc && !['image', 'video', 'workflow', 'resources'].includes(tool.aigcSection)) {
+      push(label + ' 缺少合法的 AIGC 页内分区（aigcSection）');
+    }
+    if (!isAigc && tool.aigcSection) push(label + ' 填写 aigcSection 时必须属于 AIGC 分类');
     if (tool.tier && !tiers.includes(tool.tier)) push(label + ' 的 tier 不合法：' + tool.tier);
     if (tool.basis && !bases.includes(tool.basis)) push(label + ' 的 basis 不合法：' + tool.basis);
     if (tool.verifiedOn && !isoDateRe.test(tool.verifiedOn)) push(label + ' 的 verifiedOn 必须是 YYYY-MM-DD');
@@ -392,7 +407,7 @@ export function checkGuideNavCoverage({ slugs, registeredSlugs }) {
     .filter((slug) => !registeredSlugs.includes(slug))
     .map((slug) => ({
       file: `guide/${slug}.md`,
-      message: '未在 src/data/guide-nav.ts 中登记，侧边栏与目录总览不会显示这篇文章',
+      message: '未在 src/data/guide-nav.ts 中登记，侧边栏不会显示这篇文章',
     }));
 }
 
@@ -663,6 +678,9 @@ export async function validateContentRoot(root) {
 async function main() {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const { errors, count } = await validateContentRoot(root);
+  const catalogSource = await readFile(path.join(root, 'src/data/tools.ts'), 'utf8');
+  errors.push(...validateCatalogSections(parseToolsFromSource(catalogSource), parseToolCategoryIds(catalogSource))
+    .map((message) => ({ file: 'src/data/tool-sections.mjs', message })));
   if (errors.length > 0) {
     console.error(`内容一致性检查失败：${errors.length} 个问题（共检查 ${count} 个文件）`);
     for (const error of errors) console.error(`- ${error.file}  ${error.message}`);

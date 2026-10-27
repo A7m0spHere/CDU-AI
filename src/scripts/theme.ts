@@ -210,6 +210,7 @@ if (picker && panel && trigger && editor && importDialog) {
 
   let previewTimer = 0;
   let editorSession = 0;
+  let fontReadRequest = 0;
 
   function cancelPreview(): void {
     window.clearTimeout(previewTimer);
@@ -1048,6 +1049,7 @@ if (picker && panel && trigger && editor && importDialog) {
       return;
     }
     if (target.matches('[data-theme-font-url]')) {
+      fontReadRequest += 1;
       const sanitized = sanitizeFontSrc(target.value);
       draft.font = {
         ...(draft.font ?? { preset: 'custom', name: '' }),
@@ -1096,6 +1098,7 @@ if (picker && panel && trigger && editor && importDialog) {
     if (fontPresetButton) {
       const preset = fontPresetButton.dataset.themeFontPreset as FontPreset | undefined;
       if (preset && FONT_PRESETS.includes(preset)) {
+        fontReadRequest += 1;
         draft.font = {
           preset,
           name: draft.font?.name ?? '',
@@ -1194,6 +1197,7 @@ if (picker && panel && trigger && editor && importDialog) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
+    input.dataset.themeImageFile = '';
     input.hidden = true;
     input.setAttribute('aria-hidden', 'true');
     input.tabIndex = -1;
@@ -1274,6 +1278,7 @@ if (picker && panel && trigger && editor && importDialog) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.woff2,.woff,.ttf,.otf,font/*,application/font-woff2';
+    input.dataset.themeFontFile = '';
     input.hidden = true;
     input.setAttribute('aria-hidden', 'true');
     input.tabIndex = -1;
@@ -1287,6 +1292,7 @@ if (picker && panel && trigger && editor && importDialog) {
     /^application\/(font-woff2?|x-font-ttf|font-sfnt|octet-stream)$/i.test(file.type);
 
   function readFontFile(file: File): void {
+    const request = ++fontReadRequest;
     if (!isFontFile(file)) {
       setFontError('仅支持字体文件（WOFF2 / TTF / OTF）');
       return;
@@ -1298,7 +1304,10 @@ if (picker && panel && trigger && editor && importDialog) {
       return;
     }
     const reader = new FileReader();
+    const session = editorSession;
+    const isCurrentRead = () => editor.open && session === editorSession && request === fontReadRequest;
     reader.addEventListener('load', () => {
+      if (!isCurrentRead()) return;
       const dataUrl = sanitizeFontSrc(String(reader.result ?? ''));
       if (!dataUrl) {
         setFontError('字体读取失败，请换一个文件重试');
@@ -1314,7 +1323,9 @@ if (picker && panel && trigger && editor && importDialog) {
       fillFontFields();
       preview();
     });
-    reader.addEventListener('error', () => setFontError('字体读取失败，请换一个文件重试'));
+    reader.addEventListener('error', () => {
+      if (isCurrentRead()) setFontError('字体读取失败，请换一个文件重试');
+    });
     reader.readAsDataURL(file);
   }
 
@@ -1338,6 +1349,7 @@ if (picker && panel && trigger && editor && importDialog) {
   fontDropZone.addEventListener('dragover', (event) => {
     if (!event.dataTransfer?.types.includes('Files')) return;
     event.preventDefault();
+    event.stopPropagation();
     event.dataTransfer.dropEffect = 'copy';
     highlightFontDrop(true);
   });
@@ -1345,6 +1357,7 @@ if (picker && panel && trigger && editor && importDialog) {
   fontDropZone.addEventListener('drop', (event) => {
     if (!event.dataTransfer?.types.includes('Files')) return;
     event.preventDefault();
+    event.stopPropagation();
     highlightFontDrop(false);
     const file = event.dataTransfer.files?.[0];
     if (file) readFontFile(file);

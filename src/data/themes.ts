@@ -161,7 +161,7 @@ export const presetThemes: PresetTheme[] = [
   }),
   /* 鲸鱼娘：深海蓝 + DeepSeek 品牌蓝，背景为社区创作的鲸鱼娘形象
      图片署名（CC BY-NC-SA 4.0，非商用）：原创 OC「溟月」上善无形 · DeepSeek 元素二创 ZipZipPipe · 修复 QYQCAMIAO
-     来源 https://github.com/fornarwhal/deepseek-whale-girl-icon —— 公开部署时请在页面可见处保留署名 */
+     来源 https://github.com/fornarwhal/deepseek-whale-girl-icon —— 页脚保留署名，来源记录见 docs/THEME-ASSETS.md */
   preset('preset-whale', 'feature', {
     name: '鲸鱼娘',
     base: 'dark',
@@ -176,7 +176,7 @@ export const presetThemes: PresetTheme[] = [
     radius: 8,
     code: { bg: '#0a0f24', fg: '#dce7ff', muted: '#7c8fb8' },
   }),
-  /* 奶鲸：蓝色大肥鲸表情包形象（网络流传，来源待考），浅灰底 + 奶鲸蓝 */
+  /* 奶鲸：AI 创作图（维护者于 2026-10-27 确认），浅灰底 + 奶鲸蓝；见 docs/THEME-ASSETS.md */
   preset('preset-milk-whale', 'feature', {
     name: '奶鲸',
     base: 'light',

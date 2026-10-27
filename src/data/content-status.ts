@@ -55,7 +55,7 @@ export interface ContentStatusView {
 
 /**
  * 由 frontmatter 推导展示状态，规则必须是保守的：
- * 没有 reviewed 就显示「初稿 · 尚未人工核校」，needsUpdate 优先显示「待更新」。
+ * 缺少审核日期或负责人就显示「初稿 · 尚未审核」，needsUpdate 优先显示「待更新」。
  */
 export function getContentStatus(
   data: ReviewFields,
@@ -64,10 +64,11 @@ export function getContentStatus(
   const basis = data.basis ?? 'teaching-example';
   const aiUsage = data.aiUsage ?? 'drafted';
   const needsUpdate = data.needsUpdate ?? false;
-  const id: ContentStatusId = needsUpdate ? 'needs-update' : data.reviewed ? 'reviewed' : 'draft';
+  const hasReview = Boolean(data.reviewed?.trim() && data.reviewedBy?.trim());
+  const id: ContentStatusId = needsUpdate ? 'needs-update' : hasReview ? 'reviewed' : 'draft';
 
   const label =
-    id === 'reviewed' ? '已人工核校' : id === 'needs-update' ? '待更新' : '初稿 · 尚未人工核校';
+    id === 'reviewed' ? '已审核无误' : id === 'needs-update' ? '待更新' : '初稿 · 尚未审核';
 
   const basisDetail =
     basis === 'first-hand' && data.testedOn
@@ -77,7 +78,7 @@ export function getContentStatus(
 
   let reviewLine: string | undefined;
   if (id === 'reviewed') {
-    reviewLine = `审校人：${data.reviewedBy ?? '匿名维护者'} · ${data.reviewed}` +
+    reviewLine = `审核负责人：${data.reviewedBy} · ${data.reviewed}` +
       (data.reviewNote ? `；${data.reviewNote}` : '');
   } else if (id === 'needs-update') {
     reviewLine = `已标记待更新${data.reviewed ? `（上次审校：${data.reviewed}）` : ''}` +

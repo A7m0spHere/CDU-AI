@@ -678,6 +678,65 @@
   align-items: stretch;
 }
 
+.tool-group {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.catalog-sections,
+.catalog-category {
+  display: grid;
+  gap: 1.2rem;
+  min-width: 0;
+}
+
+.catalog-sections {
+  gap: 2rem;
+}
+
+.catalog-category__heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.catalog-category__heading p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.catalog-search-scope {
+  margin: 0.45rem 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.tool-group > .tool-more {
+  margin-top: 0.85rem;
+}
+
+.tool-group__heading {
+  margin-bottom: 0.85rem;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.tool-group__heading h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.tool-group__heading p {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
 /*
  * Agent 与 Harness：默认收起的社区条目区。
  * 外层 details 是网格的一整行，展开后内部复用 .tool-grid 的三列卡片布局。
@@ -859,13 +918,13 @@
   min-width: 0;
 }
 
-.tool-card__identity h3 {
+.tool-card__identity :is(h3, h4) {
   font-size: 1.01rem;
   line-height: 1.4;
   letter-spacing: -0.015em;
 }
 
-.tool-card__identity h3 a {
+.tool-card__identity :is(h3, h4) a {
   display: inline-flex;
   align-items: center;
   gap: 0.28rem;
@@ -873,11 +932,11 @@
   transition: color var(--dur-fast) ease;
 }
 
-.tool-card__identity h3 a:hover {
+.tool-card__identity :is(h3, h4) a:hover {
   color: var(--brand);
 }
 
-.tool-card__identity h3 svg {
+.tool-card__identity :is(h3, h4) svg {
   color: var(--faint);
   opacity: 0.8;
 }
@@ -908,25 +967,6 @@
   color: var(--muted);
   font-size: 0.79rem;
   line-height: 1.72;
-}
-
-.tool-card__best {
-  margin-top: 0.95rem;
-  padding: 0.62rem 0.72rem;
-  border: 1px dashed var(--line);
-  border-radius: 11px;
-  background: var(--bg);
-  color: var(--ink-soft);
-  font-size: 0.76rem;
-  line-height: 1.62;
-}
-
-.tool-card__best span {
-  margin-right: 0.35rem;
-  color: var(--brand);
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 700;
 }
 
 .tool-card__meta {

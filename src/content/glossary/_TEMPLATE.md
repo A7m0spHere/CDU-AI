@@ -44,8 +44,8 @@ sources: [] # 发布前至少补 1 条支持正文的官方文档或原始论文
 #
 # 4) 你可以这样告诉 AI Agent：可直接复制的一段提示词
 # agentPrompt: "请联网逐项核对……并附上来源链接、发布日期。"
-# 内容状态字段（可选）。默认显示「初稿 · 尚未人工核校」；
-# 真人逐条核校后再填 reviewed，规则见 docs/CONTENT-REVIEW.md。
+# 内容状态字段（可选）。默认显示「初稿 · 尚未审核」；
+# 审核负责人确认结论后同时填 reviewed / reviewedBy；可使用 AI 初审与辅助审核，规则见 docs/CONTENT-REVIEW.md。
 # reviewed: "2026-10-21"
 # reviewedBy: "审校人笔名"
 # needsUpdate: false
