@@ -7,6 +7,13 @@ for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-flow-link
   const inner = link.querySelector<HTMLElement>('[data-flow-inner]');
   if (!reveal || !inner) continue;
 
+  // 每个循环至少铺满入口宽度，菜单展开为整宽后仍保持连续。
+  const measure = () => link.style.setProperty('--flow-width', `${link.clientWidth}px`);
+  measure();
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(measure).observe(link);
+  }
+
   let hovered = false;
   let focused = false;
   let open = false;

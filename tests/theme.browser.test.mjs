@@ -569,6 +569,7 @@ test('首页探索菜单按进入方向揭开横幅，快速切换与键盘导�
   assert.deepEqual(await links.evaluateAll(els => els.map(el => el.getAttribute('href'))), ['/guide/', '/tools/', '/glossary/']);
   await menu.scrollIntoViewIfNeeded(); await page.waitForTimeout(600);
   const first = links.first();
+  assert.ok(await first.evaluate(el => el.querySelector('.home-flow__cycle').getBoundingClientRect().width >= el.clientWidth), '循环内容至少铺满整行，避免流动末尾出现空白');
   const box = await first.boundingBox();
   const x = box.x + box.width / 2;
   await page.mouse.move(x, box.y - 8);

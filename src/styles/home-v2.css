@@ -403,9 +403,11 @@
 }
 .home-explore__layout {
   display: grid;
-  grid-template-columns: 1fr 1.25fr;
-  gap: 5rem;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+}
+.home-explore__heading {
+  text-align: center;
 }
 .home-explore__heading h2 {
   margin-top: 0;
@@ -415,6 +417,7 @@
 }
 /* 三条原生链接；悬停横幅与跑马灯均为装饰增强。 */
 .home-flow {
+  min-width: 0;
   border-block: 1px solid var(--line);
 }
 .home-flow__link {
@@ -509,6 +512,10 @@
 .home-flow__part {
   gap: 1.5rem;
   padding-inline: 1.25rem;
+}
+.home-flow__cycle {
+  min-width: var(--flow-width, 0px);
+  justify-content: space-around;
 }
 .home-flow__part > span:first-child {
   font-size: clamp(1.5rem, 2.9vw, 2.3rem);
@@ -628,13 +635,6 @@
   }
   .scenario-group[data-ready='true'] .scenario-card[data-depth='0'] {
     cursor: auto;
-  }
-  .home-explore__layout {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  .home-explore__heading h2 br {
-    display: none;
   }
   .home-flow__base {
     grid-template-columns: 1.5rem minmax(0, 1fr) 1.4rem;
