@@ -13,7 +13,7 @@
 | [@A7m0spHere](https://github.com/A7m0spHere) | 项目发起与维护 | PR #10–#25、#27，issue #2–#9、#22 |
 | [@FJHin](https://github.com/FJHin) | 内容与结构 | PR #1 |
 | [@kdjdhe](https://github.com/kdjdhe) | 代码与交互 | PR #26 |
-| [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31) |
+| [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)、[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32) |
 
 ## 项目发起与维护
 
@@ -35,6 +35,8 @@
 **[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **PR #26**（2026-10-23）：首页 ASCII「AI」的指针交互从整块视差改为逐字符局部驱散（半径与最大位移按字符格换算、移开后带阻尼回位），并让 `prefers-reduced-motion` 下完全不响应指针，同时修掉指针状态可能残留的问题。
 
 **[@QiLiMiao](https://github.com/QiLiMiao)** — **[PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)**（2026-10-24）：贡献可视化主题系统，包括主题选择面板、预设主题、自定义编辑器、背景图片和 JSON 导入导出，并将全站样式接入主题令牌。
+
+在 **[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32)**（2026-10-27）中继续扩展主题系统：新增 7 个预设主题，按浅色、深色与特色分组，加入像素贴图、角色背景，以及字体风格选择与字体文件导入支持。
 
 ## 参考项目与资料
 
