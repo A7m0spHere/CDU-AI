@@ -72,6 +72,8 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 轻量探索区由 `HomeExploreMenu.astro` 提供指南、工具与术语入口，悬停和键盘聚焦的流动横幅由原生 CSS 与 `home-explore-menu.ts` 增强；触屏、减少动效和无 JS 时仍可直接通过链接导航。横幅示意图由 `ExploreMenuArt.astro` 绘制，重复内容不进入可访问树。
 
+探索区以「开始探索AI」为标题，`ExploreDotField.astro` 在主题表面色面板中呈现抽象点阵，不使用固定黑白背景或外部图片。`lib/explore-dot-field.ts` 为静态 SVG 与 Canvas 共用曲面几何，`scripts/explore-dot-field.ts` 读取主题颜色并管理指针、尺寸与可见性；三个流动入口的内容、链接和交互保持独立。
+
 ## 4. 内容模型
 
 ### Markdown 内容集合

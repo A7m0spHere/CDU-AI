@@ -5,6 +5,7 @@ import AsciiAI from '../components/AsciiAI.astro';
 import HeroNetwork from '../components/HeroNetwork.astro';
 import HomeScenarios from '../components/HomeScenarios.astro';
 import HomeExploreMenu from '../components/HomeExploreMenu.astro';
+import ExploreDotField from '../components/ExploreDotField.astro';
 import { site } from '../data/site';
 import '../styles/home-v2.css';
 
@@ -61,11 +62,14 @@ import '../styles/home-v2.css';
 
     <section class="home-explore" aria-labelledby="explore-title" data-reveal>
       <div class="container">
-        <div class="home-explore__layout">
-          <div class="home-explore__heading">
-            <h2 id="explore-title">接下来，该你来了</h2>
+        <div class="home-explore__stage" data-explore-stage>
+          <ExploreDotField />
+          <div class="home-explore__layout">
+            <div class="home-explore__heading">
+              <h2 id="explore-title">开始探索AI</h2>
+            </div>
+            <HomeExploreMenu />
           </div>
-          <HomeExploreMenu />
         </div>
         <div class="home-progress">
           <span class="home-progress__label"><span class="status-dot" aria-hidden="true" /> 正在共建</span>
