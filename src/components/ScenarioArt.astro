@@ -1,0 +1,586 @@
+---
+import Icon from './Icon.astro';
+import ScenarioWorkspaceArt from './ScenarioWorkspaceArt.astro';
+import type { ScenarioArt } from '../data/home-scenarios';
+
+interface Props {
+  kind: ScenarioArt;
+}
+
+const { kind } = Astro.props;
+---
+
+<div class={`scenario-art scenario-art--${kind}`} aria-hidden="true">
+  {kind === 'research' && (
+    <>
+      <div class="scenario-art__search"><Icon name="search" size={17} /><span>从一个好问题开始</span><span class="scenario-art__star">✳</span></div>
+      <div class="research-note research-note--back"><span>多一点线索</span><i /><i /></div>
+      <div class="research-note research-note--front">
+        <span class="art-caption">RESEARCH NOTES</span>
+        <strong>连接信息，<br />理清思路。</strong>
+        <div class="research-note__lines"><i /><i /><i /></div>
+        <span class="research-note__tag">提问 · 对照 · 溯源</span>
+      </div>
+      <div class="research-lens"><Icon name="search" size={42} strokeWidth={1.4} /></div>
+    </>
+  )}
+  {kind === 'reading' && (
+    <>
+      <div class="reading-paper">
+        <span class="art-caption">A LITTLE DEEPER</span>
+        <strong>读懂，<br />不止读完。</strong>
+        <i /><i /><mark>把复杂概念拆开来看</mark><i /><i />
+      </div>
+      <div class="reading-margin"><Icon name="pen" size={18} /><span>这个概念<br />是什么意思？</span></div>
+    </>
+  )}
+  {kind === 'slides' && (
+    <>
+      <div class="slide-paper">
+        <span class="art-caption">YOUR NEXT IDEA</span>
+        <strong>让想法<br />好好登场。</strong>
+        <div class="slide-paper__shapes"><i /><i /><i /></div>
+        <span class="slide-paper__page">01 / 03</span>
+      </div>
+      <div class="slide-thumbnails"><span class="is-selected">01<i /></span><span>02<i /></span><span>03<i /></span></div>
+    </>
+  )}
+  {kind === 'design' && (
+    <>
+      <div class="design-board"><span class="art-caption">MAKE ROOM FOR IDEAS</span><strong>灵感，<br />有了形状。</strong><div class="design-board__forms"><i /><i /><i /></div></div>
+      <div class="design-swatches"><i /><i /><i /><i /><span>试试这一组</span></div>
+    </>
+  )}
+  {kind === 'code' && (
+    <>
+      <div class="code-paper">
+        <div class="code-paper__bar"><span><i /><i /><i /></span><span>hello-idea.js</span></div>
+        <div class="code-paper__body"><span><b>const</b> idea = <em>'一个小想法'</em>;</span><span>&nbsp;</span><span><b>function</b> <u>start</u>() {'{'}</span><span>&nbsp; <b>return</b> <em>'Hello, idea.'</em>;</span><span>{'}'}</span></div>
+      </div>
+      <div class="code-preview"><span class="code-preview__icon"><Icon name="code" size={22} /></span><div><span class="art-caption">FIRST PROTOTYPE</span><strong>Hello, idea<span>.</span></strong></div><span class="code-preview__cursor">↖</span></div>
+    </>
+  )}
+  {kind === 'data' && (
+    <>
+      <div class="data-paper"><span class="art-caption">A DIFFERENT PERSPECTIVE</span><strong>换个角度，<br />看见规律。</strong><div class="data-chart"><i /><i /><i /><i /><i /><i /></div><div class="data-paper__axis"><span>整理</span><span>观察</span><span>发现</span></div></div>
+      <div class="data-sticker"><Icon name="database" size={20} /><span>让数字说话</span></div>
+    </>
+  )}
+  <ScenarioWorkspaceArt kind={kind} />
+</div>
+
+<style>
+  .scenario-art {
+    position: relative;
+    flex: 1;
+    min-height: 245px;
+    margin-block: 20px 28px;
+    color: var(--scene-ink);
+  }
+  .art-caption {
+    display: block;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: .12em;
+  }
+  .scenario-art i {
+    display: block;
+  }
+  .scenario-art strong {
+    display: block;
+    color: var(--ink);
+    font-size: 25px;
+    line-height: 1.35;
+    letter-spacing: -.05em;
+  }
+  .scenario-art__search {
+    position: absolute;
+    top: 4px;
+    left: 1%;
+    right: 1%;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    font-size: 11px;
+    color: var(--muted);
+    transform: rotate(-2deg);
+  }
+  .scenario-art__star {
+    margin-left: auto;
+    color: var(--scene-ink);
+    font-size: 22px;
+    line-height: 1;
+  }
+  .research-note {
+    position: absolute;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 22%, var(--line));
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .research-note--back {
+    top: 62px;
+    right: 5%;
+    width: 59%;
+    height: 145px;
+    padding: 15px;
+    transform: rotate(9deg);
+    background: var(--scene-soft);
+    font-size: 10px;
+  }
+  .research-note--back i {
+    width: 70%;
+    height: 4px;
+    margin-top: 10px;
+    background: color-mix(in srgb, var(--scene-ink) 17%, transparent);
+    border-radius: 3px;
+  }
+  .research-note--front {
+    top: 58px;
+    left: 5%;
+    width: 70%;
+    padding: 20px 18px 16px;
+    transform: rotate(-5deg);
+    box-shadow: var(--shadow-card);
+  }
+  .research-note--front strong {
+    margin-top: 13px;
+  }
+  .research-note__lines {
+    display: grid;
+    gap: 7px;
+    margin-top: 15px;
+  }
+  .research-note__lines i {
+    width: 87%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+  .research-note__lines i:nth-child(2) {
+    width: 66%;
+    background: color-mix(in srgb, var(--scene-ink) 26%, var(--surface));
+  }
+  .research-note__lines i:last-child {
+    width: 77%;
+  }
+  .research-note__tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 9px;
+    color: var(--scene-ink);
+  }
+  .research-lens {
+    position: absolute;
+    right: 0;
+    bottom: -3px;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 20%, var(--line));
+    border-radius: 50%;
+    background: var(--scene-soft);
+    transform: rotate(12deg);
+    box-shadow: var(--shadow-sm);
+  }
+  .reading-paper {
+    position: absolute;
+    inset: 8px 12% 0 7%;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transform: rotate(-4deg);
+  }
+  .reading-paper strong {
+    margin-block: 16px;
+  }
+  .reading-paper > i {
+    height: 4px;
+    margin-top: 9px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+  .reading-paper > i:last-child {
+    width: 60%;
+  }
+  .reading-paper mark {
+    display: inline-block;
+    margin-top: 10px;
+    background: var(--scene-soft);
+    color: var(--scene-ink);
+    font-size: 10px;
+  }
+  .reading-margin {
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    display: grid;
+    gap: 7px;
+    padding: 12px 16px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 22%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+    font-size: 11px;
+    transform: rotate(7deg);
+  }
+  .slide-paper {
+    position: absolute;
+    top: 17px;
+    left: 1%;
+    right: 1%;
+    height: 181px;
+    padding: 21px 19px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    transform: rotate(-3deg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .slide-paper strong {
+    margin-top: 19px;
+    font-size: 28px;
+  }
+  .slide-paper__shapes {
+    position: absolute;
+    top: 50px;
+    right: -9px;
+    width: 105px;
+    height: 105px;
+  }
+  .slide-paper__shapes i {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: var(--scene-ink);
+  }
+  .slide-paper__shapes i:first-child {
+    right: 25px;
+    border-radius: 50% 50% 3px 50%;
+    opacity: .2;
+  }
+  .slide-paper__shapes i:nth-child(2) {
+    top: 30px;
+    right: 0;
+    border-radius: 50%;
+    opacity: .75;
+  }
+  .slide-paper__shapes i:last-child {
+    top: 65px;
+    right: 45px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--scene-ink);
+    background: var(--surface);
+    border-radius: 50%;
+  }
+  .slide-paper__page {
+    position: absolute;
+    bottom: 16px;
+    left: 20px;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--muted);
+  }
+  .slide-thumbnails {
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    bottom: 0;
+    display: flex;
+    gap: 9px;
+    transform: rotate(2deg);
+  }
+  .slide-thumbnails > span {
+    flex: 1;
+    height: 43px;
+    padding: 7px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 8px;
+  }
+  .slide-thumbnails .is-selected {
+    border-color: var(--scene-ink);
+    background: var(--scene-soft);
+  }
+  .slide-thumbnails i {
+    width: 50%;
+    height: 4px;
+    margin-top: 6px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--scene-ink) 30%, var(--surface));
+  }
+  .design-board {
+    position: absolute;
+    inset: 7px 6% 15px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    transform: rotate(-4deg);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .design-board strong {
+    margin-top: 15px;
+  }
+  .design-board__forms {
+    position: absolute;
+    right: -12px;
+    bottom: -18px;
+    display: flex;
+    align-items: end;
+    gap: 6px;
+    transform: rotate(-10deg);
+  }
+  .design-board__forms i {
+    width: 60px;
+    height: 100px;
+    background: var(--scene-ink);
+    border-radius: 40px 40px 0 0;
+    opacity: .2;
+  }
+  .design-board__forms i:nth-child(2) {
+    height: 70px;
+    opacity: .5;
+  }
+  .design-board__forms i:nth-child(3) {
+    height: 130px;
+    opacity: .85;
+  }
+  .design-swatches {
+    position: absolute;
+    left: 1%;
+    bottom: -4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transform: rotate(3deg);
+  }
+  .design-swatches i {
+    width: 21px;
+    height: 23px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--scene-ink);
+  }
+  .design-swatches i:nth-child(2) {
+    background: color-mix(in srgb, var(--scene-ink) 55%, var(--surface));
+  }
+  .design-swatches i:nth-child(3) {
+    background: var(--scene-soft);
+  }
+  .design-swatches i:nth-child(4) {
+    background: var(--surface-muted);
+  }
+  .design-swatches span {
+    margin-left: 4px;
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .code-paper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    overflow: hidden;
+    transform: rotate(-3deg);
+    box-shadow: var(--shadow-card);
+  }
+  .code-paper__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 13px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 8px;
+  }
+  .code-paper__bar > span:first-child {
+    display: flex;
+    gap: 4px;
+  }
+  .code-paper__bar i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .code-paper__body {
+    display: grid;
+    padding: 22px 14px 27px;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.9;
+  }
+  .code-paper__body b {
+    color: var(--scene-ink);
+    font-weight: 500;
+  }
+  .code-paper__body em {
+    color: var(--muted);
+    font-style: normal;
+  }
+  .code-paper__body u {
+    text-decoration: none;
+  }
+  .code-preview {
+    position: absolute;
+    right: -1%;
+    bottom: -4px;
+    left: 16%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 19px 13px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 25%, var(--line));
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transform: rotate(4deg);
+  }
+  .code-preview__icon {
+    display: grid;
+    place-items: center;
+    width: 37px;
+    height: 37px;
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+  }
+  .code-preview .art-caption {
+    font-size: 7px;
+  }
+  .code-preview strong {
+    margin-top: 4px;
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  .code-preview strong span {
+    color: var(--scene-ink);
+  }
+  .code-preview__cursor {
+    position: absolute;
+    right: 8px;
+    bottom: -15px;
+    color: var(--scene-ink);
+    font-size: 32px;
+  }
+  .data-paper {
+    position: absolute;
+    inset: 7px 4% 12px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transform: rotate(-3deg);
+  }
+  .data-paper strong {
+    margin-top: 13px;
+  }
+  .data-chart {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    height: 75px;
+    margin-top: 15px;
+    border-bottom: 1px solid var(--line);
+  }
+  .data-chart i {
+    flex: 1;
+    height: 30%;
+    border-radius: 4px 4px 0 0;
+    background: var(--scene-ink);
+    opacity: .2;
+  }
+  .data-chart i:nth-child(2) {
+    height: 48%;
+    opacity: .3;
+  }
+  .data-chart i:nth-child(3) {
+    height: 40%;
+    opacity: .4;
+  }
+  .data-chart i:nth-child(4) {
+    height: 67%;
+    opacity: .5;
+  }
+  .data-chart i:nth-child(5) {
+    height: 58%;
+    opacity: .6;
+  }
+  .data-chart i:last-child {
+    height: 90%;
+    opacity: .85;
+  }
+  .data-paper__axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 8px;
+    color: var(--muted);
+  }
+  .data-sticker {
+    position: absolute;
+    bottom: 1px;
+    right: -1%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 13px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 25%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+    font-size: 10px;
+    transform: rotate(5deg);
+  }
+
+  @media (min-width: 761px) and (max-width: 1100px) {
+    .scenario-art strong {
+      font-size: 22px;
+    }
+    .slide-paper__shapes {
+      right: -38px;
+    }
+    .code-paper__body {
+      font-size: 8px;
+      padding-inline: 10px;
+    }
+    .code-preview {
+      left: 7%;
+      gap: 8px;
+      padding-inline: 10px;
+    }
+    .code-preview strong {
+      font-size: 16px;
+    }
+    .code-preview__icon {
+      width: 28px;
+    }
+  }
+</style>

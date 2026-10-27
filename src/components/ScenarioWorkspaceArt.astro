@@ -1,0 +1,596 @@
+---
+import Icon from './Icon.astro';
+import type { ScenarioArt } from '../data/home-scenarios';
+
+interface Props {
+  kind: ScenarioArt;
+}
+const { kind } = Astro.props;
+const scenes: Partial<Record<ScenarioArt, { label: string; lines: [string, string] }>> = {
+  science: { label: 'RESEARCH IN PROGRESS', lines: ['从假设，', '走向验证。'] },
+  learning: { label: 'ONE CONCEPT AT A TIME', lines: ['把难题，', '拆小一点。'] },
+  language: { label: 'ANOTHER WAY TO SAY IT', lines: ['开口，', '就有了开始。'] },
+  image: { label: 'PICTURE YOUR IDEAS', lines: ['把想象，', '变成画面。'] },
+  video: { label: 'A STORY IN MOTION', lines: ['让故事，', '动起来。'] },
+  copy: { label: 'FIND YOUR WORDS', lines: ['好表达，', '从一句开始。'] },
+  browser: { label: 'A HAND WITH THE WEB', lines: ['打开网页，', '接着往下做。'] },
+  software: { label: 'TOOLS IN YOUR FIELD', lines: ['专业工具，', '一起上手。'] },
+  automation: { label: 'CONNECT THE LITTLE THINGS', lines: ['把重复，', '交给流程。'] },
+};
+const scene = scenes[kind];
+---
+
+{scene && (
+  <div class={`workspace-scene workspace-scene--${kind}`}>
+    <div class="workspace-paper">
+      <span class="workspace-caption">{scene.label}</span>
+      <strong>{scene.lines[0]}<br />{scene.lines[1]}</strong>
+
+      {kind === 'science' && (
+        <div class="science-flow">
+          <svg viewBox="0 0 240 90" fill="none"><path d="M28 34h65m33 0h65M28 34v40h164V34" /><circle cx="28" cy="34" r="16" /><circle cx="110" cy="34" r="16" /><circle cx="192" cy="34" r="16" /><path class="science-flow__marks" d="m22 34 4 4 8-9m69 5h14m-7-7v14m76-12 12 12m0-12-12 12" /></svg>
+          <div><span>提出问题</span><span>设计实验</span><span>观察结果</span></div>
+        </div>
+      )}
+      {kind === 'learning' && (
+        <div class="learning-map">
+          <span class="learning-map__center"><Icon name="book-open" size={18} />一个新概念</span>
+          <div><span>用例子理解</span><span>联系已知</span></div>
+        </div>
+      )}
+      {kind === 'language' && (
+        <div class="language-chat"><span>Let's talk.<Icon name="message-circle" size={16} /></span><span>换一种方式表达。</span><div class="language-wave">{[12, 22, 15, 30, 20, 35, 14, 24, 12].map(height => <i style={`height: ${height}px`} />)}</div></div>
+      )}
+      {kind === 'image' && (
+        <div class="image-canvas"><div class="image-canvas__sun" /><div class="image-canvas__mountain image-canvas__mountain--back" /><div class="image-canvas__mountain" /><span><Icon name="image" size={16} />一点想象</span></div>
+      )}
+      {kind === 'video' && (
+        <div class="video-editor"><div class="video-editor__frame"><i /><span><svg width="20" height="24" viewBox="0 0 20 24"><path d="m4 3 14 9-14 9Z" fill="currentColor" /></svg></span><small>00:12</small></div><div class="video-timeline"><i /><i /><i /><span /></div></div>
+      )}
+      {kind === 'copy' && (
+        <div class="copy-editor"><span>给这次活动，一个好开头。</span><i /><i /><i /><div><span>活动推文</span><span>一句灵感</span></div></div>
+      )}
+      {kind === 'browser' && (
+        <div class="browser-window"><div class="browser-window__bar"><i /><i /><i /><span>example.com</span></div><div class="browser-window__body"><span><Icon name="check" size={12} /> 查找信息</span><span><Icon name="check" size={12} /> 整理到表格</span><div><i /><i /><i /></div></div><span class="browser-window__cursor">↖</span></div>
+      )}
+      {kind === 'software' && (
+        <div class="software-window"><div class="software-window__bar"><span>MATLAB</span><span>Figure 1</span></div><div class="software-window__body"><div><span>x = 0:0.1:2*pi;</span><span>y = sin(x);</span><b>plot(x, y)</b></div><svg viewBox="0 0 100 80" fill="none"><path class="software-window__axes" d="M8 4v64h84M8 36h84" /><path d="M8 36C19-3 34-3 49 36S76 75 92 36" /></svg></div></div>
+      )}
+      {kind === 'automation' && (
+        <div class="automation-flow"><span><Icon name="search" size={20} /></span><i /><span><Icon name="wrench" size={20} /></span><i /><span><Icon name="database" size={20} /></span><div><span>收集</span><span>处理</span><span>归档</span></div></div>
+      )}
+    </div>
+
+    {kind === 'science' && <div class="workspace-sticker"><Icon name="compass" size={18} /><span>沿着问题，继续探索</span></div>}
+    {kind === 'learning' && <div class="workspace-sticker"><span class="learning-steps">A → B → C</span><span>一步一步来</span></div>}
+    {kind === 'language' && <div class="workspace-sticker"><Icon name="mic" size={18} /><span>试着说一说</span></div>}
+    {kind === 'image' && <div class="workspace-sticker image-palette"><i /><i /><i /><span>试试另一种风格</span></div>}
+    {kind === 'video' && <div class="workspace-sticker"><Icon name="layers" size={18} /><span>脚本 → 分镜 → 画面</span></div>}
+    {kind === 'copy' && <div class="workspace-sticker"><Icon name="pen" size={18} /><span>再换个说法？</span></div>}
+    {kind === 'browser' && <div class="workspace-sticker"><Icon name="target" size={18} /><span>下一步，交给操作</span></div>}
+    {kind === 'software' && <div class="workspace-sticker"><Icon name="wrench" size={18} /><span>计算 · 绘图 · 仿真</span></div>}
+    {kind === 'automation' && <div class="workspace-sticker"><Icon name="check" size={18} /><span>少一点重复，多一点时间</span></div>}
+  </div>
+)}
+
+<style>
+  .workspace-scene {
+    position: absolute;
+    inset: 0;
+    color: var(--scene-ink);
+  }
+  .workspace-paper {
+    position: absolute;
+    inset: 5px 4% 10px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    transform: rotate(-3deg);
+    overflow: hidden;
+  }
+  .workspace-caption {
+    display: block;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 7px;
+    letter-spacing: .09em;
+  }
+  .workspace-paper > strong {
+    display: block;
+    margin-top: 11px;
+    color: var(--ink);
+    font-size: 23px;
+    line-height: 1.3;
+    letter-spacing: -.05em;
+  }
+  .workspace-sticker {
+    position: absolute;
+    right: -1%;
+    bottom: -1px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 95%;
+    padding: 11px 13px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 24%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+    font-size: 10px;
+    transform: rotate(4deg);
+    box-shadow: var(--shadow-sm);
+  }
+  .workspace-sticker > svg {
+    flex: none;
+  }
+  .science-flow {
+    margin-top: 8px;
+  }
+  .science-flow > svg {
+    display: block;
+    width: 100%;
+    height: 72px;
+  }
+  .science-flow path {
+    stroke: var(--line-strong);
+    stroke-width: 1.5;
+  }
+  .science-flow circle {
+    fill: var(--scene-soft);
+    stroke: var(--scene-ink);
+  }
+  .science-flow .science-flow__marks {
+    stroke: var(--scene-ink);
+    stroke-width: 2;
+  }
+  .science-flow > div {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 12%;
+    margin-top: -17px;
+    font-size: 8px;
+    color: var(--muted);
+  }
+  .learning-map {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .learning-map__center {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 25%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+    font-size: 10px;
+  }
+  .learning-map > div {
+    position: relative;
+    display: flex;
+    justify-content: space-around;
+    gap: 9px;
+    margin-top: 19px;
+  }
+  .learning-map > div::before {
+    content: '';
+    position: absolute;
+    left: 24%;
+    right: 24%;
+    top: -10px;
+    height: 10px;
+    border: 1px solid var(--line-strong);
+    border-bottom: 0;
+  }
+  .learning-map > div span {
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .learning-steps {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .language-chat {
+    position: relative;
+    margin-top: 10px;
+  }
+  .language-chat > span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 82%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm) var(--radius-sm) var(--radius-sm) 2px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .language-chat > span:nth-child(2) {
+    width: 88%;
+    margin: 8px 0 0 auto;
+    background: var(--scene-soft);
+    border-color: color-mix(in srgb, var(--scene-ink) 22%, var(--line));
+    border-radius: var(--radius-sm) var(--radius-sm) 2px var(--radius-sm);
+    font-size: 10px;
+    font-weight: 400;
+  }
+  .language-wave {
+    position: absolute;
+    right: 7px;
+    top: -76px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 40px;
+    transform: rotate(10deg);
+  }
+  .language-wave i {
+    width: 3px;
+    border-radius: 3px;
+    background: var(--scene-ink);
+    opacity: .5;
+  }
+  .image-canvas {
+    position: relative;
+    height: 98px;
+    margin-top: 13px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 20%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+    overflow: hidden;
+  }
+  .image-canvas__sun {
+    position: absolute;
+    right: 26px;
+    top: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--scene-ink);
+    opacity: .4;
+  }
+  .image-canvas__mountain {
+    position: absolute;
+    left: -5%;
+    bottom: -55px;
+    width: 125px;
+    height: 125px;
+    border-radius: 18px;
+    background: var(--scene-ink);
+    opacity: .65;
+    transform: rotate(45deg);
+  }
+  .image-canvas__mountain--back {
+    left: 44%;
+    bottom: -67px;
+    opacity: .25;
+  }
+  .image-canvas > span {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    right: 8px;
+    bottom: 7px;
+    padding: 3px 5px;
+    background: var(--surface);
+    border-radius: 4px;
+    font-size: 8px;
+  }
+  .image-palette i {
+    width: 15px;
+    height: 18px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--scene-ink);
+  }
+  .image-palette i:nth-child(2) {
+    background: color-mix(in srgb, var(--scene-ink) 40%, var(--surface));
+  }
+  .image-palette i:nth-child(3) {
+    background: var(--surface);
+  }
+  .video-editor {
+    margin-top: 12px;
+  }
+  .video-editor__frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 62px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 24%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+    overflow: hidden;
+  }
+  .video-editor__frame > i {
+    position: absolute;
+    right: 16px;
+    top: -35px;
+    width: 100px;
+    height: 100px;
+    border: 20px solid var(--scene-ink);
+    border-radius: 50%;
+    opacity: .2;
+  }
+  .video-editor__frame > span {
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .video-editor__frame small {
+    position: absolute;
+    bottom: 6px;
+    right: 7px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 8px;
+  }
+  .video-timeline {
+    position: relative;
+    display: grid;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .video-timeline i {
+    display: block;
+    height: 7px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--scene-ink) 30%, var(--surface));
+  }
+  .video-timeline i:nth-child(2) {
+    width: 70%;
+    margin-left: 16%;
+    opacity: .7;
+  }
+  .video-timeline i:nth-child(3) {
+    width: 50%;
+    margin-left: 40%;
+    opacity: .4;
+  }
+  .video-timeline > span {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: 34%;
+    width: 1px;
+    background: var(--scene-ink);
+  }
+  .copy-editor {
+    margin-top: 12px;
+  }
+  .copy-editor > span {
+    display: inline-block;
+    padding: 3px 0;
+    background: var(--scene-soft);
+    color: var(--ink-soft);
+    font-size: 11px;
+    line-height: 1.3;
+  }
+  .copy-editor > i {
+    display: block;
+    height: 4px;
+    margin-top: 9px;
+    border-radius: 3px;
+    background: var(--line);
+  }
+  .copy-editor > i:nth-of-type(2) {
+    width: 89%;
+  }
+  .copy-editor > i:nth-of-type(3) {
+    width: 64%;
+  }
+  .copy-editor > div {
+    display: flex;
+    gap: 7px;
+    margin-top: 13px;
+  }
+  .copy-editor > div span {
+    padding: 3px 6px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--muted);
+    font-size: 8px;
+  }
+  .browser-window {
+    position: relative;
+    margin-top: 11px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+  .browser-window__bar {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 7px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-soft);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    line-height: 1.3;
+  }
+  .browser-window__bar > i {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .browser-window__bar > span {
+    flex: 1;
+    margin-left: 5px;
+    padding: 2px 7px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 7px;
+  }
+  .browser-window__body {
+    display: grid;
+    gap: 5px;
+    padding: 8px;
+    line-height: 1.3;
+  }
+  .browser-window__body > span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    color: var(--muted);
+  }
+  .browser-window__body > span svg {
+    color: var(--scene-ink);
+  }
+  .browser-window__body > div {
+    display: flex;
+    gap: 4px;
+  }
+  .browser-window__body i {
+    flex: 1;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--scene-soft);
+  }
+  .browser-window__cursor {
+    position: absolute;
+    bottom: -12px;
+    right: 10px;
+    font-size: 30px;
+    color: var(--scene-ink);
+  }
+  .software-window {
+    margin-top: 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .software-window__bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 7px;
+    padding: 6px 9px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--bg-soft);
+    font-family: var(--font-mono);
+    font-size: 8px;
+    line-height: 1.3;
+  }
+  .software-window__body {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    align-items: center;
+    gap: 5px;
+    padding: 8px;
+  }
+  .software-window__body > div {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 7px;
+    white-space: nowrap;
+  }
+  .software-window__body b {
+    color: var(--scene-ink);
+    font-weight: 500;
+  }
+  .software-window__body svg {
+    width: 100%;
+    height: 58px;
+    stroke: var(--scene-ink);
+    stroke-width: 2;
+  }
+  .software-window__body .software-window__axes {
+    stroke: var(--line-strong);
+    stroke-width: 1;
+  }
+  .automation-flow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 28px;
+    padding-bottom: 23px;
+  }
+  .automation-flow > span {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 41px;
+    height: 41px;
+    border: 1px solid color-mix(in srgb, var(--scene-ink) 24%, var(--line));
+    border-radius: var(--radius-sm);
+    background: var(--scene-soft);
+  }
+  .automation-flow > i {
+    position: relative;
+    flex: 1;
+    border-top: 1px dashed var(--scene-ink);
+  }
+  .automation-flow > i::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -3px;
+    width: 5px;
+    height: 5px;
+    border-top: 1px solid var(--scene-ink);
+    border-right: 1px solid var(--scene-ink);
+    transform: rotate(45deg);
+  }
+  .automation-flow > div {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    padding-inline: 8px;
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  @media (min-width: 761px) and (max-width: 1100px) {
+    .workspace-paper {
+      padding: 15px;
+    }
+    .workspace-paper > strong {
+      font-size: 22px;
+    }
+    .workspace-caption {
+      font-size: 6px;
+    }
+    .workspace-sticker {
+      gap: 5px;
+      padding: 10px;
+      font-size: 8px;
+    }
+    .software-window__body {
+      grid-template-columns: 1fr;
+      padding-block: 7px;
+    }
+    .software-window__body > div {
+      display: none;
+    }
+    .software-window__body svg {
+      height: 66px;
+    }
+    .language-wave {
+      right: 0;
+      gap: 2px;
+    }
+    .language-wave i {
+      width: 2px;
+    }
+  }
+</style>

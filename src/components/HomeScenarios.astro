@@ -1,0 +1,47 @@
+---
+import Icon from './Icon.astro';
+import ScenarioArt from './ScenarioArt.astro';
+import { homeScenarioStacks } from '../data/home-scenarios';
+---
+
+<section class="home-scenarios" aria-labelledby="scenarios-title">
+  <div class="container">
+    <div class="home-scenarios__heading" data-reveal>
+      <h2 id="scenarios-title">AI 的用法，<br class="home-scenarios__break" />比想象中更近。</h2>
+    </div>
+
+    <div class="home-scenarios__grid">
+      {homeScenarioStacks.map((stack, stackIndex) => (
+        <div class={`scenario-group scenario-group--${stack.id}`} data-scenario-stack style={`--card-angle: ${stack.angle}`}>
+          <div class="scenario-stack" id={`scenario-${stack.id}`} role="group" aria-label={stack.label} style={`--stack-count: ${stack.cards.length}`}>
+            {stack.cards.map((card, cardIndex) => (
+              <article
+                class="scenario-card"
+                data-scenario-card
+                data-scenario-title={card.title}
+                data-depth={cardIndex}
+                style={`--stack-depth: ${cardIndex}`}
+                aria-hidden={cardIndex > 0 ? 'true' : undefined}
+                inert={cardIndex > 0}
+              >
+                <div class="scenario-card__meta"><span>{stack.label}</span><span class="mono">0{stackIndex + 1} /</span></div>
+                <ScenarioArt kind={card.art} />
+                <div class="scenario-card__copy"><h3>{card.title}</h3><p>{card.description}</p></div>
+              </article>
+            ))}
+          </div>
+          <div class="scenario-group__controls">
+            <span class="scenario-group__position mono" data-scenario-position>01 / {String(stack.cards.length).padStart(2, '0')}</span>
+            <button type="button" data-scenario-next aria-controls={`scenario-${stack.id}`} aria-label={`换一张：${stack.label}`}><span>换一张</span><Icon name="layers" size={15} /></button>
+            <span class="sr-only" aria-live="polite" aria-atomic="true" data-scenario-announcement />
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import '../scripts/home-scenarios';
+</script>

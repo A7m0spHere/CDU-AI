@@ -12,7 +12,7 @@
 
 ## 鲸鱼娘署名与使用说明
 
-保留上游列出的署名：原创 OC「溟月」上善无形；DeepSeek 元素二创 ZipZipPipe；改进版修复 QYQCAMIAO。站点页脚显示这些署名、素材来源与许可链接。
+保留上游列出的署名：原创 OC「溟月」上善无形；DeepSeek 元素二创 ZipZipPipe；改进版修复 QYQCAMIAO。署名、素材来源、许可链接与 AI 创作说明统一记录在本仓库文档中，网页页脚不再展示这段素材说明。
 
 素材按上游标注的 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 使用，许可原文见[上游 LICENSE](https://github.com/fornarwhal/deepseek-whale-girl-icon/blob/main/LICENSE)。此图片不适用仓库代码的 MIT 许可。站点将其作为背景显示，并通过 CSS 裁切与叠加护读遮罩；保留上游修复说明。
 

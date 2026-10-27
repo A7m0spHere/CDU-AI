@@ -1,29 +1,12 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import SectionHead from '../components/SectionHead.astro';
 import AsciiAI from '../components/AsciiAI.astro';
 import HeroNetwork from '../components/HeroNetwork.astro';
-import ToolCard from '../components/ToolCard.astro';
-import WorkCard from '../components/WorkCard.astro';
-import { site, guideStages } from '../data/site';
-import { tools, toolCategories } from '../data/tools';
+import HomeScenarios from '../components/HomeScenarios.astro';
+import HomeExploreMenu from '../components/HomeExploreMenu.astro';
+import { site } from '../data/site';
 import '../styles/home-v2.css';
-
-const guideModules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
-const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
-
-const featuredTools = tools.filter((tool) => tool.featured).slice(0, 3);
-const toolsToShow = featuredTools.length > 0 ? featuredTools : tools.slice(0, 3);
-const firstModule = guideModules[0];
-const stageModules = guideStages.map((stage) => ({
-  ...stage,
-  modules: guideModules.filter((module) => module.data.stage === stage.id).sort((a, b) => a.data.order - b.data.order),
-}));
-
-const categoryLabel = (categoryId: string) =>
-  toolCategories.find((category) => category.id === categoryId)?.name ?? '工具';
 
 ---
 
@@ -74,181 +57,19 @@ const categoryLabel = (categoryId: string) =>
       </div>
     </section>
 
-    <section class="home-section" aria-labelledby="path-title" data-reveal>
+    <HomeScenarios />
+
+    <section class="home-explore" aria-labelledby="explore-title" data-reveal>
       <div class="container">
-        <SectionHead
-          index="01"
-          eyebrow="学习指南"
-          title="学习路线"
-          headingId="path-title"
-          description="从判断 AI 能做什么，到动手完成一件小事，再到整理分享。按自己的节奏读。"
-          link="/guide/"
-          linkLabel="全部指南"
-        />
-
-        <ol class="home-path">
-          {stageModules.map((stage) => (
-            <li class="home-path__item">
-              <div class="home-path__rail">
-                <span class="home-path__no mono">{stage.index}</span>
-                <span class={`stage-icon stage-icon--${stage.tone}`} aria-hidden="true"><Icon name={stage.icon} size={18} /></span>
-              </div>
-
-              <div class="home-path__body">
-                <p class="home-path__label">{stage.label}</p>
-                <h3>{stage.title}</h3>
-                <p class="home-path__desc">{stage.description}</p>
-                {stage.modules.length > 0 ? (
-                  <ul class="home-path__modules">
-                    {stage.modules.map((module) => (
-                      <li>
-                        <a href={`/guide/${module.id.replace(/\.md$/, '')}/`}>{module.data.title}</a>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p class="home-path__empty">这一阶段的内容正在准备中。</p>
-                )}
-              </div>
-
-              <a class="home-path__go" href="/guide/" aria-label={`进入${stage.label}`}>
-                <Icon name="arrow-right" size={17} />
-              </a>
-            </li>
-          ))}
-        </ol>
-
-        <div class="home-note">
-          <Icon name="info" size={18} />
-          <p>
-            {firstModule ? (
-              <>
-                不知道从哪开始，可以先读
-                <a href={`/guide/${firstModule.id.replace(/\.md$/, '')}/`}>「{firstModule.data.title}」</a>。
-              </>
-            ) : (
-              <>指南内容正在准备中，可以先浏览<a href="/tools/">工具资源</a>或<a href="/glossary/">术语表</a>。</>
-            )}
-          </p>
+        <div class="home-explore__layout">
+          <div class="home-explore__heading">
+            <h2 id="explore-title">接下来，<br />该你来了</h2>
+          </div>
+          <HomeExploreMenu />
         </div>
-      </div>
-    </section>
-
-    <section class="home-section home-section--tint" aria-labelledby="tools-title" data-reveal>
-      <div class="container">
-        <SectionHead
-          index="02"
-          eyebrow="工具资源"
-          title="按场景查找工具"
-          headingId="tools-title"
-          description={
-            tools.length > 0
-              ? `${tools.length} 个常用工具，标注上手门槛、费用模式与使用限制。`
-              : '工具目录由维护者按需补充，会标注门槛、费用与限制；收录不等于推荐。'
-          }
-          link="/tools/"
-          linkLabel="全部工具"
-        />
-
-        {toolsToShow.length > 0 && (
-          <div class="tool-grid tool-grid--home">
-            {toolsToShow.map((tool) => (
-              <ToolCard tool={tool} categoryLabel={categoryLabel(tool.category)} />
-            ))}
-          </div>
-        )}
-
-        <p class="home-footnote">
-          <Icon name="info" size={15} />
-          <span>收录不等于推荐，也不是广告。工具能力与价格会变化，请以官网为准。</span>
-        </p>
-      </div>
-    </section>
-
-    <section class="home-section" aria-labelledby="works-title" data-reveal>
-      <div class="container">
-        <SectionHead
-          index="03"
-          eyebrow="作品广场"
-          title="策划示例"
-          headingId="works-title"
-          description={
-            works.length > 0
-              ? `${works.length} 个示例，展示问题、做法与提示词。不是真实学生投稿。`
-              : '作品示例正在准备中；这里会展示问题、做法与提示词，并明确标注示例状态。'
-          }
-          link="/works/"
-          linkLabel="全部示例"
-        />
-
-        {works.length > 0 ? (
-          <>
-            <div class="works-preview-grid">
-              {works.slice(0, 3).map((work) => <WorkCard work={work} />)}
-            </div>
-            <div class="home-footnote">
-              <Icon name="info" size={16} />
-              <span>本页条目均为策划示例，没有对应的已发布成品。真实投稿流程将在 M1 设计。</span>
-            </div>
-          </>
-        ) : (
-          <div class="home-empty">
-            <div>
-              <p class="home-empty__eyebrow">WORKS / 投稿通道</p>
-              <h3>作品示例正在准备中</h3>
-              <p>这里会展示问题、做法与提示词，并明确标注「策划示例」——不是真实学生投稿。第一批示例正在整理中。</p>
-            </div>
-            <div class="home-empty__actions">
-              <a class="btn btn--soft btn--sm" href="/about/#contribute">
-                参与共建
-                <Icon name="arrow-right" size={14} />
-              </a>
-              <a class="btn btn--ghost btn--sm" href="/works/">了解作品广场</a>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
-
-    <section class="home-section home-section--tint" aria-labelledby="status-title" data-reveal>
-      <div class="container">
-        <SectionHead
-          index="04"
-          eyebrow="社区与活动"
-          title="筹备中"
-          headingId="status-title"
-          description="社区暂不开放；活动与项目状态如下。"
-        />
-
-        <div class="home-status-grid">
-          <article class="card home-status-card" data-community-closed>
-            <div class="home-status-card__head">
-              <span class="home-status-card__icon"><Icon name="users" size={20} /></span>
-              <span class="badge">暂不开放</span>
-            </div>
-            <h3>社区</h3>
-            <p>社区暂不开放：交流区未开放注册、发帖或评论，开放时间确定后另行公布。</p>
-          </article>
-
-          <a class="card card--lift home-status-card" href="/events/">
-            <div class="home-status-card__head">
-              <span class="home-status-card__icon"><Icon name="calendar" size={20} /></span>
-              <span class="badge">筹备中</span>
-            </div>
-            <h3>活动</h3>
-            <p>新手工作坊、工具诊所、48 小时共创与作品开放麦。暂无排期。</p>
-            <span class="link-arrow">查看活动形式<Icon name="arrow-right" size={15} /></span>
-          </a>
-
-          <a class="card card--lift home-status-card" href="/about/#roadmap">
-            <div class="home-status-card__head">
-              <span class="home-status-card__icon"><Icon name="map" size={20} /></span>
-              <span class="badge">M0 进行中</span>
-            </div>
-            <h3>项目状态</h3>
-            <p>内容重建中：框架、测试与协作流程已就绪，下一步是内容共建与投稿闭环。</p>
-            <span class="link-arrow">查看项目路线<Icon name="arrow-right" size={15} /></span>
-          </a>
+        <div class="home-progress">
+          <span class="home-progress__label"><span class="status-dot" aria-hidden="true" /> 正在共建</span>
+          <a href="/about/#contribute">一起完善这里 <Icon name="arrow-right" size={14} /></a>
         </div>
       </div>
     </section>
