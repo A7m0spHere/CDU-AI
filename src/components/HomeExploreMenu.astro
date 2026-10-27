@@ -1,0 +1,40 @@
+---
+import Icon from './Icon.astro';
+import ExploreMenuArt from './ExploreMenuArt.astro';
+import { tools } from '../data/tools';
+
+const entries = [
+  { href: '/guide/', title: '先认识 AI', description: '从基础概念开始，慢慢建立自己的判断。', icon: 'book-open', art: 'guide' },
+  { href: '/tools/', title: '找个工具试试', description: tools.length > 0 ? tools.length + ' 个常用工具，收录不等于推荐。' : '工具目录由维护者按需补充，收录不等于推荐。', icon: 'wrench', art: 'tools' },
+  { href: '/glossary/', title: '弄懂一个新词', description: '遇到陌生的 AI 术语，停下来查一查。', icon: 'type', art: 'glossary' },
+] as const;
+---
+
+<nav class="home-explore__links home-flow" aria-label="从这里开始" data-flow-menu>
+  {entries.map((entry) => (
+    <a class="home-flow__link" href={entry.href} data-flow-link>
+      <span class="home-flow__base">
+        <span class="home-flow__icon"><Icon name={entry.icon} size={24} /></span>
+        <span class="home-flow__copy"><strong>{entry.title}</strong><small>{entry.description}</small></span>
+        <Icon name="arrow-right" size={22} class="home-flow__arrow" />
+      </span>
+      <span class="home-flow__reveal" aria-hidden="true" data-flow-reveal>
+        <span class="home-flow__reveal-inner" data-flow-inner>
+          <span class="home-flow__track">
+            {[0, 1].map(() => (
+              <span class="home-flow__cycle">
+                {[0, 1, 2].map(() => (
+                  <span class="home-flow__part"><span>{entry.title}</span><span class="home-flow__art"><ExploreMenuArt kind={entry.art} /></span></span>
+                ))}
+              </span>
+            ))}
+          </span>
+        </span>
+      </span>
+    </a>
+  ))}
+</nav>
+
+<script>
+  import '../scripts/home-explore-menu';
+</script>

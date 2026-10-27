@@ -1,0 +1,35 @@
+---
+interface Props {
+  kind: 'guide' | 'tools' | 'glossary';
+}
+const { kind } = Astro.props;
+---
+
+<svg width="112" height="68" viewBox="0 0 112 68" fill="none" aria-hidden="true">
+  <rect width="112" height="68" rx="24" fill="var(--surface)" />
+  {kind === 'guide' && (
+    <>
+      <rect x="33" y="9" width="47" height="50" rx="7" transform="rotate(9 33 9)" fill="var(--brand-soft)" />
+      <path d="M55 22c-6-4-13-5-23-5v32c10 0 17 1 23 5 6-4 13-5 23-5V17c-10 0-17 1-23 5Z" fill="var(--surface)" stroke="var(--brand)" stroke-width="1.7" stroke-linejoin="round" />
+      <path d="M55 22v32m-16-27 10 2m-10 5 10 2m12-7 10-2m-10 9 10-2" stroke="var(--brand)" stroke-width="1.5" stroke-linecap="round" />
+    </>
+  )}
+  {kind === 'tools' && (
+    <>
+      {[27, 49, 71].map((x, index) => (
+        <>
+          <rect x={x} y="14" width="17" height="17" rx="5" fill={index === 1 ? 'var(--brand)' : 'var(--brand-soft)'} />
+          <rect x={x} y="37" width="17" height="17" rx="5" fill={index === 2 ? 'var(--brand)' : 'var(--brand-soft)'} />
+        </>
+      ))}
+      <path d="M31 22.5h9m-4.5-4.5v9m17 18 4 4 4-7m15-23 4 3-4 3" stroke="var(--brand)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </>
+  )}
+  {kind === 'glossary' && (
+    <>
+      <rect x="19" y="13" width="74" height="43" rx="7" fill="var(--brand-soft)" />
+      <text x="27" y="44" fill="var(--brand)" font-family="Georgia, serif" font-size="29" font-style="italic">Aa</text>
+      <path d="M70 26h14m-14 8h10m-10 8h14" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" opacity=".45" />
+    </>
+  )}
+</svg>

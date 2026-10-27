@@ -1,0 +1,17 @@
+---
+import { createExploreSurface, projectExploreSurface } from '../lib/explore-dot-field';
+
+const fallback = projectExploreSurface(createExploreSurface(84, 18), 1000, 460);
+const dots = Array.from({ length: fallback.length / 4 }, (_, index) => fallback.subarray(index * 4, index * 4 + 4));
+---
+
+<div class="explore-dot-field" data-explore-dots aria-hidden="true">
+  <svg class="explore-dot-field__fallback" viewBox="0 0 1000 460" preserveAspectRatio="none">
+    {dots.map(([x, y, alpha, radius]) => <circle cx={x.toFixed(2)} cy={y.toFixed(2)} r={radius.toFixed(2)} opacity={alpha.toFixed(2)} />)}
+  </svg>
+  <canvas class="explore-dot-field__canvas" />
+</div>
+
+<script>
+  import '../scripts/explore-dot-field';
+</script>

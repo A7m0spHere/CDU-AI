@@ -506,10 +506,8 @@ test('页面文案中的数量来自数据，不写死', async () => {
   }
   if (workFiles.length > 0) {
     assert.ok(worksPage.includes(workFiles.length + ' 个策划示例'), '作品页数量与内容目录不一致');
-    assert.ok(home.includes(workFiles.length + ' 个示例'), '首页作品数量与内容目录不一致');
   } else {
     assert.ok(worksPage.includes('data-content-empty'), '空作品页缺少「内容准备中」占位');
-    assert.ok(home.includes('作品示例正在准备中'), '首页缺少作品占位说明');
   }
 
   // 社区功能已关闭：首页与社区页只保留「暂不开放」提示，不再展示版块数量或参与指引。
@@ -613,9 +611,7 @@ test('内容集合为空时保留框架、写作模板与占位状态', async ()
   }
 
   const home = await read('index.html');
-  if (guideSlugs.length === 0) assert.match(home, /指南内容正在准备中/);
   if (workSlugs.length === 0) {
-    assert.match(home, /作品示例正在准备中/);
     assert.doesNotMatch(home, /0 个示例/, '首页不应出现「0 个示例」这类文案');
   }
 });

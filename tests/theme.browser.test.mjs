@@ -474,3 +474,215 @@ test('指南样式中代码底色、文字和注释色实际生效，切回内�
   assert.notEqual(await color(token), 'rgb(255, 255, 255)');
   assert.notEqual(await color(comment), 'rgb(204, 221, 170)');
 });
+
+test('首页五张场景循环独立换卡，键盘与拖动可用，短拖动和取消不误切换', async t => {
+  const page = await setup(t);
+  const groups = page.locator('[data-scenario-stack][data-ready="true"]');
+  const titles = () => page.locator('[data-scenario-card]:not([inert]) h3').allTextContents();
+  assert.deepEqual(await titles(), ['查资料', '做 PPT', '写代码']);
+  assert.equal(await page.locator('.home-scenarios a').count(), 0, '应用展台不应提供跳转');
+
+  const first = groups.first();
+  const button = first.getByRole('button', { name: '换一张：探索与理解' });
+  await button.focus(); await page.keyboard.press('Enter');
+  assert.deepEqual(await titles(), ['读论文', '做 PPT', '写代码']);
+  assert.equal(await first.getByRole('heading', { level: 3 }).count(), 1, '后卡不能进入可访问树');
+  await page.keyboard.press('Space');
+  assert.deepEqual(await titles(), ['辅助科研', '做 PPT', '写代码']);
+
+  const drag = async (distance, cancel = false) => {
+    const card = first.locator('[data-scenario-card][data-depth="0"]');
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(550);
+    const box = await card.boundingBox();
+    const x = box.x + box.width * .4, y = box.y + 80;
+    await page.mouse.move(x, y); await page.mouse.down();
+    await page.mouse.move(x + distance, y + 5, { steps: 8 });
+    if (cancel) await page.keyboard.press('Escape');
+    await page.mouse.up();
+  };
+  await drag(20);
+  assert.deepEqual(await titles(), ['辅助科研', '做 PPT', '写代码']);
+  await drag(120, true);
+  assert.deepEqual(await titles(), ['辅助科研', '做 PPT', '写代码']);
+  await drag(120);
+  assert.deepEqual(await titles(), ['学知识', '做 PPT', '写代码']);
+  await button.click(); await button.click();
+
+  const expected = [
+    ['查资料', '读论文', '辅助科研', '学知识', '练外语'],
+    ['做 PPT', '做设计', '做图片', '做视频', '写文案'],
+    ['写代码', '理数据', '操作浏览器', '操作专业软件', '做自动化'],
+  ];
+  for (const [index, sequence] of expected.entries()) {
+    const group = groups.nth(index);
+    for (const title of sequence) {
+      assert.equal(await group.getByRole('heading', { level: 3 }).textContent(), title);
+      const hiddenCopies = await group.locator('[data-scenario-card]:not([data-depth="0"]) .scenario-card__copy').evaluateAll(els => els.map(el => getComputedStyle(el).visibility));
+      assert.deepEqual(hiddenCopies, ['hidden', 'hidden', 'hidden', 'hidden'], '第三至第五张的文字也必须隐藏');
+      const croppedArt = await group.locator('[data-scenario-card][data-depth="0"] .workspace-paper').evaluateAll(els => els.filter(el => el.scrollHeight > el.clientHeight + 2).length);
+      assert.equal(croppedArt, 0, `${title} 的示意图内容不能被裁掉`);
+      await group.getByRole('button').click();
+    }
+    assert.equal(await group.getByRole('heading', { level: 3 }).textContent(), sequence[0], '第五张后应回到首张');
+    assert.equal(await group.locator('[data-scenario-position]').textContent(), '01 / 05');
+  }
+  assert.deepEqual(await titles(), ['查资料', '做 PPT', '写代码'], '各组循环不应改变其他组');
+  assert.equal(page.url(), origin + '/', '换卡不能改变页面地址');
+});
+
+test('首页场景适配主题、减少动效、手机横向浏览与无 JS 展示', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  const firstCard = page.locator('[data-scenario-card][data-depth="0"]').first();
+  const surface = () => firstCard.evaluate(el => getComputedStyle(el).backgroundColor);
+  await select(page, 'light');
+  const light = await surface();
+  await select(page, 'dark');
+  assert.notEqual(await surface(), light, '叠卡纸面应跟随主题');
+  await select(page, 'preset-forest');
+  assert.equal(await surface(), 'rgb(14, 23, 18)');
+  assert.ok(await firstCard.evaluate(el => parseFloat(getComputedStyle(el).transitionDuration) < .001), '减少动效时不保留可见过渡');
+  assert.equal(await firstCard.evaluate(el => getComputedStyle(el).transform), 'none');
+
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '展台不能撑宽整页');
+    await page.locator('.home-scenarios__grid').evaluate(el => { el.scrollLeft = el.scrollWidth; });
+    const last = page.locator('[data-scenario-stack]').last();
+    await last.getByRole('button').click();
+    assert.equal(await last.getByRole('heading', { level: 3 }).textContent(), width === 390 ? '理数据' : '操作浏览器');
+  }
+
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  t.after(() => context.close());
+  const staticPage = await context.newPage();
+  await staticPage.goto(origin);
+  assert.deepEqual(await staticPage.locator('[data-scenario-card]:not([inert]) h3').allTextContents(), ['查资料', '做 PPT', '写代码']);
+  assert.equal(await staticPage.locator('.home-scenarios button:visible').count(), 0, '无 JS 时不留下失效换卡按钮');
+});
+
+test('首页探索菜单按进入方向揭开横幅，快速切换与键盘导航正常，重复内容不影响可访问名称', async t => {
+  const page = await setup(t);
+  const menu = page.getByRole('navigation', { name: '从这里开始' });
+  const links = menu.getByRole('link');
+  assert.equal(await links.count(), 3);
+  assert.deepEqual(await links.evaluateAll(els => els.map(el => el.getAttribute('href'))), ['/guide/', '/tools/', '/glossary/']);
+  await menu.scrollIntoViewIfNeeded(); await page.waitForTimeout(600);
+  const first = links.first();
+  assert.ok(await first.evaluate(el => el.querySelector('.home-flow__cycle').getBoundingClientRect().width >= el.clientWidth), '循环内容至少铺满整行，避免流动末尾出现空白');
+  const box = await first.boundingBox();
+  const x = box.x + box.width / 2;
+  await page.mouse.move(x, box.y - 8);
+  await page.mouse.move(x, box.y + 12);
+  const start = await first.locator('[data-flow-reveal]').evaluate(el => el.getAnimations()[0]?.effect.getKeyframes()[0].transform);
+  assert.match(start, /-101%/, '从上方进入时应从上方揭开横幅');
+  await page.waitForFunction(() => document.querySelector('[data-flow-link]').dataset.flowRunning === 'true');
+  assert.equal(await first.locator('.home-flow__track').evaluate(el => getComputedStyle(el).animationPlayState), 'running');
+  await page.mouse.move(x, box.y + box.height + 8);
+  const end = await first.locator('[data-flow-reveal]').evaluate(el => el.getAnimations()[0]?.effect.getKeyframes().at(-1).transform);
+  assert.match(end, /translateY\(101%\)/, '从下方离开时应从下方退场');
+  await page.mouse.move(x, box.y + box.height / 2);
+  assert.ok(await first.locator('[data-flow-reveal]').evaluate(el => el.getAnimations().length <= 1), '快速重入不能累积动画');
+  await page.mouse.move(0, 0); await page.waitForTimeout(550);
+  assert.equal(await first.getAttribute('data-flow-running'), 'false');
+
+  await first.focus();
+  assert.equal(await first.getAttribute('data-flow-active'), 'true');
+  const accessibleLinks = await menu.getByRole('link', { name: /^先认识 AI/ }).count();
+  assert.equal(accessibleLinks, 1, '横幅重复文字不能产生重复链接或名称');
+  await page.keyboard.press('Tab');
+  assert.equal(await first.getAttribute('data-flow-active'), 'false');
+  assert.equal(await links.nth(1).getAttribute('data-flow-active'), 'true');
+  // 静态测试服务器上，Chrome 原生跨文档转场会报告 opt-in disabled，
+  // 原有「开始学习」入口也可复现。本用例保留真实链接跳转，局部关闭与菜单无关的跨页转场。
+  await page.addStyleTag({ content: '@view-transition { navigation: none; }' });
+  await page.keyboard.press('Enter');
+  await page.waitForURL(origin + '/tools/');
+});
+
+test('首页探索菜单适配主题与减少动效，触摸和无 JS 均可直接进入目标页', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await select(page, 'dark');
+  const menu = page.getByRole('navigation', { name: '从这里开始' });
+  const first = menu.getByRole('link').first();
+  await first.focus();
+  assert.equal(await first.getAttribute('data-flow-active'), 'false');
+  assert.equal(await first.locator('[data-flow-reveal]').isVisible(), false);
+  assert.equal(await first.locator('.home-flow__track').evaluate(el => getComputedStyle(el).animationName), 'none');
+  assert.equal(await first.locator('strong').evaluate(el => getComputedStyle(el).color), 'rgb(250, 250, 250)');
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await first.focus();
+  await page.waitForFunction(() => document.querySelector('[data-flow-link]').dataset.flowActive === 'true');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  assert.equal(await first.locator('[data-flow-reveal]').isVisible(), false, '实时开启减少动效应停止横幅');
+  assert.equal(await first.locator('[data-flow-reveal]').evaluate(el => el.getAnimations().length), 0);
+
+  const touchPage = await setup(t, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const touchMenu = touchPage.getByRole('navigation', { name: '从这里开始' });
+  assert.equal(await touchMenu.locator('.home-flow__reveal:visible').count(), 0);
+  assert.ok(await touchPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  await touchPage.addStyleTag({ content: '@view-transition { navigation: none; }' });
+  await touchMenu.getByRole('link', { name: /^找个工具试试/ }).tap();
+  await touchPage.waitForURL(origin + '/tools/');
+
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  t.after(() => context.close());
+  const staticPage = await context.newPage();
+  await staticPage.goto(origin);
+  const staticMenu = staticPage.getByRole('navigation', { name: '从这里开始' });
+  assert.equal(await staticMenu.getByRole('link').count(), 3);
+  assert.equal(await staticMenu.locator('.home-flow__reveal:visible').count(), 0);
+  assert.equal(await staticPage.locator('.explore-dot-field__fallback').isVisible(), true, '无 JS 时抽象点阵仍有静态回退');
+  // 无 JS 页面不等待样式 load 回调，直接插入同一条测试环境规则。
+  await staticPage.evaluate(() => {
+    const style = document.createElement('style');
+    style.textContent = '@view-transition { navigation: none; }';
+    document.head.append(style);
+  });
+  await staticMenu.getByRole('link', { name: /^弄懂一个新词/ }).click();
+  await staticPage.waitForURL(origin + '/glossary/');
+});
+
+test('探索点阵实际绘制并跟随主题，减少动效保持静态，指针和离屏状态正确', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  const host = page.locator('[data-explore-dots][data-dot-ready="true"]');
+  await host.waitFor();
+  assert.equal(await page.locator('#explore-title').textContent(), '开始探索AI');
+  const canvas = host.locator('canvas');
+  const pixels = () => canvas.evaluate(el => {
+    const data = el.getContext('2d').getImageData(0, 0, el.width, el.height).data;
+    let red = 0, green = 0, blue = 0, count = 0, hash = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] < 12) continue;
+      red += data[i]; green += data[i + 1]; blue += data[i + 2]; count++;
+      hash = (hash + (data[i] + data[i + 1] * 3 + data[i + 2] * 7) * ((i / 4) % 251 + 1)) % 1000000007;
+    }
+    return { red, green, blue, count, hash };
+  });
+  await select(page, 'light');
+  const light = await pixels();
+  assert.ok(light.count > 500, 'Canvas 必须实际绘制点阵');
+  assert.ok(light.blue > light.green, '默认主题的点阵应以品牌蓝为主');
+  await select(page, 'dark');
+  const dark = await pixels();
+  assert.notEqual(dark.hash, light.hash);
+  await select(page, 'preset-forest');
+  const forest = await pixels();
+  assert.ok(forest.green > forest.blue, '相同深色基底下切换主题强调色也必须重绘');
+
+  await page.locator('[data-explore-stage]').scrollIntoViewIfNeeded();
+  const box = await host.boundingBox();
+  const before = await pixels();
+  await page.mouse.move(box.x + box.width * .7, box.y + box.height * .3);
+  await page.waitForTimeout(150);
+  assert.equal((await pixels()).hash, before.hash, '减少动效下指针不能移动点阵');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  // 等浏览器派发偏好 change 并完成静态重置，再模拟下一次用户移动。
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await page.mouse.move(box.x + box.width * .8, box.y + box.height * .25);
+  await page.waitForTimeout(450);
+  assert.notEqual((await pixels()).hash, before.hash, '普通模式下指针应改变观察角度');
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.waitForFunction(() => document.querySelector('[data-explore-dots]').dataset.dotState === 'paused');
+});
