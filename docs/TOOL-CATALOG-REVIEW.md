@@ -136,3 +136,13 @@
 - 其余分类没有发现需要调整的明显问题，沿用现有主用途与关联入口规则。
 
 本轮核对官方页面和产品说明，未登录账号或执行真实 AI 任务。
+
+## 文献管理与阅读笔记补充（2026-10-27）
+
+按维护者指定新增 Zotero、Obsidian，将搜索科研的「论文检索」分区拓宽为「论文检索与文献管理」，保留 Elicit、Consensus。新增条目使用「本地应用」形态，分类数量和工具数量继续由数据生成。
+
+- [Zotero](https://www.zotero.org/) 归入搜索科研，简介按维护者确认的文案介绍文献收集、PDF 与笔记整理、引用和参考文献生成。依据[快速入门](https://www.zotero.org/support/quick_start_guide)、[写作软件集成](https://www.zotero.org/support/word_processor_integration)与[同步说明](https://www.zotero.org/support/sync)核对用途及限制；[官方仓库](https://github.com/zotero/zotero)使用 [AGPL-3.0 许可](https://github.com/zotero/zotero/blob/main/COPYING)，提供开源标签和独立源码入口。
+- [Obsidian](https://obsidian.md/) 以办公与演示为主分类，通过 `alsoIn` 出现在论文检索与文献管理分区，介绍本地 Markdown、阅读笔记、双向链接与知识整理。根据[许可说明](https://obsidian.md/license)不标为开源；[官方 Sync、Publish](https://obsidian.md/pricing)为可选付费服务。与 Zotero 联动依据[社区插件条目](https://community.obsidian.md/plugins/obsidian-zotero-desktop-connector)，明确需另行安装和配置。
+- Zotero 图标取自[官方品牌素材](https://www.zotero.org/support/brand)，保留原图颜色、底板和透明通道，缩放为 96×96 WebP；Obsidian 保留官网 SVG。两项均自托管，来源与使用说明同步至 [TOOL-LOGOS.md](TOOL-LOGOS.md)。
+
+本轮仅核对官方页面、文档与许可，未安装两款应用，也未实测引用插入、同步或社区插件。

@@ -17,6 +17,8 @@
 | --- | --- | --- | --- | --- |
 | WPS AI | `/tool-logos/wps-ai.ico` | https://x.wps.cn/favicon.ico | 品牌官网图标，仅用于识别该产品 | 否 |
 | Notion AI | `/tool-logos/notion-ai.webp` | https://www.notion.com/front-static/logo-ios.png | 品牌官网图标，仅用于识别该产品 | 否 |
+| Zotero | `/tool-logos/zotero.webp` | https://www.zotero.org/support/_media/logo/zotero_256x256x32.png | 官方品牌素材，仅用于识别该软件；商标归品牌方 | 否 |
+| Obsidian | `/tool-logos/obsidian.svg` | https://obsidian.md/favicon.svg | 品牌官网图标，仅用于识别该产品 | 否 |
 | ChatGPT | `/tool-logos/chatgpt.webp` | https://chatgpt.com/cdn/assets/favicon-180x180-od45eci6.webp | 品牌官网图标，仅用于识别该产品 | 否 |
 | Claude | `/tool-logos/claude.webp` | https://claude.ai/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
 | Gemini | `/tool-logos/gemini.webp` | https://www.gstatic.com/lamda/images/gemini_sparkle_4g_512_lt_f94943af3be039176192d.png | 品牌官网图标，仅用于识别该产品 | 否 |

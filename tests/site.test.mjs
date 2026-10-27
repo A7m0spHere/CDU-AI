@@ -41,6 +41,11 @@ const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
 const toolsSource = await readFile(path.join(root, 'src/data/tools.ts'), 'utf8');
 const parsedTools = parseToolsFromSource(toolsSource);
 const toolCategoryIds = parseToolCategoryIds(toolsSource);
+// 维护者确认且已按官网核对的 Zotero 本体介绍；其余零成本表述仍需拦截。
+const verifiedFreeSoftwareStatement = '免费开源的文献管理工具，收集论文、整理 PDF 与笔记，并在写作时插入引用和生成参考文献。';
+function withoutVerifiedFreeStatement(text) {
+  return text.replaceAll(verifiedFreeSoftwareStatement, '').replaceAll(verifiedFreeSoftwareStatement.toLowerCase(), '');
+}
 // 工具目录允许为空（只由维护者按需添加），但文件结构必须可解析
 assert.ok(toolsSource.includes('export const tools'), '无法定位 src/data/tools.ts 中的 tools 数组');
 
@@ -395,7 +400,7 @@ test('外链带新窗口与安全的 rel 属性，页面无占位废话', async 
     const html = await readFile(file, 'utf8');
     const display = path.relative(dist, file);
     assert.doesNotMatch(html, /Lorem ipsum/i, display + ' 出现 Lorem ipsum');
-    assert.doesNotMatch(html, /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, display + ' 不应包含零成本使用表述');
+    assert.doesNotMatch(withoutVerifiedFreeStatement(html), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, display + ' 不应包含未经核实的零成本使用表述');
     const externalLinks = html.match(/<a\b[^>]*href="https?:\/\/[^"]+"[^>]*>/g) || [];
     for (const link of externalLinks) {
       if (link.includes('target="_blank"')) {
@@ -925,7 +930,7 @@ test('GitHub 产品官网不会被误当成代码仓库', async () => {
 test('工具数据进入搜索索引：别名、技术类型与能力标签都可搜', async () => {
   if (parsedTools.length === 0) return;
   const data = JSON.parse(await read('search-index.json'));
-  assert.doesNotMatch(JSON.stringify(data), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, '搜索索引不应保留零成本使用表述');
+  assert.doesNotMatch(withoutVerifiedFreeStatement(JSON.stringify(data)), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, '搜索索引不应保留未经核实的零成本使用表述');
   const toolItems = data.filter((item) => item.type === '工具');
   assert.equal(toolItems.length, parsedTools.length, '搜索索引中的工具数量与目录不一致');
 

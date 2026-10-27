@@ -322,7 +322,7 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
   if (categories.length === 0) push('无法解析工具分类（toolCategories），页面筛选会失效');
 
   const tools = parseToolsFromSource(source);
-  const kinds = ['在线产品', '开源项目', '工作流工具', '开发工具', '资源社区', '开发平台'];
+  const kinds = ['在线产品', '本地应用', '开源项目', '工作流工具', '开发工具', '资源社区', '开发平台'];
   const tiers = ['主流产品', '社区热门', '小众探索'];
   const bases = ['official', 'docs', 'community'];
   const caps = ['open-source', 'local', 'beginner', 'zh'];
