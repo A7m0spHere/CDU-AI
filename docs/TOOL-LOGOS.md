@@ -13,6 +13,24 @@
 
 ## 图标清单
 
+### 2026-10-28 API 平台增补
+
+OpenAI、Claude 与 Grok 平台复用已有官方品牌素材；其余图标从官方站点取得并原样自托管，保留颜色与底板。
+
+| 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
+| --- | --- | --- | --- | --- |
+| 腾讯云 TokenHub | `/tool-logos/tencent-tokenhub.ico` | https://cloudcache.tencent-cloud.com/qcloud/favicon.ico | 腾讯云官网图标，仅用于识别该平台 | 否 |
+| 百度千帆 | `/tool-logos/baidu-qianfan.ico` | https://bce.bdstatic.com/img/newfavicon.ico | 百度智能云官方文档图标，仅用于识别该平台 | 否 |
+| 阶跃星辰开放平台 | `/tool-logos/stepfun-api.png` | https://platform.stepfun.com/images/title-logo.png | 官方开放平台图标，仅用于识别该平台 | 否 |
+| 讯飞星火开放平台 | `/tool-logos/spark-api.ico` | https://xinghuo.xfyun.cn/spark-icon.ico | 官方星火站点图标，仅用于识别该平台 | 否 |
+| OpenAI API 平台 | `/tool-logos/codex.webp` | https://github.com/openai.png | 官方 OpenAI 组织头像，仅用于识别该平台 | 否 |
+| Claude API 平台 | `/tool-logos/claude.webp` | https://claude.ai/apple-touch-icon.png | 官方 Claude 品牌图标，仅用于识别该平台 | 否 |
+| Grok API 平台 | `/tool-logos/grok.webp` | https://grok.com/images/apple-touch-icon.png | 官方 Grok 品牌图标，仅用于识别该平台 | 否 |
+| Mistral Studio | `/tool-logos/mistral-studio.ico` | https://mistral.ai/favicon.ico | Mistral 官网图标，仅用于识别该平台 | 否 |
+| Cohere 开发平台 | `/tool-logos/cohere-api.png` | https://cohere.com/apple-touch-icon.png | Cohere 官网图标，仅用于识别该平台 | 否 |
+
+### 已有工具
+
 | 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
 | --- | --- | --- | --- | --- |
 | WPS AI | `/tool-logos/wps-ai.ico` | https://x.wps.cn/favicon.ico | 品牌官网图标，仅用于识别该产品 | 否 |

@@ -406,8 +406,13 @@ test('手机全目录逐页覆盖全部工具且不重复，翻页支持键盘�
     if (current < pages) {
       await page.locator('[data-catalog-next]').press('Enter');
       assert.equal(await page.locator('[data-catalog-results]').evaluate(el => el === document.activeElement), true);
+      // 等浏览器完成焦点与滚动布局，再核对最终位置，避免读取到中间帧。
+      await page.waitForFunction(() => {
+        const top = document.querySelector('[data-catalog-results]').getBoundingClientRect().top;
+        return top >= 0 && top < 160;
+      });
       const top = await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top);
-      assert.ok(top >= 0 && top < 160, '翻页后应回到固定顶栏下的结果区');
+      assert.ok(top >= 0 && top < 160, `第 ${current + 1} 页应停在固定顶栏下的结果区（实际 ${top}）`);
     }
   }
   assert.equal(new Set(seen).size, tools.length);

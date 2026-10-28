@@ -45,7 +45,7 @@ export interface Tool {
   id: string;
   name: string;
   category: string;
-  /** 用于「语言模型与对话」「Agent 与 Harness」的有序分组，与热度标签无关。 */
+  /** 用于对话、Agent 与 API 平台的地区或资源分组，与热度标签无关。 */
   catalogGroup?: ToolCatalogGroup;
   /** AIGC 中的图片、视频、工作流或资源社区分区。 */
   aigcSection?: AigcSection;

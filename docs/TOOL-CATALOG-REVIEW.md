@@ -146,3 +146,23 @@
 - Zotero 图标取自[官方品牌素材](https://www.zotero.org/support/brand)，保留原图颜色、底板和透明通道，缩放为 96×96 WebP；Obsidian 保留官网 SVG。两项均自托管，来源与使用说明同步至 [TOOL-LOGOS.md](TOOL-LOGOS.md)。
 
 本轮仅核对官方页面、文档与许可，未安装两款应用，也未实测引用插入、同步或社区插件。
+
+## API 平台增补与地区分组（2026-10-28）
+
+按维护者确认的首批名单新增 9 个开发平台，API 栏目由 11 项增至 20 项，全目录由 95 项增至 104 项。目录仍收录平台入口，不单独建立模型版本条目。
+
+| 新增平台 | 主要核对依据 |
+| --- | --- |
+| [腾讯云 TokenHub](https://cloud.tencent.com/product/tokenhub) | [产品简介](https://cloud.tencent.com/document/product/1823/130050)、[旧平台迁移公告](https://cloud.tencent.com/announce/detail/2287)；使用现行统一入口，旧混元名称保留为别名。 |
+| [百度千帆](https://cloud.baidu.com/product-s/qianfan_home) | [模型服务及 Agent 开发文档](https://cloud.baidu.com/doc/Qianfan/index.html)；覆盖模型调用与应用开发。 |
+| [阶跃星辰开放平台](https://platform.stepfun.com/) | 官方平台介绍的语言、语音与图像 API，未写死模型版本。 |
+| [讯飞星火开放平台](https://xinghuo.xfyun.cn/sparkapi) | [官方文档中心](https://www.xfyun.cn/doc/)、[星火 HTTP 接口说明](https://www.xfyun.cn/doc/spark/HTTP调用文档.html)；语言模型及语音能力分别开通和配置。 |
+| [OpenAI API 平台](https://platform.openai.com/) | [API 概览](https://developers.openai.com/api/reference/overview)；模型、工具及多模态能力按具体接口使用。 |
+| [Claude API 平台](https://platform.claude.com/) | [API 概览](https://platform.claude.com/docs/en/api/overview)；区别于网页聊天产品的程序接入入口。 |
+| [Grok API 平台](https://console.x.ai/) | [官方 API 文档](https://docs.x.ai/overview)；介绍模型调用及网页、X 搜索等工具。 |
+| [Mistral Studio](https://console.mistral.ai/) | [平台概览](https://docs.mistral.ai/getting-started/platform-overview)；使用当前 Studio 名称，保留 La Plateforme 搜索别名。 |
+| [Cohere 开发平台](https://dashboard.cohere.com/) | [官方文档](https://docs.cohere.com/)；介绍 Chat、Embed、Rerank 接口与知识库场景。 |
+
+API 栏目按国内模型与云平台、海外模型与云平台、国内聚合与推理平台、海外聚合与推理平台、专用接口分为五区。地区按平台运营方划分，全部 API 条目补充 `catalogGroup` 与地区标签；Tavily、fal.ai 在专用接口中注明海外归属。原有条目的能力核对日期保持原记录，新增条目如实填写本轮官网或文档核对日期。
+
+图标使用已有官方品牌素材或从官方站点取得的图标，原样自托管，来源与使用说明见 [TOOL-LOGOS.md](TOOL-LOGOS.md)。本轮未登录平台、创建密钥、付费或执行 API 调用，不将公开资料核对写成实际任务测试。

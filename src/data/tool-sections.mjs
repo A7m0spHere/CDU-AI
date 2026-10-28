@@ -47,9 +47,11 @@ export const toolSections = {
     { id: 'learning', name: '课程、竞赛与实验', description: '查找课程、实践项目与在线实验环境。', toolIds: ['kaggle', 'ai-studio', 'google-colab'] },
   ],
   api: [
-    { id: 'vendors', name: '厂商平台', description: '在模型厂商的平台试验能力并接入接口。', toolIds: ['google-ai-studio', 'aliyun-bailian', 'deepseek-api', 'zhipu-api', 'kimi-api', 'minimax-api', 'volcengine-ark'] },
-    { id: 'aggregators', name: '聚合平台', description: '通过统一入口接入和切换不同提供方的服务。', toolIds: ['siliconflow', 'openrouter'] },
-    { id: 'specialized', name: '专用接口', description: '为程序接入网页搜索或多模态素材生成。', toolIds: ['tavily', 'fal'] },
+    { id: 'domestic-vendors', name: '国内模型与云平台', description: '国内厂商运营的模型 API 与云开发平台；地区按平台运营方划分。', toolIds: ['aliyun-bailian', 'deepseek-api', 'zhipu-api', 'kimi-api', 'minimax-api', 'volcengine-ark', 'tencent-tokenhub', 'baidu-qianfan', 'stepfun-api', 'spark-api'] },
+    { id: 'overseas-vendors', name: '海外模型与云平台', description: '海外厂商运营的模型 API 与开发工作台，接入条件按各平台说明核对。', toolIds: ['google-ai-studio', 'openai-api', 'claude-api', 'grok-api', 'mistral-studio', 'cohere-api'] },
+    { id: 'domestic-aggregators', name: '国内聚合与推理平台', description: '通过国内平台的统一入口接入不同提供方的模型服务。', toolIds: ['siliconflow'] },
+    { id: 'overseas-aggregators', name: '海外聚合与推理平台', description: '通过海外平台的统一入口接入、路由与切换模型服务。', toolIds: ['openrouter'] },
+    { id: 'specialized', name: '专用接口', description: '当前收录海外服务，为程序接入网页搜索或多模态素材生成；条目标签注明地区。', toolIds: ['tavily', 'fal'] },
   ],
   compute: [
     { id: 'gpu', name: 'GPU 租用', description: '为训练与推理配置云端 GPU 实例。', toolIds: ['autodl'] },
