@@ -21,6 +21,7 @@ export function initToolCatalog(): void {
   const pagination = root.querySelector<HTMLElement>('[data-catalog-pagination]')!;
   const previous = pagination.querySelector<HTMLButtonElement>('[data-catalog-previous]')!;
   const next = pagination.querySelector<HTMLButtonElement>('[data-catalog-next]')!;
+  const first = pagination.querySelector<HTMLButtonElement>('[data-catalog-first]')!;
   const pageLabel = pagination.querySelector<HTMLElement>('[data-catalog-page-label]')!;
   const range = root.querySelector<HTMLElement>('[data-catalog-range]')!;
   const results = root.querySelector<HTMLElement>('[data-catalog-results]')!;
@@ -86,6 +87,8 @@ export function initToolCatalog(): void {
       range.hidden = !paginated || matches.length === 0;
       previous.disabled = currentPage === 1;
       next.disabled = currentPage === totalPages;
+      first.hidden = !paginated || totalPages === 1 || currentPage !== totalPages;
+      next.hidden = !first.hidden;
       pageLabel.textContent = `第 ${currentPage} 页，共 ${totalPages} 页`;
 
       if (!paginated) return matches;
@@ -100,8 +103,8 @@ export function initToolCatalog(): void {
     },
   });
 
-  const changePage = (delta: number) => {
-    const requested = Math.min(Math.max(1, currentPage + delta), totalPages);
+  const changePage = (page: number) => {
+    const requested = Math.min(Math.max(1, page), totalPages);
     if (requested === currentPage) return;
     currentPage = requested;
     const url = new URL(window.location.href);
@@ -112,8 +115,9 @@ export function initToolCatalog(): void {
     results.focus({ preventScroll: true });
     results.scrollIntoView({ block: 'start', behavior: 'instant' });
   };
-  previous.addEventListener('click', () => changePage(-1));
-  next.addEventListener('click', () => changePage(1));
+  previous.addEventListener('click', () => changePage(currentPage - 1));
+  next.addEventListener('click', () => changePage(currentPage + 1));
+  first.addEventListener('click', () => changePage(1));
   mobile.addEventListener('change', () => { if (!printing) filter?.refresh(); });
   // 打印完整匹配集，不把屏幕分页变成内容截断。
   window.addEventListener('beforeprint', () => {

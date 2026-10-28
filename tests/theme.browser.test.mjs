@@ -345,6 +345,7 @@ test('手机全目录逐页覆盖全部工具且不重复，翻页支持键盘�
   assert.equal(await page.locator('[data-catalog-previous]').isDisabled(), true);
   for (let current = 1; current <= pages; current += 1) {
     assert.equal(await page.locator('[data-catalog-page-label]').textContent(), `第 ${current} 页，共 ${pages} 页`);
+    assert.equal(await page.locator('[data-catalog-first]').isVisible(), current === pages);
     const ids = await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId));
     assert.equal(ids.length, Math.min(9, tools.length - seen.length));
     seen.push(...ids);
@@ -362,6 +363,13 @@ test('手机全目录逐页覆盖全部工具且不重复，翻页支持键盘�
   assert.deepEqual([...seen].sort(), tools.map(tool => tool.id).sort());
   assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
   assert.equal(await page.locator('[data-catalog-next]').isDisabled(), true);
+  await page.locator('[data-catalog-first]').press('Enter');
+  assert.equal(new URL(page.url()).searchParams.has('page'), false);
+  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  assert.equal(await page.locator('[data-catalog-first]').isVisible(), false);
+  assert.equal(await page.locator('[data-catalog-results]').evaluate(el => el === document.activeElement), true);
+  await page.goBack();
+  await page.waitForFunction(last => document.querySelector('[data-catalog-page-label]').textContent.startsWith(`第 ${last} 页`), pages);
   await page.locator('[data-catalog-previous]').click();
   assert.equal(new URL(page.url()).searchParams.get('page'), String(pages - 1));
 });
@@ -407,6 +415,20 @@ test('手机分页恢复 URL 和历史，搜索覆盖其他页且筛选后返回
   await page.reload(); await ready(page);
   assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
   assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 2 页/);
+  await page.locator('[data-filter-search]').fill('Agent');
+  await page.waitForFunction(() => new URLSearchParams(location.search).get('q') === 'agent');
+  const filteredCount = await page.locator('[data-filter-count]').textContent();
+  assert.ok(Number(filteredCount) > 9);
+  const lastFilteredPage = new URL(page.url());
+  lastFilteredPage.searchParams.set('page', '999');
+  await page.goto(lastFilteredPage.href); await ready(page);
+  await page.locator('[data-catalog-first]').click();
+  assert.equal(new URL(page.url()).searchParams.has('page'), false);
+  assert.equal(new URL(page.url()).searchParams.get('q'), 'agent');
+  assert.equal(new URL(page.url()).searchParams.get('caps'), 'open-source');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), filteredCount);
+  assert.equal(await page.locator('[data-filter-search]').inputValue(), 'agent');
+  assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
 });
 
 test('手机分页与单分类折叠、桌面切换及非法页码兼容', async t => {
