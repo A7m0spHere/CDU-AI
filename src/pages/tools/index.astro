@@ -74,7 +74,7 @@ const catalogConfig = JSON.stringify({
 
       <h2 class="sr-only">工具目录</h2>
       {hasTools && (
-      <div class="catalog-layout" data-filter-root data-tool-catalog data-reveal>
+      <div class="catalog-layout" data-filter-root data-tool-catalog>
         <aside class="catalog-sidebar" aria-label="工具筛选">
           <label class="sr-only" for="tool-search">搜索工具名、别名、场景或技术类型</label>
           <div class="search-field">
@@ -144,8 +144,8 @@ const catalogConfig = JSON.stringify({
         </aside>
 
         <div class="catalog-main">
-          <div class="results-bar">
-            <p aria-live="polite">匹配 <strong data-filter-count>{tools.length}</strong> 项<span data-filter-folded-note hidden={foldedDefault === 0}>（<strong data-filter-folded-count>{foldedDefault}</strong> 项已折叠）</span></p>
+          <div class="results-bar" data-catalog-results tabindex="-1" role="region" aria-label="工具搜索结果">
+            <p aria-live="polite" aria-atomic="true">匹配 <strong data-filter-count>{tools.length}</strong> 项<span data-catalog-range hidden></span><span data-filter-folded-note hidden={foldedDefault === 0}>（<strong data-filter-folded-count>{foldedDefault}</strong> 项已折叠）</span></p>
             <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
           </div>
 
@@ -193,6 +193,12 @@ const catalogConfig = JSON.stringify({
               </section>
             ))}
           </div>
+
+          <nav class="catalog-pagination" data-catalog-pagination aria-label="工具分页" hidden>
+            <button class="btn btn--soft btn--sm" type="button" data-catalog-previous>上一页</button>
+            <p class="catalog-pagination__status" data-catalog-page-label></p>
+            <button class="btn btn--soft btn--sm" type="button" data-catalog-next>下一页</button>
+          </nav>
 
           <div data-catalog-pool hidden></div>
           <script type="application/json" data-catalog-config set:html={catalogConfig} />

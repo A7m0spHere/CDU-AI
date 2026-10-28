@@ -558,3 +558,47 @@
 .tool-card__details .tool-card__caution {
   margin-top: 0.55rem;
 }
+
+/* 手机全目录分页，沿用按钮和主题令牌。 */
+[data-catalog-results] {
+  scroll-margin-top: 1rem;
+}
+
+[data-catalog-results]:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
+}
+
+.catalog-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.catalog-pagination__status {
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.catalog-pagination .btn {
+  min-height: 44px;
+  flex: none;
+}
+
+.catalog-pagination .btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+
+@media print {
+  .catalog-pagination,
+  [data-catalog-range] {
+    display: none !important;
+  }
+}

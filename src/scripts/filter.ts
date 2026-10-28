@@ -1,3 +1,10 @@
+export interface FilterState {
+  category: string;
+  query: string;
+  capabilities: string[];
+  reason: 'init' | 'filter' | 'history' | 'refresh';
+}
+
 interface FilterOptions {
   rootSelector?: string;
   chipSelector?: string;
@@ -10,7 +17,8 @@ interface FilterOptions {
   collapseSelector?: string;
   searchWithinCategory?: boolean;
   categoryAliases?: Record<string, string>;
-  beforeApply?: (state: { category: string; query: string; capabilities: string[] }) => void;
+  beforeApply?: (state: FilterState) => void;
+  selectCards?: (matches: HTMLElement[], state: FilterState) => HTMLElement[];
 }
 
 function normalize(value: string): string {
@@ -29,7 +37,7 @@ const toSet = (value: string | undefined): Set<string> =>
  * 关键词命中名称、别名、技术类型、标签等卡片上的全部可搜文本。
  * 三者都满足才显示；结果数量、空状态、URL（?category=&caps=&q=）始终与结果一致。
  */
-export function initFilter(options: FilterOptions = {}): void {
+export function initFilter(options: FilterOptions = {}): { refresh: () => void } | undefined {
   const {
     rootSelector = '[data-filter-root]',
     chipSelector = '[data-filter-value]',
@@ -43,6 +51,7 @@ export function initFilter(options: FilterOptions = {}): void {
     searchWithinCategory = false,
     categoryAliases = {},
     beforeApply,
+    selectCards,
   } = options;
 
   const root = document.querySelector<HTMLElement>(rootSelector);
@@ -77,6 +86,7 @@ export function initFilter(options: FilterOptions = {}): void {
 
   let activeValue = defaultValue;
   let query = '';
+  let searchTimer = 0;
   const activeCaps = new Set<string>();
 
   /** 一个筛选项可以匹配多个分类（data-filter-match），也可以只匹配单个分类。 */
@@ -98,8 +108,9 @@ export function initFilter(options: FilterOptions = {}): void {
     return [...activeCaps].every((cap) => cardCaps.has(cap));
   };
 
-  const apply = () => {
-    beforeApply?.({ category: activeValue, query, capabilities: [...activeCaps] });
+  const apply = (reason: FilterState['reason']) => {
+    const state: FilterState = { category: activeValue, query, capabilities: [...activeCaps], reason };
+    beforeApply?.(state);
     const activeChip = chips.find((chip) => chip.dataset.filterValue === activeValue);
     const searching = query.length > 0;
     if (searchWithinCategory) {
@@ -107,12 +118,17 @@ export function initFilter(options: FilterOptions = {}): void {
       if (search) search.placeholder = activeValue === 'all' ? '搜索全部工具…' : `在${label}中搜索…`;
       if (searchScope) searchScope.textContent = `搜索范围：${label}`;
     }
-    let visible = 0;
-    for (const card of cards) {
+    const matches = cards.filter((card) => {
       const haystack = normalize(card.dataset.search ?? card.textContent ?? '');
       const categoryMatch = (!searchWithinCategory && searching) || chipMatches(activeChip, card);
       const queryMatch = !searching || haystack.includes(query);
-      const show = categoryMatch && capsMatch(card) && queryMatch;
+      return categoryMatch && capsMatch(card) && queryMatch;
+    });
+    // 总数始终来自完整匹配集，分页仅决定本次展示哪些卡片。
+    const selected = new Set(selectCards?.(matches, state) ?? matches);
+    let visible = 0;
+    for (const card of cards) {
+      const show = selected.has(card);
       card.hidden = !show;
       card.classList.remove('filter-appear');
       if (show) {
@@ -125,8 +141,8 @@ export function initFilter(options: FilterOptions = {}): void {
       }
     }
 
-    if (count) count.textContent = String(visible);
-    if (empty) empty.hidden = visible !== 0;
+    if (count) count.textContent = String(matches.length);
+    if (empty) empty.hidden = matches.length !== 0;
     if (clear) clear.hidden = activeValue === defaultValue && query.length === 0 && activeCaps.size === 0;
 
     groups.forEach((group) => {
@@ -158,7 +174,12 @@ export function initFilter(options: FilterOptions = {}): void {
     });
   };
 
-  const setFromUrl = () => {
+  const setFromUrl = (reason: 'init' | 'history') => {
+    window.clearTimeout(searchTimer);
+    activeValue = defaultValue;
+    query = '';
+    activeCaps.clear();
+    if (search) search.value = '';
     const params = new URLSearchParams(window.location.search);
     const requestedCategory = params.get('category');
     const category = categoryAliases[requestedCategory ?? ''] ?? requestedCategory;
@@ -178,7 +199,7 @@ export function initFilter(options: FilterOptions = {}): void {
       query = normalize(q).trim();
       if (search) search.value = q;
     }
-    apply();
+    apply(reason);
   };
 
   const syncUrl = () => {
@@ -190,14 +211,14 @@ export function initFilter(options: FilterOptions = {}): void {
     if (!query) params.delete('q');
     else params.set('q', query);
     const next = params.toString();
-    const nextUrl = next ? `${window.location.pathname}?${next}` : window.location.pathname;
+    const nextUrl = `${window.location.pathname}${next ? `?${next}` : ''}${window.location.hash}`;
     window.history.replaceState(null, '', nextUrl);
   };
 
   chips.forEach((chip) => {
     chip.addEventListener('click', () => {
       activeValue = chip.dataset.filterValue ?? defaultValue;
-      apply();
+      apply('filter');
       syncUrl();
     });
   });
@@ -207,32 +228,34 @@ export function initFilter(options: FilterOptions = {}): void {
       const cap = chip.dataset.filterCap ?? '';
       if (activeCaps.has(cap)) activeCaps.delete(cap);
       else activeCaps.add(cap);
-      apply();
+      apply('filter');
       syncUrl();
     });
   });
 
   if (search) {
-    let timer = 0;
     search.addEventListener('input', () => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
+      window.clearTimeout(searchTimer);
+      searchTimer = window.setTimeout(() => {
         query = normalize(search.value).trim();
-        apply();
+        apply('filter');
         syncUrl();
       }, 90);
     });
   }
 
   clear?.addEventListener('click', () => {
+    window.clearTimeout(searchTimer);
     activeValue = defaultValue;
     query = '';
     activeCaps.clear();
     if (search) search.value = '';
-    apply();
+    apply('filter');
     syncUrl();
     search?.focus();
   });
 
-  setFromUrl();
+  window.addEventListener('popstate', () => setFromUrl('history'));
+  setFromUrl('init');
+  return { refresh: () => apply('refresh') };
 }

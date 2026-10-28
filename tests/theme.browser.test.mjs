@@ -37,7 +37,11 @@ before(async () => {
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   origin = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) });
+  browser = await chromium.launch({
+    headless: true,
+    ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}),
+    ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } : {}),
+  });
 });
 
 after(async () => {
@@ -316,6 +320,163 @@ test('社区折叠数量跟随搜索及手动展开，开源筛选不借用模�
   assert.equal(await page.locator('[data-tool-id="qwen-chat"]').isVisible(), false);
   assert.equal(await page.locator('[data-tool-id="cherry-studio"]').isVisible(), true);
   assert.equal(await page.locator('[data-tool-id="rikkahub"]').isVisible(), true);
+});
+
+test('手机工具目录在短屏和普通动效下持续可读', async t => {
+  const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'no-preference' });
+  for (const viewport of [{ width: 375, height: 667 }, { width: 390, height: 664 }, { width: 360, height: 640 }, { width: 320, height: 568 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto(origin + '/tools/');
+    await ready(page);
+    await page.evaluate(() => window.scrollTo({ top: 1400, behavior: 'instant' }));
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await page.locator('[data-tool-catalog]').evaluate(el => getComputedStyle(el).opacity), '1', `${viewport.width}×${viewport.height} 目录不能因显现动画保持透明`);
+    assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  }
+});
+
+test('手机全目录逐页覆盖全部工具且不重复，翻页支持键盘并返回结果区', async t => {
+  const page = await setup(t, { viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true });
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const seen = [];
+  const pages = Math.ceil(tools.length / 9);
+  assert.equal(await page.locator('[data-catalog-previous]').isDisabled(), true);
+  for (let current = 1; current <= pages; current += 1) {
+    assert.equal(await page.locator('[data-catalog-page-label]').textContent(), `第 ${current} 页，共 ${pages} 页`);
+    const ids = await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId));
+    assert.equal(ids.length, Math.min(9, tools.length - seen.length));
+    seen.push(...ids);
+    assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+    assert.equal(await page.locator('[data-collapse]:visible').count(), 0, '全目录分页内不再嵌套社区折叠');
+    assert.equal(await page.locator('[data-filter-group]:visible').evaluateAll(elements => elements.every(el => el.querySelector('[data-tool-id]:not([hidden])'))), true, '当前页不显示空分组标题');
+    if (current < pages) {
+      await page.locator('[data-catalog-next]').press('Enter');
+      assert.equal(await page.locator('[data-catalog-results]').evaluate(el => el === document.activeElement), true);
+      const top = await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top);
+      assert.ok(top >= 0 && top < 160, '翻页后应回到固定顶栏下的结果区');
+    }
+  }
+  assert.equal(new Set(seen).size, tools.length);
+  assert.deepEqual([...seen].sort(), tools.map(tool => tool.id).sort());
+  assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
+  assert.equal(await page.locator('[data-catalog-next]').isDisabled(), true);
+  await page.locator('[data-catalog-previous]').click();
+  assert.equal(new URL(page.url()).searchParams.get('page'), String(pages - 1));
+});
+
+test('手机分页恢复 URL 和历史，搜索覆盖其他页且筛选后返回首页', async t => {
+  const page = await setup(t, { viewport: { width: 390, height: 664 }, isMobile: true, hasTouch: true });
+  await page.goto(origin + '/tools/?page=3');
+  await ready(page);
+  const thirdPage = await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId));
+  await page.locator('[data-catalog-next]').click();
+  await page.reload(); await ready(page);
+  assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 4 页/);
+  await page.goBack();
+  await page.waitForFunction(() => document.querySelector('[data-catalog-page-label]').textContent.startsWith('第 3 页'));
+  assert.deepEqual(await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId)), thirdPage);
+  await page.goForward();
+  await page.waitForFunction(() => document.querySelector('[data-catalog-page-label]').textContent.startsWith('第 4 页'));
+
+  const last = tools.at(-1);
+  await page.locator('[data-filter-search]').fill(last.name);
+  await page.waitForFunction(() => !new URLSearchParams(location.search).has('page'));
+  assert.equal(await page.locator(`[data-tool-id="${last.id}"]`).isVisible(), true, '搜索必须能找到未在当前页展示的工具');
+  assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 1 页/);
+  await page.goBack();
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === String(document.querySelectorAll('[data-tool-id]').length));
+  assert.equal(await page.locator('[data-filter-search]').inputValue(), '');
+  assert.deepEqual(await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId)), thirdPage);
+  await page.goForward();
+  await page.waitForFunction(term => document.querySelector('[data-filter-search]').value === term, last.name.toLocaleLowerCase('zh-CN'));
+  assert.equal(await page.locator(`[data-tool-id="${last.id}"]`).isVisible(), true);
+
+  await page.locator('[data-filter-search]').fill('没有这个工具-分页验收');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '0');
+  assert.equal(await page.locator('[data-empty-state]').isVisible(), true);
+  assert.equal(await page.locator('[data-catalog-pagination]').isVisible(), false);
+  assert.equal(await page.locator('[data-catalog-range]').isVisible(), false);
+  await page.locator('[data-clear-filters]').click();
+  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  await page.locator('[data-filter-cap="open-source"]').press('Enter');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.capabilities.includes('open-source')).length));
+  assert.equal(await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.every(el => el.dataset.capabilities.split(' ').includes('open-source'))), true);
+  await page.locator('[data-catalog-next]').click();
+  await page.reload(); await ready(page);
+  assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
+  assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 2 页/);
+});
+
+test('手机分页与单分类折叠、桌面切换及非法页码兼容', async t => {
+  const page = await setup(t, { viewport: { width: 390, height: 844 } });
+  await page.goto(origin + '/tools/?page=4'); await ready(page);
+  await page.locator('[data-filter-value="agent"]').press('Enter');
+  assert.equal(await page.locator('[data-catalog-pagination]').isVisible(), false);
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '32');
+  assert.equal(await page.locator('[data-collapse]').evaluate(el => el.open), false);
+  assert.equal(await page.locator('[data-filter-folded-count]').textContent(), '10');
+  assert.equal(new URL(page.url()).searchParams.has('page'), false);
+  await page.locator('[data-filter-value="all"]').press('Enter');
+  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  assert.equal(await page.locator('[data-filter-folded-note]').isVisible(), false);
+  const defaultFolded = await page.locator('[data-catalog-config]').evaluate(el => JSON.parse(el.textContent).views.all.categories.flatMap(category => category.groups).reduce((sum, group) => sum + group.collapsedIds.length, 0));
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.waitForFunction(() => document.querySelector('[data-catalog-pagination]').hidden);
+  assert.equal(await page.locator('[data-collapsed="true"]').count(), defaultFolded);
+  assert.equal(await page.locator('[data-filter-folded-count]').textContent(), String(defaultFolded));
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(() => !document.querySelector('[data-catalog-pagination]').hidden);
+  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
+  for (const value of ['0', '-3', 'abc', '2.5', '9007199254740993']) {
+    await page.goto(origin + '/tools/?page=' + value); await ready(page);
+    assert.equal(new URL(page.url()).searchParams.has('page'), false);
+    assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  }
+  await page.goto(origin + '/tools/?page=999'); await ready(page);
+  assert.equal(new URL(page.url()).searchParams.get('page'), String(Math.ceil(tools.length / 9)));
+  await page.goto(origin + '/tools/?category=tts&page=88'); await ready(page);
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '5');
+  assert.equal(await page.locator('[data-filter-value="audio"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(new URL(page.url()).searchParams.has('page'), false);
+});
+
+test('手机分页在浅色、深色和自定义主题中可用，无 JS 和打印不截断目录', async t => {
+  const page = await setup(t, { viewport: { width: 375, height: 667 }, reducedMotion: 'reduce' });
+  await page.goto(origin + '/tools/'); await ready(page);
+  for (const id of ['light', 'dark', 'preset-forest']) {
+    await select(page, id);
+    assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+    assert.equal(await page.locator('[data-catalog-next]').isEnabled(), true);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  }
+  await create(page);
+  await page.locator('[data-theme-field="name"]').fill('工具分页验收');
+  await page.locator('[data-theme-save]').click();
+  const saved = await state(page);
+  await page.locator('[data-catalog-next]').click();
+  await page.reload(); await ready(page);
+  assert.equal((await state(page)).id, saved.id);
+  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  await page.evaluate(() => window.addEventListener('beforeprint', () => {
+    window.printedToolCount = document.querySelectorAll('[data-tool-id]:not([hidden])').length;
+  }));
+  await page.pdf();
+  assert.equal(await page.evaluate(() => window.printedToolCount), tools.length);
+  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  assert.equal(new URL(page.url()).searchParams.get('page'), '2');
+
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 667 } });
+  t.after(() => context.close());
+  const staticPage = await context.newPage();
+  await staticPage.goto(origin + '/tools/');
+  assert.equal(await staticPage.locator('[data-tool-catalog]').evaluate(el => getComputedStyle(el).opacity), '1');
+  assert.equal(await staticPage.locator('[data-tool-id]').count(), tools.length);
+  assert.equal(await staticPage.locator('[data-catalog-pagination]').isVisible(), false);
+  assert.equal(await staticPage.locator(`[data-tool-id="${tools.at(-1).id}"]`).isVisible(), true);
 });
 
 test('取消、Escape 和保存均终止待执行预览', async t => {

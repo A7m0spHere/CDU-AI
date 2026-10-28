@@ -16,14 +16,35 @@ export function initToolCatalog(): void {
   const cards = new Map(Array.from(root.querySelectorAll<HTMLElement>('[data-filter-card]')).map((card) => [card.dataset.toolId!, card]));
   const targets = new Map(Array.from(root.querySelectorAll<HTMLElement>('[data-catalog-target]')).map((target) => [target.dataset.catalogTarget!, target]));
   const pool = root.querySelector<HTMLElement>('[data-catalog-pool]')!;
-  let currentCategory = '';
+  const mobile = window.matchMedia('(max-width: 760px)');
+  const pageSize = 9;
+  const pagination = root.querySelector<HTMLElement>('[data-catalog-pagination]')!;
+  const previous = pagination.querySelector<HTMLButtonElement>('[data-catalog-previous]')!;
+  const next = pagination.querySelector<HTMLButtonElement>('[data-catalog-next]')!;
+  const pageLabel = pagination.querySelector<HTMLElement>('[data-catalog-page-label]')!;
+  const range = root.querySelector<HTMLElement>('[data-catalog-range]')!;
+  const results = root.querySelector<HTMLElement>('[data-catalog-results]')!;
+  let currentView = '';
+  let currentPage = 1;
+  let totalPages = 1;
+  let printing = false;
 
-  initFilter({
+  const syncPageUrl = () => {
+    const url = new URL(window.location.href);
+    if (mobile.matches && currentPage > 1) url.searchParams.set('page', String(currentPage));
+    else url.searchParams.delete('page');
+    if (url.href !== window.location.href) window.history.replaceState(null, '', url);
+  };
+
+  const filter = initFilter({
     searchWithinCategory: true,
     categoryAliases: config.aliases,
     beforeApply: ({ category }) => {
-      if (category === currentCategory) return;
-      currentCategory = category;
+      if (printing) return;
+      const paginated = mobile.matches && category === 'all';
+      const viewKey = `${category}:${paginated}`;
+      if (viewKey === currentView) return;
+      currentView = viewKey;
       const view = config.views[category] ?? config.views.all;
       const assigned = new Set<string>();
       for (const categoryView of view.categories) {
@@ -31,7 +52,8 @@ export function initToolCatalog(): void {
           const collapsed = new Set(group.collapsedIds);
           for (const id of group.toolIds) {
             const card = cards.get(id);
-            const isCollapsed = collapsed.has(id);
+            // 手机全目录由分页收纳所有条目，避免分页内再次折叠。
+            const isCollapsed = !paginated && collapsed.has(id);
             const target = targets.get(`${group.key}${isCollapsed ? '-more' : ''}`);
             if (!card || !target) continue;
             target.append(card);
@@ -45,6 +67,60 @@ export function initToolCatalog(): void {
       }
       cards.forEach((card, id) => { if (!assigned.has(id)) pool.append(card); });
     },
+    selectCards: (matches, { category, reason }) => {
+      if (printing) {
+        pagination.hidden = true;
+        range.hidden = true;
+        return matches;
+      }
+      if (reason === 'init' || reason === 'history') {
+        const requested = new URLSearchParams(window.location.search).get('page') ?? '1';
+        currentPage = /^[1-9]\d*$/.test(requested) && Number.isSafeInteger(Number(requested)) ? Number(requested) : 1;
+      } else if (reason === 'filter') currentPage = 1;
+
+      const paginated = mobile.matches && category === 'all';
+      totalPages = paginated ? Math.max(1, Math.ceil(matches.length / pageSize)) : 1;
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+      syncPageUrl();
+      pagination.hidden = !paginated || totalPages === 1;
+      range.hidden = !paginated || matches.length === 0;
+      previous.disabled = currentPage === 1;
+      next.disabled = currentPage === totalPages;
+      pageLabel.textContent = `第 ${currentPage} 页，共 ${totalPages} 页`;
+
+      if (!paginated) return matches;
+      // 使用栏目顺序切页，不受卡片先前移入折叠区或其他栏目的顺序影响。
+      const matched = new Set(matches);
+      const ordered = config.views.all.categories.flatMap((item) => item.groups.flatMap((group) => group.toolIds))
+        .map((id) => cards.get(id)!).filter((card) => matched.has(card));
+      const start = (currentPage - 1) * pageSize;
+      const selected = ordered.slice(start, start + pageSize);
+      range.textContent = `，当前显示 ${matches.length ? start + 1 : 0}–${start + selected.length} 项`;
+      return selected;
+    },
   });
+
+  const changePage = (delta: number) => {
+    const requested = Math.min(Math.max(1, currentPage + delta), totalPages);
+    if (requested === currentPage) return;
+    currentPage = requested;
+    const url = new URL(window.location.href);
+    if (currentPage > 1) url.searchParams.set('page', String(currentPage));
+    else url.searchParams.delete('page');
+    window.history.pushState(null, '', url);
+    filter?.refresh();
+    results.focus({ preventScroll: true });
+    results.scrollIntoView({ block: 'start', behavior: 'instant' });
+  };
+  previous.addEventListener('click', () => changePage(-1));
+  next.addEventListener('click', () => changePage(1));
+  mobile.addEventListener('change', () => { if (!printing) filter?.refresh(); });
+  // 打印完整匹配集，不把屏幕分页变成内容截断。
+  window.addEventListener('beforeprint', () => {
+    printing = true;
+    filter?.refresh();
+    root.querySelectorAll<HTMLDetailsElement>('[data-collapse]').forEach((details) => { details.open = true; });
+  });
+  window.addEventListener('afterprint', () => { printing = false; filter?.refresh(); });
   root.dataset.catalogReady = 'true';
 }

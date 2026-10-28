@@ -28,7 +28,9 @@ npm run test:browser
 
 同一回归入口还覆盖全站搜索的输入法保护、键盘导航、匹配总数、空结果、加载失败重试，以及主题编辑器按需加载、重复打开和加载期间取消。普通阅读与预设切换不应请求编辑器脚本或样式；新建、编辑、导入主题共享一次初始化，取消后不会因延迟加载完成而重新弹出。
 
-已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器，测试后用 `Remove-Item Env:PLAYWRIGHT_CHANNEL` 恢复默认。手机视口模拟不等同于真实设备验收。
+已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器；自动查找不到时，用 `$env:PLAYWRIGHT_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'` 指定实际安装路径。测试后移除本次设置的环境变量以恢复默认。手机视口模拟不等同于真实设备验收。
+
+工具目录回归覆盖普通动效下的手机短屏滚动、每页 9 个工具的完整遍历、关键词与能力筛选、URL 和前进后退恢复、分类折叠与桌面切换，以及浅色、深色、自定义主题、无 JS 和打印降级。复核手机留白时检查目录实际 `opacity`，不能只依赖 DOM 存在或浏览器测试的 `isVisible()`。
 
 ### 文档检查范围
 
