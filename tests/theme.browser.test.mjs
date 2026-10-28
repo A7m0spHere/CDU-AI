@@ -2238,11 +2238,11 @@ test('指针落到顶部导航上时光效收敛到那一枚按钮，并撤走�
 test('首页引导图节点用与导航同一套光效：指针进到卡片里点亮，离开后熄灭', async t => {
   const page = await setup(t);
   const node = page.locator('.hero-node--tools');
-  const glow = page.locator('.hero-node--tools [data-node-glow]');
+  const glow = page.locator('.hero-node--tools [data-glow]');
   await glow.waitFor({ state: 'attached' });
 
   const state = () => page.evaluate(() => {
-    const el = document.querySelector('.hero-node--tools [data-node-glow]');
+    const el = document.querySelector('.hero-node--tools [data-glow]');
     const nav = document.querySelector('[data-nav-glow]');
     const cursor = document.querySelector('[data-cursor-glow]');
     const rect = el.getBoundingClientRect();
@@ -2288,6 +2288,74 @@ test('首页引导图节点用与导航同一套光效：指针进到卡片里�
   const reducedBox = await reduced.locator('.hero-node--tools').boundingBox();
   await reduced.mouse.move(reducedBox.x + reducedBox.width / 2, reducedBox.y + reducedBox.height / 2, { steps: 4 });
   await reduced.waitForTimeout(300);
-  assert.equal(await reduced.locator('.hero-node--tools [data-node-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮卡片光');
+  assert.equal(await reduced.locator('.hero-node--tools [data-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮卡片光');
+});
+
+
+test('页头控件与主按钮也用同一套光效：悬停时点亮，并撤走全站光晕', async t => {
+  const page = await setup(t);
+  await ready(page);
+
+  const hostState = (selector) => page.evaluate((sel) => {
+    const host = document.querySelector(sel);
+    const all = document.querySelectorAll('[data-glow-host]');
+    const glow = host.querySelector('[data-glow]');
+    const cursor = document.querySelector('[data-cursor-glow]');
+    const rect = glow.getBoundingClientRect();
+    const hostRect = host.getBoundingClientRect();
+    return {
+      hosts: all.length,
+      opacity: Number(getComputedStyle(glow).opacity),
+      active: glow.dataset.active,
+      width: rect.width,
+      height: rect.height,
+      hostWidth: hostRect.width,
+      uiFlag: document.documentElement.dataset.uiLight,
+      cursorOpacity: Number(getComputedStyle(cursor).opacity),
+    };
+  }, selector);
+
+  assert.equal((await hostState('.home-hero__actions .btn--primary')).hosts >= 4, true, '主按钮与页头三个控件都接上了光效');
+
+  const cta = page.locator('.home-hero__actions .btn--primary');
+  const ctaBox = await cta.boundingBox();
+  await page.mouse.move(ctaBox.x + ctaBox.width / 2, ctaBox.y + ctaBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(500);
+  const onCta = await hostState('.home-hero__actions .btn--primary');
+  assert.equal(onCta.active, 'true', '指针落到主按钮上应点亮');
+  assert.ok(onCta.opacity > .9, '主按钮上的光应淡入到可见');
+  // 光铺在按钮自己的内框里，比外框小 0–3px（1px 边框 / 圆角取样）
+  assert.ok(Math.abs(onCta.width - onCta.hostWidth) <= 3, '光应铺满按钮宽度');
+  assert.equal(onCta.uiFlag, 'true', '控件内的光效生效时通知全站');
+  assert.ok(onCta.cursorOpacity < .05, '全站光晕应撤走，避免同一处两层亮斑');
+
+  await page.mouse.move(ctaBox.x + ctaBox.width / 2 - 320, ctaBox.y - 120, { steps: 4 });
+  await page.waitForTimeout(500);
+  const away = await hostState('.home-hero__actions .btn--primary');
+  assert.equal(away.opacity, 0, '指针离开按钮后光应熄灭');
+  assert.equal(away.uiFlag, 'false', '离开后把光效交还给全站光晕');
+
+  for (const selector of ['.search-trigger', '.theme-picker__trigger', '.header-github']) {
+    const box = await page.locator(selector).boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 4 });
+    await page.waitForTimeout(420);
+    const state = await hostState(selector);
+    assert.equal(state.active, 'true', `指针落到 ${selector} 上应点亮`);
+    assert.ok(state.opacity > .9, `${selector} 上的光应淡入到可见`);
+    assert.ok(Math.abs(state.width - state.hostWidth) <= 3, `${selector} 的光应铺满控件宽度`);
+    assert.equal(state.uiFlag, 'true', `${selector} 亮起时通知全站`);
+    assert.ok(state.cursorOpacity < .05, `${selector} 亮起时全站光晕应撤走`);
+  }
+
+  await page.mouse.move(640, 980, { steps: 4 });
+  await page.waitForTimeout(450);
+  assert.equal((await hostState('.search-trigger')).opacity, 0, '指针离开页头后最后点亮的控件应熄灭');
+
+  const reduced = await setup(t, { reducedMotion: 'reduce' });
+  await ready(reduced);
+  const reducedCta = await reduced.locator('.home-hero__actions .btn--primary').boundingBox();
+  await reduced.mouse.move(reducedCta.x + reducedCta.width / 2, reducedCta.y + reducedCta.height / 2, { steps: 3 });
+  await reduced.waitForTimeout(300);
+  assert.equal(await reduced.locator('.home-hero__actions .btn--primary [data-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮按钮光');
 });
 

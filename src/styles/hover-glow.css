@@ -114,6 +114,51 @@
   box-shadow: inset 0 0 0 1px rgba(var(--glow-tint), 0.28);
 }
 
+/* 小控件（主按钮、搜索框、图标键）：光只在自己那一圈圆角里亮。
+   isolation 把光限制在控件自身的层叠上下文里，z-index: -1 让它压在控件底色之上、
+   文字与图标之下——否则光会糊在字上，读起来像按钮被压暗了一层。 */
+.hover-glow-host {
+  position: relative;
+  isolation: isolate;
+}
+
+.hover-glow-host > .hover-glow {
+  z-index: -1;
+}
+
+/* 实心品牌色按钮（主按钮）：光效接管时锁住底色。
+   否则 :hover 会把底色换成更深的 --brand-strong，那点提亮被底色变化吃掉，
+   看上去只是按钮变深，读不出「光汇聚在指针周围」。 */
+.btn--primary[data-glow-on='true'],
+.btn--primary[data-glow-on='true']:hover {
+  background: var(--brand);
+}
+
+/* 品牌色实心底上的光要掺一点白才亮得出来：
+   同一束淡蓝铺在深蓝底上只会变成「稍微深一点」，掺白才像一道掠过按钮的光。
+   圆角内层仍用 inset 变体，外面那圈 ::before 柔光继续用 --glow-tint。 */
+.btn--primary > .hover-glow {
+  background: radial-gradient(
+    46% 118% at var(--glow-cx, 50%) 50%,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.3) 38%,
+    rgba(255, 255, 255, 0.08) 68%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* 深色主题的 .hover-glow--inset 自带一套底色渐变（特异性更高），主按钮要再写一遍 */
+:root[data-theme='dark'] .btn--primary > .hover-glow {
+  background: radial-gradient(
+    46% 118% at var(--glow-cx, 50%) 50%,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.26) 38%,
+    rgba(255, 255, 255, 0.07) 68%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  box-shadow: none;
+}
+
 /* 减少动效、触屏与无 JS 时不启用：导航回落到半透明蓝底，卡片回落到描边 + 阴影 */
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
   .hover-glow {

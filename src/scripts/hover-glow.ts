@@ -1,12 +1,13 @@
 /**
- * 首页引导图节点的「光效汇聚」。
+ * 「光效汇聚」的通用驱动器：谁带 [data-glow-host]，指针落上去就点亮它内部那层光。
  *
- * 顶部导航那套是浮在导航条上的一枚 .nav-glow（见 nav-dock.ts）；
- * 引导图的节点是叠在看板娘插画上的实心卡片，光只能亮在卡片里面，
- * 所以每张卡自带一层 .hover-glow--inset，这里只负责：
- *   - 指针进到哪张卡，就点亮哪张卡的那一层；
- *   - 亮心跟着指针在卡片里左右移动（写 --glow-cx）；
- *   - 亮起时给 <html> 打 data-hero-light，让全站指针光晕让位（见 cursor-glow.css）。
+ * 顶部导航那套是浮在导航条上的一枚 .nav-glow（见 nav-dock.ts），几何逐帧跟着 dock 放大；
+ * 实心表面上（首页引导图节点、主按钮、搜索框、图标键）光只能亮在自身圆角里，
+ * 所以这些地方各自带一层 .hover-glow--inset，这里只负责：
+ *   - 指针进到哪个宿主，就点亮哪个宿主的那一层；
+ *   - 亮心跟着指针在宿主里左右移动（写 --glow-cx）；
+ *   - 通过 onActive 回调通知调用方（首页打 data-hero-light、页头打 data-ui-light），
+ *     让全站指针光晕让位（见 styles/cursor-glow.css）。
  *
  * 外观（渐变、模糊、深浅主题）与导航共用 styles/hover-glow.css，不在这里写颜色。
  */
@@ -25,26 +26,36 @@ const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
   const glows = new Map<HTMLElement, HTMLElement>();
   for (const item of items) {
-    const glow = item.querySelector<HTMLElement>('[data-node-glow]');
+    const glow = item.querySelector<HTMLElement>('[data-glow]');
     if (glow) glows.set(item, glow);
   }
 
   let active: HTMLElement | null = null;
 
+  /** 点亮 / 熄灭一枚宿主：宿主自己也留个标记，方便 CSS 让 hover 底色给光让位 */
+  const activate = (item: HTMLElement | null) => {
+    if (active === item) return;
+    if (active !== null) {
+      glows.get(active)?.removeAttribute('data-active');
+      delete active.dataset.glowOn;
+    }
+    active = item;
+    if (item === null) return;
+    glows.get(item)?.setAttribute('data-active', 'true');
+    item.dataset.glowOn = 'true';
+  };
+
   return (item, pointerX) => {
     if (!item || !glows.has(item)) {
       if (active === null) return;
-      glows.get(active)?.removeAttribute('data-active');
-      active = null;
+      activate(null);
       onActive?.(false);
       return;
     }
 
-    if (active !== null && active !== item) glows.get(active)?.removeAttribute('data-active');
+    activate(item);
     const glow = glows.get(item);
     if (!glow) return;
-    glow.dataset.active = 'true';
-    active = item;
 
     if (pointerX !== undefined) {
       const rect = item.getBoundingClientRect();

@@ -219,3 +219,26 @@
 ![首页引导图节点光效汇聚（浅色）](design/hero-node-glow-light.png)
 
 ![首页引导图节点光效汇聚（深色）](design/hero-node-glow-dark.png)
+
+### 2026-10-28 · 页头控件与首屏主按钮接入同一束光
+
+- 维护者反馈（附两张截图：首屏「开始学习」按钮、页头搜索框与右侧两个图标键）：「再给这几个按钮也加上同样的效果」。
+- 复用而不是重画：这些控件都是实心／带底色的矩形，直接套首页引导图那套 `.hover-glow--inset`（38% 椭圆 + 溢出柔光），只补两条基础规则——`.hover-glow-host { position: relative; isolation: isolate }` 与子层 `z-index: -1`，让光压在控件底色之上、文字与图标之下，否则半透明光会糊在字上，读起来像按钮被压暗。
+- 驱动器抽成 `src/scripts/ui-glow.ts`：在 document 上做事件委托，找 `[data-glow-host]`，写 `--glow-cx`，亮起时给 `<html>` 打 `data-ui-light`（`cursor-glow.css` 据此让全站光晕让位）；键盘 `focusin` 也点亮，亮心放控件中央。指针轨迹合并到一帧一次（`requestAnimationFrame`），减少动效 / `hover: none` 下直接跳过。
+- 主按钮踩了两次坑：① 直接套淡蓝，实测悬停后中段 RGB 从 73,125,238 变成 81,120,228——**整体反而变暗**，因为 `.btn--primary:hover` 把底色换成了更深的 `--brand-strong`，光被底色变化吃掉；② 于是亮起时给宿主打 `data-glow-on`，CSS 锁住 `.btn--primary[data-glow-on='true']` 的底色为 `--brand`，并把品牌色实心底上的光改成掺白的掠光（白 0.62 → 0.3 → 0.08 衰减）。深色主题还要单独写一遍：`.hover-glow--inset` 的深色规则特异性更高，会盖掉按钮自己的渐变。
+- 实测（1440 宽，浅色主题取样按钮中段与右侧三分之一）：中段 73,125,238 → **112,153,243**、右侧 44,104,236 → 118,157,244；深色主题中段 84,145,220 → **109,158,221**、右侧 93,161,243 → 140,186,245。
+- 与导航、引导图节点一致：所有光共用 `--glow-tint`（浅色 `rgb(124,164,255)` / 深色 `rgb(150,190,255)`），只有主按钮那一层掺了白；光斑为控件内框尺寸（1px 边框差 ≤3px）。
+- 测试：新增「页头控件与主按钮也用同一套光效」——主按钮 + 搜索框 + 主题键 + GitHub 键逐个悬停，断言点亮、透明度 >0.9、光宽 ≈ 控件宽、`data-ui-light` 为 true、全站光晕 <0.05，离开后熄灭并把光交还全站；减少动效下不点亮。原有两条 glow 测试的 `data-node-glow` 选择器随通用化改为 `data-glow`。
+- 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **25/25 通过**。
+
+![首屏主按钮的光效汇聚（浅色）](design/btn-glow-light.png)
+
+![首屏主按钮的光效汇聚（深色）](design/btn-glow-dark.png)
+
+![页头搜索框的光效汇聚（浅色）](design/header-glow-light.png)
+
+![页头搜索框的光效汇聚（深色）](design/header-glow-dark.png)
+
+![页头图标键的光效汇聚（浅色）](design/icon-glow-light.png)
+
+![页头图标键的光效汇聚（深色）](design/icon-glow-dark.png)

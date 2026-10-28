@@ -4,15 +4,17 @@ import Icon from './Icon.astro';
 
 <div class="theme-picker" data-theme-picker>
   <button
-    class="icon-button theme-picker__trigger"
+    class="icon-button theme-picker__trigger hover-glow-host"
     type="button"
     data-theme-trigger
+    data-glow-host
     aria-haspopup="true"
     aria-expanded="false"
     aria-controls="theme-panel"
     aria-label="切换主题"
     title="切换主题"
   >
+    <span class="hover-glow hover-glow--inset" data-glow aria-hidden="true"></span>
     <Icon name="palette" size={18} />
   </button>
 

@@ -5,6 +5,7 @@ import { initTableScroll } from './table-scroll';
 import { initCodeCopy } from './code-copy';
 import { initTocSheet } from './toc-sheet';
 import { copyText } from '../lib/clipboard';
+import './ui-glow';
 import './theme';
 import './search';
 
