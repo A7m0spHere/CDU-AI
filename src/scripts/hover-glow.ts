@@ -30,6 +30,16 @@ export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
     if (glow) glows.set(item, glow);
   }
 
+  /** 光层按需查一次再缓存：ui-glow 会在运行中补挂新的按钮（筛选、复制、主题面板），
+      它们不在初始化时的 items 里，不能只认这张表。 */
+  const glowOf = (item: HTMLElement): HTMLElement | null => {
+    const cached = glows.get(item);
+    if (cached) return cached;
+    const glow = item.querySelector<HTMLElement>('[data-glow]');
+    if (glow) glows.set(item, glow);
+    return glow;
+  };
+
   let active: HTMLElement | null = null;
 
   /** 点亮 / 熄灭一枚宿主：宿主自己也留个标记，方便 CSS 让 hover 底色给光让位 */
@@ -46,7 +56,7 @@ export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
   };
 
   return (item, pointerX) => {
-    if (!item || !glows.has(item)) {
+    if (!item || glowOf(item) === null) {
       if (active === null) return;
       activate(null);
       onActive?.(false);

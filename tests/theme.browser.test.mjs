@@ -2359,3 +2359,67 @@ test('页头控件与主按钮也用同一套光效：悬停时点亮，并撤�
   assert.equal(await reduced.locator('.home-hero__actions .btn--primary [data-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮按钮光');
 });
 
+
+test('站内同类按钮自动接上同一束光：正文按钮、筛选片、复制键', async t => {
+  const page = await setup(t);
+
+  const coverage = (selector) => page.evaluate((sel) => {
+    const items = Array.from(document.querySelectorAll(sel));
+    return {
+      total: items.length,
+      covered: items.filter(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1).length,
+    };
+  }, selector);
+
+  // 关于页：正文里的整排按钮
+  await page.goto(origin + '/about/'); await ready(page);
+  const aboutButtons = await coverage('.btn');
+  assert.ok(aboutButtons.total >= 4, '关于页应有整排正文按钮');
+  assert.equal(aboutButtons.covered, aboutButtons.total, '正文按钮都应自动接上光效');
+
+  const soft = page.locator('.page-hero__actions .btn--soft').first();
+  const softBox = await soft.boundingBox();
+  await page.mouse.move(softBox.x + softBox.width * .4, softBox.y + softBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  const softOn = await page.evaluate(() => {
+    const host = document.querySelector('.page-hero__actions .btn--soft');
+    const glow = host.querySelector('[data-glow]');
+    return {
+      active: glow.getAttribute('data-active'),
+      opacity: Number(getComputedStyle(glow).opacity),
+      width: glow.getBoundingClientRect().width,
+      hostWidth: host.getBoundingClientRect().width,
+      inFrontOf: getComputedStyle(host).isolation,
+    };
+  });
+  assert.equal(softOn.active, 'true', '指针落到次级按钮上应点亮');
+  assert.ok(softOn.opacity > .9, '次级按钮上的光应淡入到可见');
+  assert.ok(Math.abs(softOn.width - softOn.hostWidth) <= 3, '光应铺满整枚按钮');
+  assert.equal(softOn.inFrontOf, 'isolate', '宿主应建立层叠上下文，让光压在底色之上、文字之下');
+
+  // 工具页：侧栏筛选片 + 「清除筛选」
+  await page.goto(origin + '/tools/'); await ready(page);
+  const chips = await coverage('.filter-chip');
+  assert.ok(chips.total >= 8, '工具页应有整列筛选片');
+  assert.equal(chips.covered, chips.total, '筛选片都应自动接上光效');
+  assert.equal((await coverage('.clear-filters')).covered, (await coverage('.clear-filters')).total, '清除筛选按钮也应接上');
+
+  const chip = page.locator('.filter-chips--vertical .filter-chip').nth(2);
+  const chipBox = await chip.boundingBox();
+  await page.mouse.move(chipBox.x + chipBox.width * .6, chipBox.y + chipBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  assert.equal(await chip.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到筛选片上应点亮');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.uiLight), 'true', '筛选片亮起时通知全站');
+  // 只有被指到的那一枚亮，其余保持熄灭
+  assert.equal(await page.locator('.filter-chips--vertical .filter-chip [data-glow][data-active="true"]').count(), 1, '同时只应有一枚按钮发光');
+
+  // 术语详情页：正文里的复制键
+  await page.goto(origin + '/glossary/hallucination/'); await ready(page);
+  assert.equal((await coverage('.term-copy')).covered, 1, '术语页复制键应自动接上光效');
+  const copy = page.locator('.term-copy');
+  const copyBox = await copy.boundingBox();
+  await page.mouse.move(copyBox.x + copyBox.width * .4, copyBox.y + copyBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  assert.equal(await copy.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到复制键上应点亮');
+});
+

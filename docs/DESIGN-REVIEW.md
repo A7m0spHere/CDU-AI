@@ -242,3 +242,26 @@
 ![页头图标键的光效汇聚（浅色）](design/icon-glow-light.png)
 
 ![页头图标键的光效汇聚（深色）](design/icon-glow-dark.png)
+
+### 2026-10-28 · 站内同类按钮全部接上同一束光
+
+- 维护者反馈：「给所有的类似按钮都加上同样的效果」。
+- 范围判定：给**行动入口**一致的反馈，而不是让整页发光。接管 `.btn`（primary / soft / ghost / sm，含 404、活动、作品、关于各页的按钮组）、`.filter-chip`、`.clear-filters`、`.copy-button`、`.term-copy`、`.term-prompt__copy`、场景「换一张」、搜索对话框关闭键、主题面板的关闭键 / 行按钮 / 小按钮 / 字体选项。刻意不接：取色色块（光会盖掉正在挑选的颜色）、正文里的步骤与测验选项（属于阅读内容）、导航链接（已由 nav-glow 处理，再叠一层会双重发光）。
+- 实现方式改成「自动接线」，而不是再去十几个文件里补标记：`ui-glow.ts` 启动时按选择器给命中控件补 `.hover-glow-host`、`data-glow-host` 并插入一层 `.hover-glow--inset`（已有静态光层的不重复插入），再用 MutationObserver 补挂后渲染出来的按钮（主题面板重建、筛选结果）。以后新增按钮只要写自己的语义样式，光会自动跟上；要加一类新控件就往 `AUTO_HOSTS` 里加一个选择器。
+- 驱动器相应放宽：`hover-glow.ts` 原来只在初始化时给传入的 items 建映射表，现在「查不到就现查并缓存」，运行中才注入的宿主也能点亮；`ui-glow.ts` 的事件委托也从「必须在这个数组里」改成 `closest('[data-glow-host]')`。
+- 层叠与安全：`.hover-glow-host` 的 `isolation: isolate` 加光层 `z-index: -1`，光压在控件底色之上、文字与图标之下，所以筛选片、复制键这类小控件亮起时字始终清楚；同时只亮一枚，切换时旧的立刻熄灭。
+- 实测覆盖（工具页 62 个 `button` / 链接按钮）：40 个接上光效，剩余 22 个全是主题面板里的取色色块——即刻意排除项以外没有漏网。术语页复制键、关于页次级按钮、筛选片三处的截图见下。
+- 测试：新增「站内同类按钮自动接上同一束光」——关于页整排 `.btn` 全部带宿主类且只有一个光层、悬停次级按钮点亮且光宽 ≈ 按钮宽、宿主 `isolation` 为 `isolate`；工具页整列筛选片与「清除筛选」全覆盖、亮起时通知全站、同时只有一枚 `data-active`；术语页复制键点亮。
+- 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **26/26 通过**。
+
+![次级按钮（浅色）](design/btn-soft-glow-light.png)
+
+![次级按钮（深色）](design/btn-soft-glow-dark.png)
+
+![筛选片（浅色）](design/chip-glow-light.png)
+
+![筛选片（深色）](design/chip-glow-dark.png)
+
+![术语页复制键（浅色）](design/term-copy-glow-light.png)
+
+![主题面板里的按钮（深色）](design/theme-panel-glow-dark.png)
