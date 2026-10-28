@@ -19,6 +19,8 @@ OpenAI、Claude 与 Grok 平台复用已有官方品牌素材；其余图标从�
 
 | 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
 | --- | --- | --- | --- | --- |
+| 小米 MiMo 开放平台 | `/tool-logos/xiaomi-mimo.png` | https://platform.xiaomimimo.com/favicon.png | 官方 MiMo 开放平台图标，仅用于识别该平台 | 否 |
+| Qwen API 官方入口 | `/tool-logos/qwen-api.png` | https://img.alicdn.com/imgextra/i4/O1CN01OXv3EM1FN8t9W4P79_!!6000000000474-2-tps-80-80.png | Qwen 官方站点图标，仅用于识别该 API 入口 | 否 |
 | 腾讯云 TokenHub | `/tool-logos/tencent-tokenhub.ico` | https://cloudcache.tencent-cloud.com/qcloud/favicon.ico | 腾讯云官网图标，仅用于识别该平台 | 否 |
 | 百度千帆 | `/tool-logos/baidu-qianfan.ico` | https://bce.bdstatic.com/img/newfavicon.ico | 百度智能云官方文档图标，仅用于识别该平台 | 否 |
 | 阶跃星辰开放平台 | `/tool-logos/stepfun-api.png` | https://platform.stepfun.com/images/title-logo.png | 官方开放平台图标，仅用于识别该平台 | 否 |

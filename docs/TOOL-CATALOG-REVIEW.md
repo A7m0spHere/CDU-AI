@@ -166,3 +166,41 @@
 API 栏目按国内模型与云平台、海外模型与云平台、国内聚合与推理平台、海外聚合与推理平台、专用接口分为五区。地区按平台运营方划分，全部 API 条目补充 `catalogGroup` 与地区标签；Tavily、fal.ai 在专用接口中注明海外归属。原有条目的能力核对日期保持原记录，新增条目如实填写本轮官网或文档核对日期。
 
 图标使用已有官方品牌素材或从官方站点取得的图标，原样自托管，来源与使用说明见 [TOOL-LOGOS.md](TOOL-LOGOS.md)。本轮未登录平台、创建密钥、付费或执行 API 调用，不将公开资料核对写成实际任务测试。
+
+## 工具归类收拢与 OCR 分区（2026-10-28）
+
+按维护者逐项指定用途重新归类，保留「Agent 与 Harness」与分类 ID agent，撤掉「Agent 与工作流」合并入口。当前保留 106 项工具、10 个一级分类；Agent 栏目 32 项，开发平台 25 项。
+
+| 工具 | 当前唯一分类与分区 |
+| --- | --- |
+| 阿里云百炼 | API 与开发平台 → 国内聚合与推理平台 |
+| ComfyUI、RunningHub | AIGC → 创作工作流 |
+| MinerU | 文档解析与 OCR；不再关联搜索科研或 Agent |
+| Canva AI | AIGC → 设计与排版；不再关联办公与演示 |
+| Cherry Studio | Agent 与 Harness → 开源工具；不再关联对话或本地部署 |
+| Tavily | API 与开发平台 → 专用接口，简介及技术类型明确为搜索服务 API |
+| Dify、扣子 Coze、n8n | API 与开发平台 → 应用搭建与自动化，保留工作流工具形态 |
+| RAGFlow | Agent 与 Harness → 开源工具 |
+| Civitai | 模型与数据社区 → 创作资源 |
+| Google Colab | 云端算力与部署 → 在线 Notebook 与实验环境 |
+| Gamma | AIGC → 演示文稿 |
+| WPS AI | AIGC → 文档与表格 |
+| Notion AI | AI 搜索与科研 → 资料阅读与知识库 |
+| Obsidian | AI 搜索与科研 → 论文检索与文献管理 |
+| 通义听悟 | 语音与音频 → 录音转写 |
+
+Agent 页内保留原来的归属分组：国内工具 8 项、海外工具 9 项、开源工具 15 项。厂商官方产品仍按国内或海外归类；社区开源项目归开源工具，并核对当前工具自身的开源能力标签。OpenCode、Pi、OpenClaw、Cherry Studio、RAGFlow 默认直接展示，其余 10 项收进「更多开源 Agent 与 Harness」，搜索与能力筛选时自动展开。
+
+旧 workflow 与 office 分类均已撤销，其链接映射到全部工具并保留关键词、能力条件，便于找到已迁入不同栏目的旧条目；原 document 链接继续指向搜索科研。当前所有工具均只保留主栏目，跨栏目关联为零；各栏目条目数合计与全目录总数相同。
+
+本轮以主用途调整分类，产品入口、图标和原核对日期保持原记录。MinerU 的文档解析范围参考[官方介绍](https://mineru.net/)；n8n 的海外运营方归属依据[官方公司信息](https://n8n.io/imprint/)。本轮未登录产品或执行实际模型任务。
+
+## 模型平台优先排序与 MiMo、Qwen 入口（2026-10-28）
+
+按维护者要求在 API 栏目优先展示模型厂商的官方入口，再展示聚合、应用搭建及专用服务。国内分区先展示 DeepSeek、Qwen、Kimi、智谱、MiniMax，随后为 MiMo、阶跃及其他云平台；海外分区先展示 OpenAI、Claude、Google AI Studio，再展示 Grok、Mistral、Cohere。展示顺序集中在 toolSections.api 的 toolIds 中，服务端首屏、栏目切换和手机分页共用同一配置，不表示模型能力排名。校验器拦截同一分区列表中的重复引用。
+
+- 新增[小米 MiMo 开放平台](https://platform.xiaomimimo.com/)，依据[官方首次调用文档](https://mimo.mi.com/docs/zh-CN/quick-start/summary/first-api-call)核对模型 API、兼容接入与凭证要求，不写死模型版本、额度或套餐权益。
+- 新增[Qwen API 官方入口](https://qwen.ai/apiplatform)，按官方页面介绍模型与 API 接入指引，保留该入口与[百炼实际调用文档](https://help.aliyun.com/zh/model-studio/first-api-call-to-qwen)的关系：此条不是一套独立计费后台，实际账号、凭证、地区与服务按接入平台核对。Qwen 作为阿里千问模型厂商入口放在国内模型分区，不据此承诺国内访问或服务地域。
+- 百炼只移至国内聚合与推理平台，保留条目、原入口与原核对日期，不复制厂商或聚合条目。MiMo、Qwen 的官方站点图标原样自托管，记录于[图标来源清单](TOOL-LOGOS.md)。
+
+本轮核对公开页面、官方文档及入口页面的实际导航内容，未登录账号、创建密钥、付费或执行模型 API 调用。新增后共 106 项工具、25 项 API 与开发平台条目，仍各自只归一个主栏目。

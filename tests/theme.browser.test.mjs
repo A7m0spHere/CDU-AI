@@ -234,7 +234,7 @@ test('编辑器样式加载失败显示错误，重试后只创建一套对话�
   assert.equal(await page.locator('[data-theme-editor]').count(), 1);
 });
 
-test('预设切换/刷新与 main 工具目录、社区折叠和搜索兼容', async t => {
+test('预设切换/刷新与 main 工具目录、开源工具折叠和搜索兼容', async t => {
   const page = await setup(t);
   await select(page, 'preset-forest');
   await page.goto(origin + '/tools/');
@@ -258,21 +258,39 @@ test('预设切换/刷新与 main 工具目录、社区折叠和搜索兼容', a
   assert.equal((await state(page)).bg, '#ffffff');
 });
 
-test('工具栏目使用自己的分区，关联条目不重复且搜索限定当前栏目', async t => {
+test('旧工作流及办公链接保留搜索，重分类后的 Agent 与 AIGC 不重复', async t => {
   const page = await setup(t);
-  await page.goto(origin + '/tools/?category=workflow');
+  await page.goto(origin + '/tools/?category=workflow&q=Dify');
   await ready(page);
-  assert.deepEqual(await page.locator('[data-catalog-category]:visible').evaluateAll(elements => elements.map(element => element.dataset.catalogCategory)), ['workflow']);
-  assert.equal(await page.locator('[data-filter-count]').textContent(), '13');
-  assert.equal(await page.locator('[data-collapse]:visible').count(), 0);
-  assert.equal(await page.locator('[data-tool-id="dify"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'workflow-visual');
-  assert.equal(await page.locator('[data-tool-id="comfyui"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'workflow-creative');
-  assert.equal(await page.locator('[data-tool-id="langgraph"]').isVisible(), true);
+  assert.equal(await page.locator('[data-filter-value="all"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '1');
+  assert.equal(await page.locator('[data-tool-id="dify"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'api-applications');
+  await page.goto(origin + '/tools/?category=office&q=Gamma');
+  await ready(page);
+  assert.equal(await page.locator('[data-filter-value="all"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-filter-value="office"]').count(), 0);
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '1');
+  assert.equal(await page.locator('[data-tool-id="gamma"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'aigc-presentation');
+  await page.goto(origin + '/tools/?category=agent');
+  await ready(page);
+  assert.deepEqual(await page.locator('[data-catalog-category]:visible').evaluateAll(elements => elements.map(element => element.dataset.catalogCategory)), ['agent']);
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '32');
+  assert.equal(await page.locator('[data-filter-value="workflow"]').count(), 0);
+  assert.equal(await page.locator('[data-filter-value="agent"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-tool-id="dify"]').isVisible(), false);
+  assert.equal(await page.locator('[data-tool-id="comfyui"]').isVisible(), false);
+  assert.equal(await page.locator('[data-tool-id="cherry-studio"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'agent-open-source');
+  assert.equal(await page.locator('[data-tool-id="ragflow"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'agent-open-source');
+  assert.equal(await page.locator('[data-tool-id="cherry-studio"]').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id="ragflow"]').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id="langgraph"]').isVisible(), false);
   assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
 
   await page.locator('[data-filter-value="aigc"]').press('Enter');
-  assert.equal(await page.locator('[data-filter-count]').textContent(), '10');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '11');
+  assert.equal(await page.locator('[data-tool-id="civitai"]').isVisible(), false);
   assert.equal(await page.locator('[data-tool-id="canva"] [data-tool-category-label]').textContent(), 'AIGC');
+  assert.equal(await page.locator('[data-tool-id="canva"]').evaluate(element => element.closest('[data-tool-group]').dataset.toolGroup), 'aigc-design');
   await page.locator('[data-filter-search]').fill('Perplexity');
   await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '0');
   assert.equal(await page.locator('[data-empty-state]').isVisible(), true);
@@ -293,7 +311,7 @@ test('工具栏目使用自己的分区，关联条目不重复且搜索限定�
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
 });
 
-test('社区折叠数量跟随搜索及手动展开，开源筛选不借用模型或源码可用状态', async t => {
+test('开源 Agent 折叠数量跟随搜索及手动展开，开源筛选不借用模型或源码可用状态', async t => {
   const page = await setup(t);
   await page.goto(origin + '/tools/?category=agent');
   await ready(page);
@@ -316,9 +334,9 @@ test('社区折叠数量跟随搜索及手动展开，开源筛选不借用模�
 
   await page.locator('[data-filter-value="llm-chat"]').press('Enter');
   await page.locator('[data-filter-cap="open-source"]').press('Enter');
-  assert.equal(await page.locator('[data-filter-count]').textContent(), '2');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), '1');
   assert.equal(await page.locator('[data-tool-id="qwen-chat"]').isVisible(), false);
-  assert.equal(await page.locator('[data-tool-id="cherry-studio"]').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id="cherry-studio"]').isVisible(), false);
   assert.equal(await page.locator('[data-tool-id="rikkahub"]').isVisible(), true);
 });
 
@@ -406,6 +424,8 @@ test('手机全目录逐页覆盖全部工具且不重复，翻页支持键盘�
     if (current < pages) {
       await page.locator('[data-catalog-next]').press('Enter');
       assert.equal(await page.locator('[data-catalog-results]').evaluate(el => el === document.activeElement), true);
+      // 不只核对瞬时位置：卡片进场动画结束后，浏览器也不能把视口挪回下方。
+      await page.waitForFunction(() => document.querySelectorAll('[data-filter-card].filter-appear').length === 0);
       // 等浏览器完成焦点与滚动布局，再核对最终位置，避免读取到中间帧。
       await page.waitForFunction(() => {
         const top = document.querySelector('[data-catalog-results]').getBoundingClientRect().top;

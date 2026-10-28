@@ -102,8 +102,8 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 | 维度 | 字段 | 取值 |
 | --- | --- | --- |
-| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的 id（语言模型与对话、Agent 与 Harness、AIGC、语音与音频、搜索科研、工作流、本地运行与部署、模型与数据社区、API 与开发平台、云端算力与部署、办公与演示） |
-| 页内分组 | `catalogGroup` / `aigcSection` | 对话与 Agent 按归属分组；AIGC 按图片、视频、工作流和资源社区分区 |
+| 场景分类 | `category` / `alsoIn` | `toolCategories` 中的十个主栏目；当前每项只保留主分类、不填写关联分类。旧 `workflow`、`office` 链接进入全部工具并保留搜索条件 |
+| 页内分组 | `toolSections` / `catalogGroup` / `aigcSection` | Agent 按国内工具、海外工具、开源工具分组；对话按归属、API 按地区与平台类型分组；AIGC 按图片、视频、设计、演示、文档、创作工作流分区 |
 | 资源形态 | `kind` | 在线产品 / 开源项目 / 工作流工具 / 开发工具 / 资源社区 / 开发平台；当前暂不收录独立模型 |
 | 技术类型 | `tech` | LLM 对话应用、扩散模型、Agent Harness、TTS、STT 等自由文本 |
 | 能力标签 | `capabilities` | open-source / local / beginner / zh（页面上可多选筛选） |

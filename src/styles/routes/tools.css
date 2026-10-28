@@ -39,7 +39,7 @@
 }
 
 /*
- * Agent 与 Harness：默认收起的社区条目区。
+ * Agent 与 Harness：默认收起的更多开源工具区。
  * 外层 details 是网格的一整行，展开后内部复用 .tool-grid 的三列卡片布局。
  */
 .tool-more {
@@ -560,6 +560,13 @@
 }
 
 /* 手机全目录分页，沿用按钮和主题令牌。 */
+@media (max-width: 760px) {
+  :root:has([data-tool-catalog]) {
+    /* 键盘聚焦分页按钮时不启动延迟滚动，避免覆盖脚本的翻页定位。 */
+    scroll-behavior: auto;
+  }
+}
+
 [data-catalog-results] {
   scroll-margin-top: 1rem;
 }

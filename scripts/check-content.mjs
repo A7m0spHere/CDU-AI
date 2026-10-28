@@ -349,7 +349,7 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
       push(label + ' 的 catalogGroup 不合法：' + tool.catalogGroup);
     }
     const isAigc = tool.category === 'aigc' || tool.alsoIn.includes('aigc');
-    if (isAigc && !['image', 'video', 'workflow', 'resources'].includes(tool.aigcSection)) {
+    if (isAigc && !['image', 'video', 'design', 'presentation', 'document', 'workflow', 'resources'].includes(tool.aigcSection)) {
       push(label + ' 缺少合法的 AIGC 页内分区（aigcSection）');
     }
     if (!isAigc && tool.aigcSection) push(label + ' 填写 aigcSection 时必须属于 AIGC 分类');

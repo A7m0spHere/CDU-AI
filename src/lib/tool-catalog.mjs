@@ -21,10 +21,14 @@ export function createCatalogView(categoryId, tools, categories) {
     id: categoryId,
     categories: selected.map((category) => {
       const members = tools.filter((tool) => categoryId === 'all' ? tool.category === category.id : belongsTo(tool, category.id));
+      const memberById = new Map(members.map((tool) => [tool.id, tool]));
       return {
         id: category.id,
         groups: (toolSections[category.id] ?? []).map((section) => {
-          const groupTools = members.filter((tool) => matchesSection(tool, section));
+          // 明确列举的分区以配置顺序展示；字段分组继续保留数据顺序。
+          const groupTools = section.field
+            ? members.filter((tool) => matchesSection(tool, section))
+            : (section.toolIds ?? []).map((id) => memberById.get(id)).filter((tool) => tool !== undefined);
           return {
             key: `${category.id}-${section.id}`,
             toolIds: groupTools.map((tool) => tool.id),
@@ -63,6 +67,8 @@ export function validateCatalogSections(tools, categories) {
       if (matched.length !== 1) errors.push(`${tool.id} 在 ${category} 中必须且只能归入一个分区（当前 ${matched.length}）`);
     }
     for (const section of sections) {
+      const explicitIds = section.toolIds ?? [];
+      if (new Set(explicitIds).size !== explicitIds.length) errors.push(`分区 ${category}/${section.id} 的工具列表存在重复引用`);
       for (const id of [...(section.toolIds ?? []), ...(section.collapse?.featuredIds ?? [])]) {
         if (!knownIds.has(id)) errors.push(`分区 ${category}/${section.id} 引用了不存在的工具 ${id}`);
         else if (!belongsTo(tools.find((tool) => tool.id === id), category)) errors.push(`${id} 不属于分区所在分类 ${category}`);

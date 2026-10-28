@@ -19,7 +19,7 @@ export type ToolCapability = 'open-source' | 'local' | 'beginner' | 'zh';
 export type ToolCatalogGroup = 'domestic' | 'overseas' | 'open-source' | 'community';
 
 /** AIGC 页内分区，每个条目只有一个主要展示位置。 */
-export type AigcSection = 'image' | 'video' | 'workflow' | 'resources';
+export type AigcSection = 'image' | 'video' | 'design' | 'presentation' | 'document' | 'workflow' | 'resources';
 
 export interface ToolLogo {
   /** 站内路径，例如 /tool-logos/deepseek.svg */
@@ -45,9 +45,9 @@ export interface Tool {
   id: string;
   name: string;
   category: string;
-  /** 用于对话、Agent 与 API 平台的地区或资源分组，与热度标签无关。 */
+  /** 工具的地区或来源分组；具体规则以 tool-sections.mjs 为准。 */
   catalogGroup?: ToolCatalogGroup;
-  /** AIGC 中的图片、视频、工作流或资源社区分区。 */
+  /** AIGC 中的图片、视频、设计、演示、文档、工作流或资源社区分区。 */
   aigcSection?: AigcSection;
   /** 次要分类：同一个工具还能在哪些场景里被找到 */
   alsoIn?: string[];
