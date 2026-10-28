@@ -15,6 +15,9 @@
  *   - .term-steps__item / .term-quiz__option（正文里的阅读步骤与测验选项，
  *     属于内容而非行动入口，整页发光会盖过正文）
  *   - .nav-link / .nav-cta（由顶部导航的 nav-glow 统一处理，再叠一层会双重发光）
+ *
+ * 侧栏搜索框（.search-field）与列表卡片（.tool-card / .glossary-term / .branch-row__label）
+ * 也在这里：输入框的底色是 input 自己的，光层要压在它上面才看得见（见 hover-glow.css）。
  */
 
 import { initInsetGlow } from './hover-glow';
@@ -33,6 +36,12 @@ const AUTO_HOSTS = [
   '.theme-panel__link',
   '.theme-mini-btn',
   '.theme-font-option',
+  // 侧栏搜索框：搜索本身就是一个入口，指针落上去该有同一束光
+  '.search-field',
+  // 列表卡片：工具卡、术语卡与术语侧栏的分支行
+  '.tool-card',
+  '.glossary-term',
+  '.branch-row__label',
 ];
 
 const SELECTOR = ['[data-glow-host]', ...AUTO_HOSTS].join(',');

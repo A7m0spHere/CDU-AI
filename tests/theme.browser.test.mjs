@@ -2423,3 +2423,73 @@ test('站内同类按钮自动接上同一束光：正文按钮、筛选片、�
   assert.equal(await copy.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到复制键上应点亮');
 });
 
+
+test('侧栏搜索框与列表卡片接上同一束光', async t => {
+  const page = await setup(t);
+
+  const coverage = (selector) => page.evaluate((sel) => {
+    const items = Array.from(document.querySelectorAll(sel));
+    return {
+      total: items.length,
+      covered: items.filter(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1).length,
+    };
+  }, selector);
+
+  // 工具页：侧栏搜索框——输入框自己有底色，光层必须压在它上面才看得见
+  await page.goto(origin + '/tools/'); await ready(page);
+  assert.equal((await coverage('.search-field')).covered, 1, '侧栏搜索框应接上光效');
+  const search = page.locator('.catalog-sidebar .search-field').first();
+  const searchBox = await search.boundingBox();
+  await page.mouse.move(searchBox.x + searchBox.width * .62, searchBox.y + searchBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  const searchOn = await search.evaluate((host) => {
+    const glow = host.querySelector('[data-glow]');
+    return {
+      active: glow.getAttribute('data-active'),
+      opacity: Number(getComputedStyle(glow).opacity),
+      zIndex: getComputedStyle(glow).zIndex,
+      width: glow.getBoundingClientRect().width,
+      hostWidth: host.getBoundingClientRect().width,
+      cx: glow.style.getPropertyValue('--glow-cx'),
+    };
+  });
+  assert.equal(searchOn.active, 'true', '指针落到搜索框上应点亮');
+  assert.ok(searchOn.opacity > .9, '搜索框上的光应淡入到可见');
+  assert.equal(searchOn.zIndex, '1', '光层要抬到输入框之上，否则被输入框底色挡住');
+  assert.ok(Math.abs(searchOn.width - searchOn.hostWidth) <= 3, '光应铺满整条输入框');
+  assert.ok(parseFloat(searchOn.cx) > 50, '亮心应跟着指针偏到右半边');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.uiLight), 'true', '搜索框亮起时通知全站光晕让位');
+
+  // 工具页：列表里的工具卡
+  const cards = await coverage('.tool-card');
+  assert.ok(cards.total >= 6, '工具页应有一整片工具卡');
+  assert.equal(cards.covered, cards.total, '工具卡都应自动接上光效');
+  const card = page.locator('.tool-card').first();
+  const cardBox = await card.boundingBox();
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  assert.equal(await card.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到工具卡上应点亮');
+  assert.equal(await page.locator('.tool-card [data-glow][data-active="true"]').count(), 1, '同时只应有一张卡片发光');
+
+  // 术语页：术语卡与侧栏分支行
+  await page.goto(origin + '/glossary/'); await ready(page);
+  const terms = await coverage('.glossary-term');
+  assert.ok(terms.total >= 1, '术语页应至少有一张术语卡');
+  assert.equal(terms.covered, terms.total, '术语卡都应自动接上光效');
+  const rows = await coverage('.branch-row__label');
+  assert.ok(rows.total >= 6, '术语侧栏应有分类分支行');
+  assert.equal(rows.covered, rows.total, '侧栏分支行也应接上光效');
+
+  const term = page.locator('.glossary-term').first();
+  const termBox = await term.boundingBox();
+  await page.mouse.move(termBox.x + termBox.width / 2, termBox.y + termBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  assert.equal(await term.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到术语卡上应点亮');
+
+  const row = page.locator('.branch-row__label').first();
+  const rowBox = await row.boundingBox();
+  await page.mouse.move(rowBox.x + rowBox.width * .5, rowBox.y + rowBox.height / 2, { steps: 4 });
+  await page.waitForTimeout(450);
+  assert.equal(await row.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到侧栏分支行上应点亮');
+  assert.equal(await page.locator('[data-glow][data-active="true"]').count(), 1, '同时只应有一处发光');
+});

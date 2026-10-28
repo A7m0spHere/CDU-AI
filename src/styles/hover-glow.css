@@ -159,6 +159,57 @@
   box-shadow: none;
 }
 
+/* 侧栏搜索框：input 自己有底色，光层压在它下面会被整个挡住，
+   所以这一层抬到 input 之上，只留薄薄一层浓度——读起来像光从输入框里透出来。
+   文案仍在光的下方，所以亮斑只收在指针周围，别把整条输入框染成蓝色。 */
+.search-field > .hover-glow {
+  z-index: 1;
+  filter: blur(5px);
+  background: radial-gradient(
+    34% 150% at var(--glow-cx, 50%) 50%,
+    rgba(var(--glow-tint), 0.36) 0%,
+    rgba(var(--glow-tint), 0.14) 44%,
+    rgba(var(--glow-tint), 0.03) 72%,
+    rgba(var(--glow-tint), 0) 90%
+  );
+}
+
+:root[data-theme='dark'] .search-field > .hover-glow {
+  background: radial-gradient(
+    34% 150% at var(--glow-cx, 50%) 50%,
+    rgba(var(--glow-tint), 0.42) 0%,
+    rgba(var(--glow-tint), 0.16) 44%,
+    rgba(var(--glow-tint), 0.04) 72%,
+    rgba(var(--glow-tint), 0) 90%
+  );
+  box-shadow: none;
+}
+
+/* 列表卡片：工具卡与术语卡是整面，通用 inset 的 38% 椭圆铺满会读成「整卡染色」，
+   这里把亮斑收窄、衰减提前，边缘更早回到卡面本色 */
+.tool-card > .hover-glow,
+.glossary-term > .hover-glow {
+  background: radial-gradient(
+    24% 78% at var(--glow-cx, 50%) 50%,
+    rgba(var(--glow-tint), 0.44) 0%,
+    rgba(var(--glow-tint), 0.16) 40%,
+    rgba(var(--glow-tint), 0.03) 70%,
+    rgba(var(--glow-tint), 0) 88%
+  );
+}
+
+:root[data-theme='dark'] .tool-card > .hover-glow,
+:root[data-theme='dark'] .glossary-term > .hover-glow {
+  background: radial-gradient(
+    24% 78% at var(--glow-cx, 50%) 50%,
+    rgba(var(--glow-tint), 0.36) 0%,
+    rgba(var(--glow-tint), 0.14) 40%,
+    rgba(var(--glow-tint), 0.03) 70%,
+    rgba(var(--glow-tint), 0) 88%
+  );
+  box-shadow: inset 0 0 0 1px rgba(var(--glow-tint), 0.16);
+}
+
 /* 减少动效、触屏与无 JS 时不启用：导航回落到半透明蓝底，卡片回落到描边 + 阴影 */
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
   .hover-glow {

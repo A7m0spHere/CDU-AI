@@ -265,3 +265,25 @@
 ![术语页复制键（浅色）](design/term-copy-glow-light.png)
 
 ![主题面板里的按钮（深色）](design/theme-panel-glow-dark.png)
+
+### 2026-10-28 · 侧栏搜索框与列表卡片也接上光效
+
+- 维护者反馈：「这里和小卡片也加上」（附工具页侧栏截图：搜索框 + 下方一枚筛选片）。这里的「小卡片」按最宽的解释一起做了：工具卡、术语卡，以及术语页侧栏的分类分支行。
+- 侧栏搜索框（`.search-field`，工具页与术语页各一处）最大的问题是层叠：输入框有自己的底色（`background: var(--bg)`），把 `.hover-glow` 按常规放在 `z-index: -1` 会被输入框整个挡住，指针落上去只能看到外面一圈溢出的柔光。改成这一层抬到输入框之上（`z-index: 1`）、浓度压到通用 inset 的一半左右，读起来是光从输入框里透出来；文案仍在光的下方，实测占位文字与输入文字都清楚。
+- 列表卡片（`.tool-card` / `.glossary-term`）比按钮大得多，通用 inset 的 38% 椭圆铺在整面上会变成「整卡染色」。收到 24% × 78% 并让衰减提前（0.44 → 0.16 → 0.03 → 0），亮斑只落在指针那一片，边缘回到卡面本色；深色另写一套（0.36 起）加一圈 1px 内描边，跟首页引导图节点的观感对齐。
+- 接入方式不变，只往 `AUTO_HOSTS` 加四个选择器：`.search-field`、`.tool-card`、`.glossary-term`、`.branch-row__label`。四者此前都没有光层标记，靠 `ui-glow.ts` 自动补宿主并插光，没有改任何页面模板。
+- 同时只亮一处这条规则在卡片上带来一个副作用：卡片内部还有「打开官网」「代码仓库」链接与「展开细节」，指针从卡面移到这些内层控件时，光会从整张卡切到那枚小节上——因为全局只有一个 `active`。目检后保留这个行为：内层控件本来就该比整卡更亮，且切换是同一帧内的交接，看不出闪烁。
+- 测试：新增「侧栏搜索框与列表卡片接上同一束光」——工具页搜索框只有一个光层、悬停后点亮、`z-index` 为 `1`、光宽 ≈ 输入框宽、亮心 `--glow-cx` 随指针偏到右半边、并通知全站光晕让位；工具卡整片全覆盖、悬停点亮且同时只有一张卡 `data-active`；术语页术语卡与侧栏分支行全覆盖、分别悬停可点亮、同时只有一处发光。
+- 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **27/27 通过**。
+
+![侧栏搜索框的光效（浅色）](design/sidebar-search-glow-light.png)
+
+![侧栏搜索框的光效（深色）](design/sidebar-search-glow-dark.png)
+
+![工具卡的光效（浅色）](design/tool-card-glow-light.png)
+
+![工具卡的光效（深色）](design/tool-card-glow-dark.png)
+
+![术语卡的光效（浅色）](design/term-card-glow-light.png)
+
+![术语卡的光效（深色）](design/term-card-glow-dark.png)
