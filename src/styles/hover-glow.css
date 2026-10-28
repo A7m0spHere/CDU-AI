@@ -1,0 +1,122 @@
+/**
+ * 「光效汇聚」的共用配方：指针落到某个入口上，一团柔光收进那一枚按钮。
+ *
+ * 用在两处：顶部导航的 .nav-glow（悬浮在导航条上，几何由 scripts/nav-dock.ts 写入）
+ * 与首页引导图节点的 .hero-node__glow（--inset 变体，填在卡片内部）。
+ * 这里只负责画：两层径向渐变 + 一点模糊，不描边、不画实心底，
+ * 否则会先看到一个硬边胶囊，光就变成「填充」而不是「汇聚」。
+ *
+ * 颜色比全站指针光晕（--cursor-glow-blue，81,111,227）浅一档：
+ * 光斑面积小、亮度集中，用同一个蓝会显脏，浅一档才像一层薄光。
+ */
+:root {
+  --glow-tint: 124, 164, 255; /* 淡一档的品牌蓝，浅色主题用 */
+}
+
+:root[data-theme='dark'] {
+  --glow-tint: 150, 190, 255;
+}
+
+.hover-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: var(--glow-w, 0px);
+  height: var(--glow-h, 36px);
+  border-radius: var(--glow-r, var(--radius-sm));
+  pointer-events: none;
+  opacity: 0;
+  transform: translate3d(var(--glow-x, 0px), var(--glow-y, 0px), 0);
+  /* 宽高不参与过渡：按钮本身可能正在被 dock 放大，光要逐帧跟住真实尺寸；
+     过渡只留给位移与淡入淡出，看起来才是「光挪过去」，而不是「光被拉长」。 */
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 160ms ease;
+  /* 亮心跟着指针在这枚按钮里左右走（--glow-cx），越靠近指针越亮，出界自然消失 */
+  background:
+    radial-gradient(
+      58% 104% at var(--glow-cx, 50%) 50%,
+      rgba(var(--glow-tint), 0.66) 0%,
+      rgba(var(--glow-tint), 0.38) 40%,
+      rgba(var(--glow-tint), 0.1) 74%,
+      rgba(var(--glow-tint), 0) 100%
+    ),
+    radial-gradient(
+      128% 200% at var(--glow-cx, 50%) 50%,
+      rgba(var(--glow-tint), 0.2) 0%,
+      rgba(var(--glow-tint), 0.09) 55%,
+      rgba(var(--glow-tint), 0) 100%
+    );
+  filter: blur(4px);
+  will-change: transform, opacity;
+}
+
+/* 溢出到按钮外侧的柔光：光看起来是从按钮里漫出来的，而不是一个实心圆角色块 */
+.hover-glow::before {
+  content: '';
+  position: absolute;
+  inset: -10px -14px;
+  z-index: -1;
+  border-radius: calc(var(--glow-r, var(--radius-sm)) + 12px);
+  background: radial-gradient(
+    55% 90% at var(--glow-cx, 50%) 50%,
+    rgba(var(--glow-tint), 0.34),
+    rgba(var(--glow-tint), 0) 72%
+  );
+  filter: blur(12px);
+}
+
+.hover-glow[data-active='true'] {
+  opacity: 1;
+}
+
+/* 卡片内部变体：光铺满整张卡、圆角跟着卡片，不再需要外部写入坐标 */
+.hover-glow--inset {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: inherit;
+  transform: none;
+  will-change: opacity;
+  /* 卡片比导航按钮扁得多：同样的椭圆铺在整张卡上会变成「整卡填色」，
+     这里把亮斑收小、衰减提前，让边缘回到卡面本色，读起来才是一束光 */
+  background: radial-gradient(
+    38% 96% at var(--glow-cx, 50%) 50%,
+    rgba(var(--glow-tint), 0.6) 0%,
+    rgba(var(--glow-tint), 0.24) 34%,
+    rgba(var(--glow-tint), 0.06) 62%,
+    rgba(var(--glow-tint), 0) 80%
+  );
+}
+
+:root[data-theme='dark'] .hover-glow {
+  background:
+    radial-gradient(
+      70% 130% at var(--glow-cx, 50%) 118%,
+      rgba(var(--glow-tint), 0.5) 0%,
+      rgba(var(--glow-tint), 0.2) 48%,
+      rgba(var(--glow-tint), 0) 100%
+    ),
+    linear-gradient(180deg, rgba(var(--glow-tint), 0.18), rgba(var(--glow-tint), 0.08));
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--glow-tint), 0.32),
+    0 14px 30px -18px rgba(var(--glow-tint), 0.85);
+}
+
+:root[data-theme='dark'] .hover-glow--inset {
+  background: radial-gradient(
+    55% 130% at var(--glow-cx, 50%) 104%,
+    rgba(var(--glow-tint), 0.42) 0%,
+    rgba(var(--glow-tint), 0.14) 38%,
+    rgba(var(--glow-tint), 0) 76%
+  );
+  box-shadow: inset 0 0 0 1px rgba(var(--glow-tint), 0.28);
+}
+
+/* 减少动效、触屏与无 JS 时不启用：导航回落到半透明蓝底，卡片回落到描边 + 阴影 */
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .hover-glow {
+    display: none;
+  }
+}

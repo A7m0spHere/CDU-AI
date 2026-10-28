@@ -5,6 +5,8 @@
  * - 页面不可见时暂停，避免无意义的定时器。
  */
 
+import { initInsetGlow } from './hover-glow';
+
 const network = document.querySelector<HTMLElement>('[data-hero-network]');
 if (network) {
   const nodes = Array.from(network.querySelectorAll<HTMLAnchorElement>('[data-node]'));
@@ -15,6 +17,14 @@ if (network) {
     Array.from(network.querySelectorAll<SVGCircleElement>('[data-dot]')).map((dot) => [dot.dataset.dot, dot]),
   );
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // 节点内部的「光效汇聚」：指针进到哪张卡就亮哪张，与顶部导航共用 styles/hover-glow.css 的配方
+  const showGlow = initInsetGlow({
+    items: nodes,
+    onActive: (active) => {
+      document.documentElement.dataset.heroLight = active ? 'true' : 'false';
+    },
+  });
 
   let active: string | null = null;
   let timer = 0;
@@ -57,9 +67,23 @@ if (network) {
 
   for (const node of nodes) {
     node.addEventListener('pointerenter', () => takeOver(node.dataset.node ?? null));
-    node.addEventListener('pointerleave', release);
-    node.addEventListener('focus', () => takeOver(node.dataset.node ?? null));
-    node.addEventListener('blur', release);
+    node.addEventListener('pointerleave', () => {
+      release();
+      showGlow(null);
+    });
+    // 鼠标在卡片里移动时，让亮心跟着指针左右走（触屏没有 hover，不参与）
+    node.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse' || reduced.matches) return;
+      showGlow(node, event.clientX);
+    });
+    node.addEventListener('focus', () => {
+      takeOver(node.dataset.node ?? null);
+      if (!reduced.matches) showGlow(node);
+    });
+    node.addEventListener('blur', () => {
+      release();
+      showGlow(null);
+    });
   }
 
   // 页面滚出视口或切到后台时暂停轮播
@@ -68,6 +92,7 @@ if (network) {
     if (paused) {
       stopTimer();
       setActive(null);
+      showGlow(null);
     } else {
       startTimer();
     }
@@ -81,6 +106,7 @@ if (network) {
         if (paused) {
           stopTimer();
           setActive(null);
+          showGlow(null);
         } else {
           startTimer();
         }
@@ -94,6 +120,7 @@ if (network) {
     if (reduced.matches) {
       stopTimer();
       setActive(null);
+      showGlow(null);
     } else {
       startTimer();
     }

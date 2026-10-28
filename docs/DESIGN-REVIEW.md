@@ -201,3 +201,21 @@
 
 ![顶部导航光效汇聚（深色）](design/nav-glow-dark.png)
 
+### 2026-10-28 · 光效调浅并扩展到首页引导图节点
+
+- 维护者反馈（附首页引导图截图，指「工具资源」卡片）：「换一个浅一点的的光效颜色，再给这几个按钮也加上同样的效果」——即导航那套「光效汇聚」换成更浅的蓝，并同样施加到看板娘周围六个入口。
+- 取色：光效蓝从 `#516fe3`（81, 111, 227）提亮一档到 `rgb(124, 164, 255)`（深色主题 `rgb(150, 190, 255)`），单独存为 `--glow-tint`；全站光晕与 Hero 像素仍用 `--cursor-glow-blue`。两套蓝各自成立：跟随光晕要能在白底上「染」出可见形状，汇聚光则是点到某一枚按钮上而不能压住文字。
+- 共用配方：新增 `src/styles/hover-glow.css`（`.hover-glow` + `--glow-x/-y/-w/-h/-r/-cx` 几何变量 + `::before` 溢出柔光 + 深色变体），导航与引导图节点不再各写一套渐变；`vibe.css` 里原有 `.nav-glow` 整段删除，只留一条注释指向新文件。
+- 卡片用 inset 变体而不是照搬导航的椭圆：卡片是扁的，58% × 104% 的椭圆在卡面上会读成「整卡填色 / 选中态」。三次迭代：① 直接套导航渐变 → 像被选中；② 52% × 120% → 仍然偏满；③ 38% × 96% + 提前衰减（34% 处就掉到 .24）+ 描边软化为 `rgba(var(--glow-tint), .5)`，才读成「一束光落在按钮上」。光斑 `inset: 0`、圆角继承卡片，宽高不参与过渡（指针进入时卡片本身有 3px 抬升）。
+- 交互：`src/scripts/hover-glow.ts` 抽出 `initInsetGlow({ items, onActive })`；`hero-network.ts` 在 `pointermove`（仅鼠标且非减少动效）时写 `--glow-cx`，`pointerleave` / `blur` / 切页 / 离屏 / 减少动效切换都熄灭，并给 `<html>` 置 `data-hero-light="false"`；与导航一致，`cursor-glow.css` 依据该标记把全站光晕淡出，避免同一处两层亮斑。
+- 实测（1440×900，Playwright + Edge，双主题）：悬停「工具资源」卡片 → `data-hero-light='true'`、光斑不透明度 1、`cursor-glow` 为 0；光斑 134×50 对卡片 136×52（1px 边框造成的两圈差）；两处光斑取色完全一致（同一个 `--glow-tint`）。
+- 坑：写回归测试时最初把「离开卡片」的落点定在卡片下方 120px，正好落进下面那张「作品广场」，`data-hero-light` 仍为 `true`；改成往卡片左侧 160px（看板娘身上）后通过——断言「离开后熄灭」时落点必须确认没压在另一张卡上。
+- 截图重出：浅色 tint 版本替换 `nav-glow-light.png` / `nav-glow-dark.png`，新增 `hero-node-glow-light.png` / `hero-node-glow-dark.png`。
+
+![顶部导航光效汇聚（浅色）](design/nav-glow-light.png)
+
+![顶部导航光效汇聚（深色）](design/nav-glow-dark.png)
+
+![首页引导图节点光效汇聚（浅色）](design/hero-node-glow-light.png)
+
+![首页引导图节点光效汇聚（深色）](design/hero-node-glow-dark.png)

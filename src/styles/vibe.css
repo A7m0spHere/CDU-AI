@@ -62,75 +62,9 @@ body {
 }
 
 /* 指针进到导航这一排时，光会「收」到被指到的那一枚按钮上。
-   几何（左偏移 / 宽 / 高 / 圆角 / 光心位置）由 scripts/nav-dock.ts 写入，
-   这里只负责画；按钮自身的 hover 底色改成半透明蓝，光才能从底下透上来。 */
-.nav-glow {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  z-index: 0;
-  width: var(--nav-glow-w, 0px);
-  height: var(--nav-glow-h, 36px);
-  border-radius: var(--nav-glow-r, var(--radius-sm));
-  pointer-events: none;
-  opacity: 0;
-  transform: translate3d(var(--nav-glow-x, 0px), -50%, 0);
-  /* 宽高不参与过渡：按钮本身会被 dock 放大，光要逐帧跟住它的真实尺寸；
-     过渡只留给位移和淡入淡出，看起来才是「光挪过去」，而不是「光被拉长」。 */
-  transition:
-    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 160ms ease;
-  /* 只用径向渐变 + 一点模糊、不描边：光是一团柔和的亮斑，不是一个胶囊按钮。
-     亮点跟着指针在按钮里左右走，越靠近指针越亮，离开按钮边界自然消失。 */
-  background:
-    radial-gradient(
-      58% 104% at var(--nav-glow-cx, 50%) 50%,
-      rgba(var(--cursor-glow-blue), 0.62) 0%,
-      rgba(var(--cursor-glow-blue), 0.34) 40%,
-      rgba(var(--cursor-glow-blue), 0.08) 74%,
-      rgba(var(--cursor-glow-blue), 0) 100%
-    ),
-    radial-gradient(
-      128% 200% at var(--nav-glow-cx, 50%) 50%,
-      rgba(var(--cursor-glow-blue), 0.18) 0%,
-      rgba(var(--cursor-glow-blue), 0.08) 55%,
-      rgba(var(--cursor-glow-blue), 0) 100%
-    );
-  filter: blur(4px);
-}
-
-/* 溢出到按钮外侧的柔光：光看起来是从按钮里漫出来的，而不是一个实心圆角色块 */
-.nav-glow::before {
-  content: '';
-  position: absolute;
-  inset: -10px -14px;
-  z-index: -1;
-  border-radius: calc(var(--nav-glow-r, var(--radius-sm)) + 12px);
-  background: radial-gradient(
-    55% 90% at var(--nav-glow-cx, 50%) 50%,
-    rgba(var(--cursor-glow-blue), 0.3),
-    rgba(var(--cursor-glow-blue), 0) 72%
-  );
-  filter: blur(12px);
-}
-
-.nav-glow[data-active='true'] {
-  opacity: 1;
-}
-
-:root[data-theme='dark'] .nav-glow {
-  background:
-    radial-gradient(
-      70% 130% at var(--nav-glow-cx, 50%) 118%,
-      rgba(var(--cursor-glow-blue), 0.5) 0%,
-      rgba(var(--cursor-glow-blue), 0.18) 48%,
-      rgba(var(--cursor-glow-blue), 0) 100%
-    ),
-    linear-gradient(180deg, rgba(var(--cursor-glow-blue), 0.18), rgba(var(--cursor-glow-blue), 0.08));
-  box-shadow:
-    inset 0 0 0 1px rgba(var(--cursor-glow-blue), 0.3),
-    0 14px 30px -18px rgba(var(--cursor-glow-blue), 0.9);
-}
+   光的外观是与首页引导图节点共用的配方（styles/hover-glow.css 的 .hover-glow），
+   几何（左偏移 / 上偏移 / 宽 / 高 / 圆角 / 光心位置）由 scripts/nav-dock.ts 写入。
+   按钮自身的 hover 底色改成半透明蓝，光才能从底下透上来。 */
 
 .nav-link {
   position: relative;

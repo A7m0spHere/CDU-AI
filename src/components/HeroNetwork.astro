@@ -138,6 +138,7 @@ const nodes: HeroNode[] = [
         data-node={node.key}
         aria-label={`${node.label}（${node.meta}）`}
       >
+        <span class="hover-glow hover-glow--inset hero-node__glow" data-node-glow aria-hidden="true"></span>
         <span class="hero-node__icon" aria-hidden="true"><Icon name={node.icon} size={17} /></span>
         <span class="hero-node__text">
           <strong>{node.label}</strong>

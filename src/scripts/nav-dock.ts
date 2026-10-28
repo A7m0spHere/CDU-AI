@@ -4,7 +4,8 @@
  * 1. dock 放大：参考 macOS Dock 的邻近放大，但幅度很小——鼠标 x 到入口中心的距离
  *    映射成 1 → 1.12 的缩放和 2.4px 的上浮。
  * 2. 光效汇聚：指针落到某个入口上时，把 `.nav-glow` 这团光挪到那一枚按钮的几何位置上，
- *    （CSS 见 vibe.css），并让光心跟着指针在这枚按钮里左右偏移；离开导航则熄灭。
+ *    （外观见 styles/hover-glow.css，与首页引导图节点共用同一套渐变），
+ *    并让光心跟着指针在这枚按钮里左右偏移；离开导航则熄灭。
  *    同时给 <html> 打上 data-nav-light，让全站指针光晕先撤走（见 cursor-glow.css），
  *    看起来就是「光收进了按钮」，而不是两处同时发亮。
  *
@@ -85,13 +86,14 @@ export function initNavDock(): void {
     if (!glow) return;
     const navRect = nav.getBoundingClientRect();
     const rect = el.getBoundingClientRect();
-    glow.style.setProperty('--nav-glow-x', `${(rect.left - navRect.left).toFixed(1)}px`);
-    glow.style.setProperty('--nav-glow-w', `${rect.width.toFixed(1)}px`);
-    glow.style.setProperty('--nav-glow-h', `${rect.height.toFixed(1)}px`);
-    glow.style.setProperty('--nav-glow-r', window.getComputedStyle(el).borderRadius);
+    glow.style.setProperty('--glow-x', `${(rect.left - navRect.left).toFixed(1)}px`);
+    glow.style.setProperty('--glow-y', `${(rect.top - navRect.top).toFixed(1)}px`);
+    glow.style.setProperty('--glow-w', `${rect.width.toFixed(1)}px`);
+    glow.style.setProperty('--glow-h', `${rect.height.toFixed(1)}px`);
+    glow.style.setProperty('--glow-r', window.getComputedStyle(el).borderRadius);
     if (pointerX !== undefined) {
       const ratio = (pointerX - rect.left) / Math.max(rect.width, 1);
-      glow.style.setProperty('--nav-glow-cx', `${(Math.min(1, Math.max(0, ratio)) * 100).toFixed(1)}%`);
+      glow.style.setProperty('--glow-cx', `${(Math.min(1, Math.max(0, ratio)) * 100).toFixed(1)}%`);
     }
     setGlowActive(true);
   };

@@ -1276,9 +1276,30 @@
   transform: translate(-50%, -50%) translateY(-3px);
 }
 
+/* 光效生效时（见 styles/hover-glow.css）卡片自己不再画实心蓝描边：
+   边框会让光读成一个「被选中的胶囊」，改成半透明浅蓝，让亮度交给那层光。 */
+:root[data-hero-light='true'] .hero-node:hover,
+:root[data-hero-light='true'] .hero-node.is-active {
+  border-color: rgba(var(--glow-tint), 0.5);
+  box-shadow: 0 12px 28px -18px rgba(var(--glow-tint), 0.7);
+}
+
 .hero-node:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* 卡片内部的「光效汇聚」层（配方见 styles/hover-glow.css）：
+   它就是卡片自己的一层柔光，指针进到哪张卡就亮哪张；图标与文字要压在光上面。 */
+.hero-node__glow {
+  border-radius: inherit;
+}
+
+.hero-node__icon,
+.hero-node__text,
+.hero-node__arrow {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-node__icon {

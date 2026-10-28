@@ -57,7 +57,8 @@
 
 /* 指针进到顶部导航这一排时，光已经收进被指到的按钮里（见 vibe.css 的 .nav-glow），
    这里撤掉跟随指针的那团光，避免同一处出现两层亮斑。 */
-:root[data-nav-light='true'] .cursor-glow {
+:root[data-nav-light='true'] .cursor-glow,
+:root[data-hero-light='true'] .cursor-glow {
   opacity: 0;
 }
 

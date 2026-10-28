@@ -2235,3 +2235,59 @@ test('指针落到顶部导航上时光效收敛到那一枚按钮，并撤走�
   await reduced.waitForTimeout(300);
   assert.equal(await reduced.locator('[data-nav-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮按钮光');
 });
+test('首页引导图节点用与导航同一套光效：指针进到卡片里点亮，离开后熄灭', async t => {
+  const page = await setup(t);
+  const node = page.locator('.hero-node--tools');
+  const glow = page.locator('.hero-node--tools [data-node-glow]');
+  await glow.waitFor({ state: 'attached' });
+
+  const state = () => page.evaluate(() => {
+    const el = document.querySelector('.hero-node--tools [data-node-glow]');
+    const nav = document.querySelector('[data-nav-glow]');
+    const cursor = document.querySelector('[data-cursor-glow]');
+    const rect = el.getBoundingClientRect();
+    return {
+      active: el.dataset.active,
+      opacity: Number(getComputedStyle(el).opacity),
+      width: rect.width,
+      height: rect.height,
+      // 只看色标里的 RGB：两处渐变形状不同（卡片更扁），共用的是那一个浅蓝
+      tint: (getComputedStyle(el).backgroundImage.match(/rgba?\(([^)]+)\)/) || [])[1].split(',').slice(0, 3).map(Number).join(','),
+      navTint: nav ? (getComputedStyle(nav).backgroundImage.match(/rgba?\(([^)]+)\)/) || [])[1].split(',').slice(0, 3).map(Number).join(',') : '',
+      cursorTint: getComputedStyle(document.documentElement).getPropertyValue('--cursor-glow-blue').trim().replace(/\s+/g, ''),
+      heroFlag: document.documentElement.dataset.heroLight,
+      cursorOpacity: Number(getComputedStyle(cursor).opacity),
+    };
+  });
+
+  assert.equal((await state()).opacity, 0, '指针不在卡片上时不点亮');
+
+  const box = await node.boundingBox();
+  await page.mouse.move(box.x + box.width * 0.3, box.y + box.height / 2, { steps: 4 });
+  await page.waitForTimeout(500);
+  const on = await state();
+  const nodeNow = await node.boundingBox();
+  assert.equal(on.active, 'true', '指针进到卡片里后应点亮');
+  assert.ok(on.opacity > .9, '卡片里的光应淡入到可见');
+  // 卡片有 1px 边框，inset:0 的光比外框小两圈，给 3px 容差
+  assert.ok(Math.abs(on.width - nodeNow.width) <= 3 && Math.abs(on.height - nodeNow.height) <= 3, '光应正好铺满这张卡片');
+  assert.equal(on.tint, on.navTint, '卡片与导航共用同一个浅蓝');
+  const sum = (rgb) => String(rgb).split(',').map(Number).reduce((a, b) => a + b, 0);
+  assert.ok(sum(on.tint) > sum(on.cursorTint), '光效的蓝要比全站光晕浅一档');
+  assert.equal(on.heroFlag, 'true', '卡片内光效生效时通知全站');
+  assert.ok(on.cursorOpacity < .05, '全站光晕应撤走，避免同一处两层亮斑');
+
+  // 卡片外的看板娘插画上不该留着光（往卡片左边挪，别落进下面那张「作品广场」）
+  await page.mouse.move(nodeNow.x - 160, nodeNow.y + nodeNow.height / 2, { steps: 4 });
+  await page.waitForTimeout(500);
+  const away = await state();
+  assert.equal(away.opacity, 0, '指针离开卡片后光应熄灭');
+  assert.equal(away.heroFlag, 'false', '离开卡片后把光效交还给全站光晕');
+
+  const reduced = await setup(t, { reducedMotion: 'reduce' });
+  const reducedBox = await reduced.locator('.hero-node--tools').boundingBox();
+  await reduced.mouse.move(reducedBox.x + reducedBox.width / 2, reducedBox.y + reducedBox.height / 2, { steps: 4 });
+  await reduced.waitForTimeout(300);
+  assert.equal(await reduced.locator('.hero-node--tools [data-node-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮卡片光');
+});
+
