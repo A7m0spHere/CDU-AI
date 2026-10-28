@@ -19,6 +19,7 @@ interface FilterOptions {
   categoryAliases?: Record<string, string>;
   beforeApply?: (state: FilterState) => void;
   selectCards?: (matches: HTMLElement[], state: FilterState) => HTMLElement[];
+  afterApply?: (state: FilterState) => void;
 }
 
 function normalize(value: string): string {
@@ -52,6 +53,7 @@ export function initFilter(options: FilterOptions = {}): { refresh: () => void }
     categoryAliases = {},
     beforeApply,
     selectCards,
+    afterApply,
   } = options;
 
   const root = document.querySelector<HTMLElement>(rootSelector);
@@ -172,6 +174,7 @@ export function initFilter(options: FilterOptions = {}): { refresh: () => void }
     capChips.forEach((chip) => {
       chip.setAttribute('aria-pressed', activeCaps.has(chip.dataset.filterCap ?? '') ? 'true' : 'false');
     });
+    afterApply?.(state);
   };
 
   const setFromUrl = (reason: 'init' | 'history') => {

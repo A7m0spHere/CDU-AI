@@ -17,6 +17,8 @@ export function initToolCatalog(): void {
   const targets = new Map(Array.from(root.querySelectorAll<HTMLElement>('[data-catalog-target]')).map((target) => [target.dataset.catalogTarget!, target]));
   const pool = root.querySelector<HTMLElement>('[data-catalog-pool]')!;
   const mobile = window.matchMedia('(max-width: 760px)');
+  const desktop = window.matchMedia('(min-width: 1021px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pageSize = 9;
   const pagination = root.querySelector<HTMLElement>('[data-catalog-pagination]')!;
   const previous = pagination.querySelector<HTMLButtonElement>('[data-catalog-previous]')!;
@@ -100,6 +102,12 @@ export function initToolCatalog(): void {
       const selected = ordered.slice(start, start + pageSize);
       range.textContent = `，当前显示 ${matches.length ? start + 1 : 0}–${start + selected.length} 项`;
       return selected;
+    },
+    afterApply: ({ reason }) => {
+      // 等卡片、分组及折叠状态更新后定位；保留输入焦点，不打断手机输入或历史恢复。
+      if (reason === 'filter' && desktop.matches && !printing) {
+        results.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+      }
     },
   });
 

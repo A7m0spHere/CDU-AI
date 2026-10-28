@@ -322,6 +322,57 @@ test('社区折叠数量跟随搜索及手动展开，开源筛选不借用模�
   assert.equal(await page.locator('[data-tool-id="rikkahub"]').isVisible(), true);
 });
 
+test('桌面深度滚动后筛选回到列表开头，搜索保留输入焦点', async t => {
+  const page = await setup(t, { reducedMotion: 'no-preference' });
+  await page.goto(origin + '/tools/'); await ready(page);
+  const scrollDown = async () => {
+    await page.evaluate(() => window.scrollTo({ top: 4000, behavior: 'instant' }));
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.ok(await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top < -250), '先确保列表开头已在视口上方');
+  };
+  const atStart = async () => {
+    await page.waitForFunction(() => {
+      const results = document.querySelector('[data-catalog-results]');
+      const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + parseFloat(getComputedStyle(results).scrollMarginTop);
+      return Math.abs(results.getBoundingClientRect().top - offset) < 2;
+    });
+    const top = await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top);
+    const headerBottom = await page.locator('[data-site-header]').evaluate(el => el.getBoundingClientRect().bottom);
+    assert.ok(top >= headerBottom && top < headerBottom + 100, '筛选后应回到固定导航下方的列表开头');
+  };
+
+  await scrollDown();
+  await page.locator('[data-filter-value="agent"]').click();
+  await atStart();
+  assert.equal(await page.locator('[data-filter-value="agent"]').evaluate(el => el === document.activeElement), true);
+  await scrollDown();
+  await page.locator('[data-filter-cap="open-source"]').press('Enter');
+  await atStart();
+  assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
+  await page.locator('[data-clear-filters]').click();
+  await atStart();
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+
+  await scrollDown();
+  const search = page.locator('[data-filter-search]');
+  await search.fill('Agent');
+  await page.waitForFunction(() => new URLSearchParams(location.search).get('q') === 'agent');
+  await atStart();
+  assert.equal(await search.evaluate(el => el === document.activeElement), true);
+  await search.fill('不存在的工具-滚动回归');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '0');
+  await atStart();
+  assert.equal(await search.evaluate(el => el === document.activeElement), true);
+  assert.equal(await page.locator('[data-empty-state]').isVisible(), true);
+
+  await page.locator('[data-clear-filters]').click();
+  await atStart();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await scrollDown();
+  await page.locator('[data-filter-value="agent"]').click();
+  assert.ok(await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top >= 0), '减少动效时直接定位，不等待滚动动画');
+});
+
 test('手机工具目录在短屏和普通动效下持续可读', async t => {
   const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'no-preference' });
   for (const viewport of [{ width: 375, height: 667 }, { width: 390, height: 664 }, { width: 360, height: 640 }, { width: 320, height: 568 }, { width: 390, height: 844 }]) {
