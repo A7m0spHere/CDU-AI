@@ -170,11 +170,12 @@
 | ASCII 品牌字 | 指针附近字符局部驱散，移开后阻尼回位；减少动效下静态且不响应指针 |
 | 首页引导图与像素光效 | 引导图模块 hover / focus 点亮连线，装饰瞄准框不替换鼠标；Hero 卡片悬停后整片点阵从中心向外依次亮起并持续闪烁，指针周围的点再额外放大、提亮到品牌蓝（半径 96px，`#516fe3` 同族色）；离开时逐个缩小熄灭；减少动效下两者都停用 |
 | 全站指针光晕 | 指针周围约 220px 的柔和蓝色光斑跟随移动，浅色主题 `multiply`、深色主题 `screen`；不替换系统指针、不拦截事件、不随内容滚动；触屏与减少动效不出现 |
+| 顶部导航光效汇聚 | 指针进入顶部导航时，跟随指针的柔光收进被指到的那一枚入口：光斑的宽高逐帧跟住按钮（按钮同时在做 dock 放大），亮心随指针在按钮内左右移动；换一枚时平滑挪过去，离开导航立即熄灭，同时撤掉全站光晕以免两处同时发亮；减少动效与触屏下不启用，hover 仍用半透明蓝底兜底 |
 | 首页应用叠卡 | 手动换卡时过渡位置与角度，不自动轮播；减少动效下关闭过渡与前卡倾斜，仍可用按钮换卡 |
 | 首页探索菜单 | 悬停 / 聚焦时按上下边缘揭开横幅并横向流动；触屏、减少动效和无 JS 保持静态链接 |
 | 首页图书馆线稿 | 原生 SVG 坐标重投影，拖动与入口联动使用有限时长过渡。减少动效时直接更新姿态，线条颜色跟随主题 |
 
-CSS 时长来自 `tokens.css`；局部 Canvas 与引导图的参数分别由 `ascii-ai.ts`、`pixel-card.ts`、`hero-network.ts` 与 `target-reticle.ts` 管理。全站指针光晕的尺寸与配色在 `cursor-glow.css`（`--cursor-glow-blue` / `--cursor-glow-size`），跟随缓动在 `cursor-glow.ts`。
+CSS 时长来自 `tokens.css`；局部 Canvas 与引导图的参数分别由 `ascii-ai.ts`、`pixel-card.ts`、`hero-network.ts` 与 `target-reticle.ts` 管理。全站指针光晕的尺寸与配色在 `cursor-glow.css`（`--cursor-glow-blue` / `--cursor-glow-size`），跟随缓动在 `cursor-glow.ts`。顶部导航的光斑几何由 `nav-dock.ts` 写入 `--nav-glow-*`，样式在 `vibe.css` 的 `.nav-glow`，与 dock 放大共用同一个指针监听。
 
 ## 6. 可访问性
 

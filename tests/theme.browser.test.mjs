@@ -2178,3 +2178,60 @@ test('全站指针光晕跟随指针、离开后淡出，减少动效下不出�
   await reduced.waitForTimeout(400);
   assert.equal(await reduced.locator('[data-cursor-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不显示光晕');
 });
+
+test('指针落到顶部导航上时光效收敛到那一枚按钮，并撤走全站光晕', async t => {
+  const page = await setup(t);
+  const glow = page.locator('[data-nav-glow]');
+  const links = page.locator('.desktop-nav .nav-link');
+  await glow.waitFor({ state: 'attached' });
+
+  const state = () => page.evaluate(() => {
+    const el = document.querySelector('[data-nav-glow]');
+    const cursor = document.querySelector('[data-cursor-glow]');
+    const rect = el.getBoundingClientRect();
+    return {
+      active: el.dataset.active,
+      opacity: Number(getComputedStyle(el).opacity),
+      x: rect.left,
+      width: rect.width,
+      height: rect.height,
+      navFlag: document.documentElement.dataset.navLight,
+      cursorOpacity: Number(getComputedStyle(cursor).opacity),
+    };
+  });
+
+  assert.equal((await state()).opacity, 0, '指针不在导航上时不点亮');
+
+  const first = await links.nth(0).boundingBox();
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2, { steps: 3 });
+  await page.waitForTimeout(500);
+  const firstNow = await links.nth(0).boundingBox();
+  const onFirst = await state();
+  assert.equal(onFirst.active, 'true', '指针落到按钮上后应点亮');
+  assert.ok(onFirst.opacity > .9, '按钮上的光应淡入到可见');
+  assert.ok(Math.abs(onFirst.x - firstNow.x) < 2, '光的左边缘应贴住被指到的按钮');
+  assert.ok(Math.abs(onFirst.width - firstNow.width) < 2, '光的宽度应等于那枚按钮');
+  assert.ok(Math.abs(onFirst.height - firstNow.height) < 2, '光的高度应等于那枚按钮');
+  assert.equal(onFirst.navFlag, 'true', '导航内光效生效时通知全站');
+  assert.ok(onFirst.cursorOpacity < .05, '全站光晕应撤走，避免同一处两层亮斑');
+
+  const third = await links.nth(2).boundingBox();
+  await page.mouse.move(third.x + third.width / 2, third.y + third.height / 2, { steps: 4 });
+  await page.waitForTimeout(500);
+  const thirdNow = await links.nth(2).boundingBox();
+  const onThird = await state();
+  assert.ok(onThird.opacity > .9, '换一枚按钮后光仍然亮着');
+  assert.ok(Math.abs(onThird.x - thirdNow.x) < 2, '光应随指针挪到新的按钮上');
+
+  await page.mouse.move(thirdNow.x + thirdNow.width / 2, thirdNow.y + 240, { steps: 4 });
+  await page.waitForTimeout(500);
+  const away = await state();
+  assert.equal(away.opacity, 0, '指针离开导航后按钮上的光应熄灭');
+  assert.equal(away.navFlag, 'false', '离开导航后把光效交还给全站光晕');
+
+  const reduced = await setup(t, { reducedMotion: 'reduce' });
+  const reducedLink = await reduced.locator('.desktop-nav .nav-link').nth(1).boundingBox();
+  await reduced.mouse.move(reducedLink.x + reducedLink.width / 2, reducedLink.y + reducedLink.height / 2, { steps: 3 });
+  await reduced.waitForTimeout(300);
+  assert.equal(await reduced.locator('[data-nav-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不点亮按钮光');
+});

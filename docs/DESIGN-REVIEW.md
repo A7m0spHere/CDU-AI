@@ -185,3 +185,19 @@
 ![全站指针光晕（浅色）](design/cursor-glow-light.png)
 
 ![全站指针光晕（深色）](design/cursor-glow-dark.png)
+
+### 2026-10-28 · 顶部导航光效汇聚
+
+- 维护者反馈：「当鼠标指着这一排按钮时，光效汇聚在按钮上，点亮指着的这个按钮」。
+- 结构：`src/components/Header.astro` 在 `.desktop-nav` 里加了一枚纯装饰的 `.nav-glow`（`aria-hidden`）；几何由 `src/scripts/nav-dock.ts` 写入（`--nav-glow-x` / `-w` / `-h` / `-r` / `-cx`），与已有的 dock 放大共用同一个指针监听。
+- 为什么要逐帧写：按钮同时被 dock 放大到 1.12 倍，只在 `pointermove` 时量一次会让光斑比按钮小一圈；现在 `requestAnimationFrame` 循环里只要指针还在按钮上就重新贴合，宽高也不参与 CSS 过渡——过渡只留给位移与淡入淡出，读起来才是「光挪过去」而不是「光被拉长」。
+- 视觉：`src/styles/vibe.css` 里的光斑只用两层径向渐变 + `blur(4px)`，不描边、不画胶囊底。第一版试过「渐变 + 1px 内描边 + 半透明胶囊底」，截图里完全是一个填了色的小按钮，光感消失；改成「按钮自身不出底色，亮度全部交给光斑」之后才成立。
+- 让位与兜底：光斑生效时给 `<html>` 打 `data-nav-light="true"`，`cursor-glow.css` 里据此把跟随指针的全站光晕淡出（否则指针处会有两团亮斑）；同时 `:root[data-nav-light='true'] .nav-link:hover` 的背景改为透明。减少动效、触屏、无 JS 时这套光效不启用，回到原来的半透明蓝底 hover，反馈不丢。
+- 坑：`<html>` 上的标记最初也叫 `data-nav-glow`，与光斑自身的属性撞名，悬停后 `querySelector('[data-nav-glow]')` 返回的是 `<html>`，量到的宽度变成整页 1440px；已改名 `data-nav-light`。
+- 实测（1440×760，Playwright + Edge，浅 / 深两套主题）：光斑矩形与按钮矩形误差 < 2px；离开导航后 opacity 归 0、`data-nav-light` 复位、全站光晕恢复；减少动效下光斑恒为 0。
+- 新增浏览器回归测试「指针落到顶部导航上时光效收敛到那一枚按钮，并撤走全站光晕」。
+
+![顶部导航光效汇聚（浅色）](design/nav-glow-light.png)
+
+![顶部导航光效汇聚（深色）](design/nav-glow-dark.png)
+
