@@ -96,22 +96,22 @@ export function initUiGlow(): void {
   const enabled = () => !reduced.matches && !coarse.matches;
 
   let frame = 0;
-  let pending: { host: HTMLElement | null; x: number } | null = null;
+  let pending: { host: HTMLElement | null; x: number; y: number } | null = null;
 
   const flush = () => {
     frame = 0;
     if (pending === null) return;
-    const { host, x } = pending;
+    const { host, x, y } = pending;
     pending = null;
     if (host === null || !enabled()) {
       show(null);
       return;
     }
-    show(host, x);
+    show(host, x, y);
   };
 
-  const schedule = (host: HTMLElement | null, x: number) => {
-    pending = { host, x };
+  const schedule = (host: HTMLElement | null, x: number, y: number) => {
+    pending = { host, x, y };
     if (frame === 0) frame = window.requestAnimationFrame(flush);
   };
 
@@ -119,27 +119,27 @@ export function initUiGlow(): void {
     'pointermove',
     (event) => {
       if (event.pointerType !== 'mouse') return;
-      schedule(hostFrom(event.target), event.clientX);
+      schedule(hostFrom(event.target), event.clientX, event.clientY);
     },
     { passive: true },
   );
 
   // 指针直接离开窗口时不会再有 pointermove，单独收一次尾
-  document.addEventListener('pointerleave', () => schedule(null, 0));
+  document.addEventListener('pointerleave', () => schedule(null, 0, 0));
 
   // 键盘 Tab 到控件上也要亮：没有指针位置，就让亮心落在控件中央
   document.addEventListener('focusin', (event) => {
     const host = hostFrom(event.target);
     if (host === null) return;
     const rect = host.getBoundingClientRect();
-    schedule(host, rect.left + rect.width / 2);
+    schedule(host, rect.left + rect.width / 2, rect.top + rect.height / 2);
   });
 
   document.addEventListener('focusout', (event) => {
     const host = hostFrom(event.target);
     if (host === null) return;
     const next = event.relatedTarget as Node | null;
-    if (next === null || !host.contains(next)) schedule(null, 0);
+    if (next === null || !host.contains(next)) schedule(null, 0, 0);
   });
 }
 

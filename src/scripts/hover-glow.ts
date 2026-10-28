@@ -18,8 +18,9 @@ type InsetGlowOptions = {
   onActive?: (active: boolean) => void;
 };
 
-/** 传入要亮的卡片（null 表示熄灭）；pointerX 有值时让亮心贴住指针。 */
-export type ShowGlow = (item: HTMLElement | null, pointerX?: number) => void;
+/** 传入要亮的卡片（null 表示熄灭）；pointerX / pointerY 有值时让亮心贴住指针。
+ *  卡片上的点阵光要跟着指针上下走，光有横向坐标不够。 */
+export type ShowGlow = (item: HTMLElement | null, pointerX?: number, pointerY?: number) => void;
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
@@ -55,7 +56,7 @@ export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
     item.dataset.glowOn = 'true';
   };
 
-  return (item, pointerX) => {
+  return (item, pointerX, pointerY) => {
     if (!item || glowOf(item) === null) {
       if (active === null) return;
       activate(null);
@@ -71,6 +72,10 @@ export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
       const rect = item.getBoundingClientRect();
       const ratio = clamp01((pointerX - rect.left) / Math.max(rect.width, 1));
       glow.style.setProperty('--glow-cx', `${(ratio * 100).toFixed(1)}%`);
+      if (pointerY !== undefined) {
+        const vertical = clamp01((pointerY - rect.top) / Math.max(rect.height, 1));
+        glow.style.setProperty('--glow-cy', `${(vertical * 100).toFixed(1)}%`);
+      }
     }
 
     onActive?.(true);
