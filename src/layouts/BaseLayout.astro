@@ -3,10 +3,12 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileDock from '../components/MobileDock.astro';
 import SearchDialog from '../components/SearchDialog.astro';
+import CursorGlow from '../components/CursorGlow.astro';
 import { site } from '../data/site';
 import { presetThemes } from '../data/themes';
 import { resolveThemeVars } from '../lib/theme-core';
 import '../styles/global.css';
+import '../styles/cursor-glow.css';
 
 interface Props {
   title?: string;
@@ -126,6 +128,7 @@ const bootPresets = presetThemes.map((preset) => ({
     </main>
     <Footer />
     <MobileDock />
+    <CursorGlow />
     <script>
       import '../scripts/global';
       import '../scripts/motion';

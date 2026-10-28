@@ -2057,3 +2057,124 @@ test('手机端底部拇指栏、首页显性搜索、本页小节抽屉与代�
   assert.equal(planetMetrics.visible, true, '活动页手机端应展示 ASCII 星球');
   assert.ok(planetMetrics.width > 200 && planetMetrics.height > 150, '手机端 ASCII 星球画布应具备可见尺寸');
 });
+test('首页 Hero 像素卡片悬停后整片点亮，指针附近更亮更大，离开后熄灭', async t => {
+  const page = await setup(t);
+  const card = page.locator('[data-hero-pixels]');
+  const canvas = card.locator('.home-hero__pixels');
+  await canvas.waitFor();
+
+  // 读画布：total 为整体点亮像素数，near 为指定点周围半径内的点亮数
+  const probe = (point) => canvas.evaluate((el, where) => {
+    const ctx = el.getContext('2d');
+    const { data } = ctx.getImageData(0, 0, el.width, el.height);
+    const rect = el.getBoundingClientRect();
+    const scale = el.width / rect.width;
+    let total = 0;
+    let blue = 0;
+    let near = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] < 24) continue;
+      total += 1;
+      if (data[i + 2] > data[i] + 24) blue += 1;
+    }
+    if (where) {
+      const radius = Math.round(56 * scale);
+      const cx = Math.round((where.x - rect.left) * scale);
+      const cy = Math.round((where.y - rect.top) * scale);
+      for (let y = Math.max(0, cy - radius); y < Math.min(el.height, cy + radius); y += 1) {
+        for (let x = Math.max(0, cx - radius); x < Math.min(el.width, cx + radius); x += 1) {
+          if (data[(y * el.width + x) * 4 + 3] >= 24) near += 1;
+        }
+      }
+    }
+    return { total, blue, near };
+  }, point);
+
+  const box = await card.boundingBox();
+  const left = { x: box.x + box.width * .22, y: box.y + box.height * .7 };
+  const right = { x: box.x + box.width * .78, y: box.y + box.height * .3 };
+
+  assert.equal((await probe()).total, 0, '未悬停时卡片应保持干净');
+
+  await page.mouse.move(left.x, left.y, { steps: 4 });
+  await page.waitForTimeout(900);
+  const nearLeft = await probe(left);
+  assert.ok(nearLeft.total > 800, '进入卡片后整片点阵应依次亮起，而不只是指针附近');
+  assert.ok(nearLeft.blue / nearLeft.total > .9, '光效必须是蓝色');
+
+  const awayFromLeft = await probe(right);
+  assert.ok(nearLeft.near > awayFromLeft.near * 1.25, '指针附近的点必须比远处更大更密');
+
+  await page.mouse.move(right.x, right.y, { steps: 6 });
+  await page.waitForTimeout(700);
+  const nearRight = await probe(right);
+  const nearLeftAfter = await probe(left);
+  assert.ok(nearRight.near > nearLeftAfter.near * 1.25, '增强区域应跟随指针到新位置');
+
+  await page.mouse.move(box.x - 40, box.y + box.height / 2);
+  await page.waitForTimeout(900);
+  assert.equal((await probe()).total, 0, '指针离开卡片后整片点阵应完全熄灭');
+
+  const reduced = await setup(t, { reducedMotion: 'reduce' });
+  const reducedCard = reduced.locator('[data-hero-pixels]');
+  const reducedBox = await reducedCard.boundingBox();
+  await reduced.mouse.move(reducedBox.x + reducedBox.width / 2, reducedBox.y + reducedBox.height / 2, { steps: 4 });
+  await reduced.waitForTimeout(500);
+  assert.equal(await reduced.locator('.home-hero__pixels').evaluate(el => {
+    const { data } = el.getContext('2d').getImageData(0, 0, el.width, el.height);
+    let lit = 0;
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 0) lit += 1;
+    return lit;
+  }), 0, '减少动效下不绘制光效');
+});
+
+test('全站指针光晕跟随指针、离开后淡出，减少动效下不出现', async t => {
+  const page = await setup(t);
+  const glow = page.locator('[data-cursor-glow]');
+  await glow.waitFor({ state: 'attached' });
+
+  const state = () => glow.evaluate(el => {
+    const style = getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    return {
+      active: el.dataset.active,
+      opacity: Number(style.opacity),
+      blend: style.mixBlendMode,
+      centerX: rect.x + rect.width / 2,
+      centerY: rect.y + rect.height / 2,
+    };
+  });
+
+  const idle = await state();
+  assert.equal(idle.opacity, 0, '没有指针移动时不显示光晕');
+
+  await page.mouse.move(320, 260, { steps: 4 });
+  await page.waitForTimeout(500);
+  const near = await state();
+  assert.equal(near.active, 'true', '指针移动后光晕应出现');
+  assert.ok(near.opacity > .9, '光晕应淡入到可见');
+  assert.ok(Math.abs(near.centerX - 320) < 3 && Math.abs(near.centerY - 260) < 3, '光晕应落在指针处');
+
+  await page.mouse.move(900, 620, { steps: 8 });
+  await page.waitForTimeout(600);
+  const moved = await state();
+  assert.ok(Math.abs(moved.centerX - 900) < 3 && Math.abs(moved.centerY - 620) < 3, '光晕应跟随指针移动');
+
+  // 指针离开文档（relatedTarget 为空）后淡出
+  await page.evaluate(() => window.dispatchEvent(new PointerEvent('pointerout', { bubbles: true })));
+  await page.waitForTimeout(400);
+  assert.equal((await state()).opacity, 0, '指针离开窗口后光晕应淡出');
+
+  const glossary = await setup(t);
+  await glossary.goto(`${origin}/glossary/`);
+  await ready(glossary);
+  await glossary.mouse.move(700, 400, { steps: 4 });
+  await glossary.waitForTimeout(400);
+  assert.equal(await glossary.locator('[data-cursor-glow]').evaluate(el => el.dataset.active), 'true', '光晕在全站每个页面都可用');
+  assert.equal(await glossary.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, '光晕不能造成横向溢出');
+
+  const reduced = await setup(t, { reducedMotion: 'reduce' });
+  await reduced.mouse.move(400, 300, { steps: 4 });
+  await reduced.waitForTimeout(400);
+  assert.equal(await reduced.locator('[data-cursor-glow]').evaluate(el => Number(getComputedStyle(el).opacity)), 0, '减少动效下不显示光晕');
+});
