@@ -187,6 +187,11 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
   assert.equal(countByType['术语'] ?? 0, glossarySlugs.length, '搜索索引中的术语数量与内容目录不一致');
 
   const sectionItems = data.filter((item) => item.type === '章节');
+  const homeSections = sectionItems.filter((item) => item.href.startsWith('/guide/#'));
+  const homeBody = await readFile(path.join(root, 'src/content/guide/_HOME.md'), 'utf8');
+  const homeHeadings = [...homeBody.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim());
+  assert.deepEqual(homeSections.map((item) => item.title), homeHeadings, '指南首页的每个章节都应可搜索');
+  assert.ok(homeSections.some((item) => item.keywords.includes('Transformer')), '指南首页正文应进入搜索');
   // 每篇指南 / 作品至少贡献一条章节级记录，防止内容漏索引。
   for (const slug of guideSlugs) {
     assert.ok(

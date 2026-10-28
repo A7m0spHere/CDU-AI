@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro';
+import { getHeadings as getGuideHomeHeadings } from '../content/guide/_HOME.md';
+import guideHomeBody from '../content/guide/_HOME.md?raw';
 import { getCollection, render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { tools, toolCategories, toolCapabilities } from '../data/tools';
@@ -151,26 +153,30 @@ export const GET: APIRoute = async () => {
     })),
   ];
 
-  // 章节级记录：指南和作品的长文按二级标题切分，结果直接跳到锚点。
-  async function appendSections<C extends 'guide' | 'works'>(entries: CollectionEntry<C>[], basePath: string) {
-    for (const entry of entries) {
-      const { headings } = await render(entry);
-      const h2 = headings.filter((heading) => heading.depth === 2);
-      const sections = splitSections(entry.body ?? '');
-      for (const [index, section] of sections.entries()) {
-        const anchor = h2[index]?.slug;
-        if (!anchor || section.text.length < 20) continue;
-        items.push({
-          type: '章节',
-          title: section.title,
-          description: `${entry.data.title}：${section.text.slice(0, 180)}`,
-          href: `${basePath}/${entry.id.replace(/\.md$/, '')}/#${anchor}`,
-          keywords: [entry.data.title, section.title, section.text].join(' '),
-        });
-      }
+  // 首页与集合文章使用同一份章节规则；锚点来自 Astro 实际渲染结果。
+  function appendBodySections(body: string, title: string, href: string, headings: { depth: number; slug: string }[]) {
+    const h2 = headings.filter((heading) => heading.depth === 2);
+    for (const [index, section] of splitSections(body).entries()) {
+      const anchor = h2[index]?.slug;
+      if (!anchor || section.text.length < 20) continue;
+      items.push({
+        type: '章节',
+        title: section.title,
+        description: title + '：' + section.text.slice(0, 180),
+        href: href + '#' + anchor,
+        keywords: [title, section.title, section.text].join(' '),
+      });
     }
   }
 
+  async function appendSections<C extends 'guide' | 'works'>(entries: CollectionEntry<C>[], basePath: string) {
+    for (const entry of entries) {
+      const { headings } = await render(entry);
+      appendBodySections(entry.body ?? '', entry.data.title, basePath + '/' + entry.id.replace(/\.md$/, '') + '/', headings);
+    }
+  }
+
+  appendBodySections(guideHomeBody, 'AI 学习指南', '/guide/', getGuideHomeHeadings());
   await appendSections(guides, '/guide');
   await appendSections(works, '/works');
 

@@ -1,0 +1,97 @@
+/* 来自 pages.css，保留声明顺序。 */
+
+/* =========================================================
+   About page
+   ========================================================= */
+
+
+.about-maintenance {
+  margin-top: clamp(4rem, 8vw, 7rem);
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+/* 首块（「它是 / 它不是」卡片移除后）不再需要顶部留白与分隔线 */
+.about-maintenance:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.about-maintenance__copy {
+  max-width: 56rem;
+}
+
+.about-maintenance__copy h2 {
+  max-width: 26ch;
+  margin-top: 0.35rem;
+  font-size: clamp(1.6rem, 2.9vw, 2.2rem);
+}
+
+.about-maintenance__copy p:last-child {
+  max-width: 65ch;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.85;
+}
+
+.contribution-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1.8rem;
+}
+
+.contribution-card {
+  padding: 1.1rem;
+}
+
+.contribution-card h3 {
+  margin-top: 0.8rem;
+  font-size: 0.92rem;
+}
+
+.contribution-card p {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.7;
+}
+
+.about-roadmap {
+  margin-top: clamp(4rem, 8vw, 7rem);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 1120px) {
+
+  .contribution-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+
+  .about-maintenance__copy h2 {
+    font-size: 1.55rem;
+  }
+
+  .contribution-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .contribution-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* 来自 vibe.css，保留声明顺序。 */
+
+.contribution-card {
+  border-radius: var(--radius-lg);
+}

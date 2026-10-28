@@ -1,0 +1,292 @@
+/* 来自 pages.css，保留声明顺序。 */
+
+.community-feature {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(17rem, 0.8fr);
+  gap: clamp(2.5rem, 6vw, 5rem);
+  overflow: hidden;
+  padding: clamp(1.8rem, 4vw, 3.2rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.community-feature::before {
+  content: '';
+  position: absolute;
+  top: -10rem;
+  left: -6rem;
+  width: 24rem;
+  height: 24rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 50%;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.community-feature__copy {
+  position: relative;
+  z-index: 1;
+}
+
+.community-feature h2 {
+  max-width: 16ch;
+  margin-top: 0.4rem;
+  font-size: clamp(1.9rem, 3.8vw, 2.9rem);
+}
+
+.community-feature__lede {
+  max-width: 50ch;
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.85;
+}
+
+.channel-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.5rem;
+  list-style: none;
+}
+
+.channel-inline li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.channel-inline svg {
+  color: var(--brand);
+}
+
+.community-feature .btn-row {
+  margin-top: 1.8rem;
+}
+
+.community-feature .link-arrow {
+  font-size: 0.8rem;
+}
+
+.community-section-head {
+  margin-top: 2.6rem;
+}
+
+.channel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.channel-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.3rem;
+}
+
+.channel-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.channel-card__icon {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--line));
+  border-radius: 13px;
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.channel-card__top .mono {
+  color: var(--faint);
+  font-size: 0.8rem;
+}
+
+.channel-card h3 {
+  font-size: 1.16rem;
+}
+
+.channel-card__subtitle {
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.channel-card__desc {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.channel-card__best {
+  margin-top: 0.3rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.channel-card__best span {
+  margin-right: 0.35rem;
+  color: var(--brand);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 650;
+}
+
+.channel-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--line);
+}
+
+.channel-card__foot .mono {
+  color: var(--faint);
+  font-size: 0.6rem;
+}
+
+.community-topics {
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+}
+
+.community-closing {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3rem;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
+.community-closing h2 {
+  max-width: 24ch;
+  margin-top: 0.3rem;
+  font-size: clamp(1.45rem, 2.6vw, 2rem);
+}
+
+.community-closing p:last-child {
+  max-width: 58ch;
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.8;
+}
+
+.community-closing .btn-row {
+  flex: none;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 1120px) {
+
+  .channel-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1020px) {
+
+  .community-feature {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.2rem;
+  }
+
+  .community-closing {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .community-closing .btn-row {
+    justify-content: flex-start;
+  }
+
+}
+
+@media (max-width: 760px) {
+
+  .channel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-closing {
+    padding: 1.2rem;
+  }
+
+  .community-closing h2 {
+    font-size: 1.4rem;
+  }
+
+  .community-topics .section-head {
+    display: block;
+  }
+
+  .community-topics .section-head .pill {
+    margin-top: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .community-feature {
+    padding: 1.2rem;
+  }
+
+  .community-closing .btn-row .btn {
+    flex: 1 1 100%;
+  }
+}
+/* 来自 vibe.css，保留声明顺序。 */
+
+.community-feature {
+  border-radius: var(--radius-xl);
+  padding: clamp(1.4rem, 3.4vw, 2.4rem);
+}
+
+.community-feature h2 {
+  font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+}
+
+.community-feature__lede {
+  font-size: 0.88rem;
+}
+
+.channel-inline li {
+  min-height: 30px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+}
+
+.community-closing h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+}
+
+.channel-card {
+  border-radius: var(--radius-lg);
+}

@@ -1,0 +1,270 @@
+/* 来自 pages.css，保留声明顺序。 */
+
+.event-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  list-style: none;
+}
+
+.event-chip-grid li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+}
+
+.event-chip-grid svg {
+  margin-top: 0.1rem;
+  color: var(--accent);
+}
+
+.event-chip-grid strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.event-chip-grid span {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+}
+
+/* =========================================================
+   Events page
+   ========================================================= */
+.event-format-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.event-format-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.3rem;
+}
+
+.event-format-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.event-format-card__icon {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  border-radius: 13px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.event-format-card__top .mono {
+  color: var(--faint);
+  font-size: 0.8rem;
+}
+
+.event-format-card__subtitle {
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.event-format-card h3 {
+  font-size: 1.18rem;
+}
+
+.event-format-card__desc {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.75;
+}
+
+.event-format-card__best {
+  margin-top: 0.3rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.event-format-card__best span {
+  margin-right: 0.35rem;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 650;
+}
+
+.event-format-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--line);
+}
+
+.event-format-card__foot .mono {
+  color: var(--faint);
+  font-size: 0.6rem;
+}
+
+.blueprint-block {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2.5rem, 6vw, 5rem);
+  margin-top: clamp(4rem, 8vw, 7rem);
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--line);
+}
+
+.blueprint-block__copy h2 {
+  max-width: 17ch;
+  margin-top: 0.4rem;
+  font-size: clamp(1.6rem, 2.9vw, 2.2rem);
+}
+
+.blueprint-block__copy > p:last-of-type {
+  max-width: 42ch;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.8;
+}
+
+.blueprint-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 1.2rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-soft);
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.65;
+}
+
+.blueprint-note svg {
+  margin-top: 0.12rem;
+  flex: none;
+}
+
+.blueprint-steps {
+  display: grid;
+  gap: 0;
+  list-style: none;
+}
+
+.blueprint-steps li {
+  display: grid;
+  grid-template-columns: 5.6rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  padding-block: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.blueprint-steps li:first-child {
+  padding-top: 0;
+}
+
+.blueprint-steps li:last-child {
+  border-bottom: 0;
+}
+
+.blueprint-steps__marker {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  line-height: 1.7;
+}
+
+.blueprint-steps h3 {
+  font-size: 0.9rem;
+}
+
+.blueprint-steps p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.blueprint-steps .mono {
+  color: var(--faint);
+  font-size: 0.62rem;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 1120px) {
+
+  .event-format-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1020px) {
+
+  .blueprint-block {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.2rem;
+  }
+
+}
+
+@media (max-width: 760px) {
+
+  .event-format-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blueprint-block__copy h2 {
+    font-size: 1.55rem;
+  }
+
+  .blueprint-steps li {
+    grid-template-columns: 4.6rem minmax(0, 1fr);
+  }
+
+  .blueprint-steps li > .mono {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .event-chip-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* 来自 vibe.css，保留声明顺序。 */
+
+.event-chip-grid li {
+  padding: 0.75rem;
+}
+
+.event-format-card {
+  border-radius: var(--radius-lg);
+}

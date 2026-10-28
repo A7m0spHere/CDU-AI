@@ -1,3 +1,5 @@
+/* 共享样式；页面专属规则见 routes/。 */
+
 /* ---------------------------------------------------------
    阶段二：内容页共享视觉（页头 / 空状态 / 筛选过渡 / reveal）
    与首页 v2 保持同一套令牌与节奏。
@@ -236,85 +238,6 @@
   ::view-transition-new(root) {
     animation: none;
   }
-}
-
-/* 渐进披露：工具卡片（术语卡沿用 PR #1 的整卡链接，不折叠） */
-.tool-card__details {
-  margin-top: 0.55rem;
-  border-top: 1px solid var(--line);
-  padding-top: 0.55rem;
-}
-
-.tool-card__details summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  color: var(--brand);
-  font-size: 0.74rem;
-  font-weight: 600;
-  cursor: pointer;
-  list-style: none;
-}
-
-.tool-card__details summary::-webkit-details-marker {
-  display: none;
-}
-
-.tool-card__details summary::after {
-  content: '＋';
-  color: var(--faint);
-  font-weight: 400;
-}
-
-.tool-card__details[open] summary::after {
-  content: '－';
-}
-
-.tool-card__details .tool-card__description {
-  display: block;
-  overflow: visible;
-  margin-top: 0.55rem;
-  -webkit-line-clamp: unset;
-  -webkit-box-orient: initial;
-}
-
-.tool-card__details .tag-list {
-  margin-top: 0.55rem;
-}
-
-.tool-card__details .tool-card__caution {
-  margin-top: 0.55rem;
-}
-
-/* 作品封面：插画锚点 + 状态角标 */
-.work-card__art {
-  border-bottom: 1px solid var(--line);
-}
-
-.work-card__art .work-art {
-  will-change: transform;
-}
-
-.work-card__status {
-  top: 0.7rem;
-  right: 0.7rem;
-  left: auto;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.66rem;
-  letter-spacing: 0.02em;
-}
-
-.work-card__category {
-  right: auto;
-  left: 0.7rem;
-  bottom: 0.7rem;
-}
-
-.work-card:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
 }
 
 /* 文章页脚元信息条 */

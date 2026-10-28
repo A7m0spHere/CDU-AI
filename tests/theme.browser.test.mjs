@@ -80,6 +80,7 @@ async function select(page, id) {
 async function create(page) {
   await menu(page);
   await page.locator('[data-theme-create]').click();
+  await page.locator('[data-theme-editor]').waitFor({ state: 'visible' });
 }
 
 async function openImport(page, params) {
@@ -106,6 +107,128 @@ async function rejectThemeWrites(page) {
     };
   });
 }
+
+test('全站搜索保护中文输入法，章节结果可用键盘打开并落到指南首页锚点', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  // 此例验证搜索和键盘导航；关闭无关的原生跨文档动效。
+  // Chrome 对普通链接也会报告无脚本堆栈的 ViewTransition opt-in 中止异常。
+  await page.addStyleTag({ content: '@view-transition { navigation: none; }' });
+  const trigger = page.locator('[data-search-open]').first();
+  await trigger.click();
+  const input = page.locator('[data-search-input]');
+  await input.fill('Transformer');
+  await page.locator('.search-result').first().waitFor();
+  const href = await page.locator('.search-result').first().getAttribute('href');
+  assert.ok(href.startsWith('/guide/#'));
+  await input.dispatchEvent('keydown', { key: 'Enter', isComposing: true });
+  assert.equal(new URL(page.url()).pathname, '/');
+  assert.equal(await page.locator('[data-search-dialog]').evaluate(el => el.open), true);
+  await input.dispatchEvent('compositionstart');
+  await input.dispatchEvent('keydown', { key: 'Enter' });
+  assert.equal(new URL(page.url()).pathname, '/');
+  await input.dispatchEvent('compositionend');
+  await input.press('ArrowDown');
+  assert.equal(await page.locator('.search-result').first().evaluate(el => el === document.activeElement), true);
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await input.evaluate(el => el === document.activeElement), true);
+  await input.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('[data-search-dialog]').open);
+  assert.equal(await trigger.evaluate(el => el === document.activeElement), true);
+  await trigger.click();
+  await input.press('Enter');
+  await page.waitForURL(url => url.pathname === '/guide/' && Boolean(url.hash));
+  await page.waitForLoadState('load');
+  await ready(page);
+  assert.equal(await page.evaluate(() => Boolean(document.getElementById(decodeURIComponent(location.hash.slice(1))))), true);
+});
+
+test('搜索展示匹配总数与截断提示，手机空结果仍可清楚阅读', async t => {
+  const page = await setup(t, { viewport: { width: 390, height: 844 } });
+  await page.route('**/search-index.json', route => route.fulfill({ json: Array.from({ length: 12 }, (_,i) => ({ type: '工具', title: `测试工具 ${i}`, description: '测试结果', keywords: '测试', href: '/tools/' })) }));
+  await page.locator('[data-search-open]').click();
+  await page.locator('[data-search-input]').fill('测试');
+  await page.waitForFunction(() => document.querySelectorAll('.search-result').length === 10);
+  assert.match(await page.locator('[data-search-status]').textContent(), /找到 12 条相关结果，显示前 10 条/);
+  assert.equal(await page.locator('[data-search-dialog]').evaluate(el => el.scrollWidth <= el.clientWidth), true);
+  await page.locator('[data-search-input]').fill('无匹配词');
+  assert.equal(await page.locator('.search-result').count(), 0);
+  assert.match(await page.locator('[data-search-status]').textContent(), /没有找到/);
+});
+
+test('搜索加载失败可重新打开或点击重试，成功后复用索引', async t => {
+  const page = await setup(t);
+  let attempts = 0;
+  await page.route('**/search-index.json', route => {
+    attempts += 1;
+    return attempts < 3 ? route.fulfill({ status: 503, body: 'unavailable' }) : route.fulfill({ json: [{ type: '页面', title: '恢复成功', description: '恢复成功', keywords: '恢复', href: '/guide/' }] });
+  });
+  await page.locator('[data-search-open]').click();
+  await page.locator('[data-search-retry]').waitFor({ state: 'visible' });
+  await page.locator('[data-search-input]').press('Escape');
+  await page.waitForFunction(() => !document.querySelector('[data-search-dialog]').open);
+  await page.locator('[data-search-open]').click();
+  await page.waitForFunction(() => document.querySelector('[data-search-retry]').hidden === false);
+  assert.equal(attempts, 2);
+  await page.locator('[data-search-retry]').click();
+  await page.locator('.search-result').waitFor();
+  assert.equal(attempts, 3);
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('[data-search-dialog]').open);
+  await page.locator('[data-search-open]').click();
+  assert.equal(attempts, 3);
+  assert.equal(await page.locator('[data-search-retry]').isVisible(), false);
+});
+
+test('普通阅读及预设切换不加载主题编辑器，首次编辑按需加载且只初始化一次', async t => {
+  const page = await setup(t);
+  const editorResources = () => page.evaluate(() => performance.getEntriesByType('resource').filter(entry => /\/theme-editor\.[^/]+\.(js|css)$/.test(new URL(entry.name).pathname)).map(entry => entry.name));
+  assert.deepEqual(await editorResources(), []);
+  assert.equal(await page.locator('[data-theme-editor]').count(), 0);
+  await select(page, 'dark');
+  assert.deepEqual(await editorResources(), []);
+  await create(page);
+  assert.equal((await editorResources()).length, 2, '编辑器脚本与样式均应延迟到首次打开');
+  await page.locator('[data-theme-cancel]').click();
+  await create(page);
+  assert.equal(await page.locator('[data-theme-editor]').count(), 1);
+  assert.equal(await page.locator('[data-theme-colorpop]').count(), 1);
+  assert.equal((await editorResources()).length, 2);
+});
+
+test('主题编辑器首次加载期间按 Escape 取消，不会在加载完成后意外弹出', async t => {
+  const page = await setup(t);
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  let requested = false;
+  await page.route('**/theme-editor.*.js', async route => { requested = true; await gate; await route.continue(); });
+  t.after(() => release());
+  await menu(page);
+  await page.locator('[data-theme-create]').click();
+  await page.waitForFunction(() => document.querySelector('[data-theme-panel]').getAttribute('aria-busy') === 'true');
+  await page.keyboard.press('Escape');
+  release();
+  await page.waitForFunction(() => document.querySelector('[data-theme-colorpop]'));
+  assert.equal(requested, true);
+  assert.equal(await page.locator('[data-theme-editor]').evaluate(el => el.open), false);
+  await create(page);
+  assert.equal(await page.locator('[data-theme-editor]').evaluate(el => el.open), true);
+});
+
+test('编辑器样式加载失败显示错误，重试后只创建一套对话框', async t => {
+  const page = await setup(t);
+  let attempts = 0;
+  await page.route('**/theme-editor.*.css', route => {
+    attempts += 1;
+    return attempts === 1 ? route.fulfill({ status: 503, body: 'unavailable' }) : route.continue();
+  });
+  await menu(page);
+  await page.locator('[data-theme-create]').click();
+  await page.locator('[data-theme-menu-error]').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('[data-theme-editor]').count(), 0);
+  await create(page);
+  assert.equal(attempts, 2);
+  assert.equal(await page.locator('[data-theme-editor]').count(), 1);
+});
 
 test('预设切换/刷新与 main 工具目录、社区折叠和搜索兼容', async t => {
   const page = await setup(t);

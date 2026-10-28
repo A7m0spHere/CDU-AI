@@ -1,0 +1,444 @@
+/* 来自 pages.css，保留声明顺序。 */
+
+.works-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.works-note svg {
+  margin-top: 0.16rem;
+  flex: none;
+  color: var(--accent);
+}
+
+.works-note p {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.works-note strong {
+  color: var(--ink);
+}
+
+/* =========================================================
+   Work cards & works page
+   ========================================================= */
+.work-cell {
+  display: flex;
+  min-width: 0;
+}
+
+.work-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+}
+
+.work-card__art {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+
+.work-card__art .work-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.work-card:hover .work-card__art .work-art {
+  transform: scale(1.035);
+}
+
+.work-card__status {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  border-color: rgba(27, 42, 34, 0.1);
+  background: rgba(255, 251, 242, 0.92);
+  color: #6e5715;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+:root[data-theme='dark'] .work-card__status {
+  background: rgba(15, 23, 18, 0.84);
+  color: var(--sun);
+}
+
+.work-card__category {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  padding: 0.24rem 0.62rem;
+  border-radius: var(--radius-pill);
+  background: rgba(24, 38, 30, 0.72);
+  color: #f8f5ec;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.work-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem 1.2rem 1.2rem;
+}
+
+.work-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+}
+
+.work-card h3 {
+  font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+  line-height: 1.4;
+}
+
+.work-card__summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.work-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: auto;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--line);
+}
+
+.work-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--brand);
+  font-size: 0.74rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.works-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.works-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3rem;
+  margin-top: clamp(3.5rem, 7vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
+.works-footer h2 {
+  max-width: 22ch;
+  margin-top: 0.4rem;
+  font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+}
+
+.works-footer p:last-child {
+  max-width: 58ch;
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+.works-footer .btn-row {
+  flex: none;
+}
+
+/* =========================================================
+   Work detail
+   ========================================================= */
+.work-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(15rem, 0.62fr);
+  align-items: start;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+.work-detail__main {
+  min-width: 0;
+}
+
+.work-detail__cover {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.work-detail__cover .work-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9.4;
+}
+
+.work-detail__status {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  border-color: rgba(27, 42, 34, 0.1);
+  background: rgba(255, 251, 242, 0.92);
+  color: #6e5715;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+:root[data-theme='dark'] .work-detail__status {
+  background: rgba(15, 23, 18, 0.84);
+  color: var(--sun);
+}
+
+.work-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  margin-top: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--line);
+}
+
+.work-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  min-width: 0;
+  padding: 0.8rem 0.9rem;
+  background: var(--surface);
+}
+
+.work-facts span {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+}
+
+.work-facts strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+}
+
+.work-body {
+  margin-top: 2.6rem;
+}
+
+.work-detail__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.work-detail__nav .link-arrow {
+  font-size: 0.78rem;
+}
+
+.work-detail__aside {
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+  display: grid;
+  gap: 0.8rem;
+}
+
+@media (max-width: 1020px) {
+
+  .work-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  .work-detail__aside {
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    align-items: start;
+  }
+
+  .works-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .works-footer .btn-row {
+    justify-content: flex-start;
+  }
+
+}
+
+@media (max-width: 760px) {
+
+  .works-footer {
+    padding: 1.2rem;
+  }
+
+  .works-footer h2 {
+    font-size: 1.4rem;
+  }
+
+  .work-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .works-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .works-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .works-toolbar .filter-chips {
+    gap: 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .work-detail__nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .works-footer .btn-row .btn {
+    flex: 1 1 100%;
+  }
+}
+/* 来自 vibe.css，保留声明顺序。 */
+
+.works-note {
+  padding: 0.8rem 1rem;
+  font-size: 0.74rem;
+}
+
+/* Work cards ---------------------------------------------- */
+.work-card__body {
+  padding: 0.95rem 1rem 1.05rem;
+}
+
+.work-card h3 {
+  font-size: 1.03rem;
+}
+
+.work-card__summary {
+  font-size: 0.76rem;
+}
+
+.work-card__foot {
+  padding-top: 0.65rem;
+}
+
+.works-grid {
+  gap: 1rem;
+}
+
+.works-footer h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+}
+
+.works-toolbar {
+  padding-block: 0.7rem;
+}
+
+.work-detail__cover {
+  border-radius: var(--radius-lg);
+}
+
+.work-facts {
+  border-radius: var(--radius-md);
+}
+
+.work-detail__aside {
+  gap: 0.75rem;
+}
+/* 来自 pages-v2.css，保留声明顺序。 */
+
+/* 作品封面：插画锚点 + 状态角标 */
+.work-card__art {
+  border-bottom: 1px solid var(--line);
+}
+
+.work-card__art .work-art {
+  will-change: transform;
+}
+
+.work-card__status {
+  top: 0.7rem;
+  right: 0.7rem;
+  left: auto;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+}
+
+.work-card__category {
+  right: auto;
+  left: 0.7rem;
+  bottom: 0.7rem;
+}
+
+.work-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

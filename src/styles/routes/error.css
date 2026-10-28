@@ -1,0 +1,127 @@
+/* 来自 pages.css，保留声明顺序。 */
+
+/* =========================================================
+   404
+   ========================================================= */
+.error-page {
+  display: grid;
+  min-height: min(74vh, 52rem);
+  place-items: center;
+  padding-block: clamp(3rem, 7vw, 6rem);
+}
+
+.error-page__panel {
+  position: relative;
+  width: min(100%, 46rem);
+  padding: clamp(2rem, 6vw, 4rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.error-page__art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 1.8rem;
+}
+
+.error-page__code {
+  color: var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: clamp(4rem, 12vw, 7.5rem);
+  font-weight: 650;
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+}
+
+.error-page__seed {
+  display: inline-grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--line));
+  border-radius: 50%;
+  background: var(--brand-soft);
+  color: var(--brand);
+  transform: rotate(8deg);
+}
+
+.error-page .eyebrow {
+  justify-content: center;
+}
+
+.error-page h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+
+.error-page__lede {
+  max-width: 33rem;
+  margin: 0.9rem auto 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.error-page__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+}
+
+.error-page__sitemap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1rem;
+  margin-top: 1.8rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--line);
+  color: var(--faint);
+  font-size: 0.76rem;
+}
+
+.error-page__sitemap a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.error-page__sitemap a:hover {
+  color: var(--brand);
+}
+
+@media (max-width: 760px) {
+
+  .error-page__panel {
+    padding: 1.5rem;
+  }
+
+  .error-page__links .btn {
+    flex: 1 1 auto;
+  }
+
+  .error-page__seed {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .error-page__code {
+    font-size: 4.5rem;
+  }
+
+  .error-page__seed {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+}
