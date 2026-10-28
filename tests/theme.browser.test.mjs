@@ -2475,14 +2475,15 @@ test('侧栏搜索框与列表卡片接上同一束光', async t => {
     const glow = host.querySelector('[data-glow]');
     const cs = getComputedStyle(glow);
     return {
-      size: cs.backgroundSize,
-      mask: cs.maskImage || cs.webkitMaskImage || '',
+      image: cs.backgroundImage,
+      filter: cs.filter,
       border: getComputedStyle(host).borderTopColor,
       cy: glow.style.getPropertyValue('--glow-cy'),
     };
   });
-  assert.equal(cardLit.size, '10px 10px', '卡片应铺点阵，而不是整面径向渐变');
-  assert.ok(cardLit.mask.includes('radial-gradient'), '点阵只在指针附近出现，边缘不铺满');
+  assert.ok(cardLit.image.includes('radial-gradient'), '卡片上是一团柔光，不是点阵');
+  assert.ok(/132px/.test(cardLit.image), '光斑是固定 px 半径的圆，只亮指针那一片');
+  assert.ok(cardLit.filter.includes('blur'), '光斑边缘要糊掉才读成光晕');
   assert.notEqual(cardLit.border, cardIdleBorder, '指着的那张卡，外圈描边要点亮');
   assert.ok(parseFloat(cardLit.cy) > 0, '点阵的亮心要跟着指针上下移动');
   assert.equal(await page.locator('.tool-card [data-glow][data-active="true"]').count(), 1, '同时只应有一张卡片发光');

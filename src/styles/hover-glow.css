@@ -185,58 +185,41 @@
   box-shadow: none;
 }
 
-/* 列表卡片换成点阵光：与首页 Hero 的点阵同一种语言——一粒一粒的蓝点，
-   只在指针附近亮起，而不是整面铺一层渐变。
-   10px 一格、1px 的点；遮罩收得比渐变版更紧，让点只在指针周围出现，
-   不然整张卡铺满点会盖住正文。 */
+/* 列表卡片：不用点阵、也不铺满整面的渐变，改成一团跟着指针走的柔光（光晕）。
+   光斑用 px 半径而不是百分比：卡片宽高差很大，百分比会在宽屏上拉成一条横带；
+   固成 150px 的圆，读起来就是「只有指着的那一片亮」。
+   再叠 blur，边界糊掉才像光，不然会看到一圈硬边的圆盘。 */
 .tool-card > .hover-glow,
 .glossary-term > .hover-glow {
   overflow: hidden;
-  filter: none;
-  background-color: transparent;
-  background-image: radial-gradient(
-    circle at center,
-    rgba(var(--glow-tint), 0.6) 0 1px,
-    rgba(var(--glow-tint), 0) 1.5px
-  );
-  background-size: 10px 10px;
-  background-position: 5px 5px;
-  -webkit-mask-image: radial-gradient(
-    46% 52% at var(--glow-cx, 50%) var(--glow-cy, 50%),
-    #000 0%,
-    rgba(0, 0, 0, 0.42) 48%,
-    rgba(0, 0, 0, 0) 82%
-  );
-  mask-image: radial-gradient(
-    46% 52% at var(--glow-cx, 50%) var(--glow-cy, 50%),
-    #000 0%,
-    rgba(0, 0, 0, 0.42) 48%,
-    rgba(0, 0, 0, 0) 82%
+  filter: blur(8px);
+  background: radial-gradient(
+    circle 132px at var(--glow-cx, 50%) var(--glow-cy, 50%),
+    rgba(var(--glow-tint), 0.78) 0%,
+    rgba(var(--glow-tint), 0.4) 38%,
+    rgba(var(--glow-tint), 0.11) 70%,
+    rgba(var(--glow-tint), 0) 100%
   );
 }
 
-/* 点阵不要外面那圈模糊柔光，否则又变回一团雾 */
+/* 光晕本身就是那团光，不要再叠外面那圈 ::before 柔光，否则又糊成一片雾 */
 .tool-card > .hover-glow::before,
 .glossary-term > .hover-glow::before {
   display: none;
 }
 
-/* 深色主题的 .hover-glow 有一套自己的 background 简写（特异性更高），
-   会把 background-size / -position 一起重置掉，这里连这几项一起重写，
-   否则只剩一格点（简写把尺寸还原成 auto）。 */
+/* 深色主题的 .hover-glow 用 background 简写（特异性更高），会盖掉上面这条，整条重写 */
 :root[data-theme='dark'] .tool-card > .hover-glow,
 :root[data-theme='dark'] .glossary-term > .hover-glow {
-  background-color: transparent;
-  background-image: radial-gradient(
-    circle at center,
-    rgba(var(--glow-tint), 0.8) 0 1px,
-    rgba(var(--glow-tint), 0) 1.5px
+  background: radial-gradient(
+    circle 132px at var(--glow-cx, 50%) var(--glow-cy, 50%),
+    rgba(var(--glow-tint), 0.62) 0%,
+    rgba(var(--glow-tint), 0.3) 38%,
+    rgba(var(--glow-tint), 0.08) 70%,
+    rgba(var(--glow-tint), 0) 100%
   );
-  background-size: 10px 10px;
-  background-position: 5px 5px;
   box-shadow: none;
 }
-
 /* 指着的这张卡，外圈一圈描边点亮：光斑在卡面里点，边界由这圈读出来。
    卡片自己的 :hover 只把描边换成 line-strong，这里接力成品牌蓝并带一点外发光。 */
 .tool-card[data-glow-on='true'],
