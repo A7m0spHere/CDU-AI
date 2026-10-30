@@ -9,7 +9,7 @@ interface Props {
 
 const { currentId } = Astro.props;
 
-// 文章标题以 frontmatter 为准；没有对应文件的条目渲染成「规划中」，不生成假路由。
+// 文章标题以 frontmatter 为准；没有对应文件的章节也可进入占位页。
 const modules = await getCollection('guide');
 const slugOf = (id: string) => id.replace(/\.md$/, '');
 const bySlug = new Map(modules.map((module) => [slugOf(module.id), module]));
@@ -24,7 +24,7 @@ const groups = guideNavGroups.map((group) => ({
       label: entry?.data.title ?? item.label,
       hint: item.hint,
       slug: item.slug,
-      href: entry ? `/guide/${item.slug}/` : item.href,
+      href: item.slug ? `/guide/${item.slug}/` : item.href,
       active: Boolean(item.slug && item.slug === currentId) || Boolean(item.href === '/guide/' && !currentId),
       planned: Boolean(item.slug && !entry),
       // 只有指向指南之外的入口才标外链图标（指南首页属于指南内部）
@@ -62,16 +62,13 @@ const publishedCount = modules.length;
                 class:list={{ 'is-active': item.active, 'is-external': item.external }}
                 href={item.href}
                 aria-current={item.active ? 'page' : undefined}
+                data-planned={item.planned ? 'true' : undefined}
               >
                 <span class="guide-nav__item-label">{item.label}</span>
+                {item.planned && <span class="guide-nav__badge">待补充</span>}
                 {item.external && <Icon name="arrow-up-right" size={11} />}
               </a>
-            ) : (
-              <span class="guide-nav__planned" data-planned="true" aria-disabled="true">
-                <span class="guide-nav__item-label">{item.label}</span>
-                <span class="guide-nav__badge">规划中</span>
-              </span>
-            )}
+            ) : null}
           </li>
         ))}
       </ul>
@@ -79,7 +76,7 @@ const publishedCount = modules.length;
   ))}
 
   {publishedCount === 0 && (
-    <p class="guide-nav__note">目录已定稿，正文按栏目分批撰写；标注「规划中」的条目还没有文章。</p>
+    <p class="guide-nav__note">章节均可进入，标注「待补充」的页面暂时只有占位。</p>
   )}
 </nav>
 

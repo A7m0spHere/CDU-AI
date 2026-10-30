@@ -202,19 +202,6 @@
   color: var(--faint);
 }
 
-/* 规划中：不可点击，弱化显示，避免被误认为死链 */
-.guide-nav__planned {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.5rem;
-  border-radius: 4px;
-  color: var(--faint);
-  font-size: 0.75rem;
-  line-height: 1.55;
-  cursor: default;
-}
-
 .guide-nav__badge {
   flex: none;
   padding: 0 0.3rem;

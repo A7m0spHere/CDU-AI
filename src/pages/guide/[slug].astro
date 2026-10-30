@@ -1,47 +1,52 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import ContentStatus from '../../components/ContentStatus.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
+import GuidePager from '../../components/GuidePager.astro';
+import { getGuideChapters, type GuideChapter } from '../../data/guide-nav';
 import { guideStages, repository } from '../../data/site';
 import { tools } from '../../data/tools';
 import '../../styles/notion.css';
 
 export const getStaticPaths = (async () => {
   const modules = await getCollection('guide');
-  return modules.map((entry) => ({
-    params: { slug: entry.id.replace(/\.md$/, '') },
-    props: { entry },
+  const bySlug = new Map(modules.map((entry) => [entry.id.replace(/\.md$/, ''), entry]));
+  return getGuideChapters(modules).filter((chapter) => chapter.id).map((chapter) => ({
+    params: { slug: chapter.id },
+    props: { entry: bySlug.get(chapter.id), chapter },
   }));
 }) satisfies GetStaticPaths;
 
-const { entry } = Astro.props;
-const modules = (await getCollection('guide')).sort((a, b) => a.data.order - b.data.order);
-const slug = entry.id.replace(/\.md$/, '');
-const index = modules.findIndex((module) => module.id === entry.id);
-const previous = index > 0 ? modules[index - 1] : undefined;
-const next = index >= 0 && index < modules.length - 1 ? modules[index + 1] : undefined;
-const stage = guideStages.find((item) => item.id === entry.data.stage);
+interface Props {
+  entry?: CollectionEntry<'guide'>;
+  chapter: GuideChapter;
+}
 
-const { Content, headings } = await render(entry);
-const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
-const editUrl = `${repository.url}/edit/${repository.branch}/src/content/guide/${entry.id}.md`;
-const relatedTools = entry.data.tools
+const { entry, chapter } = Astro.props;
+const slug = chapter.id;
+const stage = guideStages.find((item) => item.id === entry?.data.stage);
+
+const rendered = entry ? await render(entry) : undefined;
+const Content = rendered?.Content;
+const toc = rendered?.headings.filter((heading) => heading.depth === 2 || heading.depth === 3) ?? [];
+const editUrl = entry ? `${repository.url}/edit/${repository.branch}/src/content/guide/${entry.id}.md` : undefined;
+const relatedTools = (entry?.data.tools ?? [])
   .map((name) => tools.find((tool) => tool.name === name))
   .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
 // sources 在 schema 里有默认值；这里再兜底一次，避免旧内容缓存缺字段时详情页渲染崩溃。
-const sources = entry.data.sources ?? [];
+const sources = entry?.data.sources ?? [];
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.summary}>
+<BaseLayout title={chapter.title} description={entry?.data.summary ?? `${chapter.title}，正文待补充。`} noIndex={!entry}>
   <div class="wiki-shell guide-doc-shell">
     <div class="container guide-doc-layout">
       <GuideSidebar currentId={slug} />
 
-      <div class="guide-paper">
+      <div class:list={['guide-paper', { 'guide-paper--placeholder': !entry }]}>
         <div class="wiki-main wiki-article notion-page">
         <GuideMobileNav currentId={slug} />
 
@@ -50,21 +55,22 @@ const sources = entry.data.sources ?? [];
           <span class="breadcrumb__sep" aria-hidden="true">/</span>
           <a href="/guide/">学习指南</a>
           <span class="breadcrumb__sep" aria-hidden="true">/</span>
-          <span class="breadcrumb__stage">
-            <span>{stage?.label ?? '学习路径'}</span>
+          {stage && <span class="breadcrumb__stage">
+            <span>{stage.label}</span>
             <span class="breadcrumb__sep" aria-hidden="true">/</span>
-          </span>
-          <span aria-current="page">{entry.data.title}</span>
+          </span>}
+          <span aria-current="page">{chapter.title}</span>
         </nav>
 
         <header class="notion-page-head">
           <div class="notion-page-head__title-row">
             <span class="notion-page-head__icon" aria-hidden="true"><Icon name="book-open" size={20} /></span>
-            <h1>{entry.data.title}</h1>
+            <h1>{chapter.title}</h1>
           </div>
-          <p class="notion-page-head__summary">{entry.data.summary}</p>
+          {entry && <p class="notion-page-head__summary">{entry.data.summary}</p>}
         </header>
 
+        {entry && Content ? <>
         <div class="prose wiki-prose notion-prose">
           <Content />
         </div>
@@ -113,34 +119,14 @@ const sources = entry.data.sources ?? [];
             </a>
           </div>
         </footer>
+        </> : (
+          <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
+        )}
 
-        <nav class="wiki-pager" aria-label="模块翻页">
-          {previous ? (
-            <a class="wiki-pager__link" href={`/guide/${previous.id.replace(/\.md$/, '')}/`}>
-              <span>上一篇</span>
-              <strong>{previous.data.title}</strong>
-            </a>
-          ) : (
-            <a class="wiki-pager__link" href="/guide/">
-              <span>返回</span>
-              <strong>学习指南首页</strong>
-            </a>
-          )}
-          {next ? (
-            <a class="wiki-pager__link wiki-pager__link--next" href={`/guide/${next.id.replace(/\.md$/, '')}/`}>
-              <span>下一篇</span>
-              <strong>{next.data.title}</strong>
-            </a>
-          ) : (
-            <a class="wiki-pager__link wiki-pager__link--next" href="/works/">
-              <span>继续</span>
-              <strong>作品广场</strong>
-            </a>
-          )}
-        </nav>
+        <GuidePager currentId={slug} />
         </div>
 
-        <aside class="wiki-toc" aria-label="本页内容">
+        {entry && <aside class="wiki-toc" aria-label="本页内容">
         <p class="wiki-toc__label">本页内容</p>
         {toc.length > 0 && (
           <nav>
@@ -153,8 +139,21 @@ const sources = entry.data.sources ?? [];
             </ol>
           </nav>
         )}
-        </aside>
+        </aside>}
       </div>
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .guide-paper--placeholder {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .guide-placeholder {
+    margin: 1.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>

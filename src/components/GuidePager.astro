@@ -1,0 +1,167 @@
+---
+import { getCollection } from 'astro:content';
+import { getGuideChapters } from '../data/guide-nav';
+import Icon from './Icon.astro';
+
+interface Props {
+  currentId?: string;
+}
+
+const { currentId = '' } = Astro.props;
+const chapters = getGuideChapters(await getCollection('guide'));
+const index = chapters.findIndex((chapter) => chapter.id === currentId);
+const links = [
+  { chapter: index > 0 ? chapters[index - 1] : undefined, direction: 'prev', label: '上一章' },
+  { chapter: index >= 0 ? chapters[index + 1] : undefined, direction: 'next', label: '下一章' },
+].filter((link) => link.chapter);
+---
+
+{links.length > 0 && (
+  <nav class="guide-pager" aria-label="章节导航">
+    {links.map(({ chapter, direction, label }) => chapter && (
+      <a
+        class:list={['guide-pager__link', `guide-pager__link--${direction}`]}
+        href={chapter.href}
+        rel={direction}
+        aria-label={`${label}：${chapter.title}`}
+        title={chapter.title}
+      >
+        <span class="guide-pager__arrow" aria-hidden="true">
+          <Icon name={direction === 'prev' ? 'arrow-left' : 'arrow-right'} size={17} />
+        </span>
+        <span class="guide-pager__text">
+          <span class="guide-pager__label">{label}</span>
+          <span class="guide-pager__title">{chapter.title}</span>
+        </span>
+      </a>
+    ))}
+  </nav>
+)}
+
+<style>
+  .guide-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    width: 100%;
+    max-width: 48rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .guide-pager__link {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-self: start;
+    gap: 0.65rem;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 58px;
+    overflow: hidden;
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 1.5rem;
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    transition: color 180ms ease, border-color 180ms ease;
+  }
+
+  /* 借鉴胶囊导航的圆形填色，用主题色和短过渡适配文档阅读。 */
+  .guide-pager__link::before {
+    position: absolute;
+    z-index: -1;
+    inset: -1px;
+    border-radius: inherit;
+    background: var(--brand);
+    clip-path: circle(0% at 50% 100%);
+    content: '';
+    transition: clip-path 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .guide-pager__link:is(:hover, :focus-visible) {
+    border-color: var(--brand);
+    color: var(--on-brand);
+  }
+
+  .guide-pager__link:is(:hover, :focus-visible)::before {
+    clip-path: circle(150% at 50% 100%);
+  }
+
+  .guide-pager__link:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .guide-pager__link--next {
+    grid-column: 2;
+    flex-direction: row-reverse;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .guide-pager__text {
+    min-width: 0;
+    transition: transform 200ms ease;
+  }
+
+  .guide-pager__label {
+    display: block;
+    margin-bottom: 0.12rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    line-height: 1.4;
+    transition: color 180ms ease;
+  }
+
+  .guide-pager__title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .guide-pager__arrow {
+    display: flex;
+    flex: none;
+    transition: transform 200ms ease;
+  }
+
+  .guide-pager__link:is(:hover, :focus-visible) .guide-pager__label {
+    color: inherit;
+  }
+
+  .guide-pager__link:is(:hover, :focus-visible) .guide-pager__text {
+    transform: translateY(-1px);
+  }
+
+  .guide-pager__link--prev:is(:hover, :focus-visible) .guide-pager__arrow {
+    transform: translateX(-2px);
+  }
+
+  .guide-pager__link--next:is(:hover, :focus-visible) .guide-pager__arrow {
+    transform: translateX(2px);
+  }
+
+  @media (max-width: 480px) {
+    .guide-pager { gap: 0.5rem; }
+    .guide-pager__link { gap: 0.4rem; padding-inline: 0.7rem; border-radius: 1.15rem; }
+    .guide-pager__title { font-size: 0.76rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .guide-pager__link,
+    .guide-pager__link::before,
+    .guide-pager__text,
+    .guide-pager__label,
+    .guide-pager__arrow { transition: none; }
+    .guide-pager__link:is(:hover, :focus-visible) :is(.guide-pager__text, .guide-pager__arrow) { transform: none; }
+  }
+</style>

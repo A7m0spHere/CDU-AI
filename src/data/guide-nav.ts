@@ -2,13 +2,13 @@
  * 学习指南的**目录信息架构**（侧边栏分组）。
  *
  * 为什么单独放在这里：
- * - 分组（栏目）与文章阅读顺序解耦——`order` 决定「上一篇/下一篇」，本文件决定「在侧边栏哪个栏目下」；
+ * - 本文件决定侧边栏分组与「上一章 / 下一章」的阅读顺序，frontmatter 的 `order` 保留为集合排序字段；
  * - 调整栏目、加分组、换顺序只改这个文件，不需要动页面组件；
- * - 规划中的文章先在这里占位（只有 `slug`，没有文件），页面渲染成「规划中」而不是假链接；
- * - 文章文件一旦创建（`src/content/guide/<slug>.md`），同一个 slug 自动变成真实链接，标题取文章自己的 title。
+ * - 只有 `slug`、没有文件的章节也生成可访问的占位页，目录标注「待补充」；
+ * - 文章文件一旦创建（`src/content/guide/<slug>.md`），同一个 URL 自动显示正文，标题取文章自己的 title。
  *
  * 新增一篇文章：写 `src/content/guide/<slug>.md`，然后在下面某个分组里加一条 `{ slug: '<slug>', label: '<占位标题>' }`。
- * 只登记 slug、不建文件 = 规划中；只建文件、不登记 = `npm run check:content` 报错（避免文章写了却不出现在目录里）。
+ * 只登记 slug、不建文件 = 占位页；只建文件、不登记 = `npm run check:content` 报错（避免文章写了却不出现在目录里）。
  */
 
 export type GuideNavGroupId =
@@ -123,6 +123,25 @@ export const guideNavGroupIds = guideNavGroups.map((group) => group.id);
 export const guideNavSlugs = guideNavGroups.flatMap((group) =>
   group.items.map((item) => item.slug).filter((slug): slug is string => Boolean(slug)),
 );
+
+export interface GuideChapter {
+  id: string;
+  title: string;
+  href: string;
+}
+
+/** 首页与登记章节共用一条阅读路径；资源区的独立页面不参与章节翻页。 */
+export function getGuideChapters(modules: { id: string; data: { title: string } }[]): GuideChapter[] {
+  const titles = new Map(modules.map((entry) => [entry.id.replace(/\.md$/, ''), entry.data.title]));
+  return [
+    { id: '', title: '指南首页', href: '/guide/' },
+    ...guideNavGroups.flatMap((group) => group.items.flatMap((item) => item.slug ? [{
+      id: item.slug,
+      title: titles.get(item.slug) ?? item.label,
+      href: `/guide/${item.slug}/`,
+    }] : [])),
+  ];
+}
 
 /** 文章 slug 是否已在目录中登记。 */
 export function isGuideNavSlug(slug: string): boolean {

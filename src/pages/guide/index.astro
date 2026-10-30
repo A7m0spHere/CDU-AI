@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
+import GuidePager from '../../components/GuidePager.astro';
 import { Content as GuideHomeContent } from '../../content/guide/_HOME.md';
 import '../../styles/notion.css';
 ---
@@ -22,6 +23,7 @@ import '../../styles/notion.css';
           <article class="prose wiki-prose notion-prose guide-home-prose" aria-label="指南首页正文" data-guide-home-content>
             <GuideHomeContent />
           </article>
+          <GuidePager />
         </div>
       </div>
     </div>

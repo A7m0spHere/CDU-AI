@@ -5,8 +5,10 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
+import { load as loadYaml } from 'js-yaml';
 import {
   loadContentContext,
+  loadGuideNavSlugsFromSource,
   parseToolCategoryIds,
   parseToolsFromSource,
   validateCollection,
@@ -33,6 +35,8 @@ const guideFiles = await listMarkdown(sources.guide);
 const workFiles = await listMarkdown(sources.works);
 const glossaryFiles = await listMarkdown(sources.glossary);
 const guideSlugs = guideFiles.map((file) => file.replace(/\.md$/, ''));
+const guideNavSource = await readFile(path.join(root, 'src/data/guide-nav.ts'), 'utf8');
+const registeredGuideSlugs = loadGuideNavSlugsFromSource(guideNavSource);
 const workSlugs = workFiles.map((file) => file.replace(/\.md$/, ''));
 const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
 
@@ -59,7 +63,7 @@ const expectedRoutes = [
   'glossary/index.html',
   'tools/index.html',
   'works/index.html',
-  ...guideSlugs.map((slug) => 'guide/' + slug + '/index.html'),
+  ...registeredGuideSlugs.map((slug) => 'guide/' + slug + '/index.html'),
   ...workSlugs.map((slug) => 'works/' + slug + '/index.html'),
   ...glossarySlugs.map((slug) => 'glossary/' + slug + '/index.html'),
 ];
@@ -340,10 +344,10 @@ test('术语来源展示真实链接，并保留未人工核校提示', async ()
 });
 
 test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () => {
-  const contentRoutes = expectedRoutes.filter((route) =>
-    (route.startsWith('guide/') && route !== 'guide/index.html') ||
-    (route.startsWith('works/') && route !== 'works/index.html'),
-  );
+  const contentRoutes = [
+    ...guideSlugs.map((slug) => 'guide/' + slug + '/index.html'),
+    ...workSlugs.map((slug) => 'works/' + slug + '/index.html'),
+  ];
   for (const route of contentRoutes) {
     const html = await read(route);
     assert.match(html, /最后更新：\d{4}-\d{2}-\d{2}/, route + ' 缺少更新时间');
@@ -353,10 +357,14 @@ test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () 
 
   for (const file of guideFiles) {
     const raw = await readFile(path.join(sources.guide, file), 'utf8');
-    if (!/^sources:/m.test(raw)) continue;
+    const fields = loadYaml(raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)[1]);
     const slug = file.replace(/\.md$/, '');
     const html = await read('guide/' + slug + '/index.html');
-    assert.match(html, /参考来源/, slug + ' 有 sources 但页面缺少参考来源区');
+    if (fields.sources?.length) {
+      assert.match(html, /参考来源/, slug + ' 有 sources 但页面缺少参考来源区');
+    } else {
+      assert.doesNotMatch(html, /class="page-sources"/, slug + ' 不应渲染空的参考来源区');
+    }
   }
 
   const glossary = await read('glossary/index.html');
@@ -546,7 +554,7 @@ test('内容检查器能识别新增合法条目与错误条目（fixture，不�
   assert.ok(invalidErrors.some(error => error.file === 'guide/10-reviewed-without-author.md' && error.message.includes('reviewedBy')),
     '只填审核日期、不填负责人必须被拒绝');
   assert.ok(invalidErrors.some(error => error.file === 'guide/09-cross-stage-order.md' && error.message.includes('重复')),
-    '不同 stage 的指南也不能使用相同 order，否则上一篇 / 下一篇会出现顺序冲突');
+    '不同 stage 的指南也不能使用相同 order，否则集合排序会出现冲突');
   for (const expected of ['重复', '不存在的工具', 'first-hand', 'YYYY-MM-DD', 'reviewedBy', 'related', 'category', '未知字段', '危险协议']) {
     assert.ok(report.includes(expected), '错误 fixture 未被识别：' + expected + '\n' + report);
   }
@@ -713,7 +721,7 @@ test('构建产物中不存在危险协议的 href / src（#22）', async () => 
 });
 
 
-test('学习指南目录：六个分组、规划条目不是死链、站内链接可达（信息架构）', async () => {
+test('学习指南目录：六个分组、待补充章节可访问、站内链接可达（信息架构）', async () => {
   const html = await read('guide/index.html');
   const navSource = await readFile(path.join(root, 'src/data/guide-nav.ts'), 'utf8');
   const { loadGuideNavSlugsFromSource, checkGuideNavCoverage } = await import('../scripts/check-content.mjs');
@@ -733,14 +741,18 @@ test('学习指南目录：六个分组、规划条目不是死链、站内链�
   }
   assert.equal((sidebarHtml.match(/class="guide-nav__group"/g) || []).length, 6, '侧边栏分组数量应为 6');
 
-  // 规划中的条目只占位、不生成链接：数量 = 登记 slug 数 - 已发布文章数
+  // 占位章节仍标注待补充，并提供真实可达的链接。
   const registeredSlugs = loadGuideNavSlugsFromSource(navSource);
   assert.ok(registeredSlugs.length >= 20, '目录登记条目过少：' + registeredSlugs.length);
   const plannedCount = (sidebarHtml.match(/data-planned="true"/g) || []).length;
   assert.equal(plannedCount, registeredSlugs.length - guideFiles.length, '规划中条目数量与登记表不一致');
   for (const slug of registeredSlugs) {
     if (guideFiles.includes(slug + '.md')) continue;
-    assert.ok(!html.includes('href="/guide/' + slug + '/"'), '规划中的文章不应生成路由：' + slug);
+    assert.ok(sidebarHtml.includes('href="/guide/' + slug + '/"'), '待补充章节缺少可访问入口：' + slug);
+    const placeholder = await read('guide/' + slug + '/index.html');
+    assert.match(placeholder, /data-guide-placeholder/, slug + ' 缺少占位提示');
+    assert.match(placeholder, /<meta name="robots" content="noindex, follow"/, slug + ' 空章节不应进入搜索引擎索引');
+    assert.doesNotMatch(placeholder, /doc-meta|最后更新：|在 GitHub 编辑本页/, slug + ' 不应伪造文章维护信息或链接不存在的 Markdown');
   }
 
   // 当前页高亮：指南首页
@@ -766,6 +778,32 @@ test('学习指南目录：六个分组、规划条目不是死链、站内链�
     1,
     '未登记的文章必须被内容检查器拦下',
   );
+});
+
+test('指南章节双向导航包含首页与占位页，顺序与目录一致且首尾不产生错误跳转', async () => {
+  const hrefs = ['/guide/', ...registeredGuideSlugs.map((slug) => `/guide/${slug}/`)];
+  for (const [index, href] of hrefs.entries()) {
+    const html = await read(href.slice(1) + 'index.html');
+    const pager = html.match(/<nav\b[^>]*class="guide-pager"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+    assert.ok(pager, href + ' 缺少章节导航');
+    const links = [...pager.matchAll(/<a\b([^>]*)>/g)].map((match) => ({
+      href: match[1].match(/href="([^"]+)"/)?.[1],
+      rel: match[1].match(/rel="([^"]+)"/)?.[1],
+      label: match[1].match(/aria-label="([^"]+)"/)?.[1],
+    }));
+    assert.deepEqual(links.map(({ rel, href }) => ({ rel, href })), [
+      ...(index > 0 ? [{ rel: 'prev', href: hrefs[index - 1] }] : []),
+      ...(index < hrefs.length - 1 ? [{ rel: 'next', href: hrefs[index + 1] }] : []),
+    ], href + ' 上下章链接与目录不一致');
+    for (const link of links) {
+      assert.match(link.label, /^(上一章|下一章)：.+/, href + ' 导航缺少可访问名称');
+    }
+  }
+
+  const search = JSON.parse(await read('search-index.json'));
+  for (const slug of registeredGuideSlugs.filter((slug) => !guideSlugs.includes(slug))) {
+    assert.ok(!search.some((item) => item.href.startsWith(`/guide/${slug}/`)), '空章节不应冒充正文进入站内搜索：' + slug);
+  }
 });
 
 

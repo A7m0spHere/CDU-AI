@@ -53,7 +53,7 @@ issue 表单用于「还说不清该怎么改」的情况：需要维护者核�
 | --- | --- |
 | 学习指南正文 | [`src/content/guide/`](src/content/guide/)，一篇 Markdown = 一个模块 |
 | 指南阶段名称、阶段说明 | [`src/data/site.ts`](src/data/site.ts) 中的 `guideStages` |
-| 指南阶段与阅读顺序 | frontmatter 的 `stage` 决定阶段归属，`order` 决定全局阅读顺序 |
+| 指南阶段与排序 | frontmatter 的 `stage` 决定阶段归属，`order` 用于集合排序；章节翻页按 `guide-nav.ts` 的目录顺序 |
 | 指南目录分组与规划条目 | [`src/data/guide-nav.ts`](src/data/guide-nav.ts)；新增指南必须登记对应 slug |
 | 作品示例 | [`src/content/works/`](src/content/works/) |
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
