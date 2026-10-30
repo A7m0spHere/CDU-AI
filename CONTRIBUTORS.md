@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | [@A7m0spHere](https://github.com/A7m0spHere) | 项目发起与维护 | PR #10–#25、#27，issue #2–#9、#22 |
 | [@FJHin](https://github.com/FJHin) | 内容与结构 | PR #1 |
-| [@kdjdhe](https://github.com/kdjdhe) | 代码与交互 | PR #26 |
+| [@kdjdhe](https://github.com/kdjdhe) | 内容初稿、代码与交互 | PR #26、[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35) |
 | [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)、[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32) |
 
 ## 项目发起与维护
@@ -29,6 +29,8 @@
 ## 内容与结构贡献
 
 **[@FJHin](https://github.com/FJHin)**（git 署名 `Scenic`）— **PR #1**（2026-10-18）：把术语表从 `src/data/glossary.ts` 的数组迁移为 Markdown 内容集合，新增 `/glossary/[id]/` 详情页（一句话说清 / 打个比方 / 它是怎么运作的 / 你会碰到它的场景 / 常见误解），改造搜索索引与分类筛选，并补上内容层测试（49 个文件，+2255 / −411）。这批词条正文在 2026-10-20 的内容重建（#13）中清空重写，但内容集合、详情页与字段校验的结构沿用至今。
+
+**[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35)**（2026-10-30）：补齐 AI 术语表 12 个分类共 64 条词条初稿（含场景拆解、选择题与 Agent 提示词）与 [术语选题清单](docs/GLOSSARY-TERMS.md)；词条均标注为初稿，待按[审校规范](docs/CONTENT-REVIEW.md)逐条核校。
 
 ## 代码与交互
 
