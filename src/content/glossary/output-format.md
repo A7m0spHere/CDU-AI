@@ -28,14 +28,14 @@ quiz:
         correct: false
     explain: "结构明确、附示例更稳定；格式对不代表内容对。"
 agentPrompt: "请把下面的信息整理成四列表格：星期、时间、课程、地点；缺失的填「待确认」，不要编造。"
-order: 7
+order: 6
 related: ["few-shot", "prompt"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Prompt engineering overview · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview"
-  - title: "Prefill Claude's response · Anthropic"
-    url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prefill-claudes-response"
+  - title: "Structured outputs · Anthropic"
+    url: "https://platform.claude.com/docs/en/build-with-claude/structured-outputs"
 basis: "desk-research"
 aiUsage: "drafted"
 ---

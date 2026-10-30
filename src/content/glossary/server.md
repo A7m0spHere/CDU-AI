@@ -3,8 +3,8 @@ term: "服务器"
 en: "Server"
 category: "backend"
 aliases: ["Server", "主机", "服务端"]
-definition: "一直开着、负责存数据和回应请求的计算机。"
-example: "网页打不开弹出「服务器错误」，说明背后那台回应用的机器出了问题。"
+definition: "接收并回应客户端请求的程序，也可以指运行这些程序的计算机。"
+example: "打开报名页时，浏览器向服务器请求数据；「服务器错误」可能来自程序或依赖服务，不能直接断定机器损坏。"
 youMaySay: "网站打不开，说是「服务器错误」，跟我有什么关系？"
 scenario:
   title: "社团工具突然打不开"
@@ -26,11 +26,11 @@ quiz:
         correct: true
       - text: "只负责美化页面"
         correct: false
-    explain: "服务器是后端运行的机器。"
+    explain: "服务器既可以指服务程序，也可以指运行它的机器。"
 agentPrompt: "请帮我列一份社团工具上线前的服务器检查清单，覆盖备份、权限、监控和故障通知。"
 order: 1
 related: ["deployment", "database"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Server · MDN Glossary"
     url: "https://developer.mozilla.org/en-US/docs/Glossary/Server"
@@ -40,7 +40,7 @@ aiUsage: "drafted"
 
 ## 是什么
 
-服务器是长期运行的计算机：接收请求、处理数据、返回结果。网站、App 的后端都跑在服务器上。
+服务器可以指接收请求、处理数据并返回结果的程序，也可以指运行它的机器。它可以在远程机房、虚拟环境或你的电脑上运行。
 
 ## 什么时候会遇到
 

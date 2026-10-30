@@ -30,10 +30,10 @@ quiz:
 agentPrompt: "请把下面这句话改写成更精确的任务描述，补全对象、范围、判断标准与输出格式。"
 order: 2
 related: ["vibe-coding"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
-  - title: "What is natural language programming? · IBM"
-    url: "https://www.ibm.com/think/topics/natural-language-programming"
+  - title: "Evaluating Large Language Models Trained on Code (arXiv:2107.03374)"
+    url: "https://arxiv.org/abs/2107.03374"
 basis: "desk-research"
 aiUsage: "drafted"
 ---

@@ -29,7 +29,7 @@ quiz:
 agentPrompt: "请说明这个新功能应该基于哪个分支开发、分支怎么命名，以及合并前需要检查什么。"
 order: 4
 related: ["repository", "merge", "version-control"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "About branches · GitHub Docs"
     url: "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches"
@@ -39,7 +39,7 @@ aiUsage: "drafted"
 
 ## 是什么
 
-分支是从主线（通常是 main）分出来的一条独立修改线：在里面怎么改，都不会立刻影响主线，改完可以合并回去。
+分支是从主线（通常是 main）分出来的一条独立修改线：提交到这个分支的改动不会自动进入主线，改完可以合并回去。
 
 ## 什么时候会遇到
 
@@ -47,7 +47,7 @@ aiUsage: "drafted"
 
 ## 和 AI 的关系
 
-AI 能在分支上帮你改代码，但要先确认当前在哪个分支；改错分支会把无关改动带进 PR。
+AI 能在分支上帮你改代码，但要先确认当前分支和工作区状态；未提交的改动不一定被分支隔离，切换时可能被带过去或阻止切换。
 
 ## 想深入再看
 

@@ -16,9 +16,9 @@ scenario:
       body: "生成大量修改。"
       meta: "保留历史节点"
     - label: "改坏回退"
-      body: "对比差异，回到提交前的版本。"
+      body: "对比差异，回到大改之前那次提交保存的版本。"
 quiz:
-  - question: "版本控制能回退的前提是？"
+  - question: "想通过提交历史找回旧版本，需要什么前提？"
     options:
       - text: "自动保存"
         correct: false
@@ -26,11 +26,11 @@ quiz:
         correct: true
       - text: "文件在桌面上"
         correct: false
-    explain: "没提交的改动回不去。"
+    explain: "提交历史只能找回已提交的状态；其他备份或暂存机制另论，不能假定每次编辑都被自动保存。"
 agentPrompt: "请说明在让 AI 大改代码前应该做哪些版本控制准备，按步骤列出。"
 order: 1
 related: ["repository", "commit"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "About version control · Pro Git"
     url: "https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control"

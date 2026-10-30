@@ -3,7 +3,7 @@ term: "训练数据"
 en: "Training Data"
 category: "basics"
 aliases: ["训练集", "预训练数据"]
-definition: "模型学习时见过的文本集合，决定了它会什么、偏向什么。"
+definition: "模型训练时使用的文本、图片、声音等数据，会影响它的能力与偏向。"
 example: "模型能聊几年前就有的公开话题，却对今年新开的食堂窗口一无所知——训练数据里没有。"
 youMaySay: "它怎么知道这些？是网上现查的吗？"
 scenario:
@@ -28,10 +28,10 @@ quiz:
       - text: "网络断了"
         correct: false
     explain: "训练数据有时间范围，截止后的事模型没学过。"
-agentPrompt: "请区分回答里哪些来自你训练过的常见知识、哪些属于新近事件；不确定的部分直接说不确定。"
+agentPrompt: "请根据我提供的资料回答，注明哪些结论由资料直接支持；涉及新事件时核对一手来源，无法确认就说不确定，不要声称能追溯自己的具体训练样本。"
 order: 4
 related: ["llm", "bias", "knowledge-cutoff"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "A Survey of Large Language Models (arXiv:2303.18223)"
     url: "https://arxiv.org/abs/2303.18223"
@@ -41,7 +41,7 @@ aiUsage: "drafted"
 
 ## 一句话说清
 
-训练数据是模型学习用的文本总集：网页、书籍、代码、对话等。它决定了模型的知识范围、语言风格和偏见来源。
+训练数据是模型学习使用的材料：可以包括网页、书籍、代码、对话，也可以包括图片和声音等。它会影响模型的知识范围、表达习惯与偏向，模型结构和训练方法也有影响。
 
 ## 打个比方
 

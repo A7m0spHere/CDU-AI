@@ -28,7 +28,7 @@ quiz:
         correct: false
     explain: "模板把重复要求固定下来，适合高频同类任务。"
 agentPrompt: "请根据下面的要求帮我写一个每周实验报告整理模板，留出「实验材料」空位，并说明哪些部分需要我每次替换。"
-order: 8
+order: 7
 related: ["prompt", "few-shot"]
 updated: "2026-10-26"
 sources:

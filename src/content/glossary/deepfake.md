@@ -30,10 +30,12 @@ quiz:
 agentPrompt: "请帮我起草一条提醒，告诉同学遇到「熟人」语音借钱时如何通过独立渠道核实，语气简洁。"
 order: 6
 related: ["multimodal", "privacy"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
-  - title: "Deepfake 相关研究综述（arXiv:2104.13396）"
-    url: "https://arxiv.org/abs/2104.13396"
+  - title: "The Creation and Detection of Deepfakes: A Survey (arXiv:2004.11138)"
+    url: "https://arxiv.org/abs/2004.11138"
+  - title: "Scammers use AI to enhance their family emergency schemes · FTC"
+    url: "https://consumer.ftc.gov/consumer-alerts/2023/03/scammers-use-ai-enhance-their-family-emergency-schemes"
 basis: "desk-research"
 aiUsage: "drafted"
 ---
@@ -48,7 +50,7 @@ aiUsage: "drafted"
 
 ## 它是怎么运作的
 
-生成模型从大量样本学习人脸、声音特征，再合成新内容；几分钟素材就能克隆一个人的声音。
+生成模型学习人脸、声音特征，再合成新内容；有的声音克隆工具只需短录音就能模仿说话者，实际效果取决于工具和素材。
 
 ## 你会碰到它的场景
 

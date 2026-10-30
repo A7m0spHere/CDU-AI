@@ -26,21 +26,21 @@ quiz:
         correct: false
       - text: "数据必须上传到厂商服务器"
         correct: true
-    explain: "本地部署的意义之一就是数据不出本机。"
+    explain: "本地推理可以不上传输入；是否有其他数据外传，还要看客户端、工具和网络配置。"
 agentPrompt: "请列出在普通笔记本上本地运行小模型的三个限制，并给出对应的规避建议。"
 order: 5
 related: ["open-source-model", "server"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
-  - title: "Ollama 官方文档"
-    url: "https://docs.ollama.com/"
+  - title: "FAQ（本地运行与云端功能）· Ollama"
+    url: "https://docs.ollama.com/faq"
 basis: "desk-research"
 aiUsage: "drafted"
 ---
 
 ## 一句话说清
 
-本地部署是把模型文件下载到自己设备上运行：数据不出本机，但硬件、维护和效果都要自己承担。
+本地部署是把模型文件放在自己的设备上运行，可以让推理输入留在本机；但这需要核对实际配置，硬件、维护和效果也要自己承担。
 
 ## 打个比方
 

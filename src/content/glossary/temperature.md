@@ -4,14 +4,14 @@ en: "Temperature"
 category: "basics"
 aliases: ["Temperature", "随机性", "采样温度"]
 definition: "控制回答随机程度的设置：调低更稳定，调高更多样。"
-example: "同一道通知让 AI 写三遍，每次都不同，是因为温度不为零；调到很低时三遍会非常接近。"
+example: "在支持调节温度的接口里，固定其他输入后调低温度，生成的通知通常更相似，但仍不保证完全一致。"
 youMaySay: "同样的问题问两遍，答案怎么不一样？"
 scenario:
   title: "让 AI 写三版通知"
   steps:
     - label: "连续生成"
       body: "同一段要求让 AI 写三遍，得到三个略有不同的版本。"
-      note: "默认随机性不为零。"
+      note: "重复生成可能有差异，不能只凭差异判断温度值。"
     - label: "调低温度"
       body: "在 API 里把 temperature 调低，再生成三遍，结果高度接近。"
       meta: "API 参数"
@@ -26,11 +26,11 @@ quiz:
         correct: true
       - text: "模型会联网查资料"
         correct: false
-    explain: "温度影响随机性，不影响事实准确性。"
+    explain: "温度直接调整采样随机性；它可能影响具体结果，但调低并不保证事实正确。"
 agentPrompt: "请用两种不同的表达风格各写一版下面这段话，并说明两版的主要差异。"
 order: 6
 related: ["llm", "prompt"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Messages API（temperature 参数）· Anthropic"
     url: "https://platform.claude.com/docs/en/api/messages"
@@ -60,7 +60,7 @@ aiUsage: "drafted"
 
 - 以为低温更正确：只是更稳定地输出「最常见」的结果；
 - 以为高温更聪明：多样不等于质量；
-- 以为每次不同就是模型坏了：默认设置本来就有随机性。
+- 以为低温度必然每次一样：服务实现和其他生成设置也可能带来差异。
 
 ## 想再深入一点
 

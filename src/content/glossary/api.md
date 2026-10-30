@@ -2,8 +2,8 @@
 term: "API"
 en: "Application Programming Interface"
 category: "tools"
-aliases: ["接口", "应用程序接口", "API Key"]
-definition: "让程序调用模型的接口；和网页版是同一个模型的两种用法。"
+aliases: ["接口", "应用程序接口"]
+definition: "让不同程序按约定交换数据或调用功能的接口；AI 服务可通过它供程序调用。"
 example: "做个自动整理实验数据的小工具，就要用 API 把模型接进程序，而不是手动复制粘贴。"
 youMaySay: "为什么网页能用，写脚本就要另外申请 Key？"
 scenario:
@@ -11,9 +11,9 @@ scenario:
   steps:
     - label: "申请密钥"
       body: "在平台创建 API Key，按文档发请求。"
-      note: "密钥等于账号，要保密。"
+      note: "密钥是调用凭证，要保密。"
     - label: "看到计费"
-      body: "网页版不单独计费，API 按 token 计费。"
+      body: "分别核对网页版套餐与 API 用量规则，会员未必包含 API 额度。"
       meta: "计费方式不同"
     - label: "处理错误"
       body: "遇到限速与超时，加重试与退避。"
@@ -26,12 +26,14 @@ quiz:
         correct: true
       - text: "API 不需要联网"
         correct: false
-    explain: "同一模型两种用法，接口对象不同。"
-agentPrompt: "请按以下 JSON 结构输出三条待办事项：title、due、owner；缺失字段填 null，不要编造。"
+    explain: "两者面向的使用方式不同；可用模型、工具与计费规则也可能不同。"
+agentPrompt: "请根据这份官方 API 文档，说明请求参数、认证方式、返回格式与常见错误；用占位符表示密钥，不要让我公开真实凭证。"
 order: 2
 related: ["chatbot", "usage-based-billing", "deployment"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
+  - title: "API · MDN Glossary"
+    url: "https://developer.mozilla.org/en-US/docs/Glossary/API"
   - title: "API overview · Anthropic"
     url: "https://platform.claude.com/docs/en/api/overview"
 basis: "desk-research"
@@ -40,21 +42,21 @@ aiUsage: "drafted"
 
 ## 一句话说清
 
-API 是程序之间的约定：你的程序按格式发请求，模型服务按格式回结果。网页版是人点，API 是程序调。
+API 是程序之间交换数据、调用功能的约定，不只用于 AI。以模型 API 为例，你的程序按格式发请求，服务按格式返回结果；网页版则提供给人直接操作。
 
 ## 打个比方
 
-像点餐：网页版是你在店里点，API 是你打电话按固定话术下单，后厨是同一个。
+像餐厅给订餐系统提供固定的下单格式：程序填菜名和数量，餐厅返回订单结果。这个入口和堂食菜单的品类、价格不一定相同。
 
 ## 它是怎么运作的
 
-你拿到密钥，按文档发送请求（模型名、消息、参数），服务返回结果并计费。密钥等于账号，泄露会被别人用。
+云端模型 API 通常需要密钥等认证凭证，按文档发送模型名、消息和参数。服务返回结果，并按相应规则记录用量；泄露凭证可能让别人冒用权限或产生费用。
 
 ## 你会碰到它的场景
 
 - 做自动化脚本、网站、Agent；
 - 看到「API Key」「接口文档」「调用量」；
-- 同一模型网页版不单独计费，API 按量收费。
+- 比较网页版订阅与 API 用量、模型和工具的差别。
 
 ## 常见误解
 

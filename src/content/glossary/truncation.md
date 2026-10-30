@@ -1,7 +1,7 @@
 ---
 term: "截断"
 en: "Truncation"
-category: "cost"
+category: "basics"
 aliases: ["Truncation", "输出截断", "回答被切断"]
 definition: "回答写到一半被字数或 token 上限切断，话说不完。"
 example: "让 AI 写完整报告，结果最后一句突然断掉——输出长度撞到了上限。"
@@ -28,9 +28,9 @@ quiz:
         correct: false
     explain: "分段加校对比续写更可靠。"
 agentPrompt: "请先给我报告提纲，我确认后再按小节逐个生成，每节不超过 400 字。"
-order: 5
+order: 10
 related: ["context-window", "rate-limit"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Messages API（max_tokens）· Anthropic"
     url: "https://platform.claude.com/docs/en/api/messages"

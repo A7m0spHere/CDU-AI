@@ -3,7 +3,7 @@ term: "按量计费"
 en: "Usage-based Billing"
 category: "cost"
 aliases: ["Usage-based Billing", "按量付费", "按 token 计费"]
-definition: "按实际用掉的 token 数量收费，用得多付得多。"
+definition: "按实际使用量收费；AI 服务常按 token，也可能按图片、音频时长或工具调用计量。"
 example: "同一份报告，让 AI 写摘要和让它逐字改写全文，消耗的 token 可能差很多倍。"
 youMaySay: "为什么账单每天都不一样？"
 scenario:
@@ -18,19 +18,19 @@ scenario:
     - label: "优化"
       body: "先摘要再处理，控制上下文长度。"
 quiz:
-  - question: "按量计费下，成本主要取决于？"
+  - question: "估算按量计费任务的费用，应该先看什么？"
     options:
       - text: "账号注册时间"
         correct: false
-      - text: "实际消耗的 token 数量"
+      - text: "具体服务的计费单位、单价与实际用量"
         correct: true
       - text: "电脑性能"
         correct: false
-    explain: "用量决定费用，长上下文与重复请求影响最大。"
+    explain: "不同模型和功能的计价不同，还可能涉及缓存、工具调用或批处理规则。"
 agentPrompt: "请分析下面这个任务哪些步骤最耗 token，并给出三条降低成本的具体建议。"
 order: 1
 related: ["token", "subscription"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Pricing · Anthropic"
     url: "https://platform.claude.com/docs/en/about-claude/pricing"
@@ -40,7 +40,7 @@ aiUsage: "drafted"
 
 ## 一句话说清
 
-按量计费是按实际消耗收费：输入和输出的 token 都算钱，用多少付多少，不用不付。
+按量计费是按实际使用量收费。文本模型常分别计算输入与输出 token，图片、音频和工具也可能采用其他计费单位；是否有最低费用或额外费用，要看具体服务。
 
 ## 打个比方
 
@@ -48,7 +48,7 @@ aiUsage: "drafted"
 
 ## 它是怎么运作的
 
-服务商按模型单价乘以 token 数结算，输入与输出单价可能不同；长对话每轮都会重复带上历史，成本累积更快。
+文本模型通常按各类 token 的用量与单价结算，输入、输出和缓存可能分别计价；后续请求再次带入历史内容时，也可能产生输入费用。
 
 ## 你会碰到它的场景
 

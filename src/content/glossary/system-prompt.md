@@ -3,15 +3,15 @@ term: "系统提示词"
 en: "System Prompt"
 category: "prompt"
 aliases: ["System Prompt", "系统消息", "系统指令"]
-definition: "提前设定角色与规则的指令，用户通常看不到，但一直生效。"
-example: "同一个模型，网页版里拒绝帮你写课程论文，换成另一个产品却照写——差别往往在系统提示词。"
+definition: "产品或开发者预先提供的高优先级指令，用来设定角色、语气和行为边界。"
+example: "自建社团助手时，开发者预先写明「只引用已确认的活动信息」，这类规则可以放在系统提示词里。"
 youMaySay: "为什么同一个模型，换个产品就像换了个人？"
 scenario:
   title: "两个产品两种态度"
   steps:
     - label: "同一问题"
-      body: "在 A 产品里问敏感问题被婉拒，在 B 产品里却直接回答。"
-      note: "产品设定的规则不同。"
+      body: "向两个产品问同一问题，收到不同回答。"
+      note: "模型版本、工具与产品指令都可能影响结果，不能只归因于系统提示词。"
     - label: "查看设置"
       body: "在 B 产品里看到「自定义角色 / 指令」设置项。"
       meta: "产品设置"
@@ -30,7 +30,7 @@ quiz:
 agentPrompt: "请以「社团活动助手」的身份回答：只提供已确认的活动信息，不确定时先问我，不要编造时间地点。"
 order: 2
 related: ["prompt", "role-prompting"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Giving Claude a role with a system prompt · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/system-prompts"
@@ -40,7 +40,7 @@ aiUsage: "drafted"
 
 ## 一句话说清
 
-系统提示词是产品（或开发者）在你提问之前就设定好的指令，用来规定模型的角色、语气和限制。你在聊天框里看不到它，但每条回答都受它影响。
+系统提示词是产品或开发者预先提供的指令，用来规定模型的角色、语气和限制。它通常不显示在普通聊天界面里，是否持续作用取决于产品如何管理后续请求。
 
 ## 打个比方
 
@@ -58,10 +58,10 @@ aiUsage: "drafted"
 
 ## 常见误解
 
-- 以为看不到就不存在：它一直在生效；
+- 以为看不到就不存在：产品可能在后台提供这类指令；
 - 以为写了规则就绝对安全：规则会被绕过，重要操作还要人来确认；
 - 以为系统提示词等于你的问题：它只是背景设定，具体任务仍要你写清楚。
 
 ## 想再深入一点
 
-API 里通常用 system 角色传系统提示词，用 user 角色传你的问题；网页版产品替你写好了前者。
+不同 API 的传法不同：有的使用 system 消息，有的使用专门的 system 参数。以所用 API 的官方文档为准；普通用户消息里的角色扮演，也不会自动变成系统级指令。

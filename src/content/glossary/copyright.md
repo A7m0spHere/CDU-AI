@@ -30,10 +30,10 @@ quiz:
 agentPrompt: "请帮我列出这张 AI 生成海报商用前需要确认的授权与合规事项，并标出不确定的部分。"
 order: 4
 related: ["privacy", "hallucination"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
-  - title: "About IP · WIPO"
-    url: "https://www.wipo.int/about-ip/en/"
+  - title: "Generative AI: Navigating Intellectual Property · WIPO"
+    url: "https://www.wipo.int/edocs/mdocs/mdocs/en/wipo_webinar_ft_24_1/wipo_webinar_ft_24_1_guidelines.pdf"
 basis: "desk-research"
 aiUsage: "drafted"
 ---

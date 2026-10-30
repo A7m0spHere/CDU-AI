@@ -1,9 +1,9 @@
 ---
 term: "上下文窗口"
 en: "Context Window"
-category: "prompt"
+category: "basics"
 aliases: ["Context Window", "上下文长度", "窗口"]
-definition: "模型一次能读进去的文字总量；超出部分会被挤掉或截断。"
+definition: "模型一次请求能处理的信息容量，通常按 token 计算，并受输入、输出等共同占用。"
 example: "把 80 页的课程 PDF 一次粘进对话框问细节，后面的内容可能根本没进入模型视野。"
 youMaySay: "聊到后面它怎么把我前面说的事忘了？"
 scenario:
@@ -18,19 +18,19 @@ scenario:
     - label: "重复关键要求"
       body: "把关键约束重新贴一次，或新开会话只带必要材料。"
 quiz:
-  - question: "对话变长后模型忘记早期要求，主要因为？"
+  - question: "长对话里模型漏掉早期要求，哪种理解更准确？"
     options:
       - text: "模型故意不遵守"
         correct: false
-      - text: "早期内容超出上下文窗口被挤掉"
+      - text: "早期内容可能被截去、压缩，或仍在窗口内却没被正确利用"
         correct: true
       - text: "网络延迟"
         correct: false
-    explain: "窗口有限，长对话会把早期内容挤出视野。"
+    explain: "漏掉要求不能直接证明已经超限；窗口容量和正确利用上下文的能力是两件事。"
 agentPrompt: "请记住以下三条约束并在整个对话中遵守：回答不超过 100 字、先给结论、不确定就说不确定。"
-order: 3
+order: 9
 related: ["prompt"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Context windows · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/context-windows"
@@ -48,7 +48,7 @@ aiUsage: "drafted"
 
 ## 它是怎么运作的
 
-每轮对话都会把之前的内容一起重新交给模型；对话越长、资料越多，越接近上限。超限时产品会截掉最早的内容、压缩摘要，或者直接报错。
+应用会为每次请求组织上下文，可能包含历史消息、系统指令、资料和工具结果，不一定保留全部聊天记录。信息越多，越接近上限；接近或达到上限时，产品可能压缩摘要、截去部分内容或报错，具体行为取决于实现。
 
 ## 你会碰到它的场景
 
@@ -60,7 +60,7 @@ aiUsage: "drafted"
 
 - 以为窗口大就等于读得懂：内容都在，也可能抓错重点；
 - 以为超出后会自动去查资料：不会，它只能基于窗口内的内容回答；
-- 以为聊天记录永久有效：换个会话，上下文就清空了。
+- 以为聊天记录永久有效：新会话是否带入旧信息，取决于产品的记忆与检索功能。
 
 ## 想再深入一点
 

@@ -28,9 +28,9 @@ quiz:
         correct: false
     explain: "角色影响表达，不增加知识或权限。"
 agentPrompt: "请分别用「辅导员」和「同班同学」两种口吻写同一份通知，内容事实保持一致。"
-order: 6
+order: 5
 related: ["prompt", "system-prompt"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Giving Claude a role with a system prompt · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/system-prompts"
@@ -64,4 +64,4 @@ aiUsage: "drafted"
 
 ## 想再深入一点
 
-在 API 里，角色设定通常写在系统提示词里，一次设定、全程生效；写在普通提问里则只影响这一轮。
+角色设定既可以写在系统提示词里，也可以写在普通消息里。是否影响后续回答，取决于后续请求是否继续包含这些指令、上下文是否保留，以及有没有更高优先级或更新的要求；它不会固定只影响一轮，也不保证永久生效。

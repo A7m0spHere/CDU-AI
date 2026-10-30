@@ -3,7 +3,7 @@ term: "试用额度"
 en: "Trial Quota"
 category: "cost"
 aliases: ["试用期额度", "赠送额度", "试用次数"]
-definition: "产品先给的一点试用量，用完要等刷新或转付费。"
+definition: "产品为评估用途提供的有限用量或时长；到期、用尽后的处理以规则为准。"
 example: "新注册的 AI 产品送几天高级模型试用，到期后回到基础版——这就是试用额度。"
 youMaySay: "试用额度用完了怎么办？"
 scenario:
@@ -13,7 +13,7 @@ scenario:
       body: "新产品送几天高级模型试用。"
       note: "规则随时会变。"
     - label: "额度用完"
-      body: "提示升级或等次日刷新。"
+      body: "查看到期、用尽和续费规则，不假定第二天会恢复。"
       meta: "额度限制"
     - label: "评估价值"
       body: "判断它是否值得继续用，再决定是否付费。"
@@ -30,10 +30,10 @@ quiz:
 agentPrompt: "请帮我在试用期内设计一个一周测试计划，覆盖我最重要的三个使用场景，并记录结果。"
 order: 3
 related: ["rate-limit", "subscription"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
-  - title: "Pricing · Anthropic"
-    url: "https://www.anthropic.com/pricing"
+  - title: "Free Google Cloud features and trial offer · Google Cloud"
+    url: "https://docs.cloud.google.com/free/docs/free-cloud-features"
 basis: "desk-research"
 aiUsage: "drafted"
 ---
@@ -48,12 +48,12 @@ aiUsage: "drafted"
 
 ## 它是怎么运作的
 
-服务商用试用额度降低尝试门槛；额度按天或按月刷新，或一次性发放。规则由厂商随时调整。
+服务商为试用提供一定用量或时长，可能附带领取条件、到期日与适用功能。一次性试用、按周期刷新的基础额度和付费套餐中的额度是不同安排，不能互相推断。
 
 ## 你会碰到它的场景
 
 - 新用户注册礼；
-- 基础版每天有限次数；
+- 评估期内提供一定调用量或功能；
 - 额度用完后提示升级。
 
 ## 常见误解

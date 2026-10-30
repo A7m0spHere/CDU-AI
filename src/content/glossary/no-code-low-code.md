@@ -28,9 +28,9 @@ quiz:
         correct: false
     explain: "平台能力与数据位置是主要边界。"
 agentPrompt: "请评估下面这个需求用低代码平台能否完成，列出平台限制与需要人工处理的部分。"
-order: 5
+order: 4
 related: ["vibe-coding", "deployment"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Microsoft Power Platform 官方文档"
     url: "https://learn.microsoft.com/en-us/power-platform/"
@@ -48,7 +48,7 @@ aiUsage: "drafted"
 
 ## 和 AI 的关系
 
-AI 让这类平台更会「听懂需求」，但平台能力有上限，复杂逻辑仍会撞墙；数据也存放在平台方。
+AI 可以帮助这类平台理解需求，但复杂逻辑仍受平台能力限制。数据可能由平台托管，也可能自行部署，要核对实际方案、导出方式与权限。
 
 ## 想深入再看
 

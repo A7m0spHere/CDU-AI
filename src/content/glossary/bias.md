@@ -30,10 +30,10 @@ quiz:
 agentPrompt: "请检查下面这段描述是否包含对某类人群的刻板印象，指出具体语句并给出中性改写。"
 order: 5
 related: ["training-data", "deepfake"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
-  - title: "On the Dangers of Stochastic Parrots (arXiv:2102.05068)"
-    url: "https://arxiv.org/abs/2102.05068"
+  - title: "What is AI bias? · IBM"
+    url: "https://www.ibm.com/think/topics/ai-bias"
 basis: "desk-research"
 aiUsage: "drafted"
 ---

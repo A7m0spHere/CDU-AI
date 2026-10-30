@@ -1,7 +1,7 @@
 ---
 term: "调试"
 en: "Debugging"
-category: "vibecoding"
+category: "testing"
 aliases: ["Debugging", "排错", "找 bug"]
 definition: "找出程序为什么不按预期工作并修好它的过程。"
 example: "页面点了按钮没反应，先看报错、再定位到那一行代码——这就是调试。"
@@ -28,9 +28,9 @@ quiz:
         correct: false
     explain: "修复需要验证，可能引入新问题。"
 agentPrompt: "请根据下面的报错和代码分析原因，给出最小修改方案，并说明如何验证不会影响其他功能。"
-order: 4
+order: 3
 related: ["bug", "code-generation"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Debugging · Visual Studio Code 官方文档"
     url: "https://code.visualstudio.com/docs/editor/debugging"

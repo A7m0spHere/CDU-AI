@@ -3,8 +3,8 @@ term: "提交（Commit）"
 en: "Commit"
 category: "git"
 aliases: ["Commit", "提交记录", "存档"]
-definition: "把当前改动存成一个历史节点，并附上说明，便于回退与协作。"
-example: "让 AI 大改代码前先提交一次；改坏了就能回到提交前的样子。"
+definition: "把选定的改动存成一个历史节点，并附上说明，便于回退与协作。"
+example: "让 AI 大改代码前先提交一次；改坏了就能回到那次提交保存的版本。"
 youMaySay: "提交说明随便写写，有影响吗？"
 scenario:
   title: "半年后查历史"
@@ -30,7 +30,7 @@ quiz:
 agentPrompt: "请根据下面的改动内容帮我写一条提交说明，格式为「类型: 简短说明」，并补一句改动原因。"
 order: 2
 related: ["version-control"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "git-commit 文档 · Git"
     url: "https://git-scm.com/docs/git-commit"
@@ -40,7 +40,7 @@ aiUsage: "drafted"
 
 ## 是什么
 
-提交是把当前改动保存为一个历史节点，附一句说明「改了什么、为什么」。
+提交是把选定的改动保存为一个历史节点，附一句说明「改了什么、为什么」。
 
 ## 什么时候会遇到
 

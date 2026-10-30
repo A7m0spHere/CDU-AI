@@ -3,7 +3,7 @@ term: "仓库"
 en: "Repository"
 category: "git"
 aliases: ["Repository", "代码仓库", "repo"]
-definition: "存放项目文件与全部修改历史的地方。"
+definition: "存放项目文件及已提交版本历史的地方。"
 example: "课程设计的小工具放进 GitHub 仓库，换电脑克隆下来就能接着改。"
 youMaySay: "老师说的「仓库」到底是个文件夹还是一个网站？"
 scenario:
@@ -22,7 +22,7 @@ quiz:
     options:
       - text: "仓库容量更大"
         correct: false
-      - text: "仓库保存文件的全部修改历史"
+      - text: "仓库保存已经提交的版本历史"
         correct: true
       - text: "仓库只能放代码"
         correct: false
@@ -30,7 +30,7 @@ quiz:
 agentPrompt: "请帮我规划这个课程项目在仓库里的目录结构，说明哪些文件应该提交、哪些应该忽略。"
 order: 3
 related: ["branch", "fork", "version-control"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "About repositories · GitHub Docs"
     url: "https://docs.github.com/en/repositories/creating-and-managing-repositories/about-repositories"
@@ -40,7 +40,7 @@ aiUsage: "drafted"
 
 ## 是什么
 
-仓库是存放项目的地方：既有当前的文件，也有每次修改的历史记录。代码、文档、图片都可以放进去。
+仓库是存放项目的地方：既有项目文件，也有通过提交保存的版本历史；未提交的编辑不会自动进入历史。代码、文档、图片都可以放进去。
 
 ## 什么时候会遇到
 

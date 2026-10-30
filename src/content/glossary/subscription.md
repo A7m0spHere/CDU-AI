@@ -13,7 +13,7 @@ scenario:
       body: "统计自己每周大概用多少次、什么功能。"
       note: "先看需求。"
     - label: "对比方案"
-      body: "个人版有固定额度，超了限速；按量更透明。"
+      body: "核对套餐功能、额度与续费规则，再和按量方案比较总成本。"
       meta: "两种计费"
     - label: "试用后再定"
       body: "先用试用额度跑一周再决定。"
@@ -26,11 +26,11 @@ quiz:
         correct: true
       - text: "批量自动化脚本"
         correct: false
-    explain: "高频稳定使用订阅更省心；批量任务按量更可控。"
+    explain: "稳定使用某些功能时可以考虑订阅；是否划算仍取决于套餐、用量和实际价格。"
 agentPrompt: "请根据我每周的使用频率和任务类型，帮我比较订阅与按量计费哪种更合适，并说明假设。"
 order: 2
 related: ["usage-based-billing", "trial-quota"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Pricing · Anthropic"
     url: "https://www.anthropic.com/pricing"
@@ -60,8 +60,8 @@ aiUsage: "drafted"
 
 - 以为订阅就是无限用：多数有额度或限速；
 - 以为取消立即失效：通常到期才停；
-- 以为订阅比 API 便宜：看用量，重度自动化往往 API 更可控。
+- 以为订阅一定比 API 便宜：先核对是否支持所需功能，再按预计用量比较。
 
 ## 想再深入一点
 
-个人偶尔用选订阅更省心；程序化、批量任务通常按量计费更透明。
+先列出使用频率、所需功能与预算，再比较基础方案、订阅与按量计费。程序化调用还要确认 API 是否另行计费，不能只凭会员名称判断。

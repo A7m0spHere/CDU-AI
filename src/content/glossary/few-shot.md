@@ -28,7 +28,7 @@ quiz:
         correct: false
     explain: "示例主要传递格式与风格，不保证事实正确。"
 agentPrompt: "请按下面两条示例的格式处理第三段材料；不确定的内容标注「待核实」，不要补造。"
-order: 4
+order: 3
 related: ["prompt", "output-format"]
 updated: "2026-10-26"
 sources:

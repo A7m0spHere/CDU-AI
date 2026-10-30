@@ -3,7 +3,7 @@ term: "速率限制"
 en: "Rate Limit"
 category: "cost"
 aliases: ["Rate Limit", "限流", "请求频率限制"]
-definition: "单位时间内允许请求次数的上限，超了会被拒绝或排队。"
+definition: "单位时间内允许的请求次数或 token 等用量上限，超出可能被拒绝或延后。"
 example: "批量让 AI 处理 200 条数据时，程序突然报错「请求过于频繁」，就是撞上了速率限制。"
 youMaySay: "脚本跑一半突然报「请求过于频繁」？"
 scenario:
@@ -27,10 +27,10 @@ quiz:
       - text: "换一个账号继续刷"
         correct: false
     explain: "重试风暴只会加重拥堵。"
-agentPrompt: "请为这个批量任务设计一个不会触发限流的请求节奏，说明分批与重试策略。"
+agentPrompt: "请根据接口文档的请求数与 token 限额，为这个批量任务设计分批、排队和退避重试策略，并说明如何处理服务端的重试提示。"
 order: 4
 related: ["trial-quota", "truncation"]
-updated: "2026-10-26"
+updated: "2026-10-30"
 sources:
   - title: "Rate limits · Anthropic"
     url: "https://platform.claude.com/docs/en/api/rate-limits"

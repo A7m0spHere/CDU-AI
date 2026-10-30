@@ -3,8 +3,8 @@ import type { GlossaryCategory } from './types';
 /**
  * 术语分类：两层结构，与术语页左侧「分支树」一一对应。
  *
- * - primary（AI 主分支）：理解与使用 AI 的主干，占大部分词条；
- * - extension（延伸分支）：接触 AI 之后绕不开的前端 / 后端 / 产品 / 测试 / Git 等，
+ * - primary（AI 基础与使用）：理解与使用 AI 的主干，占大部分词条；
+ * - extension（延伸分支）：接触 AI 之后绕不开的界面与前端 / 后端与部署 / 需求与产品 / 调试与测试 / Git 与 GitHub 等，
  *   只做「见到不懵」的术语介绍，不写成教程。
  *
  * 词条正文在 src/content/glossary/ 下，一篇 Markdown 一个术语，category 填下面某个 id。
@@ -30,39 +30,39 @@ export const glossaryCategories: GlossaryCategory[] = [
   /* --- AI 主分支 ------------------------------------------------------- */
   {
     id: 'basics',
-    name: '基础',
+    name: '模型基础',
     kind: 'primary',
-    description: '模型是什么、能做什么，以及为什么会出错。',
+    description: '模型的能力、训练与开放方式，以及上下文和输出限制。',
   },
   {
     id: 'prompt',
-    name: '提示词',
+    name: '提示词与输出',
     kind: 'primary',
-    description: '怎么问更准，模型一次到底能看到什么。',
+    description: '怎么描述任务、提供示例并约定输出格式。',
   },
   {
     id: 'tools',
-    name: '工具',
+    name: '工具与接入',
     kind: 'primary',
-    description: '各类 AI 产品是什么，网页版和接口差在哪。',
+    description: '对话、搜索、编程工具，以及 API 和本地运行等接入方式。',
   },
   {
     id: 'agents',
-    name: 'Agent',
+    name: 'Agent 与自动化',
     kind: 'primary',
-    description: '从一问一答到多步自动执行，中间需要哪些部件。',
+    description: '智能体如何规划、调用工具并完成自动化任务。',
   },
   {
     id: 'safety',
-    name: '安全',
+    name: '安全与隐私',
     kind: 'primary',
     description: '能传什么、生成内容能不能直接用、边界在哪。',
   },
   {
     id: 'cost',
-    name: '成本',
+    name: '用量与计费',
     kind: 'primary',
-    description: '为什么按量收费，为什么会限速、被截断。',
+    description: '订阅、试用、按量计费和接口用量限制。',
   },
 
   /* --- 延伸分支（只做术语介绍） ---------------------------------------- */
@@ -74,33 +74,33 @@ export const glossaryCategories: GlossaryCategory[] = [
   },
   {
     id: 'frontend',
-    name: '前端',
+    name: '界面与前端',
     kind: 'extension',
     description: '你看到的页面、按钮和交互是怎么来的。',
   },
   {
     id: 'backend',
-    name: '后端',
+    name: '后端与部署',
     kind: 'extension',
-    description: '页面背后的数据、接口和服务器在做什么。',
+    description: '服务器、数据库与应用部署的基础概念。',
   },
   {
     id: 'product',
-    name: '产品',
+    name: '需求与产品',
     kind: 'extension',
     description: '需求、原型、验收：和 AI 一起做东西时绕不开。',
   },
   {
     id: 'testing',
-    name: '测试',
+    name: '调试与测试',
     kind: 'extension',
-    description: '怎么判断做出来的东西到底有没有坏。',
+    description: '认识 Bug、定位问题，并用测试用例检查结果。',
   },
   {
     id: 'git',
-    name: 'Git',
+    name: 'Git 与 GitHub',
     kind: 'extension',
-    description: '版本管理：改坏了还能回去，多人改同一份文件。',
+    description: '版本管理与 GitHub 协作中的仓库、分支、PR 和 Issue。',
   },
 ];
 
