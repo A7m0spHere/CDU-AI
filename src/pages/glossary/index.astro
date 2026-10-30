@@ -191,7 +191,7 @@ const contributeLinks = [
             />
           ) : (
             <>
-              <div class="results-bar">
+              <div class="results-bar" data-glossary-results>
                 <p aria-live="polite">显示 <strong data-filter-count>{aiMainCount}</strong> 个术语</p>
                 <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
               </div>
@@ -285,7 +285,18 @@ const contributeLinks = [
 <script>
   import { initFilter } from '../../scripts/filter';
 
-  initFilter();
+  const results = document.querySelector<HTMLElement>('[data-glossary-results]');
+  const desktop = window.matchMedia('(min-width: 1021px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  initFilter({
+    afterApply: ({ reason }) => {
+      // 沿用工具目录：结果更新后定位，不改变筛选焦点或手机输入位置。
+      if (reason === 'filter' && desktop.matches) {
+        results?.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+      }
+    },
+  });
 
   // 分支折叠：点 chevron 收起/展开该分支下的节点，不影响筛选状态。
   document.querySelectorAll<HTMLElement>('[data-branch]').forEach((branch) => {

@@ -391,6 +391,78 @@ test('桌面深度滚动后筛选回到列表开头，搜索保留输入焦点',
   assert.ok(await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top >= 0), '减少动效时直接定位，不等待滚动动画');
 });
 
+test('术语表深度滚动后筛选回到结果开头，保留焦点并尊重减少动效', async t => {
+  const page = await setup(t, { reducedMotion: 'no-preference' });
+  await page.goto(origin + '/glossary/'); await ready(page);
+  const results = page.locator('.glossary-main .results-bar');
+  const scrollDown = async () => {
+    await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+    assert.ok(await results.evaluate(el => el.getBoundingClientRect().top < -250));
+  };
+  const atStart = async () => {
+    await page.waitForFunction(() => {
+      const results = document.querySelector('.glossary-main .results-bar');
+      const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + parseFloat(getComputedStyle(results).scrollMarginTop);
+      return Math.abs(results.getBoundingClientRect().top - offset) < 2;
+    }, null, { timeout: 3000 });
+    const top = await results.evaluate(el => el.getBoundingClientRect().top);
+    const headerBottom = await page.locator('[data-site-header]').evaluate(el => el.getBoundingClientRect().bottom);
+    assert.ok(top >= headerBottom && top < headerBottom + 100, '定位到固定导航下方的术语结果开头');
+  };
+
+  await scrollDown();
+  await page.locator('[data-filter-value="vibe-branch"]').click();
+  await atStart();
+  assert.equal(await page.locator('[data-filter-value="vibe-branch"]').evaluate(el => el === document.activeElement), true);
+  await scrollDown();
+  await page.locator('[data-filter-value="ai-main"]').press('Enter');
+  await atStart();
+  await page.locator('[data-filter-value="basics"]').click();
+  await page.locator('[data-clear-filters]').click();
+  await atStart();
+  const search = page.locator('[data-filter-search]');
+  assert.equal(await search.evaluate(el => el === document.activeElement), true);
+
+  await scrollDown();
+  await search.fill('模型');
+  await page.waitForFunction(() => new URLSearchParams(location.search).get('q') === '模型');
+  await atStart();
+  assert.equal(await search.evaluate(el => el === document.activeElement), true);
+  await search.fill('不存在的术语-滚动回归');
+  await page.locator('[data-empty-state]').waitFor({ state: 'visible' });
+  await atStart();
+  await page.locator('[data-clear-filters]').click();
+  await atStart();
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await scrollDown();
+  await page.locator('[data-filter-value="vibe-branch"]').click();
+  assert.ok(await results.evaluate(el => el.getBoundingClientRect().top >= 0), '减少动效时直接定位');
+});
+
+test('术语表历史恢复和手机输入不触发筛选回顶', async t => {
+  const page = await setup(t, { reducedMotion: 'no-preference' });
+  await page.goto(origin + '/glossary/'); await ready(page);
+  await page.evaluate(() => window.scrollTo({ top: 1400, behavior: 'instant' }));
+  const before = await page.evaluate(() => scrollY);
+  await page.evaluate(() => {
+    history.replaceState(null, '', '?category=ai-main');
+    dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await page.waitForTimeout(400);
+  assert.ok(Math.abs(await page.evaluate(() => scrollY) - before) < 2, '历史恢复保留阅读位置');
+
+  await page.setViewportSize({ width: 390, height: 680 });
+  await page.goto(origin + '/glossary/'); await ready(page);
+  const search = page.locator('[data-filter-search]');
+  await search.fill('模型');
+  await page.waitForFunction(() => new URLSearchParams(location.search).get('q') === '模型');
+  await page.waitForTimeout(400);
+  assert.equal(await search.evaluate(el => el === document.activeElement), true);
+  const box = await search.boundingBox();
+  assert.ok(box.y >= 0 && box.y + box.height <= 680, '手机输入时搜索框留在视口内');
+});
+
 test('手机工具目录在短屏和普通动效下持续可读', async t => {
   const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'no-preference' });
   for (const viewport of [{ width: 375, height: 667 }, { width: 390, height: 664 }, { width: 360, height: 640 }, { width: 320, height: 568 }, { width: 390, height: 844 }]) {
