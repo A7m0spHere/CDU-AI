@@ -398,43 +398,55 @@
 }
 /* 少量入口与一条共建状态，接住展台后继续探索的意愿。 */
 .home-explore {
-  padding-block: clamp(3rem, 6vw, 6rem) 1rem;
+  padding-block: clamp(2.6rem, 5vw, 4.6rem) 1rem;
   border-top: 1px solid var(--home-rule);
 }
 .home-explore__stage {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: clamp(2rem, 4.5vw, 4rem) clamp(1rem, 4vw, 3.5rem) clamp(2rem, 4vw, 3rem);
+  padding: clamp(1.5rem, 3vw, 2.6rem) clamp(1rem, 3vw, 2.6rem);
   border: 1px solid color-mix(in srgb, var(--brand) 15%, var(--line));
   border-radius: var(--radius-xl);
   background: linear-gradient(145deg, var(--surface), var(--brand-tint));
   color: var(--ink);
 }
+/* 左侧标题与点阵、右侧三个入口；窄屏改回上下堆叠。 */
 .home-explore__layout {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  align-items: center;
+  gap: clamp(1.5rem, 3.4vw, 3rem);
+}
+.home-explore__intro {
+  display: grid;
+  gap: clamp(.4rem, 1.1vw, .9rem);
+  min-width: 0;
 }
 .home-explore__heading {
-  margin-bottom: clamp(13rem, 20vw, 18rem);
-  text-align: center;
+  text-align: left;
 }
 .home-explore__heading h2 {
-  margin-top: 0;
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  margin: 0;
+  font-size: clamp(1.55rem, 2.6vw, 2.3rem);
   letter-spacing: -.045em;
-  line-height: 1.35;
+  line-height: 1.3;
+}
+.home-explore__visual {
+  position: relative;
+  min-width: 0;
+  height: clamp(190px, 22vw, 280px);
 }
 .explore-dot-field {
   position: absolute;
-  inset: clamp(6rem, 8vw, 7.5rem) 0 auto;
-  height: clamp(320px, 40vw, 480px);
+  inset: 0;
+  height: 100%;
   color: var(--brand);
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(transparent, #000 10%, #000 76%, transparent);
-  mask-image: linear-gradient(transparent, #000 10%, #000 76%, transparent);
+  -webkit-mask-image: linear-gradient(transparent, #000 8%, #000 88%, transparent);
+  mask-image: linear-gradient(transparent, #000 8%, #000 88%, transparent);
 }
 .explore-dot-field__canvas,
 .explore-dot-field__fallback {
@@ -479,11 +491,11 @@
 }
 .home-flow__base {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr) 1.4rem;
+  grid-template-columns: 1.4rem minmax(0, 1fr) 1.1rem;
   align-items: center;
-  gap: 1.15rem;
-  min-height: 132px;
-  padding: 1.65rem .9rem;
+  gap: .85rem;
+  min-height: 0;
+  padding: 1.05rem .85rem;
   transition: background-color var(--dur-base);
 }
 .home-flow__icon {
@@ -494,17 +506,17 @@
 .home-flow__copy strong {
   display: block;
   color: var(--ink);
-  font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+  font-size: clamp(1rem, 1.3vw, 1.12rem);
   font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -.035em;
+  line-height: 1.4;
+  letter-spacing: -.02em;
 }
 .home-flow__copy small {
   display: block;
-  margin-top: .5rem;
+  margin-top: .3rem;
   color: var(--muted);
-  font-size: .75rem;
-  line-height: 1.8;
+  font-size: .7rem;
+  line-height: 1.65;
 }
 .home-flow__arrow {
   color: var(--muted);
@@ -564,19 +576,19 @@
   justify-content: space-around;
 }
 .home-flow__part > span:first-child {
-  font-size: clamp(1.5rem, 2.9vw, 2.3rem);
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
   font-weight: 650;
   line-height: 1.25;
-  letter-spacing: -.045em;
+  letter-spacing: -.03em;
   white-space: nowrap;
 }
 .home-flow__art {
   display: block;
   flex: none;
-  width: 112px;
-  height: 68px;
+  width: 84px;
+  height: 52px;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 18px;
 }
 .home-flow__art > svg {
   display: block;
@@ -650,6 +662,24 @@
   }
 }
 
+@media (max-width: 900px) {
+  .home-explore__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+  .home-explore__heading {
+    text-align: center;
+  }
+  .home-explore__visual {
+    height: clamp(160px, 42vw, 230px);
+  }
+  .home-explore__stage .home-flow {
+    border-inline: 0;
+    border-block: 1px solid var(--line);
+    box-shadow: none;
+  }
+}
+
 @media (max-width: 760px) {
   .home-scenarios {
     padding-top: 4rem;
@@ -683,13 +713,12 @@
     cursor: auto;
   }
   .home-flow__base {
-    grid-template-columns: 1.5rem minmax(0, 1fr) 1.4rem;
-    gap: .85rem;
-    min-height: 112px;
-    padding: 1.35rem .6rem;
+    grid-template-columns: 1.25rem minmax(0, 1fr) 1.1rem;
+    gap: .7rem;
+    padding: .9rem .5rem;
   }
   .home-flow__copy strong {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
   .home-progress {
     flex-wrap: wrap;
