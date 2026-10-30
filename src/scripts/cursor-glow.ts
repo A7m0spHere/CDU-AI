@@ -6,6 +6,8 @@
  * 减少动效、触屏与隐藏标签页都不显示。
  */
 
+import { GLOW_CHANGE, glowEnabled } from './glow-pref';
+
 const host = document.querySelector<HTMLElement>('[data-cursor-glow]');
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -50,6 +52,8 @@ if (host && finePointer.matches) {
 
   window.addEventListener('pointermove', (event) => {
     if (reduced.matches || event.pointerType === 'touch') return;
+    // 总开关关掉时连位置都不更新，避免重新打开后光从旧坐标滑过来
+    if (!glowEnabled()) return;
     targetX = event.clientX;
     targetY = event.clientY;
     if (!active) {
@@ -79,6 +83,13 @@ if (host && finePointer.matches) {
     }
   };
   reduced.addEventListener('change', applyMotion);
+
+  document.addEventListener(GLOW_CHANGE, (event) => {
+    if ((event as CustomEvent<{ enabled: boolean }>).detail.enabled) return;
+    cancelAnimationFrame(frame);
+    frame = 0;
+    hide();
+  });
 
   place();
 }

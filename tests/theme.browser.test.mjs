@@ -2510,3 +2510,57 @@ test('侧栏搜索框与列表卡片接上同一束光', async t => {
   assert.equal(await row.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到侧栏分支行上应点亮');
   assert.equal(await page.locator('[data-glow][data-active="true"]').count(), 1, '同时只应有一处发光');
 });
+
+test('鼠标光效开关：关掉后四条光效链路一起停，刷新后仍记住', async t => {
+  const page = await setup(t);
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '默认应该开着');
+
+  await menu(page);
+  const toggle = page.locator('[data-glow-toggle]');
+  assert.match(await toggle.innerText(), /鼠标光效/, '开关就叫「鼠标光效」');
+  assert.equal(await toggle.getAttribute('aria-checked'), 'true', '默认是开着的');
+
+  await toggle.click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '关掉后 html 上要有标记');
+  assert.equal(await toggle.getAttribute('aria-checked'), 'false', '开关要跟着状态走');
+  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-glow')), 'off', '偏好要存下来');
+
+  // 首页：Hero 点阵光与全站指针光晕都退场
+  const canvas = page.locator('[data-hero-pixels] .home-hero__pixels').first();
+  assert.equal(await canvas.evaluate(el => getComputedStyle(el).display), 'none', 'Hero 点阵画布也要收起');
+  await page.mouse.move(320, 360, { steps: 6 });
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('.cursor-glow').evaluate(el => getComputedStyle(el).opacity), '0', '指针光晕不应亮起');
+
+  // 导航：光不汇聚
+  const link = page.locator('.desktop-nav .nav-link').first();
+  const linkBox = await link.boundingBox();
+  await page.mouse.move(linkBox.x + linkBox.width / 2, linkBox.y + linkBox.height / 2, { steps: 6 });
+  await page.waitForTimeout(400);
+  assert.equal(await page.locator('.nav-glow').evaluate(el => getComputedStyle(el).opacity), '0', '导航这一束光不应出现');
+
+  // 卡片：亮层不亮
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const card = page.locator('.tool-card').first();
+  const cardBox = await card.boundingBox();
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 6 });
+  await page.waitForTimeout(400);
+  assert.equal(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity), '0', '卡片上的光不应亮起');
+
+  // 刷新后仍然是关着的
+  await page.reload();
+  await ready(page);
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '刷新后保持关闭');
+  await menu(page);
+  await page.locator('[data-glow-toggle]').click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '再点一次要能打开');
+  await page.keyboard.press('Escape');
+  const again = await card.boundingBox();
+  await page.mouse.move(again.x + again.width / 2, again.y + again.height / 2, { steps: 6 });
+  await page.waitForTimeout(400);
+  assert.ok(
+    parseFloat(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity)) > 0.9,
+    '打开后卡片应恢复发光',
+  );
+});

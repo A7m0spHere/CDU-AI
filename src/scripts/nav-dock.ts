@@ -14,6 +14,8 @@
  * 关闭条件：触屏 / 减少动效偏好 / 导航隐藏（移动端）时直接不启用。
  */
 
+import { GLOW_CHANGE, glowEnabled } from './glow-pref';
+
 type DockEntry = {
   el: HTMLElement;
   /** 当前缩放系数（0–1），用于缓动 */
@@ -76,9 +78,11 @@ export function initNavDock(): void {
 
   const setGlowActive = (active: boolean): void => {
     if (!glow) return;
-    glow.dataset.active = active ? 'true' : 'false';
+    // 总开关关掉时，导航这一束光也不出现（dock 放大仍然保留）
+    const on = active && glowEnabled();
+    glow.dataset.active = on ? 'true' : 'false';
     // 注意：这里不能叫 navGlow，否则会和 .nav-glow 自己的 data-nav-glow 撞名
-    docEl.dataset.navLight = active ? 'true' : 'false';
+    docEl.dataset.navLight = on ? 'true' : 'false';
   };
 
   /** 把光挪到某个入口上；pointerX 有值时顺便让光心贴住指针。 */
@@ -123,6 +127,11 @@ export function initNavDock(): void {
       hovered = null;
       setGlowActive(false);
     }
+  });
+
+  document.addEventListener(GLOW_CHANGE, (event) => {
+    if ((event as CustomEvent<{ enabled: boolean }>).detail.enabled) return;
+    setGlowActive(false);
   });
 
   nav.addEventListener('pointerleave', () => {

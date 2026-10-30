@@ -74,3 +74,7 @@
     display: none;
   }
 }
+/* 「鼠标光效」总开关关闭时，跟随指针的这团光也退场（开关见 scripts/glow-pref.ts） */
+:root[data-glow='off'] .cursor-glow {
+  opacity: 0;
+}

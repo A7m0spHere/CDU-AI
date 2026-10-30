@@ -287,3 +287,20 @@
 ![术语卡的光晕与点亮的外圈（浅色）](design/term-card-halo-light.png)
 
 ![术语卡的光晕与点亮的外圈（深色）](design/term-card-halo-dark.png)
+
+### 2026-10-28 · 鼠标光效做成主题面板里可关的开关
+
+- 维护者反馈：「将鼠标光效功能集成到自定义美化网站里面，做一个开关就叫『鼠标光效』」。开关放在主题面板最底部、导入主题那行的上方——它和配色一样属于「这台机器上怎么显示」，放进头顶的页头会喧宾夺主；面板里已经有「内置 / 浅色 / 深色 / 特色 / 我的主题」四组，再加一组最省事。
+- 形态用一行「标签 + 拨杆」，不用复选框也不做分段按钮：面板里其余控件都是「点一下立刻看到结果」的圆形色板，拨杆是唯一能一眼读出「现在开着」的控件。整行本身是 `<button type="button" role="switch" aria-checked>`，点整行都能切换，键盘 Space / Enter 同样有效（拨杆不被读屏单独聚焦，避免出现两个开关）。
+- 关掉要真的关掉四条链路，而不是只藏一层：全站指针光晕（`cursor-glow.ts`）、顶部导航光效汇聚（`nav-dock.ts`）、页头控件与站内按钮 / 搜索框 / 列表卡片（`ui-glow.ts` → `hover-glow.ts`）、首页 Hero 点阵光（`pixel-card.ts`）。做法是把判断收进一个模块 `glow-pref.ts`：`glowEnabled()` 读 `<html data-glow>`，四个驱动器在各自的入口处调用它；CSS 侧再用 `<html data-glow="off">` 前缀把 `.cursor-glow` / `.hover-glow` / `.nav-glow` 的 `opacity` 归零、把 Hero 画布 `display: none`。两层都做，是因为只改 JS 会在切换那一帧留下残影，只改 CSS 则画布仍在逐帧绘制。
+- 偏好落 `localStorage['cdu-ai-glow']`，并在 `BaseLayout.astro` 的首屏内联脚本里最先写一次 `root.dataset.glow`——和主题防闪烁同一处、同一个理由：关掉之后再打开页面，不能先闪一下光。默认值是「开」，只有明确存了 `off` 才算关。
+- 特异性留了一个坑：`.hover-glow[data-active='true']` 与 `.cursor-glow[data-active='true']` 都是两级，`:root[data-glow='off'] .hover-glow` 是三级，所以隐藏规则不需要 `!important`，也不会被主题段的深色规则反压。
+- 交互细节：关闭瞬间如果指针正压在某枚按钮上，`ui-glow.ts` 收到 `cdu:glow-change` 后立刻 `show(null)`，那枚按钮的 `data-glow-on` 会被撤掉，描边回到常态；指针光晕同样取消动画帧并 `hide()`。重新打开时 `cursor-glow.ts` 在关闭期间不更新坐标，所以光会直接从当前指针处出现，不会从上次的位置滑过来。
+- 测试：新增「鼠标光效开关：关掉后四条光效链路一起停，刷新后仍记住」——默认开、点一下后 `<html data-glow>` 为 `off`、`aria-checked` 跟手、`localStorage` 存下 `off`；Hero 画布 `display: none`、指针光晕 `opacity` 为 0、导航光斑 `opacity` 为 0、工具卡光层 `opacity` 为 0；刷新后仍是关着，再点一次能打开且卡片恢复发光。
+- 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **28/28 通过**。
+
+![主题面板里的「鼠标光效」开关（浅色，开）](design/glow-toggle-light.png)
+
+![同一开关关闭后（浅色）](design/glow-toggle-off-light.png)
+
+![主题面板里的「鼠标光效」开关（深色，开）](design/glow-toggle-dark.png)

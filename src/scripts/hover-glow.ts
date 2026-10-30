@@ -12,6 +12,8 @@
  * 外观（渐变、模糊、深浅主题）与导航共用 styles/hover-glow.css，不在这里写颜色。
  */
 
+import { glowEnabled } from './glow-pref';
+
 type InsetGlowOptions = {
   items: HTMLElement[];
   /** 亮起 / 熄灭回调，用来切换 <html> 上的 data-hero-light */
@@ -57,7 +59,8 @@ export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
   };
 
   return (item, pointerX, pointerY) => {
-    if (!item || glowOf(item) === null) {
+    // 总开关关掉时与「什么都没指着」等价，宿主上的 data-glow-on 也要撤掉
+    if (!item || !glowEnabled() || glowOf(item) === null) {
       if (active === null) return;
       activate(null);
       onActive?.(false);

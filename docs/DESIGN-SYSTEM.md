@@ -158,7 +158,7 @@
 - 时长：即时 120ms / 快 140ms / 常规 220ms / 慢 420ms / 滚动 reveal 520ms / 首屏进入 560ms。
 - 缓动：`cubic-bezier(0.22, 1, 0.36, 1)`，不弹跳；弹簧缓动只用于图标小反馈。
 - 允许：首屏 stagger 进入、滚动一次性 reveal、卡片悬停抬升、箭头位移、搜索弹层淡入、主题和筛选状态过渡。
-- 禁止：滚动劫持、大块视差、自动播放视频、全局指针替换与大块内容位移。全站允许一层跟随指针的柔光（`cursor-glow`），但它只是装饰：不改光标形状、不遮挡内容、不参与布局，且必须能一键关掉（减少动效 / 触屏）。首页引导图的轮播、浮动与瞄准框呼吸仅在该区域生效；触摸与减少动效按组件规则降级。
+- 禁止：滚动劫持、大块视差、自动播放视频、全局指针替换与大块内容位移。全站允许一层跟随指针的柔光（`cursor-glow`），但它只是装饰：不改光标形状、不遮挡内容、不参与布局，且必须能一键关掉（主题面板底部的「鼠标光效」开关；另随减少动效 / 触屏降级）。首页引导图的轮播、浮动与瞄准框呼吸仅在该区域生效；触摸与减少动效按组件规则降级。
 - CSS 进入与滚动动画只动 `opacity` / `transform`；不监听 scroll 做动画，使用 IntersectionObserver。ASCII 与像素背景使用局部 Canvas 绘制。
 - `prefers-reduced-motion: reduce` 时关闭全部动画与 reveal 隐藏，内容立即完整可见；打印样式同样强制可见。
 
@@ -173,11 +173,12 @@
 | 顶部导航光效汇聚 | 指针进入顶部导航时，跟随指针的柔光收进被指到的那一枚入口：光斑的宽高逐帧跟住按钮（按钮同时在做 dock 放大），亮心随指针在按钮内左右移动；换一枚时平滑挪过去，离开导航立即熄灭，同时撤掉全站光晕以免两处同时发亮；用比全站光晕浅一档的蓝（浅色 `rgb(124, 164, 255)`、深色 `rgb(150, 190, 255)`）；减少动效与触屏下不启用，hover 仍用半透明蓝底兜底 |
 | 首页引导图节点光效汇聚 | 与顶部导航同一套配方（共用 `hover-glow.css` 的 `--glow-tint` 与 `.hover-glow`），但按卡片形状改用 inset 变体：光只在卡片内部铺开（宽 38% 的椭圆，指向指针所在的一侧），不外溢成胶囊，同时把卡片描边软化、加一层浅蓝投影；离开卡片即熄灭并交还全站光晕；减少动效与触屏下不启用 |
 | 页头控件与站内按钮光效汇聚 | 搜索框、主题键、GitHub 键、首屏「开始学习」，以及站内同类控件（正文 `.btn` 整排按钮、筛选片、清除筛选、复制键、场景换卡、对话框关闭键、主题面板控件、侧栏搜索框、工具卡 / 术语卡 / 侧栏分支行）共用同一束光：光铺在控件自身的圆角内（inset 变体，宽 38%），亮心跟着指针左右移动，外部再溢出一圈柔光；亮起时撤掉全站光晕，键盘 Tab 到控件上同样点亮（亮心居中），同时只亮一枚。除页头这几枚手写标记外，其余由 `ui-glow.ts` 按选择器自动接管，新增按钮不用再写一遍光层标记。品牌色实心底（主按钮、按下态的筛选片）改用掺白掠光并锁住 hover 底色，否则深蓝底上的淡蓝只会读成「按钮变深」；取色色块（会盖掉正在看的颜色）、正文里的步骤与测验选项（属于内容而非行动入口）、导航链接（已由 nav-glow 负责）刻意不给光。列表卡片是一团跟着指针走的柔光晕（132px 半径的圆 + 8px 模糊，中心跟着指针的横纵坐标，边缘完全淡出），只有指着的那一片亮，同时把这张卡的描边接力点亮成品牌蓝并带一点外发光；侧栏搜索框的输入框自带底色，光层必须抬到输入框之上（`z-index: 1`）并把浓度压到通用 inset 的一半，否则光被挡住、或者反面把整条输入框染蓝；减少动效与触屏下不启用 |
+| 鼠标光效总开关 | 主题面板底部一行「鼠标光效」（原生按钮 + `role="switch"`，轨道开态用 `--brand` 实底、关态用中性灰，140ms 过渡，减少动效下不过渡）。关掉后四条光效链路一起停：全站指针光晕、顶部导航光效汇聚、页头控件与站内按钮 / 搜索框 / 列表卡片、首页 Hero 点阵光；dock 放大这类非光效动效保留。偏好存 `localStorage['cdu-ai-glow']`，首屏由 BaseLayout 的内联脚本先写 `<html data-glow>`，刷新后不会先闪一下光 |
 | 首页应用叠卡 | 手动换卡时过渡位置与角度，不自动轮播；减少动效下关闭过渡与前卡倾斜，仍可用按钮换卡 |
 | 首页探索菜单 | 悬停 / 聚焦时按上下边缘揭开横幅并横向流动；触屏、减少动效和无 JS 保持静态链接 |
 | 首页图书馆线稿 | 原生 SVG 坐标重投影，拖动与入口联动使用有限时长过渡。减少动效时直接更新姿态，线条颜色跟随主题 |
 
-CSS 时长来自 `tokens.css`；局部 Canvas 与引导图的参数分别由 `ascii-ai.ts`、`pixel-card.ts`、`hero-network.ts` 与 `target-reticle.ts` 管理。全站指针光晕的尺寸与配色在 `cursor-glow.css`（`--cursor-glow-blue` / `--cursor-glow-size`），跟随缓动在 `cursor-glow.ts`。顶部导航与首页引导图节点的光斑共用 `.hover-glow`（`styles/hover-glow.css`），配色只有一个来源 `--glow-tint`；几何分别由 `nav-dock.ts`（`--glow-x` / `-y` / `-w` / `-h` / `-r` / `-cx`）和 `hero-network.ts` / `ui-glow.ts` + `hover-glow.ts`（`--glow-cx`）写入，两者都与各自的指针监听共用同一个 `requestAnimationFrame` 循环。`ui-glow.ts` 在 document 上做事件委托，覆盖所有带 `data-glow-host` 的控件（_hover-glow-host_），亮起期间给 `<html>` 打 `data-ui-light`；它同时负责「自动接线」：按 `AUTO_HOSTS` 选择器给同类按钮补宿主类、补 `data-glow-host`、插一层 `.hover-glow--inset`，并用 MutationObserver 补挂后渲染出来的按钮，因此新增按钮只需要写自己的语义样式。要加一类新控件，往 `AUTO_HOSTS` 里加选择器即可；搜索框、工具卡、术语卡与侧栏分支行就是这样接上的（卡片的点阵参数与搜索框的层叠见 `hover-glow.css` 里的分节注释）。
+CSS 时长来自 `tokens.css`；局部 Canvas 与引导图的参数分别由 `ascii-ai.ts`、`pixel-card.ts`、`hero-network.ts` 与 `target-reticle.ts` 管理。全站指针光晕的尺寸与配色在 `cursor-glow.css`（`--cursor-glow-blue` / `--cursor-glow-size`），跟随缓动在 `cursor-glow.ts`。顶部导航与首页引导图节点的光斑共用 `.hover-glow`（`styles/hover-glow.css`），配色只有一个来源 `--glow-tint`；几何分别由 `nav-dock.ts`（`--glow-x` / `-y` / `-w` / `-h` / `-r` / `-cx`）和 `hero-network.ts` / `ui-glow.ts` + `hover-glow.ts`（`--glow-cx`）写入，两者都与各自的指针监听共用同一个 `requestAnimationFrame` 循环。`ui-glow.ts` 在 document 上做事件委托，覆盖所有带 `data-glow-host` 的控件（_hover-glow-host_），亮起期间给 `<html>` 打 `data-ui-light`；它同时负责「自动接线」：按 `AUTO_HOSTS` 选择器给同类按钮补宿主类、补 `data-glow-host`、插一层 `.hover-glow--inset`，并用 MutationObserver 补挂后渲染出来的按钮，因此新增按钮只需要写自己的语义样式。要加一类新控件，往 `AUTO_HOSTS` 里加选择器即可；搜索框、工具卡、术语卡与侧栏分支行就是这样接上的（卡片的点阵参数与搜索框的层叠见 `hover-glow.css` 里的分节注释）。「鼠标光效」总开关在 `glow-pref.ts`：偏好键 `cdu-ai-glow`，`glowEnabled()` 是四个驱动器（`cursor-glow.ts` / `nav-dock.ts` / `ui-glow.ts` + `hover-glow.ts` / `pixel-card.ts`）唯一的状态入口；关闭时 CSS 也按 `<html data-glow="off">` 把光层收掉，Hero 画布直接 `display: none`。面板里的开关改完广播 `cdu:glow-change`，正在亮的那一枚立刻收掉，重新打开时不会从旧坐标滑过来。
 
 ## 6. 可访问性
 

@@ -1,3 +1,4 @@
+import './glow-pref';
 import { initNavDock } from './nav-dock';
 import { initMobileDock } from './mobile-dock';
 import { initImageLightbox } from './image-lightbox';

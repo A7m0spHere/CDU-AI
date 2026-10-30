@@ -10,6 +10,8 @@
  * 降级：prefers-reduced-motion: reduce 完全不启用；触屏按下亮一瞬后整片熄灭；键盘 focus 在中心亮起。
  */
 
+import { GLOW_CHANGE, glowEnabled } from './glow-pref';
+
 type Rgb = readonly [number, number, number];
 
 const DEFAULTS = {
@@ -262,13 +264,13 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   };
 
   host.addEventListener('pointerenter', (event) => {
-    if (reduced.matches || event.pointerType === 'touch') return;
+    if (reduced.matches || event.pointerType === 'touch' || !glowEnabled()) return;
     // 从边缘进来时直接落到指针处，否则光晕会从上次的位置飞过来
     reveal(event.clientX, event.clientY);
   });
 
   host.addEventListener('pointermove', (event) => {
-    if (reduced.matches || event.pointerType === 'touch') return;
+    if (reduced.matches || event.pointerType === 'touch' || !glowEnabled()) return;
     pointTo(event.clientX, event.clientY);
     if (mode !== 'appear') reveal();
     else wake();
@@ -278,7 +280,7 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
 
   // 触屏：按下处亮一下再整片熄灭，不做跟随
   host.addEventListener('pointerdown', (event) => {
-    if (reduced.matches || event.pointerType !== 'touch') return;
+    if (reduced.matches || event.pointerType !== 'touch' || !glowEnabled()) return;
     reveal(event.clientX, event.clientY);
     clearTimeout(pulseTimer);
     pulseTimer = setTimeout(hide, DEFAULTS.pulse);
@@ -286,7 +288,7 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
 
   // 键盘：聚焦到卡片（例如「开始学习」按钮）时在中心亮起
   host.addEventListener('focusin', () => {
-    if (reduced.matches) return;
+    if (reduced.matches || !glowEnabled()) return;
     target.x = pointer.x = width / 2;
     target.y = pointer.y = height / 2;
     mode = 'appear';
@@ -329,6 +331,11 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
     ctx.clearRect(0, 0, width, height);
   };
   reduced.addEventListener('change', onMotionChange);
+
+  document.addEventListener(GLOW_CHANGE, (event) => {
+    if ((event as CustomEvent<{ enabled: boolean }>).detail.enabled) return;
+    hide();
+  });
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) return;

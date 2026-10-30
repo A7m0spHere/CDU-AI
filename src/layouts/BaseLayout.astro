@@ -74,6 +74,12 @@ const bootPresets = presetThemes.map((preset) => ({
     <script is:inline define:vars={{ bootPresets }}>
       (() => {
         const root = document.documentElement;
+        // 鼠标光效偏好先写进 <html>，关掉后打开页面不会先闪一下光
+        try {
+          root.dataset.glow = localStorage.getItem('cdu-ai-glow') === 'off' ? 'off' : 'on';
+        } catch {
+          root.dataset.glow = 'on';
+        }
         try {
           const saved = localStorage.getItem('cdu-ai-theme');
           let theme = null;

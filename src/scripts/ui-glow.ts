@@ -21,6 +21,7 @@
  */
 
 import { initInsetGlow } from './hover-glow';
+import { GLOW_CHANGE, glowEnabled } from './glow-pref';
 
 /** 与页头控件同类的按钮：行动按钮、筛选片、复制/关闭键、主题面板控件 */
 const AUTO_HOSTS = [
@@ -35,6 +36,8 @@ const AUTO_HOSTS = [
   '.theme-editor__close',
   '.theme-panel__link',
   '.theme-mini-btn',
+  // 主题面板里的「鼠标光效」开关本身也是一枚按钮
+  '.theme-panel__toggle',
   '.theme-font-option',
   // 侧栏搜索框：搜索本身就是一个入口，指针落上去该有同一束光
   '.search-field',
@@ -93,7 +96,7 @@ export function initUiGlow(): void {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = window.matchMedia('(hover: none), (pointer: coarse)');
   // CSS 在这种环境下本来就把 .hover-glow 藏了，这里同步跳过，省掉无意义的逐帧写入
-  const enabled = () => !reduced.matches && !coarse.matches;
+  const enabled = () => !reduced.matches && !coarse.matches && glowEnabled();
 
   let frame = 0;
   let pending: { host: HTMLElement | null; x: number; y: number } | null = null;
@@ -134,6 +137,9 @@ export function initUiGlow(): void {
     const rect = host.getBoundingClientRect();
     schedule(host, rect.left + rect.width / 2, rect.top + rect.height / 2);
   });
+
+  // 面板里关掉「鼠标光效」时，正在亮的那一枚要立刻收掉
+  document.addEventListener(GLOW_CHANGE, () => schedule(null, 0, 0));
 
   document.addEventListener('focusout', (event) => {
     const host = hostFrom(event.target);

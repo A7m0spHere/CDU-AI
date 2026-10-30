@@ -245,3 +245,14 @@
     display: none;
   }
 }
+/* 「鼠标光效」开关关闭（见 scripts/glow-pref.ts）：整条光效链路一起退场。
+   属性选择器多一级特异性，压过 .hover-glow[data-active='true'] / .nav-glow[data-active='true']。 */
+:root[data-glow='off'] .hover-glow,
+:root[data-glow='off'] .nav-glow {
+  opacity: 0;
+}
+
+/* 首页 Hero 点阵光同属这一族：关掉后画布一起收起，省掉逐帧绘制 */
+:root[data-glow='off'] .home-hero__pixels {
+  display: none;
+}
