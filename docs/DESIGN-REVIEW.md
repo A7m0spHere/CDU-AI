@@ -304,3 +304,12 @@
 ![同一开关关闭后（浅色）](design/glow-toggle-off-light.png)
 
 ![主题面板里的「鼠标光效」开关（深色，开）](design/glow-toggle-dark.png)
+
+### 2026-10-28 · 学习指南侧栏也接上同一束光
+
+- 反馈：「这里也加光效」，附图为学习指南左侧目录（六个分组标题 + 条目 + 「规划中」标记）。
+- 落点：`.guide-nav__summary`（details 的分组标题，本来就有 hover 底色与折叠箭头）、`.guide-nav ul a`（条目链接）、`.guide-sidebar__foot a`（底部两条参考链接）。三者只是往 `ui-glow.ts` 的 `AUTO_HOSTS` 加选择器，没有新写光层标记。
+- 没有接光的两类：`.guide-nav__planned`（不可点击的「规划中」占位，加光会被读成按钮）、`.guide-nav__note`（说明段落，不是入口）。
+- 层叠：分组标题与条目都有自身底色，但光层在宿主的 `isolation: isolate` 里位于 `z-index: -1`，绘制顺序在「元素底色之上、子内容之下」，因此不用像搜索框那样抬到 `z-index: 1`，文字仍然是压在最上面的一层。
+- 实测：分组标题与条目各有且只有一层 `.hover-glow`，悬停后 `data-active="true"`、光宽与宿主宽差 ≤3px、`--glow-cx` 跟着指针偏到 62%、`html[data-ui-light="true"]`、同时只有一处发光。
+- 截图：`design/guide-nav-glow-light.png` / `design/guide-nav-glow-dark.png`（悬停「02 开始学习」）、`design/guide-nav-item-glow-light.png` / `design/guide-nav-item-glow-dark.png`（悬停「指南首页」）。

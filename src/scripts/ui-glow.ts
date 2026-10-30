@@ -45,6 +45,10 @@ const AUTO_HOSTS = [
   '.tool-card',
   '.glossary-term',
   '.branch-row__label',
+  // 学习指南左侧目录：分组标题（details 的 summary）与条目链接
+  '.guide-nav__summary',
+  '.guide-nav ul a',
+  '.guide-sidebar__foot a',
 ];
 
 const SELECTOR = ['[data-glow-host]', ...AUTO_HOSTS].join(',');

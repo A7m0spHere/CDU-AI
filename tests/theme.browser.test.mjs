@@ -2564,3 +2564,48 @@ test('鼠标光效开关：关掉后四条光效链路一起停，刷新后仍�
     '打开后卡片应恢复发光',
   );
 });
+
+
+test('学习指南侧栏的分组标题与条目也接上同一束光', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/');
+  await ready(page);
+
+  const summaries = page.locator('.guide-nav__summary');
+  const summaryCount = await summaries.count();
+  assert.ok(summaryCount >= 4, '侧栏分组标题应成排出现');
+  const coveredSummaries = await summaries.evaluateAll(els => els.filter(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1).length);
+  assert.equal(coveredSummaries, summaryCount, '每个分组标题都要有光层');
+
+  const first = summaries.nth(1);
+  const box = await first.boundingBox();
+  await page.mouse.move(box.x + box.width * 0.4, box.y + box.height / 2, { steps: 6 });
+  await page.waitForTimeout(420);
+  assert.equal(await first.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到分组标题上应点亮');
+  const glowBox = await first.locator('[data-glow]').boundingBox();
+  assert.ok(Math.abs(glowBox.width - box.width) <= 3, '光宽要贴合这一行');
+  assert.equal(await page.locator('.guide-nav [data-glow][data-active="true"]').count(), 1, '同时只应有一处发光');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.uiLight), 'true', '全站光晕要让位');
+
+  const item = page.locator('.guide-nav ul a').first();
+  const itemBox = await item.boundingBox();
+  await page.mouse.move(itemBox.x + itemBox.width * 0.62, itemBox.y + itemBox.height / 2, { steps: 6 });
+  await page.waitForTimeout(420);
+  assert.equal(await item.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到条目上也应点亮');
+  assert.ok(
+    parseFloat(await item.evaluate(el => el.querySelector('[data-glow]').style.getPropertyValue('--glow-cx'))) > 50,
+    '光心要跟着指针偏到右半边',
+  );
+  assert.equal(await page.locator('.guide-nav [data-glow][data-active="true"]').count(), 1, '换一条目时上一处要熄灭');
+
+  // 参考资源链接同样接光
+  const footLink = page.locator('.guide-sidebar__foot a').first();
+  assert.equal(await footLink.evaluate(el => el.querySelectorAll(':scope > .hover-glow').length), 1, '侧栏底部链接也要有光层');
+
+  // 不可点击的「规划中」不接管光效，避免误读成按钮
+  assert.equal(
+    await page.locator('.guide-nav__planned').first().evaluate(el => el.hasAttribute('data-glow-host')),
+    false,
+    '规划中的条目不可点击，不应接光',
+  );
+});
