@@ -6,6 +6,10 @@
 /* 列表页：整张卡片就是链接（沿用 PR #1 的做法）-------------
    卡片本身就是 <a>，例子与别名默认展开，不做折叠面板。
    这样点卡片任何位置都能进详情，也不需要覆盖层或额外 JS。 */
+[data-glossary-results] {
+  scroll-margin-top: 1rem;
+}
+
 .glossary-term {
   color: inherit;
   text-decoration: none;
@@ -283,12 +287,12 @@
 }
 
 /* =========================================================
-   术语分支树（git graph 风格，两条泳道并行）
+   术语分支树（git graph 风格，两条泳道：主线与延伸分支）
    参考：mhutchie/vscode-git-graph 的分支 ref 标签与配色、
    nicoespeon/gitgraph.js 的泳道与提交节点画法。
-   结构：AI 主线走到「工具」处 fork 出 vibecoding 分支，
-   之后主线继续（Agent / 安全 / 成本），vibecoding 泳道并行向下，
-   承载 Vibe Coding 与前端 / 后端 / 产品 / 测试 / Git。
+   结构：AI 基础与使用走完 6 个分类后，在末端用连接线 fork 出
+   vibecoding 分支；Vibe Coding 及其下的界面与前端 / 后端与部署 /
+   需求与产品 / 调试与测试 / Git 与 GitHub 沿另一条泳道向下。
    走廊固定 44px：所有标签从同一列开始，节点圆点落在各自泳道上。
    ========================================================= */
 .branch-tree {

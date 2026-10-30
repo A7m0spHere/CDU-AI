@@ -22,7 +22,7 @@ const terms = (await getCollection('glossary')).sort(
 const categoryCount = (id: string) => terms.filter((term) => term.data.category === id).length;
 const total = terms.length;
 
-// 「Vibe Coding」是延伸分支的起点：它是分支名，前端 / 后端 / 产品 / 测试 / Git 挂在它下面。
+// 「Vibe Coding」是延伸分支的起点：它是分支名，界面与前端 / 后端与部署 / 需求与产品 / 调试与测试 / Git 与 GitHub 挂在它下面。
 const vibeCategory = glossaryCategories.find((category) => category.id === 'vibecoding');
 const vibeTechCategories = glossaryExtensionCategories.filter((category) => category.id !== 'vibecoding');
 
@@ -53,7 +53,7 @@ const contributeLinks = [
         title="AI 术语表"
         meta={[
           { label: total > 0 ? total + ' 条' : '内容准备中', tone: total > 0 ? 'brand' : 'warn' },
-          { label: '审核确认后发布' },
+          { label: '内容状态见详情' },
         ]}
         crumbs={[{ label: '术语表' }]}
       />
@@ -87,10 +87,10 @@ const contributeLinks = [
                   data-filter-value="ai-main"
                   data-filter-match={aiMainIds.join(' ')}
                   data-filter-default
-                  title="AI 主分支：基础 / 提示词 / 工具 / Agent / 安全 / 成本"
+                  title={'AI 基础与使用：' + glossaryPrimaryCategories.map((category) => category.name).join(' / ')}
                 >
                   <span class="branch-ref branch-ref--ai mono">AI</span>
-                  <span class="branch-row__name">AI 主线</span>
+                  <span class="branch-row__name">AI 基础与使用</span>
                   <span class="branch-row__count">{aiMainCount}</span>
                 </button>
                 <button
@@ -98,8 +98,8 @@ const contributeLinks = [
                   type="button"
                   data-branch-toggle
                   aria-expanded="true"
-                  data-label-collapse="折叠 AI 主分支"
-                  data-label-expand="展开 AI 主分支"
+                  data-label-collapse="折叠 AI 基础与使用分支"
+                  data-label-expand="展开 AI 基础与使用分支"
                 >
                   <Icon name="chevron-down" size={14} />
                 </button>
@@ -191,7 +191,7 @@ const contributeLinks = [
             />
           ) : (
             <>
-              <div class="results-bar">
+              <div class="results-bar" data-glossary-results>
                 <p aria-live="polite">显示 <strong data-filter-count>{aiMainCount}</strong> 个术语</p>
                 <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
               </div>
@@ -285,7 +285,18 @@ const contributeLinks = [
 <script>
   import { initFilter } from '../../scripts/filter';
 
-  initFilter();
+  const results = document.querySelector<HTMLElement>('[data-glossary-results]');
+  const desktop = window.matchMedia('(min-width: 1021px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  initFilter({
+    afterApply: ({ reason }) => {
+      // 沿用工具目录：结果更新后定位，不改变筛选焦点或手机输入位置。
+      if (reason === 'filter' && desktop.matches) {
+        results?.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
+      }
+    },
+  });
 
   // 分支折叠：点 chevron 收起/展开该分支下的节点，不影响筛选状态。
   document.querySelectorAll<HTMLElement>('[data-branch]').forEach((branch) => {

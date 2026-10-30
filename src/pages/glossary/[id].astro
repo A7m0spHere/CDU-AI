@@ -183,7 +183,7 @@ const jsonLd = {
           <h2 class="term-block__title" id="term-quiz-title">选一个你认为最合适的答案</h2>
           {quiz.map((item, quizIndex) => (
             <div class="term-quiz__item" data-quiz-item>
-              <p class="term-quiz__question">{item.question}</p>
+              <p class="term-quiz__question" id={`term-quiz-question-${quizIndex}`}>{item.question}</p>
               <div class="term-quiz__options" role="group" aria-labelledby={`term-quiz-question-${quizIndex}`}>
                 {item.options.map((option, optionIndex) => (
                   <button

@@ -290,7 +290,15 @@ test('每个术语都有可读的详情页与结构化数据', async () => {
       assert.match(html, /data-scenario-tab/, slug + ' 缺少场景拆解步骤');
       assert.match(html, /data-scenario-panel/, slug + ' 缺少场景提示画面');
     }
-    if (/^quiz:/m.test(raw)) assert.match(html, /data-quiz-option/, slug + ' 缺少选择题选项');
+    if (/^quiz:/m.test(raw)) {
+      assert.match(html, /data-quiz-option/, slug + ' 缺少选择题选项');
+      const ids = new Set(Array.from(html.matchAll(/\bid="([^"]+)"/g), (match) => match[1]));
+      for (const [, labels] of html.matchAll(/aria-labelledby="([^"]+)"/g)) {
+        for (const id of labels.split(/\s+/)) {
+          assert.ok(ids.has(id), slug + ' 的可访问名称引用了不存在的元素：' + id);
+        }
+      }
+    }
     if (/^agentPrompt:/m.test(raw)) assert.match(html, /data-copy-prompt/, slug + ' 缺少提示词复制按钮');
     if (fields.sources || /^sources:/m.test(raw)) assert.match(html, /延伸阅读/, slug + ' 缺少延伸阅读出处');
 

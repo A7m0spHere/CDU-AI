@@ -80,7 +80,7 @@ export function initFilter(options: FilterOptions = {}): { refresh: () => void }
   };
   collapses.forEach((details) => details.addEventListener('toggle', updateFoldedCount));
 
-  // 默认分支：页面加载、清除筛选时回到这一项（术语页默认停在「AI 主线」）。
+  // 默认分支：页面加载、清除筛选时回到这一项（术语页默认停在「AI 基础与使用」）。
   const defaultChip =
     chips.find((chip) => chip.hasAttribute('data-filter-default')) ??
     chips.find((chip) => chip.dataset.filterValue === 'all');
