@@ -397,15 +397,30 @@ test('术语表深度滚动后筛选回到结果开头，保留焦点并尊重�
   const results = page.locator('.glossary-main .results-bar');
   const scrollDown = async () => {
     await page.evaluate(() => window.scrollTo({ top: 2000, behavior: 'instant' }));
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     assert.ok(await results.evaluate(el => el.getBoundingClientRect().top < -250));
   };
   const atStart = async () => {
-    await page.waitForFunction(() => {
+    // 平滑滚动由合成器驱动，CI 负载高时可能超过 3 秒，因此放宽等待并回报实际位置。
+    const metrics = () => page.evaluate(() => {
       const results = document.querySelector('.glossary-main .results-bar');
-      const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + parseFloat(getComputedStyle(results).scrollMarginTop);
-      return Math.abs(results.getBoundingClientRect().top - offset) < 2;
-    }, null, { timeout: 3000 });
-    const top = await results.evaluate(el => el.getBoundingClientRect().top);
+      return {
+        top: results.getBoundingClientRect().top,
+        offset: parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + parseFloat(getComputedStyle(results).scrollMarginTop),
+        scrollY: window.scrollY,
+      };
+    });
+    try {
+      await page.waitForFunction(() => {
+        const results = document.querySelector('.glossary-main .results-bar');
+        const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + parseFloat(getComputedStyle(results).scrollMarginTop);
+        return Math.abs(results.getBoundingClientRect().top - offset) < 2;
+      }, null, { timeout: 10000 });
+    } catch (error) {
+      const state = await metrics();
+      throw new Error('筛选后没有定位到结果开头：top=' + state.top + '，offset=' + state.offset + '，scrollY=' + state.scrollY + '（' + error.message + '）');
+    }
+    const top = (await metrics()).top;
     const headerBottom = await page.locator('[data-site-header]').evaluate(el => el.getBoundingClientRect().bottom);
     assert.ok(top >= headerBottom && top < headerBottom + 100, '定位到固定导航下方的术语结果开头');
   };
