@@ -37,6 +37,9 @@ sources:
     url: "https://arxiv.org/abs/2303.18223"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "审核负责人确认保留原文；知识时间覆盖的绝对表述存在不同意见。"
 ---
 
 ## 一句话说清

@@ -9,14 +9,15 @@ youMaySay: "把成绩单发给 AI，会有什么后果？"
 scenario:
   title: "上传含个人信息的表格"
   steps:
-    - label: "直接上传"
-      body: "把含姓名学号的成绩表发给 AI 分析。"
-      note: "信息可能被留存。"
     - label: "查看说明"
-      body: "在隐私设置里看到「用于改进服务」的选项。"
-      meta: "数据用途"
-    - label: "脱敏重传"
-      body: "去掉姓名学号，只留成绩数据再分析。"
+      body: "上传前先检查服务条款和数据设置。"
+      note: "了解保存方式与数据用途。"
+    - label: "处理数据"
+      body: "只提供完成任务必需的信息，并处理可能识别个人的字段。"
+      meta: "尽量减少信息"
+    - label: "确认授权"
+      body: "是否能上传，还需遵守相关授权和组织规定。"
+      note: "去掉姓名、学号也不必然等于匿名化。"
 quiz:
   - question: "使用 AI 时保护隐私最有效的第一步是？"
     options:
@@ -30,12 +31,17 @@ quiz:
 agentPrompt: "请分析下面表格的成绩分布；我已去掉姓名学号，如果还需要其他字段请先问我，不要推测个人信息。"
 order: 3
 related: ["copyright", "prompt-injection"]
-updated: "2026-10-26"
+updated: "2026-11-01"
 sources:
   - title: "Privacy Policy · Anthropic"
     url: "https://www.anthropic.com/legal/privacy"
+  - title: "中华人民共和国个人信息保护法 · 中国网信网"
+    url: "https://www.cac.gov.cn/2021-08/20/c_1631050028355286.htm"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认修改上传前场景；法律与政策依具体情况适用，未实测产品。"
 ---
 
 ## 一句话说清

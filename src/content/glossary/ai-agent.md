@@ -3,7 +3,7 @@ term: "AI Agent"
 en: "AI Agent"
 category: "agents"
 aliases: ["智能体", "AI 智能体", "Agent"]
-definition: "能自己拆任务、调工具、多步执行，直到完成目标的 AI 系统。"
+definition: "能围绕目标决定部分步骤，并在授权范围内调用工具、执行和检查任务的 AI 系统；任务也可能失败、暂停或需要人确认。"
 example: "让它「查下周三天气并写进班级通知」，它会自己搜索、整理、起草，而不是只回一段话。"
 youMaySay: "它说「我来处理」，到底会自己做什么？"
 scenario:
@@ -30,12 +30,15 @@ quiz:
 agentPrompt: "请把「整理本周社团待办」拆成可执行步骤，逐步完成，并在发布任何内容前等我确认。"
 order: 1
 related: ["tool-use", "task-planning"]
-updated: "2026-10-26"
+updated: "2026-11-01"
 sources:
   - title: "Building effective agents · Anthropic"
-    url: "https://www.anthropic.com/engineering/building-effective-agents"
+    url: "https://www.anthropic.com/research/building-effective-agents"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认修改定义并保留其余内容；未实测具体产品。"
 ---
 
 ## 一句话说清

@@ -30,17 +30,22 @@ quiz:
 agentPrompt: "请按下面两条示例的格式处理第三段材料；不确定的内容标注「待核实」，不要补造。"
 order: 3
 related: ["prompt", "output-format"]
-updated: "2026-10-26"
+updated: "2026-11-01"
 sources:
   - title: "Use examples (multishot prompting) · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/multishot-prompting"
+  - title: "Prompt engineering（Few-shot prompting）· Hugging Face"
+    url: "https://huggingface.co/docs/transformers/main/tasks/prompting"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "AI 初审（负责人授权）"
+reviewNote: "负责人确认修改示例数量说明；效果依模型和任务而异，未实测产品。"
 ---
 
 ## 一句话说清
 
-少样本示例是在提问时附上两三条示范，让模型从例子里推断你想要的格式、口径和颗粒度——不是让它背答案，而是让它照着样子做。
+少样本示例是在提问时附上少量示范，让模型从例子里推断你想要的格式、口径和颗粒度——不是让它背答案，而是让它照着样子做。
 
 ## 打个比方
 
@@ -48,7 +53,7 @@ aiUsage: "drafted"
 
 ## 它是怎么运作的
 
-模型从示例中找规律：字段顺序、语气、详略。示例越贴近真实任务，输出越稳定；示例本身有错，模型也会跟着错。
+模型从示例中找规律：字段顺序、语气、详略。贴近真实任务的示例有助于表达要求；示例数量和效果要结合任务测试，示例本身有错也可能带偏输出。
 
 ## 你会碰到它的场景
 
@@ -58,7 +63,7 @@ aiUsage: "drafted"
 
 ## 常见误解
 
-- 以为例子越多越好：两三条有代表性的通常够用，堆多了反而稀释重点；
+- 以为例子越多越好：要选有代表性的示例，数量和效果结合任务测试；
 - 以为给了例子就不用说要求：例子教格式，不保证事实正确；
 - 以为示例可以随便编：示范错了，结果就错。
 

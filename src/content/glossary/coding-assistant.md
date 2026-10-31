@@ -36,6 +36,9 @@ sources:
     url: "https://platform.claude.com/docs/en/claude-code/overview"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "AI 初审（负责人授权）"
+reviewNote: "AI 按定义、例子及参考资料初审；链接可访问，未逐项核验全部事实或实测产品。"
 ---
 
 ## 一句话说清

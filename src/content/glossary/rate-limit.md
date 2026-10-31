@@ -30,12 +30,15 @@ quiz:
 agentPrompt: "请根据接口文档的请求数与 token 限额，为这个批量任务设计分批、排队和退避重试策略，并说明如何处理服务端的重试提示。"
 order: 4
 related: ["trial-quota", "truncation"]
-updated: "2026-10-30"
+updated: "2026-11-01"
 sources:
   - title: "Rate limits · Anthropic"
     url: "https://platform.claude.com/docs/en/api/rate-limits"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认修改限流场景；具体限制以服务商文档为准，未实测接口。"
 ---
 
 ## 一句话说清
@@ -53,7 +56,7 @@ aiUsage: "drafted"
 ## 你会碰到它的场景
 
 - 批量脚本跑到一半大量报错；
-- 多人共用一个账号时变慢；
+- 多个任务共享同一接口额度，短时间请求过多，收到限流提示；
 - 基础版比付费版更容易触发。
 
 ## 常见误解
@@ -64,4 +67,4 @@ aiUsage: "drafted"
 
 ## 想再深入一点
 
-工程上常用退避重试（越等越久）和排队，而不是原地狂刷。
+工程上常用退避重试（越等越久）和排队，并遵循服务端返回的等待提示，而不是原地狂刷。

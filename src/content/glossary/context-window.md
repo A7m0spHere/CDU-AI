@@ -36,6 +36,9 @@ sources:
     url: "https://platform.claude.com/docs/en/build-with-claude/context-windows"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；文件处理与外部检索能力依产品实现而异，未实测产品。"
 ---
 
 ## 一句话说清

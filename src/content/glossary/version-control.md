@@ -3,15 +3,15 @@ term: "版本控制"
 en: "Version Control"
 category: "git"
 aliases: ["Version Control", "版本管理", "版本库"]
-definition: "记录文件每次改动的系统；改坏了能退回以前的版本。"
-example: "论文改到第七版想找回第三版的段落，版本控制可以做到——但没提交过的改动找不回。"
+definition: "记录文件版本历史的系统；保存过的版本可用于对比和回退。"
+example: "论文改到第七版想找回第三版的段落，可以查看已保存的版本；提交历史不能保证找回未提交内容，其他备份或暂存可能保留。"
 youMaySay: "改乱了想回到昨天的版本，还有救吗？"
 scenario:
   title: "AI 大改代码前"
   steps:
     - label: "先提交"
       body: "把当前可用版本提交一次。"
-      note: "提交过的才能回退。"
+      note: "提交历史保留的是已提交的状态。"
     - label: "让 AI 改"
       body: "生成大量修改。"
       meta: "保留历史节点"
@@ -30,12 +30,17 @@ quiz:
 agentPrompt: "请说明在让 AI 大改代码前应该做哪些版本控制准备，按步骤列出。"
 order: 1
 related: ["repository", "commit"]
-updated: "2026-10-30"
+updated: "2026-11-01"
 sources:
   - title: "About version control · Pro Git"
     url: "https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control"
+  - title: "git-stash · Git"
+    url: "https://git-scm.com/docs/git-stash"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "AI 初审（负责人授权）"
+reviewNote: "负责人确认修改恢复范围说明；暂存与其他备份是否可用依实际情况而定。"
 ---
 
 ## 是什么

@@ -36,6 +36,9 @@ sources:
     url: "https://support.claude.com/en/"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；记录保存与同步依产品而异，未逐一核验来源。"
 ---
 
 ## 一句话说清

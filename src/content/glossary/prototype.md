@@ -34,8 +34,13 @@ updated: "2026-10-26"
 sources:
   - title: "Prototyping · Interaction Design Foundation"
     url: "https://www.interaction-design.org/literature/topics/prototyping"
+  - title: "Making prototypes · GOV.UK Service Manual"
+    url: "https://www.gov.uk/service-manual/design/making-prototypes"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；原型也可为纸面草图，不一定可交互。"
 ---
 
 ## 是什么

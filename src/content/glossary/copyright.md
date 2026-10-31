@@ -36,6 +36,9 @@ sources:
     url: "https://www.wipo.int/edocs/mdocs/mdocs/en/wipo_webinar_ft_24_1/wipo_webinar_ft_24_1_guidelines.pdf"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；权利与授权需结合具体法域和情形判断。"
 ---
 
 ## 一句话说清

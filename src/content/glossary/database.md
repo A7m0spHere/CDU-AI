@@ -36,6 +36,9 @@ sources:
     url: "https://developer.mozilla.org/en-US/docs/Glossary/Database"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；应用可能在数据库或记忆系统中保存数据，未实测产品。"
 ---
 
 ## 是什么

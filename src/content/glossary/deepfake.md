@@ -3,7 +3,7 @@ term: "深度伪造"
 en: "Deepfake"
 category: "safety"
 aliases: ["Deepfake", "AI 换脸", "伪造音视频"]
-definition: "用 AI 伪造的逼真声音、图像或视频，常用于冒充与诈骗。"
+definition: "利用 AI 合成或修改具有真实感的图像、声音或视频的技术及内容；既可能用于经授权的创作，也可能被用于冒充和欺骗。"
 example: "收到「辅导员」的语音借钱消息，声音很像，也可能是伪造的——先通过官方渠道核实。"
 youMaySay: "视频里那个人，真的是我认识的人吗？"
 scenario:
@@ -30,14 +30,19 @@ quiz:
 agentPrompt: "请帮我起草一条提醒，告诉同学遇到「熟人」语音借钱时如何通过独立渠道核实，语气简洁。"
 order: 6
 related: ["multimodal", "privacy"]
-updated: "2026-10-30"
+updated: "2026-11-01"
 sources:
   - title: "The Creation and Detection of Deepfakes: A Survey (arXiv:2004.11138)"
     url: "https://arxiv.org/abs/2004.11138"
   - title: "Scammers use AI to enhance their family emergency schemes · FTC"
     url: "https://consumer.ftc.gov/consumer-alerts/2023/03/scammers-use-ai-enhance-their-family-emergency-schemes"
+  - title: "Voice Cloning Comment · FTC（声音克隆的用途与风险）"
+    url: "https://www.ftc.gov/system/files/ftc_gov/pdf/FTC-Comment-VoiceCloning.pdf"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认修改定义并保留其余内容；未实测具体工具。"
 ---
 
 ## 一句话说清

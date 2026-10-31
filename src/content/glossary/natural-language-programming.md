@@ -36,6 +36,9 @@ sources:
     url: "https://arxiv.org/abs/2107.03374"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；所引论文侧重自然语言生成代码，未覆盖术语的全部用法。"
 ---
 
 ## 是什么

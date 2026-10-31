@@ -36,6 +36,9 @@ sources:
     url: "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；单靠提示词不能保证阻止注入，未逐一核验来源。"
 ---
 
 ## 一句话说清
