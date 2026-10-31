@@ -10,7 +10,7 @@
 
 | 贡献者 | 参与方向 | 对应记录 |
 | --- | --- | --- |
-| [@A7m0spHere](https://github.com/A7m0spHere) | 项目发起与维护 | PR #10–#25、#27，issue #2–#9、#22 |
+| [@A7m0spHere](https://github.com/A7m0spHere) | 项目发起、维护与内容审校 | [维护记录](#项目发起与维护)、[近期成果](#近期成果) |
 | [@FJHin](https://github.com/FJHin) | 内容与结构 | PR #1 |
 | [@kdjdhe](https://github.com/kdjdhe) | 内容初稿、代码与交互 | PR #26、[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35) |
 | [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)、[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32) |
@@ -26,11 +26,23 @@
 - **文档**：[ARCHITECTURE](docs/ARCHITECTURE.md)、[CONTENT-GUIDE](docs/CONTENT-GUIDE.md)、[CONTENT-REVIEW](docs/CONTENT-REVIEW.md)、[DESIGN-SYSTEM](docs/DESIGN-SYSTEM.md)、[GLOSSARY-PLAN](docs/GLOSSARY-PLAN.md)、[CONTRIBUTING](CONTRIBUTING.md)、[CONTRIBUTORS](CONTRIBUTORS.md) 与 README 的持续维护。
 - **内容审校**：首条人工核校术语「AI 幻觉」的审校签字（`reviewed: 2026-10-21` / `reviewedBy: A7m`，见 [src/content/glossary/hallucination.md](src/content/glossary/hallucination.md)）。
 
+### 近期成果
+
+以下记录 **[@A7m0spHere](https://github.com/A7m0spHere)** 于 2026-10-23 至 2026-11-01 的维护成果；外部贡献者的初稿与主题设计仍按各自条目署名。
+
+- **贡献机制（2026-10-23）**：建立站点级贡献名单、贡献类型与署名流程，并明确提交 PR 默认同意按 GitHub 账号署名、支持改名或撤下；见 [PR #28](https://github.com/A7m0spHere/CDU-AI/pull/28)、[PR #29](https://github.com/A7m0spHere/CDU-AI/pull/29)。
+- **工具目录（2026-10-24—2026-10-28）**：补充工具、官方入口与自托管图标，完善分类/能力筛选、URL 恢复和文档检查；后续整理唯一主分类、分区顺序与 API 平台，修复手机留白并加入全目录分页。见 [PR #30](https://github.com/A7m0spHere/CDU-AI/pull/30)、[手机分页提交](https://github.com/A7m0spHere/CDU-AI/commit/700c3e53d319641ac42f7d835b65d448052956b4)、[分类与排序提交](https://github.com/A7m0spHere/CDU-AI/commit/89e98bdfcb1407770ded5f09085b55abfda12a75)。工具信息核对不等于逐个安装或完成真实模型任务测试。
+- **指南入口（2026-10-26—2026-10-30）**：接入维护者提供的指南首页正文与配图，完善目录和章节双向导航，为待补充章节生成明确标注状态的可访问页面；占位页不计为已完成文章。见 [指南首页提交](https://github.com/A7m0spHere/CDU-AI/commit/38ad9ee4a4404b7245787fcf374e46a8449a3106)、[章节导航提交](https://github.com/A7m0spHere/CDU-AI/commit/2c8164927ec026dc7bdff1d9f1d96db22c1a1547)。
+- **首页展示（2026-10-27—2026-10-30）**：完成应用场景叠卡、主题适配的探索点阵和流动入口，处理键盘、减少动效与无 JS 路径；随后把探索区调整为桌面双栏、窄屏上下布局。见 [PR #33](https://github.com/A7m0spHere/CDU-AI/pull/33)、[PR #34](https://github.com/A7m0spHere/CDU-AI/pull/34)。场景卡是概念展示，不代表本站接入了相应软件或任务执行能力。
+- **搜索与加载（2026-10-28）**：将指南首页章节纳入搜索，补齐输入法保护、匹配总数、失败重试和键盘路径；主题编辑器脚本与样式改为按需加载，并拆出页面专属样式。见 [搜索与加载优化提交](https://github.com/A7m0spHere/CDU-AI/commit/3b35060180c2babfa897bed3a19332f947503bbe)。
+- **术语审阅（2026-10-31—2026-11-01）**：组织词条复核、修订和来源整理，为 63 篇补充审核记录：24 篇由负责人确认，39 篇按负责人授权由 AI 独立初审；此前「AI 幻觉」的审核记录保留。见 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37) 及 [P0](docs/GLOSSARY-REVIEW-20261031.md)、[P1](docs/GLOSSARY-REVIEW-20261101.md)、[P2](docs/GLOSSARY-REVIEW-P2-20261101.md) 记录。审核范围与未覆盖项分别记录，不把授权 AI 初审写成人工逐篇终审。
+- **开发文档（2026-11-01）**：补齐主题、工具目录和搜索模块说明，整理文档职责、历史状态与代码变更对应的文档入口，在贡献流程和 PR 模板加入文档影响检查，并明确可访问性验收目标与扫描证据的区别。见 [Issue #36](https://github.com/A7m0spHere/CDU-AI/issues/36)、[主交付提交](https://github.com/A7m0spHere/CDU-AI/commit/af85d4bbb1e4f95f5e2037b13cb92cdd52338a81)、[收尾提交](https://github.com/A7m0spHere/CDU-AI/commit/2098ed47839b797e2afc5005f6c80577c32a7a0b)。
+
 ## 内容与结构贡献
 
 **[@FJHin](https://github.com/FJHin)**（git 署名 `Scenic`）— **PR #1**（2026-10-18）：把术语表从 `src/data/glossary.ts` 的数组迁移为 Markdown 内容集合，新增 `/glossary/[id]/` 详情页（一句话说清 / 打个比方 / 它是怎么运作的 / 你会碰到它的场景 / 常见误解），改造搜索索引与分类筛选，并补上内容层测试（49 个文件，+2255 / −411）。这批词条正文在 2026-10-20 的内容重建（#13）中清空重写，但内容集合、详情页与字段校验的结构沿用至今。
 
-**[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35)**（2026-10-30）：补齐 AI 术语表 12 个分类共 64 条词条初稿（含场景拆解、选择题与 Agent 提示词）与 [术语选题清单](docs/GLOSSARY-TERMS.md)；词条均标注为初稿，待按[审校规范](docs/CONTENT-REVIEW.md)逐条核校。
+**[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35)**（2026-10-30）：新增 63 条术语初稿（含场景拆解、选择题与 Agent 提示词）及 [术语选题清单](docs/GLOSSARY-TERMS.md)，使目录连同原有「AI 幻觉」示范达到 12 个分类、64 条词条。新增词条合并时标注为初稿，原有示范的审核记录保留；后续按[审校规范](docs/CONTENT-REVIEW.md)开展的复核与修订另记于 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37)，不改变本条的初稿贡献归属。
 
 ## 代码与交互
 
