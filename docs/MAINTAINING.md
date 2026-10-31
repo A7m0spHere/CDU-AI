@@ -15,24 +15,26 @@ npm run verify
 
 修改检查规则时，在 `tests/fixtures/content/` 或检查器测试中补充能暴露该问题的合法 / 错误样例。正式内容不能充当错误样例。
 
+| 修改范围 | 本地验证 |
+| --- | --- |
+| 仅维护说明或普通 Markdown 文案 | `npm run check:docs`、`git diff --check`；任务另有完整验证要求时按要求执行 |
+| 工具数据、内容、schema、页面、脚本或样式 | `npm run verify`；交互变更补充相关浏览器检查 |
+| 主题交互、持久化，或搜索/筛选与主题兼容 | 先 `npm run verify`，再 `npm run test:browser` |
+
+`verify` 不包含浏览器回归，也不访问外部链接。记录结果时写清实际执行的命令、版本与范围，不把类型、链接或 CI 通过当作文档语义一致、真实设备体验或内容事实审核的证明。
+
 ### 主题浏览器回归
 
-修改主题交互后，先完成 `npm run verify`，再运行：
+主题、搜索和工具目录共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
 
 ```bash
 npx playwright install chromium
 npm run test:browser
 ```
 
-浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。测试覆盖存储失败回滚、真实配额超限、取消预览、图片与字体读取的会话隔离、字体拖放与刷新恢复、手机菜单边界，以及主题与工具目录搜索 / 折叠的兼容性。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。
-
-同一回归入口还覆盖全站搜索的输入法保护、键盘导航、匹配总数、空结果、加载失败重试，以及主题编辑器按需加载、重复打开和加载期间取消。普通阅读与预设切换不应请求编辑器脚本或样式；新建、编辑、导入主题共享一次初始化，取消后不会因延迟加载完成而重新弹出。
+浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。检查入口与关键行为分别见[主题模块](modules/theme.md#验证与排障)、[工具目录模块](modules/tool-catalog.md#验证与排障)、[搜索模块](modules/search.md#验证与排障)，共享测试文件还包含首页和指南等回归。
 
 已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器；自动查找不到时，用 `$env:PLAYWRIGHT_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'` 指定实际安装路径。测试后移除本次设置的环境变量以恢复默认。手机视口模拟不等同于真实设备验收。
-
-工具目录回归覆盖普通动效下的手机短屏滚动、每页 9 个工具的完整遍历、关键词与能力筛选、URL 和前进后退恢复、分类折叠与桌面切换，以及浅色、深色、自定义主题、无 JS 和打印降级。复核手机留白时检查目录实际 `opacity`，不能只依赖 DOM 存在或浏览器测试的 `isVisible()`。
-
-手机工具页关闭根元素默认的平滑滚动，避免键盘聚焦页末按钮时的延迟滚动覆盖脚本的翻页定位；桌面筛选仍由脚本明确启用平滑过渡。手机翻页回归须在卡片动画结束后核对最终位置，不能只检查按钮按下后的瞬时坐标。
 
 ### 文档检查范围
 
