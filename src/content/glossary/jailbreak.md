@@ -30,12 +30,17 @@ quiz:
 agentPrompt: "请解释为什么下面这个请求可能违反使用规则，并给出合规的替代做法。"
 order: 2
 related: ["prompt-injection"]
-updated: "2026-10-26"
+updated: "2026-11-01"
 sources:
   - title: "Mitigate jailbreaks and prompt injections · Anthropic"
     url: "https://platform.claude.com/docs/en/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+  - title: "LLM01: Prompt Injection · OWASP"
+    url: "https://genai.owasp.org/llmrisk/llm01-prompt-injection/"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "AI 初审（负责人授权）"
+reviewNote: "负责人确认修改概念区别；未实测具体模型的防护效果。"
 ---
 
 ## 一句话说清
@@ -64,4 +69,4 @@ aiUsage: "drafted"
 
 ## 想再深入一点
 
-越狱和提示词注入不同：前者骗模型自己开口，后者借外部内容夹带指令。
+越狱侧重绕过模型的安全限制；提示词注入侧重用输入中的指令改变系统原本的行为。注入既可能直接来自用户输入，也可能藏在网页或文件等外部内容中；两者可能重叠。

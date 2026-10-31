@@ -30,12 +30,17 @@ quiz:
 agentPrompt: "请以「社团活动助手」的身份回答：只提供已确认的活动信息，不确定时先问我，不要编造时间地点。"
 order: 2
 related: ["prompt", "role-prompting"]
-updated: "2026-10-30"
+updated: "2026-11-01"
 sources:
   - title: "Giving Claude a role with a system prompt · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/system-prompts"
+  - title: "Create a Message（system 参数）· Claude API"
+    url: "https://platform.claude.com/docs/en/api/messages/create"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认修改接口说明；不同模型与平台的传法、优先级可能不同。"
 ---
 
 ## 一句话说清
@@ -48,7 +53,7 @@ aiUsage: "drafted"
 
 ## 它是怎么运作的
 
-你发消息前，产品已经把系统提示词和你的输入拼在一起交给模型。在多数产品里它有更高的优先级，但它不是安全边界——遇到足够强的诱导，规则也可能被绕过。
+产品按照所用接口的格式，将系统指令和用户消息放在相应的参数或消息角色中，再提交给模型处理。具体传法与优先级取决于模型和平台。系统提示词不是安全边界——规则也可能被绕过。
 
 ## 你会碰到它的场景
 

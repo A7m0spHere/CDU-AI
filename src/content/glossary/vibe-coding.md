@@ -3,7 +3,7 @@ term: "Vibe Coding"
 en: "Vibe Coding"
 category: "vibecoding"
 aliases: ["Vibe Coding", "氛围编程", "跟着感觉编程"]
-definition: "用自然语言描述想法、让 AI 生成能跑代码的开发方式。"
+definition: "一种依靠自然语言让 AI 编写和修改程序、以快速试用和反复调整为主的开发方式；最初的用法强调较少关注生成的代码细节。"
 example: "说一句「做个宿舍值日轮换的小页面」，AI 直接给出能打开的网页，这就是 vibe coding 的典型场景。"
 youMaySay: "完全不懂代码，也能做出能用的东西吗？"
 scenario:
@@ -30,17 +30,22 @@ quiz:
 agentPrompt: "请按以下需求生成一个可运行的小页面：宿舍值日轮换表，能添加成员、按周轮换；先给方案再给代码。"
 order: 1
 related: ["code-generation", "natural-language-programming"]
-updated: "2026-10-26"
+updated: "2026-10-31"
 sources:
   - title: "What is vibe coding? · IBM"
     url: "https://www.ibm.com/think/topics/vibe-coding"
+  - title: "Vibe coding · OpenSSF Glossary"
+    url: "https://glossary.openssf.org/vibe-coding/"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "AI 辅助审核后负责人确认；未逐一核验全部来源。"
 ---
 
 ## 是什么
 
-Vibe Coding 指用自然语言描述想要的东西，让 AI 写出能运行的代码；人主要负责说清需求、试跑和验收。
+Vibe Coding 是用自然语言让 AI 编写和修改程序，通过试用结果不断调整。最初的用法强调较少关注生成的代码细节。这个词现在也有人泛指 AI 辅助编程；但认真检查和维护代码的开发方式，不应一概理解为最初意义上的 Vibe Coding。
 
 ## 什么时候会遇到
 
@@ -48,7 +53,7 @@ Vibe Coding 指用自然语言描述想要的东西，让 AI 写出能运行的�
 
 ## 和 AI 的关系
 
-AI 负责生成与修改代码，你负责判断「跑起来对不对、是不是真要这样」。能跑不等于做对了，验收仍要靠人。
+AI 负责生成与修改代码，你负责判断「跑起来对不对、是不是真要这样」。能跑不代表安全或便于维护，实际使用前还要检查数据、权限和代码。
 
 ## 想深入再看
 

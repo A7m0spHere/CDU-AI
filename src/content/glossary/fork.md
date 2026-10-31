@@ -25,16 +25,21 @@ quiz:
         correct: true
       - text: "自动合并到上游"
         correct: false
-    explain: "Fork 是独立副本，改动要经过 PR 才能进入上游。"
+    explain: "Fork 是独立副本；改动通常通过 PR 提议合并到上游。"
 agentPrompt: "请帮我梳理给上游仓库贡献的步骤：fork、克隆、建分支、提交、发起 PR，每步说明注意点。"
 order: 5
 related: ["pull-request", "branch", "repository"]
-updated: "2026-10-26"
+updated: "2026-11-01"
 sources:
   - title: "Fork a repository · GitHub Docs"
     url: "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo"
+  - title: "Forks · GitHub Docs"
+    url: "https://docs.github.com/en/pull-requests/reference/forks"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认修改协作说明；未实测各项目的权限配置。"
 ---
 
 ## 是什么
@@ -47,7 +52,7 @@ Fork 是把别人的仓库复制一份到自己账号下，得到一个由你控
 
 ## 和 AI 的关系
 
-AI 可以帮你操作副本里的代码，但要记住：改的是你的 fork，不是上游；要合并得走 Pull Request。
+AI 可以帮你操作副本里的代码，但要记住：改的是你的 fork，不是上游；想把修改贡献回上游，通常可以发起 Pull Request，具体协作方式取决于项目规则和权限。
 
 ## 想深入再看
 

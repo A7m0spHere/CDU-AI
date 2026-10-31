@@ -36,6 +36,9 @@ sources:
     url: "https://platform.claude.com/docs/en/api/messages"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；未涵盖输入截断及其他中断原因，未逐一核验来源。"
 ---
 
 ## 一句话说清

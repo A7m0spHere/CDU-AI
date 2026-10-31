@@ -16,6 +16,9 @@
 | 调整栏目、内容模型、构建或部署 | [架构说明](ARCHITECTURE.md) |
 | 调整视觉、组件与交互 | [设计系统](DESIGN-SYSTEM.md) / [设计评审与修订记录](DESIGN-REVIEW.md) |
 | 参与术语库规划与分类治理 | [术语库规划](GLOSSARY-PLAN.md) |
+| 查看术语词条 P0 审核范围与结论 | [2026-10-31 术语审核记录](GLOSSARY-REVIEW-20261031.md) |
+| 查看术语词条 P1 审核范围、取舍与依据 | [2026-11-01 术语审核记录](GLOSSARY-REVIEW-20261101.md) |
+| 查看术语词条 P2 AI 初审结果与待二审项 | [2026-11-01 P2 初审记录](GLOSSARY-REVIEW-P2-20261101.md) |
 | 查看术语选题清单与分批切法 | [术语选题清单](GLOSSARY-TERMS.md) |
 | 排查缓存、检查文档或管理仓库设置 | [维护者操作说明](MAINTAINING.md) |
 | 补充或修改贡献记录、项目参考来源 | [贡献与致谢](../CONTRIBUTORS.md) |

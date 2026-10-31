@@ -4,7 +4,7 @@ en: "Fine-tuning"
 category: "basics"
 aliases: ["Fine-tuning", "模型微调", "指令微调"]
 definition: "用一批自己的例子继续训练模型，让它更贴合特定任务。"
-example: "实验室想让模型按固定格式写周报，用几十份历史周报做微调，比每次写长提示词更省事。"
+example: "团队希望 AI 按固定格式写周报，先用提示词和示例测试效果。如果长期重复使用时仍不能满足要求，可以准备训练样本，评估微调后的效果和成本。"
 youMaySay: "能不能把我们的资料喂给它，让它学会？"
 scenario:
   title: "社团想让 AI 按固定格式写通知"
@@ -31,12 +31,15 @@ quiz:
 agentPrompt: "请总结这批通知的固定格式，帮我写成一个可复用的提示词模板，不要编造没出现过的信息。"
 order: 7
 related: ["training-data", "llm"]
-updated: "2026-10-26"
+updated: "2026-10-31"
 sources:
   - title: "Instruction Tuning for Large Language Models: A Survey (arXiv:2308.10792)"
     url: "https://arxiv.org/abs/2308.10792"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "示例修改后负责人确认，其余原文保留；未逐一核验全部来源。"
 ---
 
 ## 一句话说清

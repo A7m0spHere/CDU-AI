@@ -34,8 +34,15 @@ updated: "2026-10-26"
 sources:
   - title: "Model Context Protocol 官方站点"
     url: "https://modelcontextprotocol.io/"
+  - title: "Architecture overview · Model Context Protocol"
+    url: "https://modelcontextprotocol.io/docs/learn/architecture"
+  - title: "Security Best Practices · Model Context Protocol"
+    url: "https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；只读需要服务与系统实际限制权限，未实测配置。"
 ---
 
 ## 一句话说清

@@ -27,17 +27,22 @@ quiz:
       - text: "让回答更短"
         correct: false
     explain: "步骤提高可检查性，不保证正确。"
-agentPrompt: "请一步步列出计算过程再给结论，标明每一步的数据来源；最后单独列出可能算错的地方。"
+agentPrompt: "请列出可核对的计算、依据和来源，再给结论；最后单独列出可能算错的地方。"
 order: 4
 related: ["prompt", "hallucination"]
-updated: "2026-10-30"
+updated: "2026-10-31"
 sources:
   - title: "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models (arXiv:2201.11903)"
     url: "https://arxiv.org/abs/2201.11903"
   - title: "Let Claude think (chain of thought prompting) · Anthropic"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/chain-of-thought"
+  - title: "Measuring faithfulness in Chain-of-Thought reasoning · Anthropic"
+    url: "https://www.anthropic.com/news/measuring-faithfulness-in-chain-of-thought-reasoning"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-10-31"
+reviewedBy: "A7m"
+reviewNote: "AI 辅助审核后负责人确认；未逐一核验全部来源。"
 ---
 
 ## 一句话说清
@@ -46,7 +51,7 @@ aiUsage: "drafted"
 
 ## 打个比方
 
-像数学题要求写过程分：答案对错之外，过程让你知道是真会还是蒙对。
+像数学题要求写出计算过程：你可以检查列式和运算，但过程看起来合理，也不能保证答案正确。
 
 ## 它是怎么运作的
 

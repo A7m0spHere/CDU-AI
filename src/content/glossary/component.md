@@ -4,7 +4,7 @@ en: "Component"
 category: "frontend"
 aliases: ["Component", "组件化", "UI 组件"]
 definition: "拼成页面的积木块；一个按钮、一张卡片都可以是组件。"
-example: "页面里十个一样的「报名」按钮，其实是同一个组件被用了十次。"
+example: "页面里十个相似的「报名」按钮，可以复用同一个按钮组件；外观相同不代表一定用了同一个组件。"
 youMaySay: "为什么改一个按钮，要动好几个文件？"
 scenario:
   title: "统一按钮样式"
@@ -30,12 +30,15 @@ quiz:
 agentPrompt: "请把下面这段重复的按钮代码抽成一个组件，说明需要哪些参数，以及如何替换原有调用。"
 order: 2
 related: ["ui", "responsive-design"]
-updated: "2026-10-26"
+updated: "2026-11-01"
 sources:
   - title: "Your first component · React 官方文档"
     url: "https://react.dev/learn/your-first-component"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "AI 初审（负责人授权）"
+reviewNote: "负责人确认修改示例；AI 核对定义、例子与参考资料，未逐项实测。"
 ---
 
 ## 是什么

@@ -36,6 +36,9 @@ sources:
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/system-prompts"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；角色提示也可能影响任务表现，未实测具体模型。"
 ---
 
 ## 一句话说清

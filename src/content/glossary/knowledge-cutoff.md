@@ -37,6 +37,9 @@ sources:
     url: "https://platform.claude.com/docs/en/about-claude/models/overview"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；示例中训练数据缺失的原因未经实证。"
 ---
 
 ## 一句话说清

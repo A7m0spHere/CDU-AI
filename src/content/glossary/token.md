@@ -37,6 +37,9 @@ sources:
     url: "https://platform.claude.com/docs/en/build-with-claude/token-counting"
 basis: "desk-research"
 aiUsage: "drafted"
+reviewed: "2026-11-01"
+reviewedBy: "A7m"
+reviewNote: "负责人确认保留原文；分段和摘要的总消耗需按具体任务测量。"
 ---
 
 ## 一句话说清
