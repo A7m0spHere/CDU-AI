@@ -86,9 +86,9 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 | `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
 | `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
 
-三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），页面状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时显示「初稿 · 尚未审核」，同时填写且未标记待更新才显示「已审核无误」。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
+三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），内容状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时为初稿，同时填写且未标记待更新才为已审核。术语与作品在页面展示状态，指南保留在 frontmatter 和 GitHub 记录中，阅读页不追加维护信息。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
-内容重建始于 2026-10-20。当前已有指南首页与分类术语词条，普通指南文章与作品仍待补充；术语各批次的审校范围和方式见[文档导航](README.md)，不由条目数量推断审核完成。
+内容重建始于 2026-10-20。当前已有指南首页、「这份指南适合谁」文章与分类术语词条，其余指南章节与作品逐步补充；术语各批次的审校范围和方式见[文档导航](README.md)，不由条目数量推断审核完成。
 
 各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不作为内容集合条目加载**；`src/content/guide/_HOME.md` 由指南首页直接导入并显示在 `/guide/`，不生成单独的文章路由，不自动追加介绍、目录总览或阶段列表。首页审核规则与记录方式见 [内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)，不增加页面审核信息栏。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
 
@@ -152,7 +152,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 - 静态框架、内容模型、设计系统、6 个一级内容区
 - 章节级全局搜索、AI 术语表、学习指南 Notion 风格正文、工具侧栏筛选、作品类别筛选、深浅色主题
-- 指南 / 作品的更新时间、参考来源与 GitHub 编辑入口
+- 指南首页与章节共用简约阅读排版；有外部依据时展示参考来源，作品详情保留更新时间与 GitHub 编辑入口
 - 只做示例与规划展示，不虚构真实数据
 - 构建、类型、内容测试、锚点与链接检查纳入统一验证；视觉和可访问性检查单独执行与记录
 

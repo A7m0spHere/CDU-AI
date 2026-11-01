@@ -3,13 +3,10 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
-import ContentStatus from '../../components/ContentStatus.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import GuidePager from '../../components/GuidePager.astro';
 import { getGuideChapters, type GuideChapter } from '../../data/guide-nav';
-import { guideStages, repository } from '../../data/site';
-import { tools } from '../../data/tools';
 import '../../styles/notion.css';
 
 export const getStaticPaths = (async () => {
@@ -28,15 +25,8 @@ interface Props {
 
 const { entry, chapter } = Astro.props;
 const slug = chapter.id;
-const stage = guideStages.find((item) => item.id === entry?.data.stage);
-
 const rendered = entry ? await render(entry) : undefined;
 const Content = rendered?.Content;
-const toc = rendered?.headings.filter((heading) => heading.depth === 2 || heading.depth === 3) ?? [];
-const editUrl = entry ? `${repository.url}/edit/${repository.branch}/src/content/guide/${entry.id}.md` : undefined;
-const relatedTools = (entry?.data.tools ?? [])
-  .map((name) => tools.find((tool) => tool.name === name))
-  .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
 // sources 在 schema 里有默认值；这里再兜底一次，避免旧内容缓存缺字段时详情页渲染崩溃。
 const sources = entry?.data.sources ?? [];
 ---
@@ -46,100 +36,33 @@ const sources = entry?.data.sources ?? [];
     <div class="container guide-doc-layout">
       <GuideSidebar currentId={slug} />
 
-      <div class:list={['guide-paper', { 'guide-paper--placeholder': !entry }]}>
-        <div class="wiki-main wiki-article notion-page">
-        <GuideMobileNav currentId={slug} />
+      <div class:list={['guide-paper guide-paper--index notion-page', { 'guide-paper--placeholder': !entry }]}>
+        <div class="wiki-main">
+          <GuideMobileNav currentId={slug} />
+          <article class="prose wiki-prose notion-prose guide-reading-prose" aria-labelledby="guide-title">
+            <h1 id="guide-title">{chapter.title}</h1>
+            {entry && Content ? <Content /> : (
+              <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
+            )}
 
-        <nav class="breadcrumb" aria-label="面包屑">
-          <a href="/">首页</a>
-          <span class="breadcrumb__sep" aria-hidden="true">/</span>
-          <a href="/guide/">学习指南</a>
-          <span class="breadcrumb__sep" aria-hidden="true">/</span>
-          {stage && <span class="breadcrumb__stage">
-            <span>{stage.label}</span>
-            <span class="breadcrumb__sep" aria-hidden="true">/</span>
-          </span>}
-          <span aria-current="page">{chapter.title}</span>
-        </nav>
-
-        <header class="notion-page-head">
-          <div class="notion-page-head__title-row">
-            <span class="notion-page-head__icon" aria-hidden="true"><Icon name="book-open" size={20} /></span>
-            <h1>{chapter.title}</h1>
-          </div>
-          {entry && <p class="notion-page-head__summary">{entry.data.summary}</p>}
-        </header>
-
-        {entry && Content ? <>
-        <div class="prose wiki-prose notion-prose">
-          <Content />
+            {sources.length > 0 && (
+              <div class="page-sources">
+                <p>参考来源</p>
+                <ul>
+                  {sources.map((source) => (
+                    <li>
+                      <a href={source.url} target="_blank" rel="noopener noreferrer">
+                        {source.title}
+                        <Icon name="arrow-up-right" size={13} />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </article>
+          <GuidePager currentId={slug} />
         </div>
-
-        <div class="wiki-takeaway">
-          <Icon name="check" size={18} />
-          <p><strong>读完这一篇：</strong>{entry.data.outcome}</p>
-        </div>
-
-        {relatedTools.length > 0 && (
-          <div class="wiki-tool-links">
-            <span>这篇用到的工具：</span>
-            {relatedTools.map((tool) => (
-              <a href={tool.url} target="_blank" rel="noopener noreferrer">
-                {tool.name}
-                <Icon name="arrow-up-right" size={14} />
-              </a>
-            ))}
-            <a class="text-link" href="/tools/">工具资源</a>
-          </div>
-        )}
-
-        {sources.length > 0 && (
-          <div class="page-sources">
-            <p>参考来源</p>
-            <ul>
-              {sources.map((source) => (
-                <li>
-                  <a href={source.url} target="_blank" rel="noopener noreferrer">
-                    {source.title}
-                    <Icon name="arrow-up-right" size={13} />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <footer class="doc-meta" aria-label="内容状态与维护信息">
-          <ContentStatus data={entry.data} context="guide" variant="inline" />
-          <div class="doc-meta__actions">
-            <span class="doc-meta__updated"><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
-            <a class="doc-meta__edit" href={editUrl} target="_blank" rel="noopener noreferrer">
-              <Icon name="pen" size={14} />在 GitHub 编辑本页
-              <Icon name="arrow-up-right" size={13} />
-            </a>
-          </div>
-        </footer>
-        </> : (
-          <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
-        )}
-
-        <GuidePager currentId={slug} />
-        </div>
-
-        {entry && <aside class="wiki-toc" aria-label="本页内容">
-        <p class="wiki-toc__label">本页内容</p>
-        {toc.length > 0 && (
-          <nav>
-            <ol>
-              {toc.map((heading) => (
-                <li class:list={`wiki-toc__depth-${heading.depth}`}>
-                  <a href={`#${heading.slug}`}>{heading.text}</a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )}
-        </aside>}
       </div>
     </div>
   </div>
@@ -147,7 +70,6 @@ const sources = entry?.data.sources ?? [];
 
 <style>
   .guide-paper--placeholder {
-    grid-template-columns: minmax(0, 1fr);
     min-height: 0;
   }
 

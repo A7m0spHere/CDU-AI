@@ -20,7 +20,7 @@ import '../../styles/notion.css';
       <div class="guide-paper guide-paper--index guide-home-paper notion-page">
         <div class="wiki-main">
           <GuideMobileNav />
-          <article class="prose wiki-prose notion-prose guide-home-prose" aria-label="指南首页正文" data-guide-home-content>
+          <article class="prose wiki-prose notion-prose guide-reading-prose guide-home-prose" aria-label="指南首页正文" data-guide-home-content>
             <GuideHomeContent />
           </article>
           <GuidePager />
@@ -31,41 +31,6 @@ import '../../styles/notion.css';
 </BaseLayout>
 
 <style>
-  .guide-home-prose {
-    max-width: 48rem;
-    color: var(--notion-ink-soft);
-    line-height: 1.9;
-  }
-
-  .guide-home-prose :global(h1),
-  .guide-home-prose :global(h2) {
-    color: var(--notion-ink);
-    font-weight: 700;
-    line-height: 1.35;
-    letter-spacing: -0.02em;
-  }
-
-  .guide-home-prose :global(h1) {
-    margin: 0 0 1.25rem;
-    font-size: clamp(1.9rem, 3vw, 2.5rem);
-  }
-
-  .guide-home-prose :global(h2) {
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    font-size: clamp(1.25rem, 2vw, 1.5rem);
-  }
-
-  .guide-home-prose :global(strong) {
-    color: var(--notion-ink);
-    font-weight: 700;
-  }
-
-  .guide-home-prose :global(em) {
-    color: inherit;
-    font-style: italic;
-  }
-
   .guide-home-prose :global(.guide-home-illustration) {
     margin: 1.75rem 0;
   }

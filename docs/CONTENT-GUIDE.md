@@ -4,7 +4,7 @@
 
 ## 0. 从模板开始
 
-各内容目录保留 `_TEMPLATE.md` 写作模板。指南与作品正文待补充，术语库已有「AI 幻觉」示范词条，新增内容仍从对应模板开始：
+各内容目录保留 `_TEMPLATE.md` 写作模板。指南已补充「这份指南适合谁」，其余章节与作品逐步补充，术语库已有分类词条，新增内容仍从对应模板开始：
 
 - `src/content/guide/_TEMPLATE.md`：学习指南模板
 - `src/content/works/_TEMPLATE.md`：作品示例模板
@@ -65,7 +65,7 @@ sources: # 可选；有外部依据时填写，必须可打开
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview"
 tools: ["DeepSeek", "Kimi"] # 可留空，但必须是工具目录里已有的名字
 tags: ["AI 素养", "安全"]
-# 内容状态字段（可选；默认按「初稿 + AI 辅助起草 + 教学示例」展示）
+# 内容状态字段（可选；指南默认按「初稿 + AI 辅助起草 + 教学示例」记录，阅读页不显示状态栏）
 # reviewed / reviewedBy / needsUpdate / reviewNote / basis / aiUsage / testedOn / testedEnvironment / contributors
 # 定义与判定规则见 docs/CONTENT-REVIEW.md
 ---
@@ -330,10 +330,10 @@ Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模�
 
 ## 8. 内容状态与审校
 
-每篇指南、术语和作品详情页底部都会展示「内容状态」：初稿（尚未审核）/ 已审核无误 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审核负责人与日期、贡献者。
+术语和作品详情页底部展示「内容状态」：初稿（尚未审核）/ 已审核无误 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审核负责人与日期、贡献者。指南首页与章节统一保持简约阅读界面，普通文章的元信息与审核字段保留在 frontmatter 和 GitHub 记录中，不追加状态栏、学习收获卡、自动工具列表、更新时间或编辑入口。
 
 - 字段定义、状态推导规则、审校清单与生命周期流程见 [`docs/CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
-- 默认值保守：不写 `reviewed` 就按初稿展示；不写 `basis` 就按教学示例；不写 `aiUsage` 就按 AI 辅助起草。
+- 默认值保守：不写 `reviewed` 就按初稿处理；不写 `basis` 就按教学示例；不写 `aiUsage` 就按 AI 辅助起草。
 - 已有内容不需要一次性迁移。实质修改事实性内容后必须重新审校，不能沿用旧的审校日期。
 
 ## 9. 提交前检查
@@ -349,6 +349,6 @@ npm run verify
 - 是否有真实姓名、联系方式、学号、聊天记录等隐私？
 - 移动端阅读是否一屏内出现过多并列信息？
 - 外部链接是否可打开、是否指向官网？
-- 指南的 `updated` 和 `sources` 是否准确？页面底部的编辑链接是否指向正确文件？
+- 指南的 `updated` 和 `sources` 是否准确？有来源时是否展示正确链接？术语与作品的编辑链接是否指向正确文件？
 
 提交时说明改了什么、依据是什么、哪些内容还需要核实。

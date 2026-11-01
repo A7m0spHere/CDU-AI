@@ -397,6 +397,42 @@
   gap: 0.35rem;
 }
 
+/* 指南首页与章节共用阅读排版。 */
+.notion-page .guide-reading-prose {
+  max-width: 48rem;
+  color: var(--notion-ink-soft);
+  line-height: 1.9;
+}
+
+.notion-page .guide-reading-prose h1,
+.notion-page .guide-reading-prose h2 {
+  color: var(--notion-ink);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.notion-page .guide-reading-prose h1 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+}
+
+.notion-page .guide-reading-prose h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+}
+
+.notion-page .guide-reading-prose strong {
+  color: var(--notion-ink);
+  font-weight: 700;
+}
+
+.notion-page .guide-reading-prose em {
+  color: inherit;
+  font-style: italic;
+}
+
 @media (max-width: 600px) {
   .breadcrumb__stage {
     display: none;

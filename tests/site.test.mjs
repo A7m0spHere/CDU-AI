@@ -231,21 +231,19 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
     assert.ok(html.includes(`id="${hash}"`), '搜索锚点不存在：' + item.href);
   }
 });
-test('学习指南详情采用 Notion 文档结构', async () => {
-  if (guideSlugs.length === 0) {
-    const guideIndex = await read('guide/index.html');
-    assert.match(guideIndex, /guide-doc-shell/, '指南首页应保留文档框架');
-    assert.match(guideIndex, /data-guide-home-content/, '指南首页应保留正文容器');
-    assert.doesNotMatch(guideIndex, /data-content-empty|data-page-header|wiki-navmap|wiki-outline|wiki-next/, '指南首页不再显示自动生成的介绍与占位内容');
-    return;
+test('学习指南首页与章节保持统一的简约阅读结构', async () => {
+  const guideIndex = await read('guide/index.html');
+  assert.match(guideIndex, /data-guide-home-content/, '指南首页应保留正文容器');
+  assert.doesNotMatch(guideIndex, /data-content-empty|data-page-header|wiki-navmap|wiki-outline|wiki-next/, '指南首页不再显示自动生成的介绍与占位内容');
+
+  const routes = ['guide/index.html', ...registeredGuideSlugs.map((slug) => 'guide/' + slug + '/index.html')];
+  for (const route of routes) {
+    const html = await read(route);
+    assert.match(html, /guide-doc-shell/, route + ' 应保留指南框架');
+    assert.match(html, /guide-reading-prose/, route + ' 应使用统一阅读排版');
+    assert.match(html, /guide-pager/, route + ' 应保留章节导航');
+    assert.doesNotMatch(html, /notion-page-head|notion-page-properties|wiki-takeaway|wiki-tool-links|doc-meta|data-content-status|class="breadcrumb"|class="wiki-toc"/, route + ' 不应追加摘要、提示卡或维护信息');
   }
-  const guide = await read('guide/' + guideSlugs[0] + '/index.html');
-  assert.match(guide, /notion-page/);
-  assert.match(guide, /notion-page-head/);
-  assert.doesNotMatch(guide, /notion-page-properties/);
-  assert.match(guide, /notion-prose/);
-  assert.match(guide, /本页内容/);
-  assert.doesNotMatch(guide, /wiki-heading--article/);
 });
 
 test('术语表结构与详情链接存在', async () => {
@@ -351,9 +349,8 @@ test('术语来源展示真实链接，并保留未人工核校提示', async ()
   }
 });
 
-test('指南与作品详情包含更新时间和 GitHub 编辑入口', async () => {
+test('作品详情保留维护入口，指南按需展示参考来源', async () => {
   const contentRoutes = [
-    ...guideSlugs.map((slug) => 'guide/' + slug + '/index.html'),
     ...workSlugs.map((slug) => 'works/' + slug + '/index.html'),
   ];
   for (const route of contentRoutes) {
@@ -460,13 +457,7 @@ function assertContentStatus(html, fields, label) {
   }
 }
 
-test('指南与术语详情页如实展示内容状态，不伪造人工审校', async () => {
-  for (const file of guideFiles) {
-    const slug = file.replace(/\.md$/, '');
-    const raw = await readFile(path.join(sources.guide, file), 'utf8');
-    assertContentStatus(await read('guide/' + slug + '/index.html'), frontmatterFields(raw, file), 'guide/' + file);
-  }
-
+test('术语与作品详情页如实展示内容状态，不伪造人工审校', async () => {
   for (const slug of glossarySlugs) {
     const raw = await readFile(path.join(glossarySource, slug + '.md'), 'utf8');
     assertContentStatus(await read('glossary/' + slug + '/index.html'), frontmatterFields(raw, slug + '.md'), 'glossary/' + slug);

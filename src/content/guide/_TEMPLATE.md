@@ -12,7 +12,7 @@ updated: "2026-10-21" # 最后更新日期，YYYY-MM-DD
 tools: ["DeepSeek"] # 必须是工具目录里已有的名字；没有就写 []
 tags: ["示例"]
 sources: [] # 可选；有外部依据时补充 - title / url 两项
-# 内容状态字段（可选）。默认按「初稿 + AI 辅助起草 + 教学示例」展示；
+# 内容状态字段（可选）。默认按「初稿 + AI 辅助起草 + 教学示例」记录，阅读页不显示状态栏；
 # 审核负责人确认结论后同时填 reviewed / reviewedBy；可使用 AI 初审与辅助审核，规则见 docs/CONTENT-REVIEW.md。
 # reviewed: "2026-10-21"
 # reviewedBy: "审校人笔名"
