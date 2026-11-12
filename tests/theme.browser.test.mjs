@@ -1102,7 +1102,7 @@ test('首页探索菜单适配主题与减少动效，触摸和无 JS 均可直�
   const staticMenu = staticPage.getByRole('navigation', { name: '从这里开始' });
   assert.equal(await staticMenu.getByRole('link').count(), 3);
   assert.equal(await staticMenu.locator('.home-flow__reveal:visible').count(), 0);
-  assert.equal(await staticPage.locator('.explore-dot-field__fallback').isVisible(), true, '无 JS 时抽象点阵仍有静态回退');
+  assert.equal(await staticPage.locator('[data-library-line-art]').isVisible(), true, '无 JS 时图书馆线稿仍完整显示');
   // 无 JS 页面不等待样式 load 回调，直接插入同一条测试环境规则。
   await staticPage.evaluate(() => {
     const style = document.createElement('style');
@@ -1113,45 +1113,28 @@ test('首页探索菜单适配主题与减少动效，触摸和无 JS 均可直�
   await staticPage.waitForURL(origin + '/glossary/');
 });
 
-test('探索点阵实际绘制并跟随主题，减少动效保持静态，指针和离屏状态正确', async t => {
+test('首页图书馆线稿使用纯线条并跟随主题，无需脚本或动画', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
-  const host = page.locator('[data-explore-dots][data-dot-ready="true"]');
-  await host.waitFor();
+  const art = page.locator('[data-library-line-art]');
+  await art.waitFor();
   assert.equal(await page.locator('#explore-title').textContent(), '开始探索AI');
-  const canvas = host.locator('canvas');
-  const pixels = () => canvas.evaluate(el => {
-    const data = el.getContext('2d').getImageData(0, 0, el.width, el.height).data;
-    let red = 0, green = 0, blue = 0, count = 0, hash = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      if (data[i + 3] < 12) continue;
-      red += data[i]; green += data[i + 1]; blue += data[i + 2]; count++;
-      hash = (hash + (data[i] + data[i + 1] * 3 + data[i + 2] * 7) * ((i / 4) % 251 + 1)) % 1000000007;
-    }
-    return { red, green, blue, count, hash };
-  });
-  await select(page, 'light');
-  const light = await pixels();
-  assert.ok(light.count > 500, 'Canvas 必须实际绘制点阵');
-  assert.ok(light.blue > light.green, '默认主题的点阵应以品牌蓝为主');
-  await select(page, 'dark');
-  const dark = await pixels();
-  assert.notEqual(dark.hash, light.hash);
-  await select(page, 'preset-forest');
-  const forest = await pixels();
-  assert.ok(forest.green > forest.blue, '相同深色基底下切换主题强调色也必须重绘');
+  assert.ok(await art.locator('path').count() > 100, '线稿应包含建筑轮廓、楼层和幕墙分格');
+  assert.ok(await art.locator('[data-library-door] path').count() >= 6, '入口应包含门框、双开门与把手');
+  assert.equal(await art.locator('canvas').count(), 0);
+  assert.equal(await art.evaluate(el => getComputedStyle(el).fill), 'none');
+  assert.equal(await art.locator('path').evaluateAll(paths => paths.every(path => getComputedStyle(path).fill === 'none')), true);
 
-  await page.locator('[data-explore-stage]').scrollIntoViewIfNeeded();
-  const box = await host.boundingBox();
-  const before = await pixels();
-  await page.mouse.move(box.x + box.width * .7, box.y + box.height * .3);
-  await page.waitForTimeout(150);
-  assert.equal((await pixels()).hash, before.hash, '减少动效下指针不能移动点阵');
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  // 等浏览器派发偏好 change 并完成静态重置，再模拟下一次用户移动。
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  await page.mouse.move(box.x + box.width * .8, box.y + box.height * .25);
-  await page.waitForTimeout(450);
-  assert.notEqual((await pixels()).hash, before.hash, '普通模式下指针应改变观察角度');
-  await page.evaluate(() => scrollTo(0, 0));
-  await page.waitForFunction(() => document.querySelector('[data-explore-dots]').dataset.dotState === 'paused');
+  const stroke = () => art.locator('path').first().evaluate(el => getComputedStyle(el).stroke);
+  await select(page, 'light');
+  const light = await stroke();
+  await select(page, 'dark');
+  assert.equal(await art.evaluate(el => getComputedStyle(el).color), await stroke());
+  await select(page, 'preset-forest');
+  assert.notEqual(await stroke(), light, '切换主题强调色后 SVG 线条应更新颜色');
+  assert.equal(await art.evaluate(el => getComputedStyle(el).color), await stroke());
+  assert.equal(await art.evaluate(el => el.getAnimations().length), 0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await art.isVisible(), true);
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
 });

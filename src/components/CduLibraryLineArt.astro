@@ -1,0 +1,306 @@
+---
+// 依据官方资料与建成实景简化：近方形体量、顶部略外挑的“斗”形轮廓、正立面约五层高的内凹玻璃门厅、
+// 横向瓷板条带与像素斑块、屋顶回字中庭。纯路径、无填色，并非测绘模型。
+// 建筑特征参考：https://lib.cdu.edu.cn/gk/bgjs.htm
+type Point3 = readonly [number, number, number];
+
+const width = 11;
+const depth = 9.4;
+const height = 8.4;
+const baseHeight = 1;
+const upperFloors = 8;
+const insetAt = (z: number) => (height - z) * .045;
+const frontY = (z: number) => depth - insetAt(z);
+const project = ([x, y, z]: Point3) => [
+  492 + (x - y - (width - depth) / 2) * 40,
+  356 + (x + y) * 6.2 - z * 38,
+] as const;
+const coordinate = (point: Point3) => project(point).map(value => value.toFixed(1)).join(',');
+const line = (from: Point3, to: Point3) => `M${coordinate(from)}L${coordinate(to)}`;
+const polygon = (points: Point3[]) => `${points.map((point, index) => `${index ? 'L' : 'M'}${coordinate(point)}`).join('')}Z`;
+const level = (index: number) => baseHeight + (height - baseHeight) * index / upperFloors;
+
+// 实景主入口是正立面中央约五层高的内凹玻璃门厅，上部三层体量悬挑其上。
+const opening = { left: 3.2, right: 7.8, top: level(5) };
+const glassY = frontY(0) - .55;
+const frontRanges = (z: number): Array<readonly [number, number]> => {
+  const inset = insetAt(z);
+  return z < opening.top - .01
+    ? [[inset, opening.left], [opening.right, width - inset]]
+    : [[inset, width - inset]];
+};
+
+// 建筑轻靠在覆土台地上，只画露出的三边。
+const site = [
+  line([-.7, 10.1, -.14], [11.7, 10.1, -.14]),
+  line([11.7, 10.1, -.14], [11.7, -.7, -.14]),
+  line([-.7, 10.1, -.14], [-.7, -.7, -.14]),
+];
+
+const outline = [
+  line([0, frontY(0), 0], [0, frontY(height), height]),
+  line([width, frontY(0), 0], [width, frontY(height), height]),
+  line([width, insetAt(0), 0], [width, insetAt(height), height]),
+  line([0, frontY(height), height], [width, frontY(height), height]),
+  line([width, frontY(height), height], [width, insetAt(height), height]),
+  line([width, insetAt(height), height], [0, insetAt(height), height]),
+  line([0, insetAt(height), height], [0, frontY(height), height]),
+  line([0, frontY(0), 0], [opening.left, frontY(0), 0]),
+  line([opening.right, frontY(0), 0], [width, frontY(0), 0]),
+  line([width, frontY(0), 0], [width, insetAt(0), 0]),
+];
+
+// 楼层线；每层再补一道窗带线，形成实景那种横向条带。
+const floorLines: string[] = [];
+const bands: string[] = [];
+const panels: string[] = [];
+
+let seed = 20260601;
+const random = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+
+for (let floor = 0; floor <= upperFloors; floor++) {
+  const z = level(floor);
+  const inset = insetAt(z);
+  for (const [from, to] of frontRanges(z)) {
+    floorLines.push(line([from, frontY(z), z], [to, frontY(z), z]));
+  }
+  floorLines.push(line([width - inset, inset, z], [width - inset, depth - inset, z]));
+}
+
+for (let floor = 0; floor < upperFloors; floor++) {
+  const bottom = level(floor);
+  const top = level(floor + 1);
+  const z = bottom + (top - bottom) * .72;
+  for (const [from, to] of frontRanges(z)) {
+    bands.push(line([from, frontY(z), z], [to, frontY(z), z]));
+  }
+  bands.push(line([width - insetAt(z), insetAt(z), z], [width - insetAt(z), depth - insetAt(z), z]));
+
+  // 橘红瓷板与彩釉玻璃的像素斑块，选几处点到为止。
+  for (const [from, to] of frontRanges(bottom + (top - bottom) * .3)) {
+    for (let x = from + .5; x < to - 1.7; x += 2.5) {
+      if (random() < .35) continue;
+      const panelWidth = .75 + random() * .7;
+      const zLow = bottom + (top - bottom) * .12;
+      const panelHeight = (top - bottom) * (.3 + random() * .16);
+      panels.push(polygon([
+        [x, frontY(bottom), zLow],
+        [x + panelWidth, frontY(bottom), zLow],
+        [x + panelWidth, frontY(bottom), zLow + panelHeight],
+        [x, frontY(bottom), zLow + panelHeight],
+      ]));
+    }
+  }
+  const sideInset = insetAt(bottom);
+  for (let y = sideInset + .7; y < depth - sideInset - 1.7; y += 2.3) {
+    if (random() < .35) continue;
+    const panelWidth = .75 + random() * .7;
+    const zLow = bottom + (top - bottom) * .12;
+    const panelHeight = (top - bottom) * (.3 + random() * .16);
+    panels.push(polygon([
+      [width - sideInset, y, zLow],
+      [width - sideInset, y + panelWidth, zLow],
+      [width - sideInset, y + panelWidth, zLow + panelHeight],
+      [width - sideInset, y, zLow + panelHeight],
+    ]));
+  }
+}
+
+// 底层为通透玻璃基座。
+const baseGlass: string[] = [];
+for (let x = insetAt(0) + .5; x < width - insetAt(0) - .3; x += .82) {
+  if (x > opening.left - .1 && x < opening.right + .1) continue;
+  baseGlass.push(line([x, frontY(0), 0], [x, frontY(baseHeight), baseHeight]));
+}
+for (let y = insetAt(0) + .6; y < depth - insetAt(0) - .3; y += .95) {
+  baseGlass.push(line([width - insetAt(0), y, 0], [width - insetAt(0), y, baseHeight]));
+}
+baseGlass.push(
+  line([insetAt(0), frontY(baseHeight * .55), baseHeight * .55], [opening.left, frontY(baseHeight * .55), baseHeight * .55]),
+  line([opening.right, frontY(baseHeight * .55), baseHeight * .55], [width - insetAt(0), frontY(baseHeight * .55), baseHeight * .55]),
+  line([width - insetAt(0), insetAt(0), baseHeight * .55], [width - insetAt(0), depth - insetAt(0), baseHeight * .55]),
+);
+
+const portalMouth = polygon([
+  [opening.left, frontY(0), 0],
+  [opening.right, frontY(0), 0],
+  [opening.right, frontY(opening.top), opening.top],
+  [opening.left, frontY(opening.top), opening.top],
+]);
+
+// 洞口内侧：可见的左墙、入口地面和退进的玻璃幕墙，越出洞口的部分由裁剪隐藏。
+const recess = [
+  polygon([
+    [opening.left, frontY(0), 0],
+    [opening.left, frontY(opening.top), opening.top],
+    [opening.left, glassY, opening.top],
+    [opening.left, glassY, 0],
+  ]),
+  polygon([
+    [opening.left, frontY(0), 0],
+    [opening.right, frontY(0), 0],
+    [opening.right, glassY, 0],
+    [opening.left, glassY, 0],
+  ]),
+];
+const glassWall: string[] = [
+  polygon([
+    [opening.left + .1, glassY, 0],
+    [opening.right - .1, glassY, 0],
+    [opening.right - .1, glassY, opening.top - .1],
+    [opening.left + .1, glassY, opening.top - .1],
+  ]),
+];
+for (let column = 1; column < 5; column++) {
+  const x = opening.left + .1 + (opening.right - opening.left - .2) * column / 5;
+  glassWall.push(line([x, glassY, 0], [x, glassY, opening.top - .1]));
+}
+for (let floor = 1; floor <= 5; floor++) {
+  const z = level(floor);
+  if (z > opening.top - .18) continue;
+  glassWall.push(line([opening.left + .1, glassY, z], [opening.right - .1, glassY, z]));
+}
+
+// 门斗：玻璃幕墙前凸出，带薄雨棚与五扇玻璃门。
+const vestibule = { left: 4.2, right: 6.8, front: glassY + .3, height: 1.2 };
+const canopy = [
+  polygon([
+    [vestibule.left - .16, glassY, vestibule.height + .12],
+    [vestibule.right + .16, glassY, vestibule.height + .12],
+    [vestibule.right + .16, vestibule.front + .1, vestibule.height + .12],
+    [vestibule.left - .16, vestibule.front + .1, vestibule.height + .12],
+  ]),
+  line([vestibule.left - .16, vestibule.front + .1, vestibule.height + .12], [vestibule.left - .16, vestibule.front + .1, vestibule.height]),
+  line([vestibule.right + .16, vestibule.front + .1, vestibule.height + .12], [vestibule.right + .16, vestibule.front + .1, vestibule.height]),
+  polygon([
+    [vestibule.right, glassY, 0],
+    [vestibule.right, vestibule.front, 0],
+    [vestibule.right, vestibule.front, vestibule.height],
+    [vestibule.right, glassY, vestibule.height],
+  ]),
+  line([vestibule.left, vestibule.front, 0], [vestibule.left, vestibule.front, vestibule.height]),
+  line([vestibule.right, vestibule.front, 0], [vestibule.right, vestibule.front, vestibule.height]),
+  line([vestibule.left, vestibule.front, vestibule.height], [vestibule.right, vestibule.front, vestibule.height]),
+];
+
+const doorLeft = vestibule.left + .1;
+const doorRight = vestibule.right - .1;
+const doorTop = 1.02;
+const entryDoor = [
+  polygon([
+    [doorLeft, vestibule.front, 0],
+    [doorRight, vestibule.front, 0],
+    [doorRight, vestibule.front, doorTop],
+    [doorLeft, vestibule.front, doorTop],
+  ]),
+];
+for (let leaf = 1; leaf < 4; leaf++) {
+  const x = doorLeft + (doorRight - doorLeft) * leaf / 4;
+  entryDoor.push(line([x, vestibule.front + .01, 0], [x, vestibule.front + .01, doorTop]));
+}
+entryDoor.push(
+  line([doorLeft + .05, vestibule.front + .01, .46], [doorLeft + .05, vestibule.front + .01, .62]),
+  line([doorRight - .05, vestibule.front + .01, .46], [doorRight - .05, vestibule.front + .01, .62]),
+);
+
+const entrySteps = [
+  line([vestibule.left - .55, vestibule.front + .2, 0], [vestibule.right + .55, vestibule.front + .2, 0]),
+  line([vestibule.left - .75, vestibule.front + .46, -.06], [vestibule.right + .75, vestibule.front + .46, -.06]),
+  line([vestibule.left - .55, vestibule.front + .2, 0], [vestibule.left - .75, vestibule.front + .46, -.06]),
+  line([vestibule.right + .55, vestibule.front + .2, 0], [vestibule.right + .75, vestibule.front + .46, -.06]),
+];
+
+// 屋顶：深色压边，中部是回字中庭的开口。
+const roof: string[] = [];
+const yardX = [3.3, 7.7];
+const yardY = [2.7, 7];
+roof.push(
+  polygon([
+    [yardX[0], yardY[0], height],
+    [yardX[1], yardY[0], height],
+    [yardX[1], yardY[1], height],
+    [yardX[0], yardY[1], height],
+  ]),
+  polygon([
+    [yardX[0] + .34, yardY[0] + .34, height],
+    [yardX[1] - .34, yardY[0] + .34, height],
+    [yardX[1] - .34, yardY[1] - .34, height],
+    [yardX[0] + .34, yardY[1] - .34, height],
+  ]),
+  polygon([
+    [yardX[0] + .32, yardY[0] + .32, height - .3],
+    [yardX[1] - .32, yardY[0] + .32, height - .3],
+    [yardX[1] - .32, yardY[1] - .32, height - .3],
+    [yardX[0] + .32, yardY[1] - .32, height - .3],
+  ]),
+);
+for (const x of [yardX[0], yardX[1]]) {
+  for (const y of [yardY[0], yardY[1]]) {
+    roof.push(line([x, y, height], [x + (x === yardX[0] ? .32 : -.32), y + (y === yardY[0] ? .32 : -.32), height - .3]));
+  }
+}
+roof.push(
+  line([0, frontY(height), height - .18], [width, frontY(height), height - .18]),
+  line([width, frontY(height), height - .18], [width, insetAt(height), height - .18]),
+  line([0, frontY(height), height - .18], [0, frontY(height), height]),
+  line([width, insetAt(height), height - .18], [width, insetAt(height), height]),
+);
+---
+
+<svg
+  class="cdu-library-line-art"
+  data-library-line-art
+  viewBox="0 0 1000 560"
+  preserveAspectRatio="xMidYMid meet"
+  fill="none"
+  stroke="currentColor"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <clipPath id="cdu-library-portal-clip">
+      <path d={portalMouth} />
+    </clipPath>
+  </defs>
+  <g stroke-width="1" opacity=".2">
+    {site.map(path => <path d={path} />)}
+  </g>
+  <g stroke-width=".75" opacity=".2">
+    {panels.map(path => <path d={path} />)}
+  </g>
+  <g stroke-width=".85" opacity=".3">
+    {baseGlass.map(path => <path d={path} />)}
+  </g>
+  <g stroke-width="1.1" opacity=".62">
+    {floorLines.map(path => <path d={path} />)}
+  </g>
+  <g stroke-width=".9" opacity=".22">
+    {bands.map(path => <path d={path} />)}
+  </g>
+  <g clip-path="url(#cdu-library-portal-clip)">
+    <g stroke-width="1" opacity=".45">
+      {recess.map(path => <path d={path} />)}
+    </g>
+    <g stroke-width="1" opacity=".5">
+      {glassWall.map(path => <path d={path} />)}
+    </g>
+  </g>
+  <g stroke-width="1.5" opacity=".9">
+    {outline.map(path => <path d={path} />)}
+  </g>
+  <g stroke-width="1" opacity=".5">
+    {roof.map(path => <path d={path} />)}
+  </g>
+  <path d={portalMouth} stroke-width="1.7" opacity=".92" />
+  <g stroke-width="1" opacity=".5">
+    {canopy.map(path => <path d={path} />)}
+  </g>
+  <g data-library-door stroke-width="1.6" opacity=".95">
+    {entryDoor.map(path => <path d={path} />)}
+  </g>
+  <g stroke-width=".9" opacity=".42">
+    {entrySteps.map(path => <path d={path} />)}
+  </g>
+</svg>
