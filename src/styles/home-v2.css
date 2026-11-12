@@ -411,7 +411,7 @@
   background: linear-gradient(145deg, var(--surface), var(--brand-tint));
   color: var(--ink);
 }
-/* 左侧标题与点阵、右侧三个入口；窄屏改回上下堆叠。 */
+/* 左侧标题与成大图书馆线稿、右侧三个入口；窄屏改回上下堆叠。 */
 .home-explore__layout {
   position: relative;
   z-index: 1;
@@ -439,34 +439,16 @@
   min-width: 0;
   height: clamp(190px, 22vw, 280px);
 }
-.explore-dot-field {
-  position: absolute;
-  inset: 0;
-  height: 100%;
-  color: var(--brand);
-  pointer-events: none;
-  -webkit-mask-image: linear-gradient(transparent, #000 8%, #000 88%, transparent);
-  mask-image: linear-gradient(transparent, #000 8%, #000 88%, transparent);
-}
-.explore-dot-field__canvas,
-.explore-dot-field__fallback {
-  position: absolute;
-  inset: 0;
+.cdu-library-line-art {
   display: block;
   width: 100%;
   height: 100%;
+  overflow: visible;
+  color: var(--brand);
+  pointer-events: none;
 }
-.explore-dot-field__fallback {
-  fill: currentColor;
-}
-.explore-dot-field__canvas {
-  opacity: 0;
-}
-.explore-dot-field[data-dot-ready='true'] .explore-dot-field__canvas {
-  opacity: 1;
-}
-.explore-dot-field[data-dot-ready='true'] .explore-dot-field__fallback {
-  visibility: hidden;
+.cdu-library-line-art path {
+  vector-effect: non-scaling-stroke;
 }
 .home-explore__stage .home-flow {
   border-inline: 1px solid var(--line);

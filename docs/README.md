@@ -86,7 +86,7 @@ PR 按[贡献流程](../CONTRIBUTING.md#7-审稿与合并维护者检查清单)�
 | 作品封面组件 | [`WorkArt.astro`](../src/components/WorkArt.astro)，当前用于示例版式 |
 | 工具品牌图标 | [`public/tool-logos/`](../public/tool-logos/)，来源与处理方式见 [TOOL-LOGOS.md](TOOL-LOGOS.md) |
 | 主题图片、贴图与字体 | 来源、署名及各自许可见 [THEME-ASSETS.md](THEME-ASSETS.md) |
-| README 界面预览 | [`home.png`](screenshots/home.png) / [`home-scenarios.png`](screenshots/home-scenarios.png) / [`home-explore.png`](screenshots/home-explore.png) / [`tools.png`](screenshots/tools.png)，2026-10-27 本地生产构建截图 |
+| README 界面预览 | [`home.png`](screenshots/home.png) / [`home-scenarios.png`](screenshots/home-scenarios.png) / [`tools.png`](screenshots/tools.png) 为 2026-10-27 本地生产构建截图；[`home-explore.png`](screenshots/home-explore.png) 更新于 2026-11-12 |
 
 代码使用 [MIT License](../LICENSE)。角色插画由维护者提供，复用请先联系维护组；第三方工具品牌图标的出处与使用说明见 [TOOL-LOGOS.md](TOOL-LOGOS.md)。主题图片、像素贴图与字体按 [THEME-ASSETS.md](THEME-ASSETS.md) 中记录的来源、署名及各自许可使用，其中奶鲸为维护者确认的 AI 创作图，鲸鱼娘沿用上游标注的 CC BY-NC-SA 4.0。
 
