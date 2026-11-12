@@ -1124,15 +1124,40 @@ test('首页图书馆线稿使用纯线条并跟随主题，无需脚本或动�
   assert.equal(await art.evaluate(el => getComputedStyle(el).fill), 'none');
   assert.equal(await art.locator('path').evaluateAll(paths => paths.every(path => getComputedStyle(path).fill === 'none')), true);
 
-  const stroke = () => art.locator('path').first().evaluate(el => getComputedStyle(el).stroke);
+  const colors = () => art.evaluate(el => ({
+    host: getComputedStyle(el).color,
+    stroke: getComputedStyle(el.querySelector('path')).stroke,
+  }));
+  // 主题切换可能跨帧生效：先等线条颜色确实更新，再等容器 color 与 currentColor 一致。
+  const settled = async previous => {
+    if (previous) {
+      await page.waitForFunction(
+        prev => getComputedStyle(document.querySelector('[data-library-line-art] path')).stroke !== prev,
+        previous,
+      );
+    }
+    await page.waitForFunction(() => {
+      const el = document.querySelector('[data-library-line-art]');
+      return getComputedStyle(el).color === getComputedStyle(el.querySelector('path')).stroke;
+    });
+    return colors();
+  };
+
   await select(page, 'light');
-  const light = await stroke();
+  const light = (await settled()).host;
   await select(page, 'dark');
-  assert.equal(await art.evaluate(el => getComputedStyle(el).color), await stroke());
+  const dark = await settled();
+  assert.equal(dark.host, dark.stroke, '线条应通过 currentColor 跟随主题色');
   await select(page, 'preset-forest');
-  assert.notEqual(await stroke(), light, '切换主题强调色后 SVG 线条应更新颜色');
-  assert.equal(await art.evaluate(el => getComputedStyle(el).color), await stroke());
-  assert.equal(await art.evaluate(el => el.getAnimations().length), 0);
+  const forest = await settled(light);
+  assert.notEqual(forest.host, light, '切换主题强调色后 SVG 线条应更新颜色');
+  assert.equal(forest.host, forest.stroke, '切换主题后线条仍继承主题色');
+  // 主题切换会在 svg 上留下一段极短的 color 过渡，等它结束再确认线稿没有持续动画。
+  await art.evaluate(el => Promise.race([
+    Promise.all(el.getAnimations().map(animation => animation.finished.catch(() => {}))),
+    new Promise(resolve => setTimeout(resolve, 1000)),
+  ]));
+  assert.equal(await art.evaluate(el => el.getAnimations().length), 0, '线稿不应保留持续动画');
 
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await art.isVisible(), true);
