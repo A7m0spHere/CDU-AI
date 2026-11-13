@@ -12,7 +12,7 @@ const entries = [
 
 <nav class="home-explore__links home-flow" aria-label="从这里开始" data-flow-menu>
   {entries.map((entry) => (
-    <a class="home-flow__link" href={entry.href} data-flow-link>
+    <a class="home-flow__link" href={entry.href} data-flow-link data-library-entry={entry.art}>
       <span class="home-flow__base">
         <span class="home-flow__icon"><Icon name={entry.icon} size={24} /></span>
         <span class="home-flow__copy"><strong>{entry.title}</strong><small>{entry.description}</small></span>

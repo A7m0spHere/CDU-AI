@@ -221,7 +221,7 @@ src/styles/
 | `HeroNetwork` | 人物插画、六个入口与 SVG 连线；交互由 `hero-network.ts` / `target-reticle.ts` 增强 |
 | `HomeScenarios` / `ScenarioArt` / `ScenarioWorkspaceArt` | 三组非链接的应用场景叠卡及 HTML/CSS 概念示意；数据见 `home-scenarios.ts`，交互由 `scripts/home-scenarios.ts` 增强 |
 | `HomeExploreMenu` / `ExploreMenuArt` | 指南、工具、术语的三个原生链接及流动横幅示意图，交互由 `scripts/home-explore-menu.ts` 增强 |
-| `CduLibraryLineArt` | 成都大学主图书馆的纯线条斜二测 SVG，概括斗形轮廓、回字中庭、横向条带与五层高内凹门厅；不填色、不依赖脚本，线条跟随主题 |
+| `CduLibraryLineArt` | 成都大学主图书馆的纯线条 SVG，三维坐标见 `lib/library-model.ts`，`scripts/library-viewer.ts` 增强拖动环绕、俯角调整与键盘操作。横向拖动与方向键按屏幕方向旋转，右侧入口悬停或聚焦时转向门厅并打开对应玻璃门，三组门是导航交互示意。鼠标离开图形或菜单、焦点离开交互区时自动复位，拖出图形的手势在松手后复位。Home 键和双击也可恢复默认视角。线条跟随主题，减少动效时直接更新姿态，无 JS 时保留静态线稿和原生链接 |
 | `PageHeader` | 内容列表页的编号、状态 chips 与可选说明区 |
 | `EmptyContent` | 空集合的内容准备状态与参与入口 |
 | `GuideNav` | 六个目录分组、规划占位和当前文章导航 |

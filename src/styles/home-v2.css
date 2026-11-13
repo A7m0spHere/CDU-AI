@@ -450,6 +450,25 @@
 .cdu-library-line-art path {
   vector-effect: non-scaling-stroke;
 }
+.cdu-library {
+  height: 100%;
+}
+.cdu-library__viewer {
+  height: 100%;
+  border-radius: var(--radius-md);
+}
+.cdu-library[data-library-ready='true'] .cdu-library__viewer {
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+}
+.cdu-library[data-library-dragging='true'] .cdu-library__viewer {
+  cursor: grabbing;
+}
+.cdu-library__viewer:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
 .home-explore__stage .home-flow {
   border-inline: 1px solid var(--line);
   background: var(--surface);
@@ -505,6 +524,7 @@
   transition: transform var(--dur-base);
 }
 .home-flow__link:hover .home-flow__base,
+.home-flow__link[data-library-selected='true'] .home-flow__base,
 .home-flow__link:focus-visible .home-flow__base {
   background: var(--brand-tint);
 }
