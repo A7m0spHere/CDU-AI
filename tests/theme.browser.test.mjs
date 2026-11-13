@@ -1091,6 +1091,31 @@ test('首页探索菜单适配主题与减少动效，触摸和无 JS 均可直�
   const touchMenu = touchPage.getByRole('navigation', { name: '从这里开始' });
   assert.equal(await touchMenu.locator('.home-flow__reveal:visible').count(), 0);
   assert.ok(await touchPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  const touchLibrary = touchPage.locator('[data-library]');
+  const touchViewer = touchPage.locator('[data-library-viewer]');
+  await touchViewer.scrollIntoViewIfNeeded();
+  const cdp = await touchPage.context().newCDPSession(touchPage);
+  const swipe = async (dx, dy) => {
+    const box = await touchViewer.boundingBox();
+    const x = box.x + box.width * .35;
+    const y = box.y + box.height / 2;
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    for (let step = 1; step <= 8; step++) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * step / 8, y: y + dy * step / 8 }] });
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await touchPage.waitForSelector('[data-library][data-library-animating="false"]');
+  };
+  const initialYaw = Number(await touchLibrary.getAttribute('data-library-yaw'));
+  await swipe(96, 0);
+  assert.ok(Number(await touchLibrary.getAttribute('data-library-yaw')) < initialYaw - 30, '向右触摸拖动时门厅应向屏幕右侧旋转');
+  const initialPitch = await touchLibrary.getAttribute('data-library-pitch');
+  const initialScroll = await touchPage.evaluate(() => scrollY);
+  await swipe(0, -112);
+  await touchPage.waitForFunction(previous => scrollY > previous, initialScroll);
+  assert.equal(await touchLibrary.getAttribute('data-library-pitch'), initialPitch, '纵向页面滚动应保留模型俯角');
+  assert.equal(await touchLibrary.getAttribute('data-library-dragging'), 'false', '浏览器接管滚动后应结束手势');
+  await cdp.detach();
   await touchPage.addStyleTag({ content: '@view-transition { navigation: none; }' });
   await touchMenu.getByRole('link', { name: /^找个工具试试/ }).tap();
   await touchPage.waitForURL(origin + '/tools/');
@@ -1113,7 +1138,7 @@ test('首页探索菜单适配主题与减少动效，触摸和无 JS 均可直�
   await staticPage.waitForURL(origin + '/glossary/');
 });
 
-test('首页图书馆线稿使用纯线条并跟随主题，无需脚本或动画', async t => {
+test('首页图书馆按屏幕方向旋转，入口开门联动并在离开后自动复位', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   const art = page.locator('[data-library-line-art]');
   await art.waitFor();
@@ -1158,6 +1183,103 @@ test('首页图书馆线稿使用纯线条并跟随主题，无需脚本或动�
     new Promise(resolve => setTimeout(resolve, 1000)),
   ]));
   assert.equal(await art.evaluate(el => el.getAnimations().length), 0, '线稿不应保留持续动画');
+
+  const library = page.locator('[data-library]');
+  const viewer = page.locator('[data-library-viewer]');
+  const settledView = () => page.waitForSelector('[data-library][data-library-animating="false"]');
+  const assertReset = async () => {
+    await settledView();
+    const yaw = Number(await library.getAttribute('data-library-yaw'));
+    assert.ok(Math.abs(((yaw % 360) + 360) % 360 - 45) < .001);
+    assert.equal(Number(await library.getAttribute('data-library-pitch')), 9);
+    assert.equal(await library.getAttribute('data-library-selected'), '');
+    assert.equal(await page.locator('[data-library-entry][data-library-selected="true"]').count(), 0);
+    assert.equal(await art.locator('[data-library-door]').evaluateAll(doors => doors.every(door => door.getAttribute('stroke-width') === '1.4')), true);
+  };
+  assert.equal(await library.locator('button').count(), 0, '图形下方不再显示复位按钮');
+  assert.equal(await page.getByText('拖动旋转', { exact: true }).count(), 0);
+  await viewer.focus();
+  const initialOutline = await art.locator('[data-library-group="front-outline"] path').first().getAttribute('d');
+  await page.keyboard.press('ArrowRight');
+  await settledView();
+  assert.equal(Number(await library.getAttribute('data-library-yaw')), 35);
+  assert.notEqual(await art.locator('[data-library-group="front-outline"] path').first().getAttribute('d'), initialOutline, '旋转应重新投影建筑坐标');
+  await page.keyboard.press('ArrowUp');
+  await settledView();
+  assert.equal(Number(await library.getAttribute('data-library-pitch')), 6, '上方向键应与向上拖动保持相同方向');
+  await page.keyboard.press('ArrowDown');
+  await settledView();
+  assert.equal(Number(await library.getAttribute('data-library-pitch')), 9, '下方向键应与向下拖动保持相同方向');
+  await page.keyboard.press('Home');
+  await settledView();
+
+  const box = await viewer.boundingBox();
+  const centerX = box.x + box.width / 2;
+  await page.mouse.move(centerX, box.y + box.height * .8);
+  await page.mouse.down();
+  await page.mouse.move(centerX, box.y + box.height * .2, { steps: 8 });
+  await page.mouse.up();
+  await settledView();
+  assert.equal(Number(await library.getAttribute('data-library-pitch')), 5, '向上拖动应降低俯角并保持下限');
+  await page.mouse.down();
+  await page.mouse.move(centerX, box.y + box.height * .8, { steps: 8 });
+  await page.mouse.up();
+  await settledView();
+  assert.ok(Number(await library.getAttribute('data-library-pitch')) > 9, '向下拖动应提高俯角');
+  await page.keyboard.press('Home');
+  await settledView();
+
+  await page.mouse.move(box.x + box.width * .85, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * .1, box.y + box.height / 2 - 30, { steps: 8 });
+  await page.mouse.up();
+  await settledView();
+  assert.ok(Number(await library.getAttribute('data-library-yaw')) > 180, '向左拖动应能环绕查看后立面');
+  assert.equal(await library.getAttribute('data-library-dragging'), 'false');
+  assert.equal(await art.locator('[data-library-group="front-outline"]').getAttribute('visibility'), 'hidden');
+  assert.equal(await art.locator('[data-library-group="back-outline"]').getAttribute('visibility'), 'visible');
+  await page.mouse.move(box.x - 10, box.y + box.height / 2);
+  await assertReset();
+
+  await page.mouse.move(box.x + box.width * .5, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x - 30, box.y + box.height / 2, { steps: 8 });
+  assert.equal(await library.getAttribute('data-library-dragging'), 'true', '捕获指针期间仍能拖出图形');
+  await page.mouse.up();
+  await assertReset();
+  assert.equal(await library.getAttribute('data-library-dragging'), 'false');
+
+  for (const [index, key] of ['guide', 'tools', 'glossary'].entries()) {
+    await page.locator(`[data-library-entry="${key}"]`).focus();
+    await settledView();
+    assert.equal(await library.getAttribute('data-library-selected'), key);
+    const yaw = Number(await library.getAttribute('data-library-yaw'));
+    assert.ok(Math.abs(((yaw % 360) + 360) % 360 - [24, 0, 336][index]) < .001);
+    assert.equal(await art.locator(`[data-library-door="${key}"]`).getAttribute('stroke-width'), '2.5', '对应门应打开并加粗');
+    assert.equal(await page.locator('[data-library-entry][data-library-selected="true"]').count(), 1);
+  }
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.locator('[data-library-entry="guide"]').hover();
+  await page.locator('[data-library-entry="tools"]').hover();
+  await page.locator('[data-library-entry="glossary"]').hover();
+  await viewer.focus();
+  await page.keyboard.press('ArrowRight');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await settledView();
+  assert.equal(await library.getAttribute('data-library-selected'), 'glossary', '快速切换与减少动效变更后应保留最后选择');
+  assert.equal(await art.locator('[data-library-door="guide"]').getAttribute('stroke-width'), '1.4');
+  assert.equal(await art.locator('[data-library-door="glossary"]').getAttribute('stroke-width'), '2.5', '键盘接管视角后仍应完成选中门的开门');
+  await page.mouse.move(0, 0);
+  await assertReset();
+  await page.locator('[data-library-entry="guide"]').focus();
+  await settledView();
+  await page.locator('[data-theme-trigger]').focus();
+  await assertReset();
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.locator('[data-library-entry="guide"]').hover();
+  await page.mouse.move(0, 0);
+  await assertReset();
 
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await art.isVisible(), true);
