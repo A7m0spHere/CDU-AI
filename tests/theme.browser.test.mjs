@@ -1206,11 +1206,29 @@ test('首页图书馆按屏幕方向旋转，入口开门联动并在离开后�
   assert.notEqual(await art.locator('[data-library-group="front-outline"] path').first().getAttribute('d'), initialOutline, '旋转应重新投影建筑坐标');
   await page.keyboard.press('ArrowUp');
   await settledView();
-  assert.equal(Number(await library.getAttribute('data-library-pitch')), 12);
+  assert.equal(Number(await library.getAttribute('data-library-pitch')), 6, '上方向键应与向上拖动保持相同方向');
+  await page.keyboard.press('ArrowDown');
+  await settledView();
+  assert.equal(Number(await library.getAttribute('data-library-pitch')), 9, '下方向键应与向下拖动保持相同方向');
   await page.keyboard.press('Home');
   await settledView();
 
   const box = await viewer.boundingBox();
+  const centerX = box.x + box.width / 2;
+  await page.mouse.move(centerX, box.y + box.height * .8);
+  await page.mouse.down();
+  await page.mouse.move(centerX, box.y + box.height * .2, { steps: 8 });
+  await page.mouse.up();
+  await settledView();
+  assert.equal(Number(await library.getAttribute('data-library-pitch')), 5, '向上拖动应降低俯角并保持下限');
+  await page.mouse.down();
+  await page.mouse.move(centerX, box.y + box.height * .8, { steps: 8 });
+  await page.mouse.up();
+  await settledView();
+  assert.ok(Number(await library.getAttribute('data-library-pitch')) > 9, '向下拖动应提高俯角');
+  await page.keyboard.press('Home');
+  await settledView();
+
   await page.mouse.move(box.x + box.width * .85, box.y + box.height / 2);
   await page.mouse.down();
   await page.mouse.move(box.x + box.width * .1, box.y + box.height / 2 - 30, { steps: 8 });

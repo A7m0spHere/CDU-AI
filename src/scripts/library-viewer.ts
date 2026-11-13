@@ -130,7 +130,7 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-library]')) {
     // 同一手势在手机与桌面上转动相近角度，纵向触摸滚动由浏览器处理。
     const sensitivity = 240 / Math.max(viewer.clientWidth, 240);
     yaw = drag.yaw - dx * sensitivity;
-    pitch = drag.touch ? drag.pitch : Math.max(5, Math.min(25, drag.pitch - dy * sensitivity * .3));
+    pitch = drag.touch ? drag.pitch : Math.max(5, Math.min(25, drag.pitch + dy * sensitivity * .3));
     schedule();
   });
   const endDrag = (event: PointerEvent) => {
@@ -155,8 +155,8 @@ for (const root of document.querySelectorAll<HTMLElement>('[data-library]')) {
     switch (event.key) {
       case 'ArrowLeft': moveTo(yaw + yawStep, pitch); break;
       case 'ArrowRight': moveTo(yaw - yawStep, pitch); break;
-      case 'ArrowUp': moveTo(yaw, Math.min(25, pitch + 3)); break;
-      case 'ArrowDown': moveTo(yaw, Math.max(5, pitch - 3)); break;
+      case 'ArrowUp': moveTo(yaw, Math.max(5, pitch - 3)); break;
+      case 'ArrowDown': moveTo(yaw, Math.min(25, pitch + 3)); break;
       case 'Home': reset(); break;
       default: return;
     }
