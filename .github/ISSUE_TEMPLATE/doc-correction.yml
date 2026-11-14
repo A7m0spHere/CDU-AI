@@ -1,57 +1,67 @@
-name: 文档纠错
-description: 指出指南、术语、作品或页面里的错误、过期信息、错别字与失效链接。
-title: "[纠错] "
+name: 文档编辑
+description: 为指南、术语、作品或仓库文档提交纠错、更新、改写和补充建议。
+title: "[文档编辑] "
 labels: ["documentation"]
 body:
   - type: markdown
     attributes:
       value: |
-        > 只是改几个字或一句话时，直接在网页上改更快：打开对应页面，点底部的「在 GitHub 编辑本页」，修改后提交 PR 即可，不需要命令行。
-        >
-        > 这个表单用于**说不清怎么改、需要维护者核实**的问题。请不要粘贴学号、手机号、聊天记录等个人隐私。
+        一条 Issue 尽量只提一项改动。请在标题里写清改动，例如「更新 Agent 权限示例」。从指南页进入时，标题和页面路径会自动带入，你可以在标题后补上改动摘要。
+
+        写清位置和原因，就可以提交给维护者讨论。个人使用经历可用「经验投稿」，工具目录收录和维护可用「工具建议」。
   - type: input
     id: page
     attributes:
-      label: 出错的页面
-      description: 页面链接或路径，例如 /guide/01-ai-capability-map/ 或 /glossary/token/
-      placeholder: https://… 或 /guide/…
+      label: 涉及的页面或文档
+      description: 填写页面链接、站内路径或仓库文件路径。有多个相关页面时，先填主要页面，其余放在下方说明。
+      placeholder: /guide/ai-faq/ 或 docs/CONTENT-GUIDE.md
     validations:
       required: true
   - type: dropdown
     id: kind
     attributes:
-      label: 问题类型
+      label: 修改类型
       options:
-        - 事实或数据错误
-        - 信息过期
-        - 错别字或语句不通
-        - 链接失效或指向错误
-        - 缺少来源，或来源不支持正文
+        - 纠正事实、数据或错别字
+        - 更新过期信息或修复失效链接
+        - 改写表述、调整结构或补充文章间的衔接
+        - 新增或补充章节、示例或参考资料
         - 其他
     validations:
       required: true
   - type: textarea
+    id: location
+    attributes:
+      label: 修改位置或原文（可选）
+      description: 填写小节标题、段落链接或相关的一两句原文。建议新增内容时，可以写它适合放在哪个栏目或小节。
+      placeholder: 「让 Agent 直接操作电脑」一节的第二段
+  - type: textarea
     id: detail
     attributes:
-      label: 具体问题
-      description: 引用有问题的原文（可复制一小段），说明你看到的问题和你认为正确的说法。
-      placeholder: 原文：「……」
-                 问题：……
-                 更准确的说法：……
+      label: 修改说明
+      description: 说明哪里有错、已经过时或读起来不清楚。建议补充内容时，可以说说希望解答读者的哪个问题。
+      placeholder: 示例里用的旧版入口已经找不到，我按原步骤无法继续。
     validations:
       required: true
   - type: textarea
+    id: proposed
+    attributes:
+      label: 建议文字或提纲（可选）
+      description: 有具体改法时，可以贴出替换后的文字、正确链接、新章节提纲或建议的阅读顺序。
+  - type: textarea
     id: evidence
     attributes:
-      label: 依据（可选）
-      description: 能打开的官方文档、原始论文或权威说明。没有依据也可以提交，维护者会一起核实。
-      placeholder: 来源标题 + 链接；或说明你的实际使用环境与日期。
+      label: 参考依据与核对记录（可选）
+      description: 涉及事实、版本或操作步骤时，可附来源和相关小节。亲手试过时，可写日期、版本或环境及实际结果。还没确认的地方请注明「待核实」。
+      placeholder: |
+        来源：文档标题与链接，标明对应小节
+        核对记录（如有）：日期、版本或环境、实际看到的结果
   - type: checkboxes
     id: confirm
     attributes:
-      label: 提交前确认
+      label: 公开提交确认
       options:
-        - label: 我没有粘贴真实姓名、学号、手机号、聊天记录等个人隐私。
+        - label: 我已检查引用和附件，其中没有学号、联系方式、私聊记录、访问凭证或其他未公开信息。
           required: true
-        - label: 我理解这条 issue 会公开可见，并同意维护者引用其中的问题描述。
+        - label: 我知道这条 Issue 会公开显示，并同意维护者在处理建议时引用我提供的说明。
           required: true

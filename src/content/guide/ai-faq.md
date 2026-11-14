@@ -6,6 +6,7 @@ order: 2
 level: "零基础"
 outcome: "在使用 AI 时核对信息、检查成果，并结合任务判断工具和权限是否合适。"
 forWho: "已经开始或准备使用 AI，希望了解常见问题与使用边界的同学。"
+author: "A7m0spHere"
 updated: "2026-11-14"
 tools: []
 tags: ["入门", "AI 素养", "学习", "Agent"]

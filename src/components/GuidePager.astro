@@ -10,9 +10,10 @@ interface Props {
 const { currentId = '' } = Astro.props;
 const chapters = getGuideChapters(await getCollection('guide'));
 const index = chapters.findIndex((chapter) => chapter.id === currentId);
+const previous = index > 0 ? chapters[index - 1] : undefined;
 const links = [
-  { chapter: index > 0 ? chapters[index - 1] : undefined, direction: 'prev', label: '上一章' },
-  { chapter: index >= 0 ? chapters[index + 1] : undefined, direction: 'next', label: '下一章' },
+  { chapter: previous, direction: 'prev', label: previous?.id === '' ? '返回' : '上一章' },
+  { chapter: index >= 0 ? chapters[index + 1] : undefined, direction: 'next', label: currentId === '' ? '继续阅读' : '下一章' },
 ].filter((link) => link.chapter);
 ---
 

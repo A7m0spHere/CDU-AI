@@ -49,7 +49,7 @@
 
 不需要先会编程。可以从一处错误、一条来源或一次真实使用经验开始：
 
-- **纠正内容**：使用 [文档纠错表单](https://github.com/A7m0spHere/CDU-AI/issues/new?template=doc-correction.yml)，或在仓库中编辑对应的 Markdown 文件提交修改。
+- **编辑文档**：使用 [文档编辑表单](https://github.com/A7m0spHere/CDU-AI/issues/new?template=doc-correction.yml) 提交纠错、更新、改写或补充建议。
 - **分享实践**：使用 [经验投稿表单](https://github.com/A7m0spHere/CDU-AI/issues/new?template=experience-submission.yml)，写清实际需求、做法、结果与遇到的问题。
 - **推荐或更新工具**：使用 [工具建议表单](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml)，由维护者核对后入库。
 - **改代码、样式或测试**：阅读 [贡献指南](CONTRIBUTING.md)，按 PR 模板说明修改与验证结果。

@@ -1,0 +1,134 @@
+---
+import Icon from './Icon.astro';
+import { repository } from '../data/site';
+
+interface Props {
+  title: string;
+  headingId?: string;
+  pageHref: string;
+  planned?: boolean;
+  author?: string;
+  updated?: string;
+}
+
+const { title, headingId = 'guide-title', pageHref, planned = false, author, updated } = Astro.props;
+const templateParams = new URLSearchParams({
+  template: 'doc-correction.yml',
+  title: `[文档编辑] ${title}`,
+  page: pageHref,
+});
+const templateUrl = `${repository.url}/issues/new?${templateParams}`;
+---
+
+<header class="guide-heading">
+  <h1 id={headingId}>{title}</h1>
+  <div class="guide-heading__tools">
+    {(author || updated) && (
+      <div class="guide-heading__meta">
+        {author && <span>作者 <span class="guide-heading__author">{author}</span></span>}
+        {updated && <span>最后更新 <time datetime={updated}>{updated}</time></span>}
+      </div>
+    )}
+    <a class="guide-heading__suggest" href={templateUrl} target="_blank" rel="noopener noreferrer">
+      <Icon name="pen" size={15} />
+      {planned ? '补充本页' : '建议修改'}
+      <Icon name="arrow-up-right" size={13} />
+    </a>
+  </div>
+</header>
+
+<style>
+  .guide-heading {
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .guide-heading h1 {
+    flex: 1 1 15rem;
+    min-width: 0;
+    margin: 0;
+    color: var(--notion-ink);
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .guide-heading__tools {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    max-width: 100%;
+  }
+
+  .guide-heading__meta {
+    display: grid;
+    gap: 0.14rem;
+    min-width: 0;
+    max-width: 15rem;
+    color: var(--notion-muted);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    text-align: end;
+    overflow-wrap: anywhere;
+  }
+
+  .guide-heading__author,
+  .guide-heading__meta time {
+    color: var(--notion-ink-soft);
+  }
+
+  .guide-heading__meta time {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .guide-heading__suggest {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0.38rem 0.68rem;
+    border: 1px solid var(--notion-line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--notion-ink-soft);
+    font-size: 0.81rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .guide-heading__suggest:hover {
+    border-color: var(--notion-line-strong);
+    background: var(--surface-muted);
+    color: var(--notion-ink);
+  }
+
+  @container (max-width: 38rem) {
+    .guide-heading h1 {
+      flex-basis: 100%;
+    }
+
+    .guide-heading__tools {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .guide-heading__meta {
+      text-align: start;
+    }
+
+    .guide-heading__suggest {
+      margin-inline-start: auto;
+    }
+  }
+</style>

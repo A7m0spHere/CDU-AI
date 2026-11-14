@@ -42,13 +42,13 @@ const maintainSteps = [
 ];
 
 const processSteps = [
-  { number: '01', title: '找到要改的内容', text: '打开页面点底部的「在 GitHub 编辑本页」，或从 issue 表单提交问题与素材。' },
-  { number: '02', title: '在网页提交', text: 'GitHub 会自动 Fork，在网页里修改 Markdown 后提交 PR，不需要命令行。' },
-  { number: '03', title: '维护者审阅', text: 'CI 自动检查构建与链接，维护者核对事实、隐私与版权后合并。M0 仍不开放匿名投稿。' },
+  { number: '01', title: '找到要改的内容', text: '从指南标题旁点「建议修改」，或在下方打开「文档编辑」表单。' },
+  { number: '02', title: '提交修改建议', text: '填写页面路径、修改类型和理由。也可以附上原文位置、建议文字或参考依据。' },
+  { number: '03', title: '维护者审阅', text: '维护者会在 Issue 中核对和讨论建议。确认采纳的改动会在后续构建时更新到站点。' },
 ];
 
 const contributionLinks = [
-  { label: '文档纠错', href: `${repository.url}/issues/new?template=doc-correction.yml` },
+  { label: '文档编辑', href: `${repository.url}/issues/new?template=doc-correction.yml` },
   { label: '经验投稿', href: `${repository.url}/issues/new?template=experience-submission.yml` },
   { label: '工具建议', href: `${repository.url}/issues/new?template=tool-suggestion.yml` },
   { label: '贡献指南', href: `${repository.url}/blob/main/CONTRIBUTING.md` },

@@ -86,7 +86,7 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 | `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
 | `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
 
-三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），内容状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时为初稿，同时填写且未标记待更新才为已审核。术语与作品在页面展示状态，指南保留在 frontmatter 和 GitHub 记录中，阅读页不追加维护信息。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
+三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），内容状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时为初稿，同时填写且未标记待更新才为已审核。术语与作品在页面展示状态，指南保留在 frontmatter 和 GitHub 记录中。指南标题旁展示独立的 `author` 与 `updated` 字段。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
 内容重建始于 2026-10-20。当前已有指南首页、入门章节文章与分类术语词条，其余指南章节与作品逐步补充；术语各批次的审校范围和方式见[文档导航](README.md)，不由条目数量推断审核完成。
 

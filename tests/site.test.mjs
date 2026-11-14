@@ -794,7 +794,8 @@ test('指南章节双向导航包含首页与占位页，顺序与目录一致�
       ...(index < hrefs.length - 1 ? [{ rel: 'next', href: hrefs[index + 1] }] : []),
     ], href + ' 上下章链接与目录不一致');
     for (const link of links) {
-      assert.match(link.label, /^(上一章|下一章)：.+/, href + ' 导航缺少可访问名称');
+      const label = href === '/guide/' ? '继续阅读' : link.href === '/guide/' ? '返回' : link.rel === 'prev' ? '上一章' : '下一章';
+      assert.ok(link.label?.startsWith(label + '：'), href + ' 导航缺少可访问名称');
     }
   }
 

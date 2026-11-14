@@ -6,6 +6,7 @@ order: 3
 level: "零基础"
 outcome: "能说清 Chat AI 与 Agent 的区别、Agent 为什么能动手，以及什么任务适合交给它。"
 forWho: "刚开始接触 AI 工具，想弄懂 Agent、Harness 是什么，以及它们能做什么的同学。"
+author: "A7m0spHere"
 updated: "2026-11-14"
 tools: []
 tags: ["入门", "Agent", "Harness", "权限"]

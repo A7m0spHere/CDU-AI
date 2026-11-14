@@ -889,7 +889,7 @@ test('指南首页正文和底色跟随浅色、深色及自定义主题，刷�
     };
     return {
       body: color('.guide-home-prose'),
-      heading: color('.guide-home-prose h1'),
+      heading: color('.guide-home-paper h1'),
       strong: color('.guide-home-prose strong'),
       paper: getComputedStyle(document.querySelector('.guide-home-paper')).backgroundColor,
       expectedBody: resolve('--ink-soft'),

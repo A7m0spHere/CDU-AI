@@ -1,13 +1,19 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GuideHeading from '../../components/GuideHeading.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import GuidePager from '../../components/GuidePager.astro';
-import { Content as GuideHomeContent } from '../../content/guide/_HOME.md';
+import { Content as GuideHomeContent, frontmatter } from '../../content/guide/_HOME.md';
+import { guideHome } from '../../data/guide-nav';
+import { getGuideHomeUpdated } from '../../lib/guide-home-date.mjs';
 import '../../styles/notion.css';
+
+const updated = getGuideHomeUpdated();
+const author = typeof frontmatter.author === 'string' ? frontmatter.author.trim() : undefined;
 ---
 
-<BaseLayout title="欢迎来到 CDU AI" description="AI 学习指南。">
+<BaseLayout title={guideHome.title} description={guideHome.description}>
   <script is:inline>
     const guideIllustrationMode = new URLSearchParams(window.location.search).get('illustrations');
     document.documentElement.dataset.guideIllustrations =
@@ -20,8 +26,17 @@ import '../../styles/notion.css';
       <div class="guide-paper guide-paper--index guide-home-paper notion-page">
         <div class="wiki-main">
           <GuideMobileNav />
-          <article class="prose wiki-prose notion-prose guide-reading-prose guide-home-prose" aria-label="指南首页正文" data-guide-home-content>
-            <GuideHomeContent />
+          <article aria-labelledby="欢迎来到-cdu-ai">
+            <GuideHeading
+              title={guideHome.title}
+              headingId="欢迎来到-cdu-ai"
+              pageHref={guideHome.href}
+              author={author}
+              updated={updated}
+            />
+            <div class="prose wiki-prose notion-prose guide-reading-prose guide-home-prose" data-guide-home-content>
+              <GuideHomeContent />
+            </div>
           </article>
           <GuidePager />
         </div>

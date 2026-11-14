@@ -8,8 +8,9 @@
 
 | 我想…… | 从哪里开始 | 需要什么 |
 | --- | --- | --- |
-| 改几个字、修一句话 | 打开对应页面 → 底部的「在 GitHub 编辑本页」 | GitHub 账号 |
-| 指出错误，但不确定怎么改 | [文档纠错 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=doc-correction.yml) | GitHub 账号 |
+| 建议修改或补充指南 | 点击标题旁的「建议修改」或「补充本页」，打开预填页面路径的「文档编辑」Issue | GitHub 账号 |
+| 改术语或作品里的文字 | 对应页面底部的 GitHub 编辑链接 | GitHub 账号 |
+| 建议纠错、更新、改写或补充其他文档 | [文档编辑表单](https://github.com/A7m0spHere/CDU-AI/issues/new?template=doc-correction.yml) | GitHub 账号 |
 | 分享一次真实使用经验 | [经验投稿 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=experience-submission.yml) | GitHub 账号、真实经历 |
 | 推荐或更新工具 | [工具建议 issue](https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml) | GitHub 账号 |
 | 改代码、样式或测试 | 读第 6 节，按 PR 流程提交 | Node.js ≥ 22（可选） |
@@ -17,17 +18,15 @@
 
 所有贡献默认按仓库 [LICENSE](LICENSE)（MIT）发布。M0 不开放匿名投稿：贡献需要一个公开的 GitHub 账号。
 
-## 2. 最快的一次贡献：在网页上改几个字
+## 2. 提交指南修改
 
-不用命令行，也不用懂 Astro。以一篇指南为例：
+点击指南标题旁的「建议修改」或「补充本页」，即可打开已带入页面路径的「文档编辑」表单。可以描述问题、贴出建议文字或提供参考依据。维护者会在 Issue 里讨论并处理建议。
 
-1. 打开要修改的页面。术语和作品详情页底部保留「在 GitHub 编辑本页」；学习指南可从仓库的 [`src/content/guide/`](src/content/guide/) 找到同名章节文件，指南首页为 `_HOME.md`。
-2. 术语和作品点击编辑链接；指南打开对应 Markdown 文件后点击铅笔形的「Edit this file」。
-3. 没有登录时 GitHub 会提示登录或注册；GitHub 会自动 Fork 一份到你的账号下。
-4. 在网页编辑框里修改 Markdown。正文就是普通文字；frontmatter 字段的写法见第 5 节和 [docs/CONTENT-GUIDE.md](docs/CONTENT-GUIDE.md)。
-5. 在页面底部「Commit changes」里写清改了什么（例如「修正：术语表 token 定义中的错别字」），选择 **Create a new branch for this commit**，点 **Propose changes**。
-6. 点 **Create pull request**，按模板填写文档影响、验证方式、事实来源与隐私版权；文档 / 内容 / 文案类修改再填写 AI 辅助声明。
-7. 维护者审阅，CI 自动运行 `npm run verify`；通过并确认后合并，站点下次构建时更新。
+如果已经准备好具体改动，可以提交 Pull Request：
+
+1. Fork 仓库，在自己的分支上修改 [`src/content/guide/`](src/content/guide/) 下对应的 Markdown。欢迎页对应 `_HOME.md`，普通文章字段见[内容维护规范](docs/CONTENT-GUIDE.md)。术语和作品页也可从页底进入 GitHub，使用分支提交改动。
+2. 提交改动后，在 GitHub 原仓库选择 **Compare & pull request**。将合入目标设为原仓库的 `main`，比较分支设为包含改动的分支。跨 Fork 时使用 **compare across forks**。
+3. 按 PR 模板说明改了什么、如何验证，并提供事实来源、署名和 AI 辅助声明。维护者审阅并合并后，站点在下次构建时更新。
 
 小提示：
 
@@ -38,12 +37,12 @@
 
 ## 3. 什么时候用 issue 表单
 
-issue 表单用于「还说不清该怎么改」的情况：需要维护者核实事实，或内容是经验分享而不是小修小改。三个表单都尽量只问必要信息：
+Issue 表单用于向维护者反馈、建议具体修改或分享经验：
 
-- **文档纠错**：指出页面中的错误、过期信息、错别字或失效链接。填页面地址和原文；有来源更好，没有依据也会一起核实。
+- **文档编辑**：指出错误、更新信息、改写或补充内容。填写页面或文件路径、修改类型及原因。有具体改法时可附原文位置、建议文字和参考依据。每条 Issue 尽量只提一项改动。从指南标题旁进入时会自动带入页面路径。
 - **经验投稿**：分享你亲自用 AI 解决校园/学习问题的过程。优先真实经历，包括失败和返工；AI 虚构的案例、访谈和「同学评价」不接受。
 - **工具建议**：推荐收录或更新工具信息。只收官方入口，不收聚合站、网盘和邀请码；收录不等于推荐。
-- **其他问题**：也可以开空白 issue；能归入上面三类时优先用表单，维护者更容易处理。
+- **其他问题**：可以开空白 Issue。能归入以上类型时优先使用对应表单。
 
 提交前请确认：不要把真实姓名、学号、手机号、聊天记录、未公开数据粘贴到公开 issue 里。
 

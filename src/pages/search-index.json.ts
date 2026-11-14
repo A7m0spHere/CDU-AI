@@ -6,6 +6,7 @@ import type { CollectionEntry } from 'astro:content';
 import { tools, toolCategories, toolCapabilities } from '../data/tools';
 import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 import { glossaryCategoryName } from '../data/glossary';
+import { guideHome } from '../data/guide-nav';
 
 interface SearchItem {
   type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
@@ -64,10 +65,8 @@ export const GET: APIRoute = async () => {
     },
     {
       type: '页面',
-      title: 'AI 学习指南',
-      description: '先看清 AI 能做什么，再动手完成一件小事的学习路线。',
-      href: '/guide/',
-      keywords: '学习 指南 教程 入门 路线 AI',
+      ...guideHome,
+      keywords: '欢迎 站点介绍 学习指南 入门 AI',
     },
     {
       type: '页面',
@@ -176,7 +175,7 @@ export const GET: APIRoute = async () => {
     }
   }
 
-  appendBodySections(guideHomeBody, 'AI 学习指南', '/guide/', getGuideHomeHeadings());
+  appendBodySections(guideHomeBody, guideHome.title, guideHome.href, getGuideHomeHeadings());
   await appendSections(guides, '/guide');
   await appendSections(works, '/works');
 

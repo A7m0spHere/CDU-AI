@@ -39,14 +39,20 @@ export interface GuideNavGroup {
   items: GuideNavItem[];
 }
 
+export const guideHome = {
+  title: '欢迎来到 CDU AI',
+  href: '/guide/',
+  description: '成都大学计算机协会 AI 方向发起的学习网站，分享面向同学的 AI 知识和实践经验。',
+} as const;
+
 export const guideNavGroups: GuideNavGroup[] = [
   {
     id: 'start-here',
     index: '01',
     label: '先从这里开始',
-    description: '第一次打开这份指南时先看的三件事。',
+    description: '了解 CDU AI，找到自己感兴趣的起点。',
     items: [
-      { label: '指南首页', href: '/guide/' },
+      { label: guideHome.title, href: guideHome.href },
       { label: '这份指南适合谁', slug: 'who-is-this-for', hint: '写给谁、不写给谁' },
       { label: 'AI 使用常见问题', slug: 'ai-faq', hint: '回答核验、学习与 Agent 权限' },
     ],
@@ -134,7 +140,7 @@ export interface GuideChapter {
 export function getGuideChapters(modules: { id: string; data: { title: string } }[]): GuideChapter[] {
   const titles = new Map(modules.map((entry) => [entry.id.replace(/\.md$/, ''), entry.data.title]));
   return [
-    { id: '', title: '指南首页', href: '/guide/' },
+    { id: '', title: guideHome.title, href: guideHome.href },
     ...guideNavGroups.flatMap((group) => group.items.flatMap((item) => item.slug ? [{
       id: item.slug,
       title: titles.get(item.slug) ?? item.label,

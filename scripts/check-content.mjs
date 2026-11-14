@@ -57,6 +57,7 @@ const CONTENT_TYPES = {
       'level',
       'outcome',
       'forWho',
+      'author',
       'updated',
       'sources',
       'tools',
@@ -487,6 +488,9 @@ export async function validateCollection({ collection, dir, context }) {
     checkCommonFields(data, label(file), errors);
 
     if (collection === 'guide') {
+      if (data.author !== undefined && (typeof data.author !== 'string' || !data.author.trim() || data.author.trim().length > 80)) {
+        errors.push({ file: label(file), message: 'author 须为 1 至 80 字的公开署名' });
+      }
       if (data.stage !== undefined && !CONTENT_TYPES.guide.stages.includes(data.stage)) {
         errors.push({ file: label(file), message: `stage 只能是 start / make / share（当前：${data.stage}）` });
       }

@@ -123,6 +123,7 @@ const guide = defineCollection({
       level: z.string().default('零基础'),
       outcome: z.string(),
       forWho: z.string(),
+      author: z.string().trim().min(1).max(80).optional(),
       updated: isoDate,
       sources: z
         .array(

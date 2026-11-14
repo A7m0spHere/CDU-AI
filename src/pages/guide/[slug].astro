@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import GuideHeading from '../../components/GuideHeading.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import GuidePager from '../../components/GuidePager.astro';
@@ -39,27 +40,35 @@ const sources = entry?.data.sources ?? [];
       <div class:list={['guide-paper guide-paper--index notion-page', { 'guide-paper--placeholder': !entry }]}>
         <div class="wiki-main">
           <GuideMobileNav currentId={slug} />
-          <article class="prose wiki-prose notion-prose guide-reading-prose" aria-labelledby="guide-title">
-            <h1 id="guide-title">{chapter.title}</h1>
-            {entry && Content ? <Content /> : (
-              <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
-            )}
+          <article aria-labelledby="guide-title">
+            <GuideHeading
+              title={chapter.title}
+              pageHref={chapter.href}
+              planned={!entry}
+              author={entry?.data.author}
+              updated={entry?.data.updated}
+            />
+            <div class="prose wiki-prose notion-prose guide-reading-prose">
+              {entry && Content ? <Content /> : (
+                <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
+              )}
 
-            {sources.length > 0 && (
-              <div class="page-sources">
-                <p>参考来源</p>
-                <ul>
-                  {sources.map((source) => (
-                    <li>
-                      <a href={source.url} target="_blank" rel="noopener noreferrer">
-                        {source.title}
-                        <Icon name="arrow-up-right" size={13} />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {sources.length > 0 && (
+                <div class="page-sources">
+                  <p>参考来源</p>
+                  <ul>
+                    {sources.map((source) => (
+                      <li>
+                        <a href={source.url} target="_blank" rel="noopener noreferrer">
+                          {source.title}
+                          <Icon name="arrow-up-right" size={13} />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </article>
           <GuidePager currentId={slug} />
         </div>
