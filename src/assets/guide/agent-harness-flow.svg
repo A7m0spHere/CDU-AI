@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="960" viewBox="0 0 1700 960">
+<defs>
+  <marker id="arr" markerWidth="10" markerHeight="10" refX="8.3" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8.5,3.5 L0,7 Z" fill="#172B53"/></marker>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#172B53" flood-opacity="0.09"/></filter>
+</defs>
+<rect width="1700" height="960" fill="#ffffff"/>
+<text x="850" y="70" text-anchor="middle" fill="#11213F" font-family="Noto Sans CJK SC,sans-serif" font-size="47" font-weight="800">Agent 工具调用与反馈流程</text>
+<text x="850" y="112" text-anchor="middle" fill="#51607A" font-family="Noto Sans CJK SC,sans-serif" font-size="22">以整理课程资料为例：重点观察 Harness 如何连接模型与工具、控制执行过程</text>
+
+<rect x="40" y="150" width="330" height="739" rx="24" fill="#EDF6FF"/>
+<path d="M64 150 H346 Q370 150 370 174 V244 H40 V174 Q40 150 64 150Z" fill="#B9DCFF"/>
+<text x="205.0" y="196" text-anchor="middle" fill="#14223B" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">用户</text>
+<text x="205.0" y="226" text-anchor="middle" fill="#2364BA" font-family="Noto Sans CJK SC,sans-serif" font-size="17" font-weight="500">提出任务 · 验收结果</text>
+<rect x="420" y="150" width="365" height="739" rx="24" fill="#F5F0FF"/>
+<path d="M444 150 H761 Q785 150 785 174 V244 H420 V174 Q420 150 444 150Z" fill="#DBCBFF"/>
+<text x="602.5" y="196" text-anchor="middle" fill="#14223B" font-family="Noto Sans CJK SC,sans-serif" font-size="24" font-weight="800">Harness（运行与控制层）</text>
+<text x="602.5" y="226" text-anchor="middle" fill="#7048C4" font-family="Noto Sans CJK SC,sans-serif" font-size="15" font-weight="500">组织上下文 · 工具调用 · 执行控制 · 权限管理</text>
+<rect x="835" y="150" width="365" height="739" rx="24" fill="#EFFAF0"/>
+<path d="M859 150 H1176 Q1200 150 1200 174 V244 H835 V174 Q835 150 859 150Z" fill="#CBEFCF"/>
+<text x="1017.5" y="196" text-anchor="middle" fill="#14223B" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">LLM（大语言模型）</text>
+<text x="1017.5" y="226" text-anchor="middle" fill="#21864B" font-family="Noto Sans CJK SC,sans-serif" font-size="17" font-weight="500">理解任务 · 生成请求 · 判断反馈</text>
+<rect x="1250" y="150" width="410" height="739" rx="24" fill="#FFF4E8"/>
+<path d="M1274 150 H1636 Q1660 150 1660 174 V244 H1250 V174 Q1250 150 1274 150Z" fill="#FFD9AA"/>
+<text x="1455.0" y="196" text-anchor="middle" fill="#14223B" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">工具（外部能力）</text>
+<text x="1455.0" y="226" text-anchor="middle" fill="#B96621" font-family="Noto Sans CJK SC,sans-serif" font-size="17" font-weight="500">执行具体操作 · 返回真实结果</text>
+<rect x="58" y="277" width="293" height="101" rx="17" fill="#FFFFFF" stroke="#4285D6" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="92" cy="310" r="22" fill="#4285D6"/>
+<text x="92" y="319" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">1</text>
+<text x="127" y="314" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">提出任务</text>
+<text x="84" y="346" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">帮我整理课程资料</text>
+<rect x="441" y="277" width="323" height="101" rx="17" fill="#FFFFFF" stroke="#8463C9" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="475" cy="310" r="22" fill="#8463C9"/>
+<text x="475" y="319" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">2</text>
+<text x="510" y="314" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">准备上下文</text>
+<text x="467" y="346" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">整合用户要求、任务状态</text>
+<text x="467" y="368" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">与可用工具信息</text>
+<rect x="856" y="277" width="323" height="101" rx="17" fill="#FFFFFF" stroke="#4FA765" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="890" cy="310" r="22" fill="#4FA765"/>
+<text x="890" y="319" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">3</text>
+<text x="925" y="314" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">判断下一步</text>
+<text x="882" y="346" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">决定读取文件列表</text>
+<text x="882" y="368" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">生成工具调用请求</text>
+<rect x="441" y="442" width="323" height="101" rx="17" fill="#FFFFFF" stroke="#8463C9" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="475" cy="475" r="22" fill="#8463C9"/>
+<text x="475" y="484" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">4</text>
+<text x="510" y="479" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">检查并调用工具</text>
+<text x="467" y="511" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">核对权限与规则</text>
+<text x="467" y="533" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">必要时请求用户授权</text>
+<rect x="1271" y="442" width="366" height="101" rx="17" fill="#FFFFFF" stroke="#DA9046" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="1305" cy="475" r="22" fill="#DA9046"/>
+<text x="1305" y="484" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">5</text>
+<text x="1340" y="479" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">执行实际操作</text>
+<text x="1297" y="511" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">读取指定目录的文件列表</text>
+<text x="1297" y="533" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">并返回执行结果</text>
+<rect x="441" y="605" width="323" height="101" rx="17" fill="#FFFFFF" stroke="#8463C9" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="475" cy="638" r="22" fill="#8463C9"/>
+<text x="475" y="647" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">6</text>
+<text x="510" y="642" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">处理工具反馈</text>
+<text x="467" y="674" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">获取真实结果，更新上下文</text>
+<text x="467" y="696" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">再提交给模型</text>
+<rect x="856" y="605" width="323" height="101" rx="17" fill="#FFFFFF" stroke="#4FA765" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="890" cy="638" r="22" fill="#4FA765"/>
+<text x="890" y="647" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">7</text>
+<text x="925" y="642" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">根据结果决策</text>
+<text x="882" y="674" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">分析文件列表</text>
+<text x="882" y="696" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">继续执行或准备结束</text>
+<rect x="441" y="765" width="323" height="101" rx="17" fill="#FFFFFF" stroke="#8463C9" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="475" cy="798" r="22" fill="#8463C9"/>
+<text x="475" y="807" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">8</text>
+<text x="510" y="802" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">组织结果报告</text>
+<text x="467" y="834" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">整合操作记录与待确认事项</text>
+<text x="467" y="856" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">将结果提供给用户</text>
+<rect x="58" y="765" width="293" height="101" rx="17" fill="#FFFFFF" stroke="#4285D6" stroke-width="2.2" filter="url(#shadow)"/>
+<circle cx="92" cy="798" r="22" fill="#4285D6"/>
+<text x="92" y="807" text-anchor="middle" fill="white" font-family="Noto Sans CJK SC,sans-serif" font-size="26" font-weight="800">9</text>
+<text x="127" y="802" fill="#17243C" font-family="Noto Sans CJK SC,sans-serif" font-size="23" font-weight="800">用户核验</text>
+<text x="84" y="834" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">检查文件与分类结果</text>
+<text x="84" y="856" fill="#3B4B65" font-family="Noto Sans CJK SC,sans-serif" font-size="17">确认是否符合预期</text>
+<path d="M351 327 H441" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M764 327 H856" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M1017 378 V414 H602 V442" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M764 492 H1271" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M1454 543 V577 H602 V605" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M764 656 H856" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M1017 706 V737 H602 V765" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M441 815 H351" fill="none" stroke="#172B53" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arr)"/>
+<rect x="685" y="905" width="400" height="39" rx="19" fill="#F0E9FF" stroke="#C2ABE9"/>
+<text x="885" y="930" text-anchor="middle" font-family="Noto Sans CJK SC,sans-serif" font-size="18" font-weight="700" fill="#6344A8">若任务未完成，则继续下一轮交互</text>
+</svg>

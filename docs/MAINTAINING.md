@@ -64,6 +64,10 @@ npm run verify
 
 Astro 5 的内容层缓存位于 `node_modules/.astro`，根目录 `.astro/` 也包含生成信息。CI 每次 `npm ci` 会重建依赖目录；CI 通过与本地清缓存后的验证结果分别记录。
 
+新增或重命名内容文件后，如果 `astro check` 提示 `Duplicate id ...`，通常是旧缓存里还留着同 id 的条目；清理 `.astro` 后重跑即可。
+
+在 Windows 上修改样式文件时，`npm run dev` 偶尔报 `EBUSY: resource busy or locked ... tmpdir`，是文件监听遇到编辑器的临时写入目录；开发服务一般仍在运行，重启即可恢复，不影响构建与验证结果。
+
 内容检查器会显式拒绝 schema 之外的未知字段（例如已废弃的 `duration`），避免它们被 Zod 静默丢弃。
 
 ## 仓库管理设置

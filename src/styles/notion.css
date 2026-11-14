@@ -225,6 +225,7 @@
 }
 
 .notion-prose img {
+  height: auto;
   border: 1px solid var(--notion-line);
   border-radius: 4px;
 }

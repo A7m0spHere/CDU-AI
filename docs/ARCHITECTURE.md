@@ -92,6 +92,8 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不作为内容集合条目加载**；`src/content/guide/_HOME.md` 由指南首页直接导入并显示在 `/guide/`，不生成单独的文章路由，不自动追加介绍、目录总览或阶段列表。首页审核规则与记录方式见 [内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)，不增加页面审核信息栏。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
 
+正文配图保存在 `src/assets/guide/`，Markdown 用相对路径引用；构建时由 Astro 图片管线输出到 `_astro/`，SVG 原样复制，页面保留 `width` / `height` 属性用于预留比例，样式统一按原始比例缩放。
+
 指南的 `stage` 决定学习阶段，`order` 是指南集合内全局唯一的正整数，用于集合排序；`src/data/guide-nav.ts` 决定六个目录分组与章节阅读顺序。共享 `GuidePager.astro` 按目录连接首页和所有登记的章节，首尾只显示实际存在的方向，资源入口不参与章节翻页。已登记但尚无 Markdown 的章节生成可访问的占位路由，标注正文待补充，不计入正式文章与搜索索引；补上同名 Markdown 后自动显示正文。新增指南需要同时创建 Markdown 并登记 slug，不在新阶段重置 `order`。
 
 frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合法时 `astro build` 直接失败。
