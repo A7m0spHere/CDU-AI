@@ -45,7 +45,7 @@ const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
 const toolsSource = await readFile(path.join(root, 'src/data/tools.ts'), 'utf8');
 const parsedTools = parseToolsFromSource(toolsSource);
 const toolCategoryIds = parseToolCategoryIds(toolsSource);
-// 维护者确认且已按官网核对的 Zotero 本体介绍；其余零成本表述仍需拦截。
+// 维护者确认且已按官网核对的 Zotero 本体介绍；工具目录中的其余零成本表述仍需拦截。
 const verifiedFreeSoftwareStatement = '免费开源的文献管理工具，收集论文、整理 PDF 与笔记，并在写作时插入引用和生成参考文献。';
 function withoutVerifiedFreeStatement(text) {
   return text.replaceAll(verifiedFreeSoftwareStatement, '').replaceAll(verifiedFreeSoftwareStatement.toLowerCase(), '');
@@ -418,7 +418,6 @@ test('外链带新窗口与安全的 rel 属性，页面无占位废话', async 
     const html = await readFile(file, 'utf8');
     const display = path.relative(dist, file);
     assert.doesNotMatch(html, /Lorem ipsum/i, display + ' 出现 Lorem ipsum');
-    assert.doesNotMatch(withoutVerifiedFreeStatement(html), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, display + ' 不应包含未经核实的零成本使用表述');
     const externalLinks = html.match(/<a\b[^>]*href="https?:\/\/[^"]+"[^>]*>/g) || [];
     for (const link of externalLinks) {
       if (link.includes('target="_blank"')) {
@@ -810,6 +809,9 @@ test('工具目录数据自洽：字段合法、分类存在、Logo 文件齐全
   const { errors } = validateTools({ source: toolsSource, root });
   assert.deepEqual(errors, [], '工具数据校验未通过：' + JSON.stringify(errors));
 
+  const html = await read('tools/index.html');
+  assert.doesNotMatch(withoutVerifiedFreeStatement(html), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, '工具目录不应包含未经核实的零成本使用表述');
+
   assert.ok(toolCategoryIds.length >= 10, '工具分类应至少保留 10 个场景，实际：' + toolCategoryIds.length);
   assert.equal(new Set(parsedTools.map((tool) => tool.id)).size, parsedTools.length, '工具 id 必须唯一');
   assert.equal(new Set(parsedTools.map((tool) => tool.name)).size, parsedTools.length, '工具名称必须唯一');
@@ -974,8 +976,8 @@ test('GitHub 产品官网不会被误当成代码仓库', async () => {
 test('工具数据进入搜索索引：别名、技术类型与能力标签都可搜', async () => {
   if (parsedTools.length === 0) return;
   const data = JSON.parse(await read('search-index.json'));
-  assert.doesNotMatch(withoutVerifiedFreeStatement(JSON.stringify(data)), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, '搜索索引不应保留未经核实的零成本使用表述');
   const toolItems = data.filter((item) => item.type === '工具');
+  assert.doesNotMatch(withoutVerifiedFreeStatement(JSON.stringify(toolItems)), /免费|\bfree(?:mium|\s+(?:tier|credits?|usage|access|plan))\b/i, '工具搜索条目不应保留未经核实的零成本使用表述');
   assert.equal(toolItems.length, parsedTools.length, '搜索索引中的工具数量与目录不一致');
 
   for (const tool of parsedTools) {

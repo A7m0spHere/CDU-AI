@@ -48,7 +48,7 @@ export const guideNavGroups: GuideNavGroup[] = [
     items: [
       { label: '指南首页', href: '/guide/' },
       { label: '这份指南适合谁', slug: 'who-is-this-for', hint: '写给谁、不写给谁' },
-      { label: 'AI 使用常见问题', slug: 'ai-faq', hint: '隐私、出错、作业边界' },
+      { label: 'AI 使用常见问题', slug: 'ai-faq', hint: '回答核验、学习与 Agent 权限' },
     ],
   },
   {

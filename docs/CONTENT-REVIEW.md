@@ -187,3 +187,13 @@ reviewNote: "正文步骤已调整，等待重新审核"
 - 工具目录当前继续使用 TypeScript 数据，不以迁移 Markdown 作为接入前提。未来若统一展示审校状态，需先明确字段含义与迁移方案，避免与工具现有的 `basis: official | docs | community` 混用。
 - 内容与页面数量的回归检查已从内容目录推导；后续新增集合或字段时，同步维护 schema、内容检查器与测试。
 - M1 开放真实投稿时，再补充「作者授权、真实姓名可选、撤稿流程」等字段，不提前收集个人信息。
+
+## 10. 指南录入记录
+
+### 2026-11-14 AI 使用常见问题
+
+- 内容为 `/guide/ai-faq/`。维护者提供完整正文，Agent 按原文录入，补齐元信息、参考来源和提示词代码块格式，同步目录提示与内容维护说明。[源文件](../src/content/guide/ai-faq.md)
+- 正文与本记录随同一提交入库，具体版本可从文件提交历史查阅。[提交历史](https://github.com/A7m0spHere/CDU-AI/commits/main/src/content/guide/ai-faq.md)
+- 依据包括维护者提供的原文与两条社区原帖。已核对原帖与文中案例描述相符，案例保留发帖者自述的表述。[Reddit 原帖](https://www.reddit.com/r/ClaudeCode/comments/1ul904x/my_claude_code_agents_kept_saying_done_all_tests/)、[V2EX 原帖](https://global.v2ex.com/t/1233011)
+- AI 用于内容录入、格式与元信息整理、原帖核对和项目验证。验证时发现现有测试将指南中对免费工具的一般讨论判成工具价格承诺，已将该检查限定到工具目录及其搜索条目。
+- 类型、内容、文档、构建、47 项自动测试与站内链接检查均通过。整体内容审核与作者使用经历核查待负责人确认，审核负责人留空，条目按初稿记录。
