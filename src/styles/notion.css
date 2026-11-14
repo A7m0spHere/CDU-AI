@@ -198,6 +198,11 @@
   color: inherit;
 }
 
+.notion-prose pre[data-language='text'] {
+  background: var(--surface-muted) !important;
+  color: var(--notion-ink-soft) !important;
+}
+
 .notion-prose hr {
   margin: 2.1em 0;
   border-color: var(--notion-line);

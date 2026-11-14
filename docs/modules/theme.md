@@ -19,6 +19,7 @@
 | [`tokens.css`](../../src/styles/tokens.css)、[`theme-picker.css`](../../src/styles/theme-picker.css)、[`theme-editor.css`](../../src/styles/theme-editor.css) | 默认令牌、菜单及按需加载的编辑器样式 |
 | [`image-mode.css`](../../src/styles/image-mode.css)、[`techne.css`](../../src/styles/techne.css)、[`fonts.css`](../../src/styles/fonts.css) | 图片背景、特色场景和站内字体 |
 | [`theme-code-tokens.mjs`](../../src/lib/theme-code-tokens.mjs) | 连接 Markdown 高亮产物与代码文字、注释的主题变量 |
+| [`notion.css`](../../src/styles/notion.css) | 指南正文样式，包含纯文本代码块的表面与文字配色 |
 
 全站模块脚本由 [`global.ts`](../../src/scripts/global.ts) 引入主题运行时。不要把编辑器作为全站静态依赖导入。
 
@@ -34,6 +35,12 @@
 2. `theme.ts` 加载后归一化自定义主题的 `params`，重新推导变量，再应用当前主题。切换到内置主题时清除行内自定义变量，恢复 CSS 默认值和 Shiki 高亮。
 
 因此 `StoredTheme` 同时保存 `params` 与 `vars`：参数供运行时编辑，变量缓存供首屏使用。增加主题参数或修改变量名时，需要检查这两条路径，不能只验证编辑器里的即时预览。
+
+### 正文代码块配色
+
+指南中的提示词示例使用 `text` 围栏代码块，Markdown 渲染产物带有 `data-language="text"`。`notion.css` 通过 `.notion-prose pre[data-language='text']` 使用 `--surface-muted` 作为底色，使用映射到 `--ink-soft` 的 `--notion-ink-soft` 作为文字色。内置浅色主题呈浅灰底、深灰字，深色、预设与自定义主题跟随各自的表面和正文配色。
+
+语言高亮代码块通过 `theme-code-tokens.mjs` 连接文字与注释变量，背景由 `--code-bg` 控制。自定义主题的 `code` 参数提供代码背景、文字和注释配色，切回内置主题时恢复默认令牌与 Shiki 高亮。
 
 ### 按需加载与编辑会话
 
@@ -73,7 +80,7 @@
 | 增加一个预设 | `themes.ts`；检查 ID、分组、参数、首屏恢复；新增素材同步素材记录 |
 | 增加主题参数 | `ThemeParams` → 默认值/归一化/变量推导 → 编辑器模板与字段绑定 → 使用变量的样式；检查旧 JSON、存档与首屏缓存 |
 | 修改保存或导入 | 运行时持久化函数与 `ThemeEditorHost` → 编辑器错误路径；分别验证列表保存和当前 ID 恢复 |
-| 修改代码配色 | `theme-code-tokens.mjs` 与代码块样式；检查自定义覆盖和内置 Shiki 回退 |
+| 修改代码配色 | `theme-code-tokens.mjs`、`notion.css` 与通用代码块样式，检查纯文本块的表面与正文配色，以及语言高亮块的自定义覆盖和内置 Shiki 回退 |
 
 ## 验证与排障
 
@@ -89,3 +96,9 @@
 - 刷新后主题不同：分别核对两个存储键、首屏缓存与运行时参数，区分存储失败和推导差异。
 - 取消后颜色又变化：检查预览定时器、打开请求序号和文件读取的会话条件。
 - 字体或图片缺失：检查地址清洗、资源加载、字体回退与存储配额；不要只看菜单中的色板。
+
+### 2026-11-14 纯文本代码块检查
+
+`/guide/ai-faq/` 的提示词代码块已通过本地系统 Chrome 无头浏览器检查，覆盖内置浅色、深色、海洋、森林和自定义主题，以及浅色和自定义主题的 390 × 844 手机模拟视口。背景与文字均匹配对应语义令牌，对比度达到 4.5∶1 以上，页面无横向溢出或未处理的脚本异常。
+
+本次样式改动的 `npm run verify` 通过，包含 47 项自动测试和 95 个页面的站内链接检查。
