@@ -197,3 +197,12 @@ reviewNote: "正文步骤已调整，等待重新审核"
 - 依据包括维护者提供的原文与两条社区原帖。已核对原帖与文中案例描述相符，案例保留发帖者自述的表述。[Reddit 原帖](https://www.reddit.com/r/ClaudeCode/comments/1ul904x/my_claude_code_agents_kept_saying_done_all_tests/)、[V2EX 原帖](https://global.v2ex.com/t/1233011)
 - AI 用于内容录入、格式与元信息整理、原帖核对和项目验证。验证时发现现有测试将指南中对免费工具的一般讨论判成工具价格承诺，已将该检查限定到工具目录及其搜索条目。
 - 类型、内容、文档、构建、47 项自动测试与站内链接检查均通过。整体内容审核与作者使用经历核查待负责人确认，审核负责人留空，条目按初稿记录。
+
+### 2026-11-14 从 Chat AI 到 Agent
+
+- 内容为 `/guide/chat-ai-to-agent/`。维护者提供完整正文，Agent 按原文录入，补齐元信息、参考来源与提示词代码块格式，原占位章节转为正式文章。[源文件](../src/content/guide/chat-ai-to-agent.md)
+- 正文与本记录随同一提交入库，具体版本可从文件提交历史查阅。[提交历史](https://github.com/A7m0spHere/CDU-AI/commits/main/src/content/guide/chat-ai-to-agent.md)
+- 依据包括维护者提供的原文与文中引用的两条官方介绍页。已打开 Grok Bot 与 Muse 的官方页面，核对产品名称、个人智能体定位、自有计算机（Muse 为独立安全虚拟机）、WhatsApp 入口与重要操作前确认等描述相符。[Grok Bot 介绍](https://x.ai/news/introducing-grok-bot)、[Muse 介绍](https://ai.meta.com/muse/)
+- 正文保留维护者的「配图占位」注释，页面不显示；图片与转载许可确定前不插入配图。
+- AI 用于内容录入、格式与元信息整理、官方页面核对和项目验证。
+- 类型、内容、文档、构建、47 项自动测试与站内链接检查均通过。整体内容审核待负责人确认，审核负责人留空，条目按初稿记录。
