@@ -730,7 +730,7 @@ test('学习指南目录：六个分组、待补充章节可访问、站内链�
   const sidebarHtml = html.slice(sidebarStart, html.indexOf('</aside>', sidebarStart));
 
   // 六个分组按规划顺序出现
-  const groupLabels = ['先从这里开始', '开始学习', 'AI 能帮你做什么', '进一步使用 Agent', '跟着案例实践', '资源与交流'];
+  const groupLabels = ['先从这里开始', '认识并开始使用 Agent', 'AI 能帮你做什么', '进一步了解 Agent', '跟着案例实践', '资源与交流'];
   let cursor = -1;
   for (const label of groupLabels) {
     const at = sidebarHtml.indexOf(label);
@@ -778,8 +778,9 @@ test('学习指南目录：六个分组、待补充章节可访问、站内链�
   );
 });
 
-test('指南章节双向导航包含首页与占位页，顺序与目录一致且首尾不产生错误跳转', async () => {
+test('指南主路径跳过可选读，章节导航包含首页与占位页', async () => {
   const hrefs = ['/guide/', ...registeredGuideSlugs.map((slug) => `/guide/${slug}/`)];
+  const optional = new Set(['/guide/ai-faq/']);
   for (const [index, href] of hrefs.entries()) {
     const html = await read(href.slice(1) + 'index.html');
     const pager = html.match(/<nav\b[^>]*class="guide-pager"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
@@ -790,14 +791,17 @@ test('指南章节双向导航包含首页与占位页，顺序与目录一致�
       label: match[1].match(/aria-label="([^"]+)"/)?.[1],
     }));
     assert.deepEqual(links.map(({ rel, href }) => ({ rel, href })), [
-      ...(index > 0 ? [{ rel: 'prev', href: hrefs[index - 1] }] : []),
-      ...(index < hrefs.length - 1 ? [{ rel: 'next', href: hrefs[index + 1] }] : []),
+      ...([...hrefs.slice(0, index)].reverse().find((item) => !optional.has(item)) ? [{ rel: 'prev', href: [...hrefs.slice(0, index)].reverse().find((item) => !optional.has(item)) }] : []),
+      ...(hrefs.slice(index + 1).find((item) => !optional.has(item)) ? [{ rel: 'next', href: hrefs.slice(index + 1).find((item) => !optional.has(item)) }] : []),
     ], href + ' 上下章链接与目录不一致');
     for (const link of links) {
       const label = href === '/guide/' ? '继续阅读' : link.href === '/guide/' ? '返回' : link.rel === 'prev' ? '上一章' : '下一章';
       assert.ok(link.label?.startsWith(label + '：'), href + ' 导航缺少可访问名称');
     }
   }
+
+  assert.deepEqual(hrefs.slice(hrefs.indexOf('/guide/chat-ai-to-agent/'), hrefs.indexOf('/guide/chat-ai-to-agent/') + 2), ['/guide/chat-ai-to-agent/', '/guide/first-agent/']);
+  assert.ok(!hrefs.includes('/guide/agent-capabilities/') && !hrefs.includes('/guide/choose-first-agent/'));
 
   const search = JSON.parse(await read('search-index.json'));
   for (const slug of registeredGuideSlugs.filter((slug) => !guideSlugs.includes(slug))) {

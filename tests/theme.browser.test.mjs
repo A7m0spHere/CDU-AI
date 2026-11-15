@@ -112,6 +112,27 @@ async function rejectThemeWrites(page) {
   });
 }
 
+test('指南入门路径在桌面和手机目录中衔接首次实践', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    const nav = width === 390 ? page.locator('.guide-mobile-nav') : page.locator('.guide-sidebar');
+    if (width === 390) await nav.locator('summary').first().click();
+    const group = nav.locator('[data-group="getting-started"]');
+    const links = group.locator('a');
+    assert.deepEqual(await links.evaluateAll(els => els.map(el => el.getAttribute('href'))), [
+      '/guide/chat-ai-to-agent/', '/guide/first-agent/', '/guide/task-description/', '/guide/permissions-and-review/',
+    ]);
+    assert.equal(await group.locator('a[href="/guide/first-agent/"]').isVisible(), true);
+    assert.equal(await page.locator('.guide-pager [rel="next"]').getAttribute('href'), '/guide/first-agent/');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  }
+  await page.goto(origin + '/guide/first-agent/');
+  assert.equal(await page.locator('[data-guide-placeholder]').isVisible(), true);
+  assert.equal(await page.locator('.guide-pager [rel="prev"]').getAttribute('href'), '/guide/chat-ai-to-agent/');
+});
+
 test('全站搜索保护中文输入法，章节结果可用键盘打开并落到指南首页锚点', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   // 此例验证搜索和键盘导航；关闭无关的原生跨文档动效。
@@ -983,7 +1004,7 @@ test('正文目录只在符合指针和宽度条件的桌面端显示', async t 
   assert.equal(await touch.locator('.wiki-toc').isVisible(), false);
 
   await page.setViewportSize({ width: 1440, height: 1000 });
-  for (const route of ['/guide/', '/guide/agent-capabilities/', '/glossary/', '/works/']) {
+  for (const route of ['/guide/', '/guide/first-agent/', '/glossary/', '/works/']) {
     await page.goto(origin + route);
     assert.equal(await toc.count(), 0, route + ' 不应渲染空目录');
   }

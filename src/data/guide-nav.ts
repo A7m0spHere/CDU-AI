@@ -62,12 +62,11 @@ export const guideNavGroups: GuideNavGroup[] = [
   {
     id: 'getting-started',
     index: '02',
-    label: '开始学习',
-    description: '从聊天框走到 Agent：先建立判断，再交任务。',
+    label: '认识并开始使用 Agent',
+    description: '先了解 Agent，再选择工具并完成第一次实践。',
     items: [
       { label: '从 Chat AI 到 Agent', slug: 'chat-ai-to-agent' },
-      { label: 'Agent 能做什么', slug: 'agent-capabilities' },
-      { label: '选择第一个 Agent', slug: 'choose-first-agent' },
+      { label: '第一次使用 Agent', slug: 'first-agent' },
       { label: '任务描述', slug: 'task-description' },
       { label: '权限与结果检查', slug: 'permissions-and-review' },
     ],
@@ -89,8 +88,8 @@ export const guideNavGroups: GuideNavGroup[] = [
   {
     id: 'agent-advanced',
     index: '04',
-    label: '进一步使用 Agent',
-    description: '想自己搭流程时再往下读，不要求新手先掌握。',
+    label: '进一步了解 Agent',
+    description: '在入门认知和实践的基础上，深入运行机制与扩展能力。',
     items: [
       { label: '执行原理', slug: 'agent-how-it-works' },
       { label: '工作流', slug: 'workflow' },
@@ -103,7 +102,7 @@ export const guideNavGroups: GuideNavGroup[] = [
     id: 'cases',
     index: '05',
     label: '跟着案例实践',
-    description: '完整走一遍：需求、做法、提示词、局限与复盘。',
+    description: '完成多步骤的综合任务，经历协作、测试、迭代与复盘。',
     items: [
       { label: 'CDU 图书馆荐书 Skill', slug: 'case-library-book-skill' },
       { label: '学习资料整理', slug: 'case-study-materials' },
@@ -136,6 +135,7 @@ export interface GuideChapter {
   id: string;
   title: string;
   href: string;
+  optional?: boolean;
 }
 
 /** 首页与登记章节共用一条阅读路径；资源区的独立页面不参与章节翻页。 */
@@ -147,6 +147,7 @@ export function getGuideChapters(modules: { id: string; data: { title: string } 
       id: item.slug,
       title: titles.get(item.slug) ?? item.label,
       href: `/guide/${item.slug}/`,
+      optional: item.optional,
     }] : [])),
   ];
 }
