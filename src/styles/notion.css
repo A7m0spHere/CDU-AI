@@ -250,22 +250,6 @@
   max-width: 720px;
 }
 
-.notion-page .wiki-toc {
-  border-left-color: var(--notion-line);
-}
-
-.notion-page .wiki-toc__label {
-  color: var(--notion-ink);
-}
-
-.notion-page .wiki-toc a {
-  color: var(--notion-muted);
-}
-
-.notion-page .wiki-toc a:hover {
-  color: var(--notion-ink);
-}
-
 @media (max-width: 760px) {
   .notion-page-head h1 {
     font-size: 1.95rem;
@@ -311,9 +295,9 @@
 
 .guide-paper {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 11rem;
+  grid-template-columns: minmax(0, 1fr);
+  --article-toc-gap: clamp(1.3rem, 2.2vw, 2rem);
   align-items: start;
-  gap: clamp(1.3rem, 2.2vw, 2rem);
   min-height: 65vh;
   padding: clamp(1.4rem, 2.8vw, 2.5rem);
   border: 1px solid var(--notion-line);
@@ -322,17 +306,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-.guide-paper--index {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .guide-paper .wiki-main {
   min-width: 0;
-}
-
-.guide-paper .wiki-toc {
-  top: calc(var(--header-h) + 2rem);
-  border-left-color: var(--notion-line);
 }
 
 .notion-page-head__title-row {
@@ -363,12 +338,6 @@
 
 .notion-page-head__icon + .notion-page-head__title-copy h1 {
   margin-top: 0.1rem;
-}
-
-@media (max-width: 1100px) {
-  .guide-paper {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 900px) {

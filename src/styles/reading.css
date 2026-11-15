@@ -671,17 +671,15 @@
 }
 
 .wiki-toc {
-  position: sticky;
-  top: calc(var(--header-h) + 1.5rem);
-  padding-left: 1rem;
-  border-left: 1px solid var(--line);
+  display: none;
+  padding-inline: 0.8rem 0.25rem;
+  border-inline-start: 1px solid var(--line);
 }
 
 .wiki-toc__label {
   margin-bottom: 0.6rem;
   color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 650;
 }
 
@@ -693,46 +691,57 @@
 
 .wiki-toc a {
   display: block;
-  padding: 0.28rem 0;
+  padding: 0.3rem 0.25rem;
+  border-radius: var(--radius-xs);
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.82rem;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
-.wiki-toc a:hover {
+.wiki-toc a:is(:hover, :focus-visible) {
+  background: var(--surface-muted);
   color: var(--brand);
 }
 
+.wiki-toc a:focus-visible {
+  outline-offset: -2px;
+}
+
 .wiki-toc__depth-3 a {
-  padding-left: 0.7rem;
-  color: var(--faint);
-  font-size: 0.7rem;
+  margin-inline-start: 0.7rem;
 }
 
-.wiki-toc__meta {
-  margin-top: 1rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid var(--line);
-}
+@media screen and (width > 1100px) and (hover: hover) and (pointer: fine) {
+  .article-toc-layout:has(> .wiki-toc) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 11rem;
+    align-items: start;
+    column-gap: var(--article-toc-gap, 2rem);
+  }
 
-.wiki-toc__meta p:first-child {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-}
+  .term-container:has(> .wiki-toc) {
+    max-width: calc(940px + 13rem);
+  }
 
-.wiki-toc__meta p:first-child span {
-  color: var(--faint);
-}
+  .wiki-toc,
+  .article-toc-aside:has(> .wiki-toc) {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    max-height: calc(100dvh - var(--header-h) - 3rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
 
-.wiki-toc__meta p:last-child {
-  margin-top: 0.45rem;
-  color: var(--faint);
-  font-size: 0.68rem;
-  line-height: 1.6;
+  .wiki-toc {
+    display: block;
+  }
+
+  .article-toc-aside > .wiki-toc {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 /* Bottom blocks */
@@ -854,10 +863,6 @@
 @media (max-width: 1100px) {
   .wiki-layout--article {
     grid-template-columns: 15rem minmax(0, 1fr);
-  }
-
-  .wiki-toc {
-    display: none;
   }
 }
 

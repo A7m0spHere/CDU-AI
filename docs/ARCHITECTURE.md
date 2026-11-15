@@ -10,7 +10,7 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 - 品牌与信息架构、全站导航、响应式布局、深浅色主题
 - 首页、学习指南（列表 + 详情）、术语表、工具目录、作品广场（列表 + 详情）、社区（暂不开放）、活动、关于/共建、404
-- 章节级站内搜索、内容更新时间 / 参考来源 / GitHub 编辑入口
+- 章节级站内搜索、内容更新时间、参考来源与 GitHub 共建入口
 - 学习指南正文采用 Notion 风格排版，保留目录、阅读路径与页内锚点
 - 内容与代码分离：Markdown 内容集合 + TypeScript 数据模块
 - 基础工程保障：类型检查、构建、内容边界测试、内部链接检查、可访问性与无 JS 降级
@@ -43,8 +43,8 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 ```text
 /
-├── guide/                  学习指南
-│   └── [slug]/             单个学习模块（Markdown + 更新时间 / 来源 / 编辑入口）
+├── guide/                  欢迎页与学习指南入口
+│   └── [slug]/             指南文章与待补充章节，标题旁提供文档编辑 Issue 入口
 ├── glossary/               术语表（分类筛选，条目由内容集合生成）
 │   └── [id]/               单个术语的白话详解（类比 / 运作 / 场景 / 误解）
 ├── tools/                  工具资源（侧栏筛选 + 目录搜索）
@@ -82,19 +82,21 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 | 集合 | 路径 | 用途 | 关键字段 |
 | --- | --- | --- | --- |
-| `guide` | `src/content/guide/*.md` | 学习模块 | title, summary, stage, order, outcome, forWho, updated, sources, tools, tags, reviewed, reviewedBy, needsUpdate, basis, aiUsage, testedOn, testedEnvironment, contributors |
+| `guide` | `src/content/guide/*.md` | 学习模块 | title, summary, stage, order, outcome, forWho, author, updated, sources, tools, tags, reviewed, reviewedBy, needsUpdate, basis, aiUsage, testedOn, testedEnvironment, contributors |
 | `works` | `src/content/works/*.md` | 作品示例/未来投稿 | title, summary, category, format, tools, prompt, effort, status, updated, 以及通用审校字段 |
 | `glossary` | `src/content/glossary/*.md` | 术语词条 | term, en, category, definition, example, order, related, sources, updated, 以及通用审校字段 |
 
 三个集合共用一组内容状态字段（`reviewed` / `reviewedBy` / `needsUpdate` / `basis` / `aiUsage` / `testedOn` / `testedEnvironment` / `contributors`），内容状态由字段推导：缺少 `reviewed` 或 `reviewedBy` 时为初稿，同时填写且未标记待更新才为已审核。术语与作品在页面展示状态，指南保留在 frontmatter 和 GitHub 记录中。指南标题旁展示独立的 `author` 与 `updated` 字段。审核可使用 AI 初审与辅助审核，由审核负责人确认结论；过程记录保存在 GitHub。字段与流程规范见 [`CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 
-内容重建始于 2026-10-20。当前已有指南首页、入门章节文章与分类术语词条，其余指南章节与作品逐步补充；术语各批次的审校范围和方式见[文档导航](README.md)，不由条目数量推断审核完成。
+内容重建始于 2026-10-20。现有正文与栏目状态见[项目 README](../README.md#当前可以看什么)，术语各批次的审校范围和方式见[文档导航](README.md)。
 
-各目录保留写作模板。glob 模式为 `**/[!_]*.md`，**以 `_` 开头的文件不作为内容集合条目加载**；`src/content/guide/_HOME.md` 由指南首页直接导入并显示在 `/guide/`，不生成单独的文章路由，不自动追加介绍、目录总览或阶段列表。首页审核规则与记录方式见 [内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)，不增加页面审核信息栏。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
+各目录保留写作模板。glob 模式为 `**/[!_]*.md`，以 `_` 开头的文件不作为内容集合条目加载。`_HOME.md` 由 `/guide/` 直接导入为欢迎页，欢迎页的署名、日期与审核记录见[内容维护规范](CONTENT-GUIDE.md)和[内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)。作品与术语集合为空时仍显示占位，测试与检查器支持空集合。
 
 正文配图保存在 `src/assets/guide/`，Markdown 用相对路径引用；构建时由 Astro 图片管线输出到 `_astro/`，SVG 原样复制，页面保留 `width` / `height` 属性用于预留比例，样式统一按原始比例缩放。
 
 指南的 `stage` 决定学习阶段，`order` 是指南集合内全局唯一的正整数，用于集合排序；`src/data/guide-nav.ts` 决定六个目录分组与章节阅读顺序。共享 `GuidePager.astro` 按目录连接首页和所有登记的章节，首尾只显示实际存在的方向，资源入口不参与章节翻页。已登记但尚无 Markdown 的章节生成可访问的占位路由，标注正文待补充，不计入正式文章与搜索索引；补上同名 Markdown 后自动显示正文。新增指南需要同时创建 Markdown 并登记 slug，不在新阶段重置 `order`。
+
+正文详情通过 Astro 的 `render(entry)` 获取小节标题和锚点，交给共享的 [`ArticleToc.astro`](../src/components/ArticleToc.astro) 生成「本页目录」。布局和显示条件由 `reading.css` 管理，见[设计系统](DESIGN-SYSTEM.md#3-信息密度与布局)。目录与站内搜索共用 Astro 生成的锚点，各自选择要收录的标题。
 
 frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合法时 `astro build` 直接失败。
 
@@ -154,7 +156,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 - 静态框架、内容模型、设计系统、6 个一级内容区
 - 章节级全局搜索、AI 术语表、学习指南 Notion 风格正文、工具侧栏筛选、作品类别筛选、深浅色主题
-- 指南首页与章节共用简约阅读排版；有外部依据时展示参考来源，作品详情保留更新时间与 GitHub 编辑入口
+- 欢迎页与指南章节共用简约阅读排版，正式指南、术语和作品详情支持桌面端页内目录。有外部依据时展示参考来源。
 - 只做示例与规划展示，不虚构真实数据
 - 构建、类型、内容测试、锚点与链接检查纳入统一验证；视觉和可访问性检查单独执行与记录
 

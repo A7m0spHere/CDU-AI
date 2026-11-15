@@ -28,6 +28,8 @@ export interface GuideNavItem {
   href?: string;
   /** 可选备注，仅在规划条目上展示 */
   hint?: string;
+  /** 已发布但可以跳读的文章 */
+  optional?: boolean;
 }
 
 export interface GuideNavGroup {
@@ -54,7 +56,7 @@ export const guideNavGroups: GuideNavGroup[] = [
     items: [
       { label: guideHome.title, href: guideHome.href },
       { label: '这份指南适合谁', slug: 'who-is-this-for', hint: '写给谁、不写给谁' },
-      { label: 'AI 使用常见问题', slug: 'ai-faq', hint: '回答核验、学习与 Agent 权限' },
+      { label: 'AI 使用常见问题', slug: 'ai-faq', hint: '回答核验、学习与 Agent 权限', optional: true },
     ],
   },
   {

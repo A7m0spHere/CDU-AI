@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import ArticleToc from '../../components/ArticleToc.astro';
 import GuideHeading from '../../components/GuideHeading.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
@@ -37,7 +38,7 @@ const sources = entry?.data.sources ?? [];
     <div class="container guide-doc-layout">
       <GuideSidebar currentId={slug} />
 
-      <div class:list={['guide-paper guide-paper--index notion-page', { 'guide-paper--placeholder': !entry }]}>
+      <div class:list={['guide-paper article-toc-layout notion-page', { 'guide-paper--placeholder': !entry }]}>
         <div class="wiki-main">
           <GuideMobileNav currentId={slug} />
           <article aria-labelledby="guide-title">
@@ -72,6 +73,7 @@ const sources = entry?.data.sources ?? [];
           </article>
           <GuidePager currentId={slug} />
         </div>
+        <ArticleToc headings={rendered?.headings ?? []} />
       </div>
     </div>
   </div>

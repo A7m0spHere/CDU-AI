@@ -1,0 +1,20 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const headings = Astro.props.headings.filter(({ depth }) => depth === 2 || depth === 3);
+---
+
+{headings.length > 0 && (
+  <nav class="wiki-toc" aria-label="本页目录">
+    <p class="wiki-toc__label" aria-hidden="true">本页目录</p>
+    <ol>
+      {headings.map(({ depth, slug, text }) => (
+        <li class:list={{ 'wiki-toc__depth-3': depth === 3 }}>
+          <a href={`#${encodeURIComponent(slug)}`}>{text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}

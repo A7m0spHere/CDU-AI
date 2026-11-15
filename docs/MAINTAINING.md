@@ -23,9 +23,9 @@ npm run verify
 
 `verify` 不包含浏览器回归，也不访问外部链接。记录结果时写清实际执行的命令、版本与范围，不把类型、链接或 CI 通过当作文档语义一致、真实设备体验或内容事实审核的证明。
 
-### 主题浏览器回归
+### 浏览器回归
 
-主题、搜索和工具目录共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
+主题、搜索、工具目录和正文阅读共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
 
 ```bash
 npx playwright install chromium
@@ -33,6 +33,8 @@ npm run test:browser
 ```
 
 浏览器测试使用刚构建的 `dist/`，在本机回环地址临时提供页面，完成后关闭服务与浏览器。CI 在常规验证后执行相同回归；Linux 安装浏览器依赖使用 `npx playwright install --with-deps chromium`。检查入口与关键行为分别见[主题模块](modules/theme.md#验证与排障)、[工具目录模块](modules/tool-catalog.md#验证与排障)、[搜索模块](modules/search.md#验证与排障)，共享测试文件还包含首页和指南等回归。
+
+仅验证「本页目录」时，可在构建后运行 `node --test --test-name-pattern='桌面正文目录|正文目录只在' tests/theme.browser.test.mjs`。该检查覆盖指南和术语的标题顺序、键盘跳转、无 JavaScript、滚动定位与桌面显示条件。作品集合为空时，可在隔离副本中用 [`01-sample-work.md`](../tests/fixtures/content/valid/works/01-sample-work.md) 构建作品详情，核对目录是否在「作品档案」上方。
 
 已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器；自动查找不到时，用 `$env:PLAYWRIGHT_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'` 指定实际安装路径。测试后移除本次设置的环境变量以恢复默认。手机视口模拟不等同于真实设备验收。
 

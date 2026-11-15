@@ -234,7 +234,7 @@ test('站内搜索索引覆盖章节、术语和页面锚点', async () => {
 test('学习指南首页与章节保持统一的简约阅读结构', async () => {
   const guideIndex = await read('guide/index.html');
   assert.match(guideIndex, /data-guide-home-content/, '指南首页应保留正文容器');
-  assert.doesNotMatch(guideIndex, /data-content-empty|data-page-header|wiki-navmap|wiki-outline|wiki-next/, '指南首页不再显示自动生成的介绍与占位内容');
+  assert.doesNotMatch(guideIndex, /data-content-empty|data-page-header|wiki-navmap|wiki-outline|wiki-next|class="wiki-toc"/, '欢迎页保持原有阅读布局');
 
   const routes = ['guide/index.html', ...registeredGuideSlugs.map((slug) => 'guide/' + slug + '/index.html')];
   for (const route of routes) {
@@ -242,7 +242,7 @@ test('学习指南首页与章节保持统一的简约阅读结构', async () =>
     assert.match(html, /guide-doc-shell/, route + ' 应保留指南框架');
     assert.match(html, /guide-reading-prose/, route + ' 应使用统一阅读排版');
     assert.match(html, /guide-pager/, route + ' 应保留章节导航');
-    assert.doesNotMatch(html, /notion-page-head|notion-page-properties|wiki-takeaway|wiki-tool-links|doc-meta|data-content-status|class="breadcrumb"|class="wiki-toc"/, route + ' 不应追加摘要、提示卡或维护信息');
+    assert.doesNotMatch(html, /notion-page-head|notion-page-properties|wiki-takeaway|wiki-tool-links|doc-meta|data-content-status|class="breadcrumb"/, route + ' 不应追加摘要、提示卡或维护信息');
   }
 });
 

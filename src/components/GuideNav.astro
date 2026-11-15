@@ -20,13 +20,15 @@ const groups = guideNavGroups.map((group) => ({
   label: group.label,
   items: group.items.map((item) => {
     const entry = item.slug ? bySlug.get(item.slug) : undefined;
+    const planned = Boolean(item.slug && !entry);
     return {
       label: entry?.data.title ?? item.label,
       hint: item.hint,
+      badge: planned ? '待补充' : item.optional ? '可选读' : undefined,
       slug: item.slug,
       href: item.slug ? `/guide/${item.slug}/` : item.href,
       active: Boolean(item.slug && item.slug === currentId) || Boolean(item.href === '/guide/' && !currentId),
-      planned: Boolean(item.slug && !entry),
+      planned,
       // 只有指向指南之外的入口才标外链图标（指南首页属于指南内部）
       external: Boolean(item.href && !item.slug && !item.href.startsWith('/guide/')),
     };
@@ -65,7 +67,7 @@ const publishedCount = modules.length;
                 data-planned={item.planned ? 'true' : undefined}
               >
                 <span class="guide-nav__item-label">{item.label}</span>
-                {item.planned && <span class="guide-nav__badge">待补充</span>}
+                {item.badge && <span class="guide-nav__badge">{item.badge}</span>}
                 {item.external && <Icon name="arrow-up-right" size={11} />}
               </a>
             ) : null}

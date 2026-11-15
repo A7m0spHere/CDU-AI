@@ -5,6 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/routes/works.css';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
+import ArticleToc from '../../components/ArticleToc.astro';
 import ContentStatus from '../../components/ContentStatus.astro';
 import WorkArt from '../../components/WorkArt.astro';
 import { tools } from '../../data/tools';
@@ -20,7 +21,7 @@ export const getStaticPaths = (async () => {
 
 const { entry } = Astro.props;
 const { title, summary, category, format, tools: toolNames, tags, prompt, effort, level, status } = entry.data;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const relatedTools = toolNames
   .map((name) => tools.find((tool) => tool.name === name))
   .filter((tool): tool is (typeof tools)[number] => Boolean(tool));
@@ -121,7 +122,8 @@ const editUrl = `${repository.url}/edit/${repository.branch}/src/content/works/$
           </nav>
         </div>
 
-        <aside class="work-detail__aside">
+        <aside class="work-detail__aside article-toc-aside">
+          <ArticleToc headings={headings} />
           <div class="aside-card">
             <div class="aside-card__head"><Icon name="info" size={16} />作品档案</div>
             <dl class="meta-rows">

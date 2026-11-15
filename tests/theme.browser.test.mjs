@@ -931,6 +931,64 @@ test('指南首页正文和底色跟随浅色、深色及自定义主题，刷�
   assert.equal(await page.locator('[data-content-status]').count(), 0, '首页不新增审核信息栏');
 });
 
+test('桌面正文目录按标题顺序链接原有锚点，无 JS 时可用键盘跳转并随页滚动', async t => {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, javaScriptEnabled: false, reducedMotion: 'reduce' });
+  t.after(() => context.close());
+  const page = await context.newPage();
+  for (const [route, bodySelector] of [
+    ['/guide/ai-faq/', '.guide-reading-prose'],
+    ['/glossary/workflow/', '.term-body'],
+  ]) {
+    await page.goto(origin + route);
+    const toc = page.getByRole('navigation', { name: '本页目录' });
+    const links = toc.getByRole('link');
+    const body = page.locator(bodySelector);
+    const headings = await body.locator('h2[id], h3[id]').evaluateAll(nodes => nodes.map(node => node.id));
+    assert.ok(headings.length > 2);
+    assert.deepEqual(await links.evaluateAll(nodes => nodes.map(node => decodeURIComponent(node.hash.slice(1)))), headings);
+    const position = await toc.boundingBox();
+    const bodyPosition = await body.boundingBox();
+    assert.ok(position && bodyPosition && position.x >= bodyPosition.x + bodyPosition.width, '目录位于正文右侧');
+
+    const link = links.nth(2);
+    await link.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForURL(url => decodeURIComponent(url.hash.slice(1)) === headings[2]);
+    const target = await page.locator(':target').boundingBox();
+    const header = await page.getByRole('banner').boundingBox();
+    const sticky = await toc.boundingBox();
+    assert.ok(target && header && target.y >= header.y + header.height && target.y < 400, '标题跳转后可见');
+    const stickyTop = await toc.evaluate(node => Number.parseFloat(getComputedStyle(node).top));
+    assert.ok(sticky && Math.abs(sticky.y - stickyTop) <= 1, '滚动时目录固定在顶栏下方');
+  }
+});
+
+test('正文目录只在符合指针和宽度条件的桌面端显示', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/ai-faq/');
+  const toc = page.locator('.wiki-toc');
+  for (const [width, visible] of [[1101, true], [1100, false], [390, false]]) {
+    await page.setViewportSize({ width, height: 844 });
+    assert.equal(await toc.isVisible(), visible);
+    if (!visible) {
+      const headingLink = toc.locator('a').first();
+      await headingLink.focus();
+      assert.equal(await headingLink.evaluate(link => link === document.activeElement), false);
+    }
+  }
+
+  const touch = await setup(t, { hasTouch: true });
+  await touch.goto(origin + '/glossary/workflow/');
+  assert.equal(await touch.evaluate(() => matchMedia('(pointer: coarse)').matches), true);
+  assert.equal(await touch.locator('.wiki-toc').isVisible(), false);
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  for (const route of ['/guide/', '/guide/agent-capabilities/', '/glossary/', '/works/']) {
+    await page.goto(origin + route);
+    assert.equal(await toc.count(), 0, route + ' 不应渲染空目录');
+  }
+});
+
 test('指南样式中代码底色、文字和注释色实际生效，切回内置主题恢复高亮', async t => {
   const page = await setup(t);
   await openImport(page, { code: { bg: '#123456', fg: '#ffffff', muted: '#ccddaa' } });

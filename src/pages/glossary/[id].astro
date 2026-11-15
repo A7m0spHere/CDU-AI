@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import ArticleToc from '../../components/ArticleToc.astro';
 import ContentStatus from '../../components/ContentStatus.astro';
 import { glossaryCategories, glossaryCategoryName } from '../../data/glossary';
 import { repository } from '../../data/site';
@@ -34,7 +35,7 @@ const siblings = terms.filter((term) => term.data.category === entry.data.catego
 const index = siblings.findIndex((term) => term.id === entry.id);
 const previous = index > 0 ? siblings[index - 1] : undefined;
 const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 
 const editUrl = `${repository.url}/edit/${repository.branch}/src/content/glossary/${entry.id}.md`;
 const termUrl = `/glossary/${entry.id}/`;
@@ -71,222 +72,225 @@ const jsonLd = {
 
 <BaseLayout title={`${entry.data.term} 是什么意思`} description={entry.data.definition} ogType="article">
   <div class="wiki-shell term-shell" data-term-module>
-    <div class="container term-container">
-      <nav class="breadcrumb" aria-label="面包屑">
-        <a href="/">首页</a>
-        <span class="breadcrumb__sep" aria-hidden="true">/</span>
-        <a href="/glossary/">术语表</a>
-        <span class="breadcrumb__sep" aria-hidden="true">/</span>
-        <a href={`/glossary/?category=${entry.data.category}`}>{category?.name ?? '术语'}</a>
-        <span class="breadcrumb__sep" aria-hidden="true">/</span>
-        <span aria-current="page">{entry.data.term}</span>
-      </nav>
+    <div class="container term-container article-toc-layout">
+      <article>
+        <nav class="breadcrumb" aria-label="面包屑">
+          <a href="/">首页</a>
+          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <a href="/glossary/">术语表</a>
+          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <a href={`/glossary/?category=${entry.data.category}`}>{category?.name ?? '术语'}</a>
+          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <span aria-current="page">{entry.data.term}</span>
+        </nav>
 
-      <header class="term-head">
-        <div class="term-head__top">
-          <div class="term-head__intro">
-            <p class="term-head__eyebrow">{category?.name ?? '术语表'}</p>
-            <h1 class="term-title">
-              {entry.data.term}
-              {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
-                <span class="term-title__en">{entry.data.en}</span>
-              )}
-            </h1>
+        <header class="term-head">
+          <div class="term-head__top">
+            <div class="term-head__intro">
+              <p class="term-head__eyebrow">{category?.name ?? '术语表'}</p>
+              <h1 class="term-title">
+                {entry.data.term}
+                {entry.data.en.trim().toLowerCase() !== entry.data.term.trim().toLowerCase() && (
+                  <span class="term-title__en">{entry.data.en}</span>
+                )}
+              </h1>
+            </div>
+            {markdownSource && (
+              <>
+                <button class="term-copy" type="button" data-copy-markdown title="复制这一页的 Markdown 源码（含 frontmatter）">
+                  <Icon name="copy" size={15} />
+                  <span data-copy-markdown-label>复制 Markdown</span>
+                  <span class="sr-only">复制本页 Markdown 源码</span>
+                </button>
+                <textarea hidden data-term-markdown aria-hidden="true" tabindex="-1">{markdownSource}</textarea>
+              </>
+            )}
           </div>
-          {markdownSource && (
-            <>
-              <button class="term-copy" type="button" data-copy-markdown title="复制这一页的 Markdown 源码（含 frontmatter）">
-                <Icon name="copy" size={15} />
-                <span data-copy-markdown-label>复制 Markdown</span>
-                <span class="sr-only">复制本页 Markdown 源码</span>
-              </button>
-              <textarea hidden data-term-markdown aria-hidden="true" tabindex="-1">{markdownSource}</textarea>
-            </>
+
+          {youMaySay && (
+            <blockquote class="term-say">
+              <p class="term-say__label">你可能会说</p>
+              <p class="term-say__text">{youMaySay}</p>
+            </blockquote>
           )}
-        </div>
 
-        {youMaySay && (
-          <blockquote class="term-say">
-            <p class="term-say__label">你可能会说</p>
-            <p class="term-say__text">{youMaySay}</p>
-          </blockquote>
-        )}
+          <p class="term-definition">{entry.data.definition}</p>
 
-        <p class="term-definition">{entry.data.definition}</p>
-
-        <div class="term-facts">
-          <p class="term-fact">
-            <span class="term-fact__label">先知道</span>
-            <a class="term-fact__value" href={`/glossary/?category=${entry.data.category}`}>
-              {category?.name ?? '术语表'}
-            </a>
-          </p>
-          {entry.data.aliases.length > 0 && (
+          <div class="term-facts">
             <p class="term-fact">
-              <span class="term-fact__label">也常被叫作</span>
-              {entry.data.aliases.map((alias) => <span class="term-alias">{alias}</span>)}
+              <span class="term-fact__label">先知道</span>
+              <a class="term-fact__value" href={`/glossary/?category=${entry.data.category}`}>
+                {category?.name ?? '术语表'}
+              </a>
             </p>
-          )}
-        </div>
+            {entry.data.aliases.length > 0 && (
+              <p class="term-fact">
+                <span class="term-fact__label">也常被叫作</span>
+                {entry.data.aliases.map((alias) => <span class="term-alias">{alias}</span>)}
+              </p>
+            )}
+          </div>
 
-        <div class="term-example">
-          <span class="term-example__label">校园里的样子</span>
-          <p>{entry.data.example}</p>
-        </div>
-      </header>
+          <div class="term-example">
+            <span class="term-example__label">校园里的样子</span>
+            <p>{entry.data.example}</p>
+          </div>
+        </header>
 
-      {scenario && (
-        <section class="term-scenario" data-scenario aria-labelledby="term-scenario-title">
-          <h2 class="term-block__title" id="term-scenario-title">{scenario.title}</h2>
-          <div class="term-steps" role="tablist" aria-label={scenario.title}>
+        {scenario && (
+          <section class="term-scenario" data-scenario aria-labelledby="term-scenario-title">
+            <h2 class="term-block__title" id="term-scenario-title">{scenario.title}</h2>
+            <div class="term-steps" role="tablist" aria-label={scenario.title}>
+              {scenario.steps.map((step, stepIndex) => (
+                <button
+                  class="term-steps__item"
+                  type="button"
+                  role="tab"
+                  id={`scenario-tab-${stepIndex}`}
+                  aria-controls={`scenario-panel-${stepIndex}`}
+                  aria-selected={stepIndex === 0 ? 'true' : 'false'}
+                  tabindex={stepIndex === 0 ? 0 : -1}
+                  data-scenario-tab
+                  data-step={stepIndex}
+                >
+                  <span class="term-steps__index mono">{String(stepIndex + 1).padStart(2, '0')}</span>
+                  <span class="term-steps__label">{step.label}</span>
+                </button>
+              ))}
+            </div>
             {scenario.steps.map((step, stepIndex) => (
-              <button
-                class="term-steps__item"
-                type="button"
-                role="tab"
-                id={`scenario-tab-${stepIndex}`}
-                aria-controls={`scenario-panel-${stepIndex}`}
-                aria-selected={stepIndex === 0 ? 'true' : 'false'}
-                tabindex={stepIndex === 0 ? 0 : -1}
-                data-scenario-tab
-                data-step={stepIndex}
+              <div
+                class="term-scenario__panel"
+                role="tabpanel"
+                id={`scenario-panel-${stepIndex}`}
+                aria-labelledby={`scenario-tab-${stepIndex}`}
+                data-scenario-panel
               >
-                <span class="term-steps__index mono">{String(stepIndex + 1).padStart(2, '0')}</span>
-                <span class="term-steps__label">{step.label}</span>
-              </button>
-            ))}
-          </div>
-          {scenario.steps.map((step, stepIndex) => (
-            <div
-              class="term-scenario__panel"
-              role="tabpanel"
-              id={`scenario-panel-${stepIndex}`}
-              aria-labelledby={`scenario-tab-${stepIndex}`}
-              data-scenario-panel
-            >
-              {step.quote && <blockquote class="term-scenario__quote">{step.quote}</blockquote>}
-              <p class="term-scenario__body">{step.body}</p>
-              {step.meta && <p class="term-scenario__meta mono">{step.meta}</p>}
-              {step.note && <p class="term-scenario__note">{step.note}</p>}
-            </div>
-          ))}
-        </section>
-      )}
-
-      <div class="term-body prose">
-        <Content />
-      </div>
-
-      {quiz.length > 0 && (
-        <section class="term-quiz" data-quiz aria-labelledby="term-quiz-title">
-          <p class="term-quiz__eyebrow">选择题</p>
-          <h2 class="term-block__title" id="term-quiz-title">选一个你认为最合适的答案</h2>
-          {quiz.map((item, quizIndex) => (
-            <div class="term-quiz__item" data-quiz-item>
-              <p class="term-quiz__question" id={`term-quiz-question-${quizIndex}`}>{item.question}</p>
-              <div class="term-quiz__options" role="group" aria-labelledby={`term-quiz-question-${quizIndex}`}>
-                {item.options.map((option, optionIndex) => (
-                  <button
-                    class="term-quiz__option"
-                    type="button"
-                    data-quiz-option
-                    data-correct={option.correct ? 'true' : 'false'}
-                  >
-                    <span class="term-quiz__mark mono" aria-hidden="true">{optionLetters[optionIndex] ?? optionIndex + 1}</span>
-                    <span class="term-quiz__text">{option.text}</span>
-                    <span class="term-quiz__result" aria-live="polite"></span>
-                  </button>
-                ))}
+                {step.quote && <blockquote class="term-scenario__quote">{step.quote}</blockquote>}
+                <p class="term-scenario__body">{step.body}</p>
+                {step.meta && <p class="term-scenario__meta mono">{step.meta}</p>}
+                {step.note && <p class="term-scenario__note">{step.note}</p>}
               </div>
-              {item.explain && <p class="term-quiz__explain" data-quiz-explain hidden>{item.explain}</p>}
+            ))}
+          </section>
+        )}
+
+        <div class="term-body prose">
+          <Content />
+        </div>
+
+        {quiz.length > 0 && (
+          <section class="term-quiz" data-quiz aria-labelledby="term-quiz-title">
+            <p class="term-quiz__eyebrow">选择题</p>
+            <h2 class="term-block__title" id="term-quiz-title">选一个你认为最合适的答案</h2>
+            {quiz.map((item, quizIndex) => (
+              <div class="term-quiz__item" data-quiz-item>
+                <p class="term-quiz__question" id={`term-quiz-question-${quizIndex}`}>{item.question}</p>
+                <div class="term-quiz__options" role="group" aria-labelledby={`term-quiz-question-${quizIndex}`}>
+                  {item.options.map((option, optionIndex) => (
+                    <button
+                      class="term-quiz__option"
+                      type="button"
+                      data-quiz-option
+                      data-correct={option.correct ? 'true' : 'false'}
+                    >
+                      <span class="term-quiz__mark mono" aria-hidden="true">{optionLetters[optionIndex] ?? optionIndex + 1}</span>
+                      <span class="term-quiz__text">{option.text}</span>
+                      <span class="term-quiz__result" aria-live="polite"></span>
+                    </button>
+                  ))}
+                </div>
+                {item.explain && <p class="term-quiz__explain" data-quiz-explain hidden>{item.explain}</p>}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {agentPrompt && (
+          <section class="term-prompt" aria-labelledby="term-prompt-title">
+            <h2 class="term-block__title" id="term-prompt-title">你可以这样告诉 AI Agent</h2>
+            <div class="term-prompt__card">
+              <p class="term-prompt__text" data-prompt-text>{agentPrompt}</p>
+              <button class="term-prompt__copy" type="button" data-copy-prompt>
+                <Icon name="copy" size={14} />
+                <span data-copy-label>复制提示词</span>
+              </button>
             </div>
-          ))}
-        </section>
-      )}
-
-      {agentPrompt && (
-        <section class="term-prompt" aria-labelledby="term-prompt-title">
-          <h2 class="term-block__title" id="term-prompt-title">你可以这样告诉 AI Agent</h2>
-          <div class="term-prompt__card">
-            <p class="term-prompt__text" data-prompt-text>{agentPrompt}</p>
-            <button class="term-prompt__copy" type="button" data-copy-prompt>
-              <Icon name="copy" size={14} />
-              <span data-copy-label>复制提示词</span>
-            </button>
-          </div>
-        </section>
-      )}
-
-      {related.length > 0 && (
-        <section class="term-next" aria-labelledby="term-next-title">
-          <h2 class="term-block__title" id="term-next-title">接下来学什么</h2>
-          <ol class="term-next__list">
-            {related.map((item, itemIndex) => (
-              <li>
-                <a class="term-next__item" href={`/glossary/${item.id}/`}>
-                  <span class="term-next__index mono">{itemIndex + 1}</span>
-                  <span class="term-next__text">
-                    <strong>{item.data.term}</strong>
-                    <span class="term-next__cat">{glossaryCategoryName(item.data.category)}</span>
-                  </span>
-                  <Icon name="arrow-right" size={15} />
-                </a>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
-
-      {sources.length > 0 && (
-        <section class="page-sources term-sources" aria-label="延伸阅读">
-          <p>延伸阅读 · 权威出处</p>
-          <ul>
-            {sources.map((source) => (
-              <li>
-                <a href={source.url} target="_blank" rel="noopener noreferrer">
-                  {source.title}
-                  <Icon name="arrow-up-right" size={13} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <nav class="wiki-pager term-pager" aria-label="同分类术语">
-        {previous ? (
-          <a class="wiki-pager__link" href={`/glossary/${previous.id}/`}>
-            <span>上一个</span>
-            <strong>{previous.data.term}</strong>
-          </a>
-        ) : (
-          <a class="wiki-pager__link" href={`/glossary/?category=${entry.data.category}`}>
-            <span>返回</span>
-            <strong>{category?.name ?? '术语表'}</strong>
-          </a>
+          </section>
         )}
-        {next ? (
-          <a class="wiki-pager__link wiki-pager__link--next" href={`/glossary/${next.id}/`}>
-            <span>下一个</span>
-            <strong>{next.data.term}</strong>
-          </a>
-        ) : (
-          <a class="wiki-pager__link wiki-pager__link--next" href="/glossary/">
-            <span>继续</span>
-            <strong>术语表</strong>
-          </a>
+
+        {related.length > 0 && (
+          <section class="term-next" aria-labelledby="term-next-title">
+            <h2 class="term-block__title" id="term-next-title">接下来学什么</h2>
+            <ol class="term-next__list">
+              {related.map((item, itemIndex) => (
+                <li>
+                  <a class="term-next__item" href={`/glossary/${item.id}/`}>
+                    <span class="term-next__index mono">{itemIndex + 1}</span>
+                    <span class="term-next__text">
+                      <strong>{item.data.term}</strong>
+                      <span class="term-next__cat">{glossaryCategoryName(item.data.category)}</span>
+                    </span>
+                    <Icon name="arrow-right" size={15} />
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </section>
         )}
-      </nav>
 
-      <div class="page-meta">
-        <span><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
-        <a href={editUrl} target="_blank" rel="noopener noreferrer">
-          <Icon name="pen" size={14} />在 GitHub 编辑这一条
-          <Icon name="arrow-up-right" size={13} />
-        </a>
-      </div>
+        {sources.length > 0 && (
+          <section class="page-sources term-sources" aria-label="延伸阅读">
+            <p>延伸阅读 · 权威出处</p>
+            <ul>
+              {sources.map((source) => (
+                <li>
+                  <a href={source.url} target="_blank" rel="noopener noreferrer">
+                    {source.title}
+                    <Icon name="arrow-up-right" size={13} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-      <ContentStatus data={entry.data} context="glossary" />
+        <nav class="wiki-pager term-pager" aria-label="同分类术语">
+          {previous ? (
+            <a class="wiki-pager__link" href={`/glossary/${previous.id}/`}>
+              <span>上一个</span>
+              <strong>{previous.data.term}</strong>
+            </a>
+          ) : (
+            <a class="wiki-pager__link" href={`/glossary/?category=${entry.data.category}`}>
+              <span>返回</span>
+              <strong>{category?.name ?? '术语表'}</strong>
+            </a>
+          )}
+          {next ? (
+            <a class="wiki-pager__link wiki-pager__link--next" href={`/glossary/${next.id}/`}>
+              <span>下一个</span>
+              <strong>{next.data.term}</strong>
+            </a>
+          ) : (
+            <a class="wiki-pager__link wiki-pager__link--next" href="/glossary/">
+              <span>继续</span>
+              <strong>术语表</strong>
+            </a>
+          )}
+        </nav>
+
+        <div class="page-meta">
+          <span><Icon name="clock" size={14} />最后更新：{entry.data.updated}</span>
+          <a href={editUrl} target="_blank" rel="noopener noreferrer">
+            <Icon name="pen" size={14} />在 GitHub 编辑这一条
+            <Icon name="arrow-up-right" size={13} />
+          </a>
+        </div>
+
+        <ContentStatus data={entry.data} context="glossary" />
+      </article>
+      <ArticleToc headings={headings} />
     </div>
   </div>
 
