@@ -20,6 +20,7 @@
 | 修改工具分组、分类视图、筛选或手机分页 | [工具目录开发说明](modules/tool-catalog.md) |
 | 修改搜索索引、匹配、弹层或失败重试 | [站内搜索开发说明](modules/search.md) |
 | 调整视觉、组件与交互 | [设计系统](DESIGN-SYSTEM.md)；旧方案依据见 [设计评审记录](DESIGN-REVIEW.md) |
+| 查看官方教程嵌入方案的终止决策 | [嵌入式教程 NO-GO 决策](decisions/embedded-docs-no-go.md) |
 | 参与术语库规划与分类治理 | [术语库规划](GLOSSARY-PLAN.md) |
 | 查看术语词条 P0 审核范围与结论 | [2026-10-31 术语审核记录](GLOSSARY-REVIEW-20261031.md) |
 | 查看术语词条 P1 审核范围、取舍与依据 | [2026-11-01 术语审核记录](GLOSSARY-REVIEW-20261101.md) |
