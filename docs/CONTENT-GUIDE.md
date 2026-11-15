@@ -197,7 +197,7 @@ AI 主分支分节：
 
 **对话工具分组**：「语言模型与对话」按 `toolSections['llm-chat']` 的顺序展示国内工具、海外工具、开源项目。条目的 `catalogGroup` 分别填写 `domestic`、`overseas`、`open-source`；不能仅因关联模型有开放权重就给在线产品添加开源能力标签。开源客户端与项目不分地区，没有匹配结果的分组自动隐藏。
 
-**Agent 分组与默认展示**：保留「Agent 与 Harness」及 agent 分类，按 toolSections.agent 依次展示国内工具、海外工具、开源工具三组，不再按编程、框架、客户端等用途拆组。厂商官方产品按国内或海外归组，其他社区开源项目归开源工具；开源能力仍按工具自身许可填写。Cherry Studio、RAGFlow 只在 Agent 栏目的开源工具分区出现。OpenCode、Pi、OpenClaw、Cherry Studio、RAGFlow 默认直接展示，其他开源条目收进「更多开源 Agent 与 Harness」；搜索或能力筛选时展开匹配项，手动展开同步更新折叠数量。
+「Agent 与 Harness」保留 `agent` 分类，按 `toolSections.agent` 依次展示「Personal Agent · 个人助理」、国内工具、海外工具、开源工具。个人助理分区收录围绕个人目标持续工作、保留上下文并连接应用或执行定时流程的产品与项目，通过 `toolIds` 明确维护展示顺序。相同 ID 由其余分区的 `excludeIds` 排除，`catalogGroup` 继续记录原有地区或来源。其他厂商官方产品按国内或海外归组，社区开源项目归开源工具，开源能力按工具自身许可填写。OpenClaw、Hermes Agent 在个人助理分区直接展示；OpenCode、Pi、Cherry Studio、RAGFlow 在开源工具分区直接展示，其他开源条目收进「更多开源 Agent 与 Harness」。搜索或能力筛选时展开匹配项，手动展开同步更新折叠数量。
 
 **AIGC 分组与收录边界**：`aigc` 一级分类按 `toolSections.aigc` 展示图片创作、视频创作、设计与排版、演示文稿、文档与表格、创作工作流，`aigcSection` 分别填写 `image`、`video`、`design`、`presentation`、`document`、`workflow`。即梦归入视频创作，Midjourney 归入图片创作；Canva 归入设计与排版，Gamma 归入演示文稿，WPS AI 归入文档与表格，ComfyUI、RunningHub 归入创作工作流。Civitai 只在模型与数据社区出现，API 平台与算力服务使用独立入口。
 

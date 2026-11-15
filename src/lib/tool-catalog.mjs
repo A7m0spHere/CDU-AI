@@ -5,9 +5,9 @@ import { toolSections } from '../data/tool-sections.mjs';
 /** @typedef {{id: string, categories: {id: string, groups: {key: string, toolIds: string[], collapsedIds: string[]}[]}[]}} CatalogView */
 
 const belongsTo = (tool, category) => tool.category === category || (tool.alsoIn ?? []).includes(category);
-const matchesSection = (tool, section) => section.field
+const matchesSection = (tool, section) => !section.excludeIds?.includes(tool.id) && (section.field
   ? tool[section.field] === section.value
-  : (section.toolIds ?? []).includes(tool.id);
+  : (section.toolIds ?? []).includes(tool.id));
 
 /** 全目录只显示主分类；具体栏目同时包含通过 alsoIn 关联的工具。
  * @param {string} categoryId
@@ -28,7 +28,7 @@ export function createCatalogView(categoryId, tools, categories) {
           // 明确列举的分区以配置顺序展示；字段分组继续保留数据顺序。
           const groupTools = section.field
             ? members.filter((tool) => matchesSection(tool, section))
-            : (section.toolIds ?? []).map((id) => memberById.get(id)).filter((tool) => tool !== undefined);
+            : (section.toolIds ?? []).map((id) => memberById.get(id)).filter((tool) => tool !== undefined && matchesSection(tool, section));
           return {
             key: `${category.id}-${section.id}`,
             toolIds: groupTools.map((tool) => tool.id),
@@ -69,7 +69,7 @@ export function validateCatalogSections(tools, categories) {
     for (const section of sections) {
       const explicitIds = section.toolIds ?? [];
       if (new Set(explicitIds).size !== explicitIds.length) errors.push(`分区 ${category}/${section.id} 的工具列表存在重复引用`);
-      for (const id of [...(section.toolIds ?? []), ...(section.collapse?.featuredIds ?? [])]) {
+      for (const id of [...(section.toolIds ?? []), ...(section.excludeIds ?? []), ...(section.collapse?.featuredIds ?? [])]) {
         if (!knownIds.has(id)) errors.push(`分区 ${category}/${section.id} 引用了不存在的工具 ${id}`);
         else if (!belongsTo(tools.find((tool) => tool.id === id), category)) errors.push(`${id} 不属于分区所在分类 ${category}`);
       }

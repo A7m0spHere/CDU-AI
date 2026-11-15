@@ -1,5 +1,7 @@
+const personalAgentIds = ['grok-bot', 'meta-muse', 'openai-dots', 'claude-duet', 'openclaw', 'hermes-agent'];
+
 /** 每个栏目的页内规则。关联条目在所进入的栏目中重新归组，不借用主分类的版式。
- * @type {Record<string, {id: string, name: string, description?: string, field?: 'catalogGroup' | 'aigcSection', value?: string, toolIds?: string[], collapse?: {label: string, featuredIds: string[]}}[]>}
+ * @type {Record<string, {id: string, name: string, description?: string, field?: 'catalogGroup' | 'aigcSection', value?: string, toolIds?: string[], excludeIds?: string[], collapse?: {label: string, featuredIds: string[]}}[]>}
  */
 export const toolSections = {
   'llm-chat': [
@@ -8,9 +10,10 @@ export const toolSections = {
     { id: 'open-source', name: '开源项目', description: '可自行配置模型服务的开源客户端与项目。', field: 'catalogGroup', value: 'open-source' },
   ],
   agent: [
-    { id: 'domestic', name: '国内工具', description: '国内厂商推出的 Agent 与 Harness，包含厂商官方开源工具。', field: 'catalogGroup', value: 'domestic' },
-    { id: 'overseas', name: '海外工具', description: '海外厂商推出的 Agent 产品与开发工具。', field: 'catalogGroup', value: 'overseas' },
-    { id: 'open-source', name: '开源工具', description: '社区维护的开源 Agent、Harness、客户端与知识库工具；厂商官方产品按国内、海外归组。', field: 'catalogGroup', value: 'open-source', collapse: { label: '更多开源 Agent 与 Harness', featuredIds: ['opencode', 'pi', 'openclaw', 'cherry-studio', 'ragflow'] } },
+    { id: 'personal', name: 'Personal Agent · 个人助理', description: '围绕个人目标持续处理任务，连接应用、保留上下文或执行定时流程，包含云端产品与自托管项目。', toolIds: personalAgentIds },
+    { id: 'domestic', name: '国内工具', description: '国内厂商推出的 Agent 与 Harness，包含厂商官方开源工具。', field: 'catalogGroup', value: 'domestic', excludeIds: personalAgentIds },
+    { id: 'overseas', name: '海外工具', description: '海外厂商推出的 Agent 产品与开发工具。', field: 'catalogGroup', value: 'overseas', excludeIds: personalAgentIds },
+    { id: 'open-source', name: '开源工具', description: '社区维护的开源 Agent、Harness、客户端与知识库工具；个人助理集中在 Personal Agent 分区。', field: 'catalogGroup', value: 'open-source', excludeIds: personalAgentIds, collapse: { label: '更多开源 Agent 与 Harness', featuredIds: ['opencode', 'pi', 'cherry-studio', 'ragflow'] } },
   ],
   aigc: [
     { id: 'image', name: '图片创作', description: '主要用于图片生成、编辑与视觉设计，兼有能力见工具介绍。', field: 'aigcSection', value: 'image' },

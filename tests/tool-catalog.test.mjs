@@ -40,7 +40,7 @@ test('API 平台按配置优先展示主流模型，顺序不受原始数据排�
   assert.equal(new Set(api).size, 25);
 });
 
-test('Agent 恢复国内、海外、开源三组，工具归属调整继续保留', () => {
+test('Agent 个人助理单独展示，其余工具按国内、海外、开源归组', () => {
   const view = createCatalogView('agent', tools, categories);
   assert.equal(view.categories.length, 1);
   assert.equal(toolCategoryAliases.workflow, 'all');
@@ -48,11 +48,20 @@ test('Agent 恢复国内、海外、开源三组，工具归属调整继续保�
   assert.ok(!categories.some((category) => category.id === 'workflow'));
   assert.ok(!categories.some((category) => category.id === 'office'));
   assert.ok(tools.every((tool) => tool.category !== 'workflow' && !tool.alsoIn.includes('workflow') && !tool.alsoIn.includes(tool.category)));
-  assert.deepEqual(view.categories[0].groups.map((item) => item.key), ['agent-domestic', 'agent-overseas', 'agent-open-source']);
+  assert.deepEqual(view.categories[0].groups.map((item) => item.key), ['agent-personal', 'agent-domestic', 'agent-overseas', 'agent-open-source']);
+  const personalIds = ['grok-bot', 'meta-muse', 'openai-dots', 'claude-duet', 'openclaw', 'hermes-agent'];
+  assert.deepEqual(group(view, 'agent-personal').toolIds, personalIds);
+  assert.deepEqual(group(createCatalogView('all', [...tools].reverse(), categories), 'agent-personal').toolIds, personalIds);
+  assert.deepEqual(group(view, 'agent-personal').collapsedIds, []);
+  for (const id of personalIds) {
+    assert.ok(getToolSectionLabels(tools.find((tool) => tool.id === id)).includes('Personal Agent · 个人助理'));
+    assert.equal(view.categories[0].groups.filter((item) => item.toolIds.includes(id)).length, 1);
+  }
   assert.ok(group(view, 'agent-domestic').toolIds.includes('qwen-code'));
   assert.ok(group(view, 'agent-overseas').toolIds.includes('codex'));
   assert.ok(group(view, 'agent-open-source').toolIds.includes('cherry-studio'));
-  assert.ok(group(view, 'agent-open-source').toolIds.includes('openclaw'));
+  assert.ok(!group(view, 'agent-open-source').toolIds.includes('openclaw'));
+  assert.ok(!group(view, 'agent-overseas').toolIds.includes('hermes-agent'));
   const api = createCatalogView('api', tools, categories);
   assert.ok(group(api, 'api-applications').toolIds.includes('dify'));
   assert.ok(group(api, 'api-applications').toolIds.includes('coze'));
@@ -61,8 +70,9 @@ test('Agent 恢复国内、海外、开源三组，工具归属调整继续保�
   assert.ok(group(view, 'agent-open-source').toolIds.includes('pi'));
   assert.ok(group(view, 'agent-open-source').toolIds.includes('browser-use'));
   assert.ok(group(view, 'agent-open-source').toolIds.includes('ragflow'));
-  assert.equal(flatten(view).length, 32);
-  assert.equal(new Set(flatten(view)).size, 32);
+  const agentCount = tools.filter((tool) => tool.category === 'agent').length;
+  assert.equal(flatten(view).length, agentCount);
+  assert.equal(new Set(flatten(view)).size, agentCount);
 });
 
 test('指定工具只保留各自主用途，OCR、设计与客户端不再跨栏目重复', () => {
@@ -115,6 +125,7 @@ test('缺少归属和失效分区引用会被拦截，空目录仍可使用', ()
   const missing = tools.map((tool) => tool.id === 'jimeng' ? { ...tool, aigcSection: undefined } : tool);
   assert.ok(validateCatalogSections(missing, categories).some((error) => error.includes('jimeng')));
   assert.ok(validateCatalogSections(tools.filter((tool) => tool.id !== 'llama-cpp'), categories).some((error) => error.includes('llama-cpp')));
+  assert.ok(validateCatalogSections(tools.filter((tool) => tool.id !== 'openclaw'), categories).some((error) => error.includes('openclaw')));
   assert.deepEqual(validateCatalogSections([], categories), []);
   const section = toolSections.api[0];
   section.toolIds.push(section.toolIds[0]);

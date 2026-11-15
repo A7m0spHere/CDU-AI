@@ -147,3 +147,7 @@ OpenAI、Claude 与 Grok 平台复用已有官方品牌素材；其余图标从�
 | 万相 Wan | `/tool-logos/wan.webp` | https://avatars.githubusercontent.com/u/200620180?v=4 | 官方 GitHub 组织头像，仅用于识别该项目 | 否 |
 | 海螺 AI | `/tool-logos/hailuo.webp` | https://cdn.hailuoai.video/open-hailuo-video-web/public_assets/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | RikkaHub | `/tool-logos/rikkahub.webp` | https://raw.githubusercontent.com/rikkahub/rikkahub/master/docs/icon.png | 官方仓库应用图标，仅用于识别该项目 | 否 |
+| Grok Bot | `/tool-logos/grok.webp` | https://grok.com/images/apple-touch-icon.png | 复用官方 Grok 品牌图标，仅用于识别该产品 | 否 |
+| Meta Muse | `/tool-logos/meta-muse.svg` | https://muse.ai/images/favicon/app-squiggle.svg | 品牌官网图标，仅用于识别该产品 | 否 |
+| OpenAI Dots | `/tool-logos/openai-dots.svg` | https://images.ctfassets.net/8su2tbn87fck/PulStHeDuz5begF06sEwk/c2080ae53243122046ba61074a5f0bd2/dots-o-updated.svg | 品牌官网图标，仅用于识别该产品 | 否 |
+| Claude Duet | `/tool-logos/claude-duet.svg` | https://assets.claude.com/9273e22b909074c1c2d42ca3514a239623f8af40.svg | 官方产品介绍页应用图标，仅用于识别该产品 | 否 |

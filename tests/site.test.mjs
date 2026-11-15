@@ -888,14 +888,14 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /收录不等于推荐/, '缺少「收录不等于推荐」说明');
 });
 
-test('Agent 与 Harness 按国内、海外、开源归组，工具不重复渲染', async () => {
+test('Agent 与 Harness 展示个人助理及地区、开源分组，工具不重复渲染', async () => {
   if (parsedTools.length === 0) return;
   const html = await read('tools/index.html');
   assert.match(html, /data-collapse/, '缺少更多开源 Agent 折叠区');
   assert.match(html, /更多开源 Agent 与 Harness/, '折叠区缺少标题');
   assert.match(html, /默认收起，搜索或能力筛选时自动展开/, '折叠区缺少展开说明');
 
-  const groups = Object.fromEntries(['domestic', 'overseas', 'open-source'].map((id) => [
+  const groups = Object.fromEntries(['personal', 'domestic', 'overseas', 'open-source'].map((id) => [
     id,
     html.match(new RegExp('<section\\b[^>]*data-tool-group="agent-' + id + '"[\\s\\S]*?<\\/section>'))?.[0] ?? '',
   ]));
@@ -906,7 +906,9 @@ test('Agent 与 Harness 按国内、海外、开源归组，工具不重复渲�
   const selectedAgent = catalogViews(html).agent.categories[0].groups;
   for (const tool of agentTools) {
     assert.equal(selectedAgent.filter((group) => group.toolIds.includes(tool.id)).length, 1, 'Agent 条目必须且只能进入一个用途分组：' + tool.id);
-    assert.ok(selectedAgent.find((group) => group.key === 'agent-' + tool.catalogGroup)?.toolIds.includes(tool.id), 'Agent 条目必须按登记的归属分组：' + tool.id);
+    const isPersonal = selectedAgent.find((group) => group.key === 'agent-personal').toolIds.includes(tool.id);
+    const expectedGroup = isPersonal ? 'agent-personal' : 'agent-' + tool.catalogGroup;
+    assert.ok(selectedAgent.find((group) => group.key === expectedGroup)?.toolIds.includes(tool.id), 'Agent 条目必须按登记的分区展示：' + tool.id);
   }
   const renderedIds = [...html.matchAll(/data-tool-id="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(renderedIds.length, parsedTools.length, '工具分组后不应遗漏或额外复制卡片');
@@ -924,7 +926,9 @@ test('Agent 与 Harness 按国内、海外、开源归组，工具不重复渲�
     assert.doesNotMatch(cardTag(id), /data-collapsed="true"/, id + ' 应直接显示');
   }
   assert.ok(groups.domestic.includes('data-tool-id="deepseek-harness"'), 'DeepSeek Harness 应归入国内工具');
-  assert.ok(groups.overseas.includes('data-tool-id="hermes-agent"'), 'Hermes Agent 应归入海外工具');
+  for (const id of ['grok-bot', 'meta-muse', 'openai-dots', 'claude-duet', 'openclaw', 'hermes-agent']) {
+    assert.ok(groups.personal.includes(`data-tool-id="${id}"`), id + ' 应归入个人助理');
+  }
   assert.ok(groups['open-source'].includes('data-tool-id="ragflow"'), 'RAGFlow 应归入开源工具');
   assert.ok(groups['open-source'].includes('data-tool-id="cherry-studio"'), 'Cherry Studio 应归入开源工具');
   for (const id of ['cline', 'openhands', 'oh-my-pi', 'goose', 'aider', 'open-interpreter', 'mini-swe-agent', 'langgraph', 'browser-use', 'crewai']) {

@@ -274,7 +274,7 @@ test('旧工作流及办公链接保留搜索，重分类后的 Agent 与 AIGC �
   await page.goto(origin + '/tools/?category=agent');
   await ready(page);
   assert.deepEqual(await page.locator('[data-catalog-category]:visible').evaluateAll(elements => elements.map(element => element.dataset.catalogCategory)), ['agent']);
-  assert.equal(await page.locator('[data-filter-count]').textContent(), '32');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.category === 'agent').length));
   assert.equal(await page.locator('[data-filter-value="workflow"]').count(), 0);
   assert.equal(await page.locator('[data-filter-value="agent"]').getAttribute('aria-pressed'), 'true');
   assert.equal(await page.locator('[data-tool-id="dify"]').isVisible(), false);
@@ -285,6 +285,14 @@ test('旧工作流及办公链接保留搜索，重分类后的 Agent 与 AIGC �
   assert.equal(await page.locator('[data-tool-id="ragflow"]').isVisible(), true);
   assert.equal(await page.locator('[data-tool-id="langgraph"]').isVisible(), false);
   assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
+
+  await page.locator('[data-filter-search]').fill('Personal Agent');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '6');
+  assert.deepEqual(await page.locator('[data-tool-group]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolGroup)), ['agent-personal']);
+  assert.equal(await page.locator('[data-tool-id="meta-muse"]').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id="openclaw"]').isVisible(), true);
+  await page.locator('[data-filter-search]').fill('');
+  await page.waitForFunction(expected => document.querySelector('[data-filter-count]').textContent === expected, String(tools.filter(tool => tool.category === 'agent').length));
 
   await page.locator('[data-filter-value="aigc"]').press('Enter');
   assert.equal(await page.locator('[data-filter-count]').textContent(), '11');
@@ -325,7 +333,7 @@ test('开源 Agent 折叠数量跟随搜索及手动展开，开源筛选不借�
   assert.equal(await collapsed.evaluate(element => element.open), true);
   assert.equal(await page.locator('[data-filter-folded-note]').isVisible(), false);
   await page.locator('[data-filter-search]').fill('');
-  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '32');
+  await page.waitForFunction(expected => document.querySelector('[data-filter-count]').textContent === expected, String(tools.filter(tool => tool.category === 'agent').length));
   assert.equal(await collapsed.evaluate(element => element.open), false);
   assert.equal(await page.locator('[data-collapse-count]').textContent(), '10');
   await page.locator('[data-collapse] > summary').press('Enter');
@@ -599,7 +607,7 @@ test('手机分页与单分类折叠、桌面切换及非法页码兼容', async
   await page.goto(origin + '/tools/?page=4'); await ready(page);
   await page.locator('[data-filter-value="agent"]').press('Enter');
   assert.equal(await page.locator('[data-catalog-pagination]').isVisible(), false);
-  assert.equal(await page.locator('[data-filter-count]').textContent(), '32');
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.category === 'agent').length));
   assert.equal(await page.locator('[data-collapse]').evaluate(el => el.open), false);
   assert.equal(await page.locator('[data-filter-folded-count]').textContent(), '10');
   assert.equal(new URL(page.url()).searchParams.has('page'), false);

@@ -204,3 +204,20 @@ Agent 页内保留原来的归属分组：国内工具 8 项、海外工具 9 �
 - 百炼只移至国内聚合与推理平台，保留条目、原入口与原核对日期，不复制厂商或聚合条目。MiMo、Qwen 的官方站点图标原样自托管，记录于[图标来源清单](TOOL-LOGOS.md)。
 
 本轮核对公开页面、官方文档及入口页面的实际导航内容，未登录账号、创建密钥、付费或执行模型 API 调用。新增后共 106 项工具、25 项 API 与开发平台条目，仍各自只归一个主栏目。
+
+## Personal Agent 分区与条目增补（2026-11-15）
+
+按维护者要求，在「Agent 与 Harness」中新增「Personal Agent · 个人助理」分区，收录围绕个人目标持续处理任务、保留上下文、连接应用或执行定时流程的产品与项目。新增四项入口，已有 OpenClaw、Hermes Agent 移入该分区。地区和来源继续保留在 `catalogGroup`，通过分区的 `excludeIds` 保持每个工具只展示一次。
+
+本轮核对公开官网、官方帮助和源码许可，新增条目的 `verifiedOn` 为实际核对日期，`basis` 按官网或文档填写。原有条目沿用其核对日期。
+
+| 条目 | 本轮核对的能力与接入条件 | 官方依据 |
+| --- | --- | --- |
+| Grok Bot | 持续云电脑、跨设备任务、Skills 与定时流程；长期使用依赖支持该产品的付费方案，部分账号提供试用 | [产品入口](https://x.ai/bot)、[官方 FAQ](https://docs.x.ai/grok-bot/faq) |
+| Meta Muse | 个人目标、邮件与日历、云电脑和 WhatsApp 入口；开放地区、账号资格与订阅按实际入口核对 | [产品官网](https://muse.ai/)、[Meta 产品介绍](https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/) |
+| OpenAI Dots | ChatGPT 记忆、应用连接、云电脑与跨对话持续工作；当前向支持地区的 Pro、Business Premium、Enterprise 开放 | [产品介绍](https://chatgpt.com/features/dots/) |
+| Claude Duet | 连接应用、每日简报、邮件日程和后台任务；美国 Pro、Max、Ultra 用户通过邀请进入研究预览 | [产品介绍](https://claude.com/resources/articles/claude-duet)、[接入说明](https://support.claude.com/en/articles/17631495-get-started-with-claude-duet) |
+
+维护者复看页面后，要求移除候选中的 AutoClaw、LobsterAI、QwenPaw。本轮最终保留六项个人助理。QClaw 官网已公告停止新用户注册与订阅购买，计划于 2026-12-24 停止服务，并引导迁移到 WorkBuddy。该状态以本次浏览器读取到的公告为准。[官方公告入口](https://claw.guanjia.qq.com/)
+
+新增 SVG 图标来自官方站点，保留品牌形状和颜色，来源记录在[图标清单](TOOL-LOGOS.md)。Grok Bot 复用已有 Grok 品牌图标。
