@@ -1,6 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import rehypeSafeLinks from './src/lib/rehype-safe-links.mjs';
+import rehypeFirstAgent from './src/lib/rehype-first-agent.mjs';
+import { resolveFirstAgentMedia } from './src/data/first-agent-media.mjs';
 import { themeCodeTokens } from './src/lib/theme-code-tokens.mjs';
 
 // Astro 5 在内容集合为空时，会对每次 getCollection 调用打印
@@ -26,7 +28,7 @@ export default defineConfig({
   },
   markdown: {
     // 正文里的外链兜底（#22）：危险协议去掉 href，外链补 target/rel
-    rehypePlugins: [rehypeSafeLinks],
+    rehypePlugins: [rehypeSafeLinks, [rehypeFirstAgent, { media: resolveFirstAgentMedia() }]],
     shikiConfig: {
       theme: 'github-light',
       transformers: [themeCodeTokens],

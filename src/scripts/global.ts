@@ -1,4 +1,5 @@
 import { initNavDock } from './nav-dock';
+import { copyText } from '../lib/clipboard';
 import './theme';
 import './search';
 
@@ -44,35 +45,39 @@ if (mobileMenu) {
 }
 
 document.querySelectorAll<HTMLButtonElement>('[data-copy-target]').forEach((button) => {
+  button.hidden = false;
+  const label = button.querySelector<HTMLElement>('[data-copy-label]');
+  const original = label?.textContent ?? '复制';
+  const status = button.closest('[data-copy-card]')?.querySelector<HTMLElement>('[data-copy-status]');
+  let resetTimer: number | undefined;
   button.addEventListener('click', async () => {
     const targetSelector = button.dataset.copyTarget;
     if (!targetSelector) return;
     const target = document.querySelector<HTMLElement>(targetSelector);
     const text = target?.textContent?.trim() ?? '';
-    if (!text) return;
-
+    if (!text || button.dataset.copying === 'true') return;
+    clearTimeout(resetTimer);
+    button.dataset.copying = 'true';
+    button.setAttribute('aria-busy', 'true');
+    button.dataset.copied = 'false';
+    if (label) label.textContent = original;
+    if (status) status.textContent = '';
     try {
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
+      button.dataset.copied = 'true';
+      if (label) label.textContent = '已复制';
+      if (status) status.textContent = '已复制';
+      resetTimer = window.setTimeout(() => {
+        button.dataset.copied = 'false';
+        if (label) label.textContent = original;
+        if (status) status.textContent = '';
+      }, 1600);
     } catch {
-      const area = document.createElement('textarea');
-      area.value = text;
-      area.setAttribute('readonly', '');
-      area.style.position = 'fixed';
-      area.style.opacity = '0';
-      document.body.appendChild(area);
-      area.select();
-      document.execCommand('copy');
-      area.remove();
+      if (status) status.textContent = '复制失败，请选中提示词手动复制。';
+    } finally {
+      delete button.dataset.copying;
+      button.removeAttribute('aria-busy');
     }
-
-    const label = button.querySelector<HTMLElement>('[data-copy-label]');
-    const original = label?.textContent ?? '复制';
-    button.dataset.copied = 'true';
-    if (label) label.textContent = '已复制';
-    window.setTimeout(() => {
-      button.dataset.copied = 'false';
-      if (label) label.textContent = original;
-    }, 1600);
   });
 });
 

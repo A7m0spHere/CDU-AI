@@ -129,8 +129,110 @@ test('指南入门路径在桌面和手机目录中衔接首次实践', async t 
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   }
   await page.goto(origin + '/guide/first-agent/');
-  assert.equal(await page.locator('[data-guide-placeholder]').isVisible(), true);
+  assert.equal(await page.locator('[data-first-agent]').isVisible(), true);
   assert.equal(await page.locator('.guide-pager [rel="prev"]').getAttribute('href'), '/guide/chat-ai-to-agent/');
+});
+
+test('首次 Agent 工具选择联动两章并保持正文位置，键盘可切换', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/first-agent/');
+  await page.locator('[data-agent-ready="true"]').waitFor();
+  assert.equal(await page.locator('input[value="workbuddy"]').isChecked(), true);
+  for (const id of ['M01', 'M03-W']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
+  for (const id of ['M02', 'M03-Z']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
+  const before = await page.locator('[data-first-agent] h2').last().evaluate(el => el.getBoundingClientRect().top + scrollY);
+  await page.locator('input[value="workbuddy"]').focus();
+  const scrollBefore = await page.evaluate(() => scrollY);
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('input[value="zcode"]').isChecked(), true);
+  assert.deepEqual(await page.locator('[data-agent-tool="zcode"]').evaluateAll(nodes => nodes.map(node => node.hidden)), [false, false]);
+  for (const id of ['M02', 'M03-Z']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
+  for (const id of ['M01', 'M03-W']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
+  assert.equal(await page.locator('a[href="https://zcode.z.ai/cn/docs/configuration"]').isVisible(), true);
+  assert.equal(await page.getByRole('heading', { name: 'WorkBuddy：适用于小白', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('heading', { name: 'ZCode：目前国产最好的Agent', exact: true }).isVisible(), true);
+  const after = await page.locator('[data-first-agent] h2').last().evaluate(el => el.getBoundingClientRect().top + scrollY);
+  assert.ok(Math.abs(after - before) < 1, '两种指导切换应保留后续正文位置');
+  assert.ok(Math.abs(await page.evaluate(() => scrollY) - scrollBefore) < 2, '切换不应改变页面滚动位置');
+  await page.keyboard.press('ArrowLeft');
+  assert.equal(await page.locator('input[value="workbuddy"]').isChecked(), true);
+  assert.equal(await page.locator('[data-first-agent] iframe').count(), 0);
+});
+
+test('首次 Agent 四条提示词实际复制为完整纯文本，包含真实 URL 和统一文件名', async t => {
+  const page = await setup(t);
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto(origin + '/guide/first-agent/');
+  for (const id of ['task', 'visual', 'content', 'mobile']) {
+    const card = page.locator(`[data-copy-card="${id}"]`);
+    const expected = await card.locator('[data-agent-prompt]').textContent();
+    await card.locator('button').click();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    assert.equal(copied.replace(/\r\n/g, '\n'), expected.trim());
+    assert.equal(await card.locator('[data-copy-label]').innerText(), '已复制');
+    assert.equal(await card.locator('[data-copy-status]').innerText(), '已复制');
+    if (id === 'task') {
+      assert.match(copied, /3\. 请生成一个名为 CDU\.html 的文件/);
+      assert.match(copied, /https:\/\/www\.cdu\.edu\.cn\//);
+      assert.doesNotMatch(copied, /`|\[成都大学官方网站\]\(/);
+      assert.match(copied, /完成后，请告诉我如何打开这个网页。$/);
+    }
+  }
+});
+
+test('首次 Agent 复制回退准确处理成功和失败，失败后保留手动选择', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/first-agent/');
+  const card = page.locator('[data-copy-card="task"]');
+  const button = card.locator('button');
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('unavailable'); } } });
+    document.execCommand = () => {
+      window.fallbackCopied = document.querySelector('textarea').value;
+      return true;
+    };
+  });
+  await button.press('Enter');
+  assert.equal(await page.evaluate(() => window.fallbackCopied), (await card.locator('[data-agent-prompt]').textContent()).trim());
+  assert.equal(await card.locator('[data-copy-label]').innerText(), '已复制');
+  assert.equal(await button.evaluate(el => el === document.activeElement), true);
+  await page.evaluate(() => { document.execCommand = () => false; });
+  await button.press('Enter');
+  assert.match(await card.locator('[data-copy-status]').innerText(), /复制失败.*手动复制/);
+  assert.equal(await button.getAttribute('data-copied'), 'false');
+  const selected = await card.locator('[data-agent-prompt]').evaluate(el => {
+    getSelection().selectAllChildren(el);
+    return getSelection().toString();
+  });
+  assert.equal(selected, (await card.locator('[data-agent-prompt]').textContent()).trim());
+});
+
+test('首次 Agent 占位适配浅深色和窄屏，无 JS 时仍可阅读全文', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/first-agent/');
+  assert.equal(await page.locator('[data-agent-media]').count(), 10);
+  assert.equal(await page.locator('[data-first-agent] img, [data-first-agent] video').count(), 0);
+  for (const theme of ['light', 'dark']) {
+    await select(page, theme);
+    for (const width of [1440, 768, 390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const tool of ['workbuddy', 'zcode']) {
+        await page.locator(`input[value="${tool}"]`).check();
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${theme} ${width} ${tool}`);
+      }
+    }
+  }
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  t.after(() => context.close());
+  const plain = await context.newPage();
+  await plain.goto(origin + '/guide/first-agent/');
+  assert.equal(await plain.locator('[data-agent-media]:visible').count(), 10);
+  assert.equal(await plain.locator('[data-agent-picker]').isVisible(), false);
+  assert.equal(await plain.locator('[data-copy-target]:visible').count(), 0);
+  assert.equal(await plain.locator('[data-agent-prompt]').count(), 4);
+  assert.equal(await plain.locator('[data-agent-tool="workbuddy"]').first().isVisible(), true);
+  assert.equal(await plain.locator('[data-agent-tool="zcode"]').first().isVisible(), true);
+  assert.equal(await plain.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 });
 
 test('全站搜索保护中文输入法，章节结果可用键盘打开并落到指南首页锚点', async t => {
@@ -1004,7 +1106,7 @@ test('正文目录只在符合指针和宽度条件的桌面端显示', async t 
   assert.equal(await touch.locator('.wiki-toc').isVisible(), false);
 
   await page.setViewportSize({ width: 1440, height: 1000 });
-  for (const route of ['/guide/', '/guide/first-agent/', '/glossary/', '/works/']) {
+  for (const route of ['/guide/', '/guide/task-description/', '/glossary/', '/works/']) {
     await page.goto(origin + route);
     assert.equal(await toc.count(), 0, route + ' 不应渲染空目录');
   }

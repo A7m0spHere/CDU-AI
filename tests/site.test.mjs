@@ -1003,3 +1003,44 @@ test('工具数据进入搜索索引：别名、技术类型与能力标签都�
     '搜索索引应包含技术类型关键词',
   );
 });
+
+test('首次 Agent 教程保留原文与七章结构，组件在构建时生成且提示词只来自正文', async () => {
+  const html = await read('guide/first-agent/index.html');
+  assert.doesNotMatch(html, /【交互位置|【配图|<!--\s*first-agent:|<iframe\b/);
+  assert.match(html, /ZCode：目前国产最好的Agent/);
+  assert.match(html, /每天可以领取100的积分/);
+  assert.match(html, /CDU-介绍网站/);
+  assert.match(html, /名为 CDU\.html 的文件/);
+  assert.match(html, /成都大学官方网站 \(https:\/\/www\.cdu\.edu\.cn\/\)/);
+  assert.equal((html.match(/data-copy-card=/g) ?? []).length, 4);
+  const media = [...html.matchAll(/data-agent-media="([^"]+)"/g)].map(match => match[1]).sort();
+  assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04', 'M05', 'M06', 'M07-A', 'M07-B', 'V01'].sort());
+  const prose = html.match(/data-first-agent[\s\S]*?<\/article>/)?.[0] ?? '';
+  assert.doesNotMatch(prose, /<(?:img|video)\b/);
+  const search = JSON.parse(await read('search-index.json'));
+  assert.equal(search.filter(item => item.href.startsWith('/guide/first-agent/#')).length, 7);
+  assert.equal(search.some(item => item.type === '指南' && item.href === '/guide/first-agent/'), true);
+  assert.equal(JSON.stringify(search).includes('<!-- first-agent:'), false);
+});
+
+test('首次 Agent Markdown 扩展限定文件范围，已集成但缺失的素材继续显示占位', async () => {
+  const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
+  const { default: config } = await import('../astro.config.mjs');
+  const { firstAgentMedia, resolveFirstAgentMedia } = await import('../src/data/first-agent-media.mjs');
+  const { default: rehypeFirstAgent } = await import('../src/lib/rehype-first-agent.mjs');
+  const processor = await createMarkdownProcessor(config.markdown);
+  const marker = '<!-- first-agent:selector -->\n\n> 普通文章引用。';
+  const other = await processor.render(marker, { fileURL: new URL('../src/content/guide/ai-faq.md', import.meta.url) });
+  assert.match(other.code, /<!-- first-agent:selector -->/);
+  assert.match(other.code, /<blockquote>/);
+  assert.doesNotMatch(other.code, /<fieldset/);
+  const missingMedia = resolveFirstAgentMedia({ M01: { ...firstAgentMedia.M01, status: '已集成' } });
+  assert.equal(missingMedia.M01.available, false);
+  const presentMedia = resolveFirstAgentMedia({ M01: { ...firstAgentMedia.M01, file: '.gitkeep', status: '已集成' } });
+  assert.equal(presentMedia.M01.available, true);
+  assert.notEqual(JSON.stringify(missingMedia), JSON.stringify(presentMedia), '素材状态参与构建配置缓存键');
+  const missingProcessor = await createMarkdownProcessor({ rehypePlugins: [[rehypeFirstAgent, { media: missingMedia }]] });
+  const missing = await missingProcessor.render('<!-- first-agent:media M01 -->', { fileURL: new URL('../src/content/guide/first-agent.md', import.meta.url) });
+  assert.match(missing.code, /素材待补充/);
+  assert.doesNotMatch(missing.code, /<img\b/);
+});

@@ -8,6 +8,7 @@ import GuideHeading from '../../components/GuideHeading.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
 import GuideMobileNav from '../../components/GuideMobileNav.astro';
 import GuidePager from '../../components/GuidePager.astro';
+import FirstAgentTutorial from '../../components/FirstAgentTutorial.astro';
 import { getGuideChapters, type GuideChapter } from '../../data/guide-nav';
 import '../../styles/notion.css';
 
@@ -49,7 +50,7 @@ const sources = entry?.data.sources ?? [];
               author={entry?.data.author}
               updated={entry?.data.updated}
             />
-            <div class="prose wiki-prose notion-prose guide-reading-prose">
+            <div class:list={['prose wiki-prose notion-prose guide-reading-prose', { 'first-agent-tutorial': slug === 'first-agent' }]} data-first-agent={slug === 'first-agent' ? '' : undefined}>
               {entry && Content ? <Content /> : (
                 <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
               )}
@@ -77,6 +78,7 @@ const sources = entry?.data.sources ?? [];
       </div>
     </div>
   </div>
+  {slug === 'first-agent' && <FirstAgentTutorial />}
 </BaseLayout>
 
 <style>
