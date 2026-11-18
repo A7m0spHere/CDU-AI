@@ -90,7 +90,7 @@ const catalogConfig = JSON.stringify({
 
           <p class="catalog-search-scope" data-filter-scope>搜索范围：全部工具</p>
 
-          <nav class="catalog-nav" aria-label="按场景筛选">
+          <nav class="catalog-nav catalog-nav--categories" aria-label="按场景筛选">
             <div class="catalog-nav__head">
               <span>使用场景</span>
               <span class="filter-count">{tools.length} 个条目</span>
@@ -116,12 +116,23 @@ const catalogConfig = JSON.stringify({
             </div>
           </nav>
 
-          <div class="catalog-nav">
+          <div class="catalog-nav catalog-nav--caps" data-cap-panel>
             <div class="catalog-nav__head">
               <span>能力筛选</span>
               <span class="filter-count">可多选</span>
+              <button
+                class="catalog-caps-toggle"
+                type="button"
+                data-cap-toggle
+                aria-expanded="false"
+                aria-controls="catalog-cap-list"
+                hidden
+              >
+                <span data-cap-toggle-label>展开</span>
+                <Icon name="chevron-down" size={14} />
+              </button>
             </div>
-            <div class="filter-chips filter-chips--vertical" role="group" aria-label="按能力筛选">
+            <div class="filter-chips filter-chips--vertical" id="catalog-cap-list" data-cap-list role="group" aria-label="按能力筛选">
               {toolCapabilities.map((cap) => (
                 <button
                   class="filter-chip filter-chip--cap"
@@ -145,7 +156,7 @@ const catalogConfig = JSON.stringify({
 
         <div class="catalog-main">
           <div class="results-bar" data-catalog-results tabindex="-1" role="region" aria-label="工具搜索结果">
-            <p aria-live="polite" aria-atomic="true">匹配 <strong data-filter-count>{tools.length}</strong> 项<span data-catalog-range hidden></span><span data-filter-folded-note hidden={foldedDefault === 0}>（<strong data-filter-folded-count>{foldedDefault}</strong> 项已折叠）</span></p>
+            <p aria-live="polite" aria-atomic="true">匹配 <strong data-filter-count>{tools.length}</strong> 项<span data-filter-folded-note hidden={foldedDefault === 0}>（<strong data-filter-folded-count>{foldedDefault}</strong> 项已折叠）</span></p>
             <button class="clear-filters" type="button" data-clear-filters hidden>清除筛选</button>
           </div>
 
@@ -194,13 +205,6 @@ const catalogConfig = JSON.stringify({
             ))}
           </div>
 
-          <nav class="catalog-pagination" data-catalog-pagination aria-label="工具分页" hidden>
-            <button class="btn btn--soft btn--sm" type="button" data-catalog-previous>上一页</button>
-            <p class="catalog-pagination__status" data-catalog-page-label></p>
-            <button class="btn btn--soft btn--sm" type="button" data-catalog-next>下一页</button>
-            <button class="btn btn--soft btn--sm" type="button" data-catalog-first hidden>回到第一页</button>
-          </nav>
-
           <div data-catalog-pool hidden></div>
           <script type="application/json" data-catalog-config set:html={catalogConfig} />
 
@@ -221,6 +225,49 @@ const catalogConfig = JSON.stringify({
             </a>
           </div>
         </div>
+
+        <dialog class="tool-sheet" data-tool-sheet aria-labelledby="tool-sheet-title">
+          <div class="tool-sheet__inner">
+            <div class="tool-sheet__handle" aria-hidden="true"><span></span></div>
+            <div class="tool-sheet__head">
+              <span class="tool-mark" data-sheet-mark></span>
+              <div class="tool-sheet__identity">
+                <h2 id="tool-sheet-title" data-sheet-title></h2>
+                <p data-sheet-sub></p>
+              </div>
+              <button class="tool-sheet__close" type="button" data-sheet-close aria-label="关闭工具详情">
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            <div class="tool-sheet__body" data-sheet-body>
+              <div class="tool-sheet__meta">
+                <span class="tool-card__category" data-sheet-category></span>
+              </div>
+              <p class="tool-sheet__summary" data-sheet-summary></p>
+              <p class="tool-sheet__description" data-sheet-description></p>
+              <div class="tool-sheet__best" data-sheet-best-wrap hidden>
+                <strong>最适合</strong>
+                <p data-sheet-best></p>
+              </div>
+              <ul class="tag-list" data-sheet-tags aria-label="标签"></ul>
+              <p class="tool-card__caution" data-sheet-caution-wrap hidden>
+                <Icon name="alert-triangle" size={14} />
+                <span data-sheet-caution></span>
+              </p>
+              <p class="tool-card__verify" data-sheet-verify></p>
+            </div>
+            <div class="tool-sheet__foot">
+              <a class="btn btn--primary btn--sm tool-sheet__primary" data-sheet-url target="_blank" rel="noopener noreferrer">
+                打开官网
+                <Icon name="arrow-up-right" size={15} />
+              </a>
+              <a class="btn btn--soft btn--sm tool-sheet__repo" data-sheet-repo target="_blank" rel="noopener noreferrer" hidden>
+                <Icon name="github" size={15} />
+                代码仓库
+              </a>
+            </div>
+          </div>
+        </dialog>
       </div>
       )}
 
