@@ -609,181 +609,133 @@ test('术语表历史恢复和手机输入不触发筛选回顶', async t => {
   assert.ok(box.y >= 0 && box.y + box.height <= 680, '手机输入时搜索框留在视口内');
 });
 
-test('手机工具目录在短屏和普通动效下持续可读', async t => {
+test('手机工具目录在短屏和普通动效下持续可读，按 App 网格展示且无横向溢出', async t => {
   const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'no-preference' });
   for (const viewport of [{ width: 375, height: 667 }, { width: 390, height: 664 }, { width: 360, height: 640 }, { width: 320, height: 568 }, { width: 390, height: 844 }]) {
     await page.setViewportSize(viewport);
     await page.goto(origin + '/tools/');
     await ready(page);
+    const firstTileBox = await page.locator('[data-tool-id="deepseek"]').boundingBox();
+    assert.ok(firstTileBox && firstTileBox.y + firstTileBox.height <= viewport.height, `${viewport.width}×${viewport.height} 首屏应直接露出第一排工具图标`);
     await page.evaluate(() => window.scrollTo({ top: 1400, behavior: 'instant' }));
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     assert.equal(await page.locator('[data-tool-catalog]').evaluate(el => getComputedStyle(el).opacity), '1', `${viewport.width}×${viewport.height} 目录不能因显现动画保持透明`);
-    assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+    assert.equal(await page.locator('[data-tool-catalog]').evaluate(el => el.dataset.mobileAppGrid), 'true');
+    const cols = await page.locator('.tool-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
+    assert.equal(cols, viewport.width <= 359 ? 3 : 4, `${viewport.width}px 网格列数应适配屏幕宽度`);
+    assert.equal(await page.locator('[data-tool-id="deepseek"] .tool-card__summary').isVisible(), false);
+    assert.equal(await page.locator('[data-tool-id="deepseek"] [data-tool-tile]').isVisible(), true);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   }
 });
 
-test('手机全目录逐页覆盖全部工具且不重复，翻页支持键盘并返回结果区', async t => {
+test('手机端点击 App 图标打开底部详情抽屉，支持键盘关闭与桌面断点切换', async t => {
   const page = await setup(t, { viewport: { width: 375, height: 667 }, isMobile: true, hasTouch: true });
   await page.goto(origin + '/tools/');
   await ready(page);
-  const seen = [];
-  const pages = Math.ceil(tools.length / 9);
-  assert.equal(await page.locator('[data-catalog-previous]').isDisabled(), true);
-  for (let current = 1; current <= pages; current += 1) {
-    assert.equal(await page.locator('[data-catalog-page-label]').textContent(), `第 ${current} 页，共 ${pages} 页`);
-    assert.equal(await page.locator('[data-catalog-first]').isVisible(), current === pages);
-    const ids = await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId));
-    assert.equal(ids.length, Math.min(9, tools.length - seen.length));
-    seen.push(...ids);
-    assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
-    assert.equal(await page.locator('[data-collapse]:visible').count(), 0, '全目录分页内不再嵌套社区折叠');
-    assert.equal(await page.locator('[data-filter-group]:visible').evaluateAll(elements => elements.every(el => el.querySelector('[data-tool-id]:not([hidden])'))), true, '当前页不显示空分组标题');
-    if (current < pages) {
-      await page.locator('[data-catalog-next]').press('Enter');
-      assert.equal(await page.locator('[data-catalog-results]').evaluate(el => el === document.activeElement), true);
-      // 不只核对瞬时位置：卡片进场动画结束后，浏览器也不能把视口挪回下方。
-      await page.waitForFunction(() => document.querySelectorAll('[data-filter-card].filter-appear').length === 0);
-      // 等浏览器完成焦点与滚动布局，再核对最终位置，避免读取到中间帧。
-      await page.waitForFunction(() => {
-        const top = document.querySelector('[data-catalog-results]').getBoundingClientRect().top;
-        return top >= 0 && top < 160;
-      });
-      const top = await page.locator('[data-catalog-results]').evaluate(el => el.getBoundingClientRect().top);
-      assert.ok(top >= 0 && top < 160, `第 ${current + 1} 页应停在固定顶栏下的结果区（实际 ${top}）`);
-    }
-  }
-  assert.equal(new Set(seen).size, tools.length);
-  assert.deepEqual([...seen].sort(), tools.map(tool => tool.id).sort());
-  assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
-  assert.equal(await page.locator('[data-catalog-next]').isDisabled(), true);
-  await page.locator('[data-catalog-first]').press('Enter');
-  assert.equal(new URL(page.url()).searchParams.has('page'), false);
-  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-  assert.equal(await page.locator('[data-catalog-first]').isVisible(), false);
-  assert.equal(await page.locator('[data-catalog-results]').evaluate(el => el === document.activeElement), true);
-  await page.goBack();
-  await page.waitForFunction(last => document.querySelector('[data-catalog-page-label]').textContent.startsWith(`第 ${last} 页`), pages);
-  await page.locator('[data-catalog-previous]').click();
-  assert.equal(new URL(page.url()).searchParams.get('page'), String(pages - 1));
-});
 
-test('手机分页恢复 URL 和历史，搜索覆盖其他页且筛选后返回首页', async t => {
-  const page = await setup(t, { viewport: { width: 390, height: 664 }, isMobile: true, hasTouch: true });
-  await page.goto(origin + '/tools/?page=3');
-  await ready(page);
-  const thirdPage = await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId));
-  await page.locator('[data-catalog-next]').click();
-  await page.reload(); await ready(page);
-  assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 4 页/);
-  await page.goBack();
-  await page.waitForFunction(() => document.querySelector('[data-catalog-page-label]').textContent.startsWith('第 3 页'));
-  assert.deepEqual(await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId)), thirdPage);
-  await page.goForward();
-  await page.waitForFunction(() => document.querySelector('[data-catalog-page-label]').textContent.startsWith('第 4 页'));
+  const deepseekTile = page.locator('[data-tool-id="deepseek"] [data-tool-tile]');
+  await deepseekTile.click();
+  const sheet = page.locator('[data-tool-sheet]');
+  await page.waitForFunction(() => document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await sheet.locator('[data-sheet-title]').textContent(), 'DeepSeek');
+  assert.match(await sheet.locator('[data-sheet-summary]').textContent(), /国产大模型/);
+  assert.equal(await sheet.locator('[data-sheet-best-wrap]').isVisible(), true);
+  assert.equal(await sheet.locator('[data-sheet-caution-wrap]').isVisible(), true);
+  assert.equal(await sheet.locator('[data-sheet-url]').getAttribute('href'), 'https://chat.deepseek.com/');
+  assert.equal(await sheet.locator('[data-sheet-repo]').isVisible(), false);
 
-  const last = tools.at(-1);
-  await page.locator('[data-filter-search]').fill(last.name);
-  await page.waitForFunction(() => !new URLSearchParams(location.search).has('page'));
-  assert.equal(await page.locator(`[data-tool-id="${last.id}"]`).isVisible(), true, '搜索必须能找到未在当前页展示的工具');
-  assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 1 页/);
-  await page.goBack();
-  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === String(document.querySelectorAll('[data-tool-id]').length));
-  assert.equal(await page.locator('[data-filter-search]').inputValue(), '');
-  assert.deepEqual(await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.map(el => el.dataset.toolId)), thirdPage);
-  await page.goForward();
-  await page.waitForFunction(term => document.querySelector('[data-filter-search]').value === term, last.name.toLocaleLowerCase('zh-CN'));
-  assert.equal(await page.locator(`[data-tool-id="${last.id}"]`).isVisible(), true);
+  await sheet.locator('[data-sheet-close]').click();
+  await page.waitForFunction(() => !document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await deepseekTile.evaluate(el => el === document.activeElement), true, '关闭抽屉后焦点回到原图标');
 
-  await page.locator('[data-filter-search]').fill('没有这个工具-分页验收');
-  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '0');
-  assert.equal(await page.locator('[data-empty-state]').isVisible(), true);
-  assert.equal(await page.locator('[data-catalog-pagination]').isVisible(), false);
-  assert.equal(await page.locator('[data-catalog-range]').isVisible(), false);
-  await page.locator('[data-clear-filters]').click();
-  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-  await page.locator('[data-filter-cap="open-source"]').press('Enter');
-  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.capabilities.includes('open-source')).length));
-  assert.equal(await page.locator('[data-tool-id]:visible').evaluateAll(elements => elements.every(el => el.dataset.capabilities.split(' ').includes('open-source'))), true);
-  await page.locator('[data-catalog-next]').click();
-  await page.reload(); await ready(page);
-  assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
-  assert.match(await page.locator('[data-catalog-page-label]').textContent(), /^第 2 页/);
-  await page.locator('[data-filter-search]').fill('Agent');
-  await page.waitForFunction(() => new URLSearchParams(location.search).get('q') === 'agent');
-  const filteredCount = await page.locator('[data-filter-count]').textContent();
-  assert.ok(Number(filteredCount) > 9);
-  const lastFilteredPage = new URL(page.url());
-  lastFilteredPage.searchParams.set('page', '999');
-  await page.goto(lastFilteredPage.href); await ready(page);
-  await page.locator('[data-catalog-first]').click();
-  assert.equal(new URL(page.url()).searchParams.has('page'), false);
-  assert.equal(new URL(page.url()).searchParams.get('q'), 'agent');
-  assert.equal(new URL(page.url()).searchParams.get('caps'), 'open-source');
-  assert.equal(await page.locator('[data-filter-count]').textContent(), filteredCount);
-  assert.equal(await page.locator('[data-filter-search]').inputValue(), 'agent');
-  assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
-});
+  const mineruTile = page.locator('[data-tool-id="mineru"] [data-tool-tile]');
+  await mineruTile.click();
+  await page.waitForFunction(() => document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await sheet.locator('[data-sheet-title]').textContent(), 'MinerU');
+  assert.equal(await sheet.locator('[data-sheet-url]').getAttribute('href'), 'https://mineru.net/');
+  assert.equal(await sheet.locator('[data-sheet-repo]').getAttribute('href'), 'https://github.com/opendatalab/MinerU');
 
-test('手机分页与单分类折叠、桌面切换及非法页码兼容', async t => {
-  const page = await setup(t, { viewport: { width: 390, height: 844 } });
-  await page.goto(origin + '/tools/?page=4'); await ready(page);
-  await page.locator('[data-filter-value="agent"]').press('Enter');
-  assert.equal(await page.locator('[data-catalog-pagination]').isVisible(), false);
-  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.category === 'agent').length));
-  assert.equal(await page.locator('[data-collapse]').evaluate(el => el.open), false);
-  assert.equal(await page.locator('[data-filter-folded-count]').textContent(), '10');
-  assert.equal(new URL(page.url()).searchParams.has('page'), false);
-  await page.locator('[data-filter-value="all"]').press('Enter');
-  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-  assert.equal(await page.locator('[data-filter-folded-note]').isVisible(), false);
-  const defaultFolded = await page.locator('[data-catalog-config]').evaluate(el => JSON.parse(el.textContent).views.all.categories.flatMap(category => category.groups).reduce((sum, group) => sum + group.collapsedIds.length, 0));
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await mineruTile.evaluate(el => el === document.activeElement), true);
+
+  await deepseekTile.click();
+  await page.waitForFunction(() => document.querySelector('[data-tool-sheet]').open);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.waitForFunction(() => document.querySelector('[data-catalog-pagination]').hidden);
-  assert.equal(await page.locator('[data-collapsed="true"]').count(), defaultFolded);
-  assert.equal(await page.locator('[data-filter-folded-count]').textContent(), String(defaultFolded));
-  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+  await page.waitForFunction(() => !document.querySelector('[data-tool-catalog]').dataset.mobileAppGrid);
+  assert.equal(await sheet.evaluate(el => el.open), false, '切回桌面端自动收起手机详情抽屉');
+  assert.equal(await page.locator('[data-tool-id="deepseek"] .tool-card__summary').isVisible(), true);
+  assert.equal(await page.locator('[data-tool-id="deepseek"] [data-tool-tile]').isVisible(), false);
+
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForFunction(() => !document.querySelector('[data-catalog-pagination]').hidden);
-  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-  assert.equal(await page.locator('[data-tool-id]').count(), tools.length);
-  for (const value of ['0', '-3', 'abc', '2.5', '9007199254740993']) {
-    await page.goto(origin + '/tools/?page=' + value); await ready(page);
-    assert.equal(new URL(page.url()).searchParams.has('page'), false);
-    assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-  }
-  await page.goto(origin + '/tools/?page=999'); await ready(page);
-  assert.equal(new URL(page.url()).searchParams.get('page'), String(Math.ceil(tools.length / 9)));
-  await page.goto(origin + '/tools/?category=tts&page=88'); await ready(page);
-  assert.equal(await page.locator('[data-filter-count]').textContent(), '5');
-  assert.equal(await page.locator('[data-filter-value="audio"]').getAttribute('aria-pressed'), 'true');
-  assert.equal(new URL(page.url()).searchParams.has('page'), false);
+  await page.waitForFunction(() => document.querySelector('[data-tool-catalog]').dataset.mobileAppGrid === 'true');
+  assert.equal(await page.locator('[data-tool-id="deepseek"] [data-tool-tile]').isVisible(), true);
 });
 
-test('手机分页在浅色、深色和自定义主题中可用，无 JS 和打印不截断目录', async t => {
+test('手机端可折叠能力筛选、URL 恢复与开源折叠兼容', async t => {
+  const page = await setup(t, { viewport: { width: 390, height: 844 } });
+  await page.goto(origin + '/tools/');
+  await ready(page);
+
+  const capToggle = page.locator('[data-cap-toggle]');
+  const capList = page.locator('[data-cap-list]');
+  assert.equal(await capToggle.isVisible(), true);
+  assert.equal(await capToggle.getAttribute('aria-expanded'), 'false');
+  assert.equal(await capList.isVisible(), false);
+
+  await capToggle.click();
+  assert.equal(await capToggle.getAttribute('aria-expanded'), 'true');
+  assert.equal(await capList.isVisible(), true);
+
+  await page.goto(origin + '/tools/?caps=open-source');
+  await ready(page);
+  assert.equal(await capToggle.getAttribute('aria-expanded'), 'true');
+  assert.equal(await capList.isVisible(), true);
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.capabilities.includes('open-source')).length));
+
+  await page.locator('[data-clear-filters]').click();
+  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+
+  await page.locator('[data-filter-value="agent"]').click();
+  assert.equal(await page.locator('[data-collapse]').evaluate(el => el.open), false);
+  await page.locator('[data-filter-search]').fill('Cline');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '1');
+  assert.equal(await page.locator('[data-collapse]').evaluate(el => el.open), true);
+  await page.locator('[data-tool-id="cline"] [data-tool-tile]').click();
+  await page.waitForFunction(() => document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await page.locator('[data-sheet-title]').textContent(), 'Cline');
+});
+
+test('手机 App 网格在浅色、深色和自定义主题中可用，无 JS 和打印恢复完整卡片', async t => {
   const page = await setup(t, { viewport: { width: 375, height: 667 }, reducedMotion: 'reduce' });
-  await page.goto(origin + '/tools/'); await ready(page);
+  await page.goto(origin + '/tools/');
+  await ready(page);
   for (const id of ['light', 'dark', 'preset-forest']) {
     await select(page, id);
-    assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-    assert.equal(await page.locator('[data-catalog-next]').isEnabled(), true);
+    assert.equal(await page.locator('[data-tool-catalog]').evaluate(el => el.dataset.mobileAppGrid), 'true');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   }
   await create(page);
-  await page.locator('[data-theme-field="name"]').fill('工具分页验收');
+  await page.locator('[data-theme-field="name"]').fill('手机网格验收');
   await page.locator('[data-theme-save]').click();
   const saved = await state(page);
-  await page.locator('[data-catalog-next]').click();
-  await page.reload(); await ready(page);
+  await page.reload();
+  await ready(page);
   assert.equal((await state(page)).id, saved.id);
-  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
+  await page.locator('[data-tool-id="deepseek"] [data-tool-tile]').click();
+  await page.waitForFunction(() => document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await page.locator('[data-sheet-title]').textContent(), 'DeepSeek');
+  await page.locator('[data-sheet-close]').click();
+
   await page.evaluate(() => window.addEventListener('beforeprint', () => {
     window.printedToolCount = document.querySelectorAll('[data-tool-id]:not([hidden])').length;
+    window.printedAppMode = document.querySelector('[data-tool-catalog]').dataset.mobileAppGrid ?? null;
   }));
   await page.pdf();
   assert.equal(await page.evaluate(() => window.printedToolCount), tools.length);
-  assert.equal(await page.locator('[data-tool-id]:visible').count(), 9);
-  assert.equal(new URL(page.url()).searchParams.get('page'), '2');
+  assert.equal(await page.evaluate(() => window.printedAppMode), null);
+  assert.equal(await page.locator('[data-tool-catalog]').evaluate(el => el.dataset.mobileAppGrid), 'true');
 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 667 } });
   t.after(() => context.close());
@@ -791,7 +743,7 @@ test('手机分页在浅色、深色和自定义主题中可用，无 JS 和打�
   await staticPage.goto(origin + '/tools/');
   assert.equal(await staticPage.locator('[data-tool-catalog]').evaluate(el => getComputedStyle(el).opacity), '1');
   assert.equal(await staticPage.locator('[data-tool-id]').count(), tools.length);
-  assert.equal(await staticPage.locator('[data-catalog-pagination]').isVisible(), false);
+  assert.equal(await staticPage.locator('[data-tool-id="deepseek"] .tool-card__summary').isVisible(), true);
   assert.equal(await staticPage.locator(`[data-tool-id="${tools.at(-1).id}"]`).isVisible(), true);
 });
 

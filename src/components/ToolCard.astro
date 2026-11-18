@@ -65,6 +65,7 @@ const githubUrl = tool.githubUrl;
   data-category={[tool.category, ...(tool.alsoIn ?? [])].join(' ')}
   data-capabilities={tool.capabilities.join(' ')}
   data-search={searchText}
+  data-best-for={tool.bestFor}
   data-collapsed={collapsed ? 'true' : undefined}
 >
   <div class="tool-card__top">
@@ -137,4 +138,12 @@ const githubUrl = tool.githubUrl;
       </a>
     )}
   </div>
+  <button
+    type="button"
+    class="tool-card__tile"
+    data-tool-tile
+    aria-haspopup="dialog"
+    aria-label={`查看 ${tool.name} 详情`}
+    hidden
+  ></button>
 </article>
