@@ -610,44 +610,44 @@
 
 @media screen and (max-width: 760px) {
   :root:has([data-tool-catalog]) .page-header {
-    padding-block: 0.55rem 0.25rem;
+    padding-block: 0.55rem 0.35rem;
     border-bottom: 0;
   }
 
   :root:has([data-tool-catalog]) .page-header .breadcrumb,
-  :root:has([data-tool-catalog]) .page-header__eyebrow,
+  :root:has([data-tool-catalog]) .page-header__eyebrow > :not(.page-header__chips),
   :root:has([data-tool-catalog]) .page-header__lede,
   :root:has([data-tool-catalog]) .page-header__aside,
+  :root:has([data-tool-catalog]) .notice--warm,
   [data-tool-catalog] .catalog-search-scope,
-  [data-mobile-app-grid='true'] .catalog-category__heading p {
+  [data-mobile-app-grid='true'] .catalog-category__heading {
     display: none;
   }
 
+  :root:has([data-tool-catalog]) .page-header__copy {
+    gap: 0.45rem;
+  }
+
   :root:has([data-tool-catalog]) .page-header h1 {
+    order: 1;
     font-size: 1.32rem;
     line-height: 1.2;
   }
 
-  :root:has([data-tool-catalog]) .notice--warm {
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.38rem 0.65rem;
-    border-radius: var(--radius-md);
-    font-size: 0.72rem;
-    line-height: 1.35;
+  :root:has([data-tool-catalog]) .page-header__eyebrow {
+    order: 2;
+    margin: 0;
   }
 
-  :root:has([data-tool-catalog]) .notice--warm svg {
-    margin-top: 0;
-  }
-
-  :root:has([data-tool-catalog]) .notice--warm .notice__detail {
-    display: none;
+  :root:has([data-tool-catalog]) .page-header__chip--brand {
+    border-color: var(--line);
+    background: var(--surface);
+    color: var(--muted);
   }
 
   :root:has([data-tool-catalog]) .catalog-layout {
     gap: 0.6rem;
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
   }
 
   [data-tool-catalog] .catalog-sidebar {
@@ -660,15 +660,35 @@
   }
 
   [data-tool-catalog] .catalog-main .results-bar {
-    margin-bottom: 0.45rem;
+    position: relative;
+    justify-content: flex-end;
+    margin-bottom: 0.35rem;
   }
 
-  [data-mobile-app-grid='true'] .catalog-category__heading {
-    margin-bottom: 0.5rem;
+  [data-tool-catalog] .catalog-main .results-bar:has([data-clear-filters][hidden]) {
+    margin: 0;
+    min-height: 0;
   }
 
-  [data-mobile-app-grid='true'] .catalog-category__heading h2 {
-    font-size: 1rem;
+  [data-tool-catalog] .catalog-main .results-bar p {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  [data-mobile-app-grid='true']:not([data-single-category='true']) .tool-group__heading.sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0 0 0.85rem;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: normal;
   }
 
   [data-tool-catalog] .catalog-nav--categories .catalog-nav__head,

@@ -696,8 +696,16 @@ test('手机端可折叠能力筛选、URL 恢复与开源折叠兼容', async t
 
   await page.locator('[data-clear-filters]').click();
   assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
+  assert.equal(await page.locator('.page-header__chips').isVisible(), true);
+  assert.equal(await page.locator('.notice--warm').isVisible(), false);
+  assert.equal(await page.locator('[data-tool-catalog] .results-bar p').evaluate(el => el.getBoundingClientRect().height <= 1), true, '手机端隐藏重复的匹配计数行');
+  assert.equal(await page.locator('[data-catalog-category="llm-chat"] .catalog-category__heading').isVisible(), false, '全部工具下也隐藏冗余分类大标题');
+  assert.equal(await page.locator('[data-catalog-category="agent"] .catalog-category__heading').isVisible(), false);
 
   await page.locator('[data-filter-value="agent"]').click();
+  assert.equal(await page.locator('[data-catalog-category="agent"] .catalog-category__heading').isVisible(), false, '单分类筛选时不重复显示分类大标题');
+  assert.equal(await page.locator('[data-tool-catalog] .results-bar p').evaluate(el => el.getBoundingClientRect().height <= 1), true, '单分类筛选时同样隐藏匹配计数行');
+  assert.equal(await page.locator('[data-clear-filters]').isVisible(), true);
   assert.equal(await page.locator('[data-collapse]').evaluate(el => el.open), false);
   await page.locator('[data-filter-search]').fill('Cline');
   await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '1');

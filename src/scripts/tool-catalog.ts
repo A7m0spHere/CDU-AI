@@ -275,7 +275,9 @@ export function initToolCatalog(): void {
         if (!assigned.has(id)) pool.append(card);
       });
     },
-    afterApply: ({ reason, capabilities }) => {
+    afterApply: ({ reason, capabilities, category }) => {
+      if (category !== 'all') root.dataset.singleCategory = 'true';
+      else delete root.dataset.singleCategory;
       activeCapCount = capabilities.length;
       if ((reason === 'init' || reason === 'history') && activeCapCount > 0) {
         capExpanded = true;
