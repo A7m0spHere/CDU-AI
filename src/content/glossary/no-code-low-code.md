@@ -2,57 +2,52 @@
 term: "无代码/低代码"
 en: "No-code / Low-code"
 category: "vibecoding"
-aliases: ["No-code", "Low-code", "零代码", "低代码"]
-definition: "用拖拽和配置代替写代码来做工具的开发路线。"
-example: "用现成平台拖几个表单和按钮，做出社团报名收集页，不用写代码。"
-youMaySay: "拖拽做出来的东西，能撑住真实使用吗？"
-scenario:
-  title: "搭社团报名收集页"
-  steps:
-    - label: "拖拽搭建"
-      body: "用平台拼出表单与提交按钮。"
-      note: "简单场景很快。"
-    - label: "遇到限制"
-      body: "复杂校验做不了，需要写少量脚本。"
-      meta: "低代码补脚本"
-    - label: "评估数据归属"
-      body: "数据存在平台方，导出与权限要确认。"
-quiz:
-  - question: "无代码/低代码的主要边界是？"
-    options:
-      - text: "完全不能做表单"
-        correct: false
-      - text: "复杂逻辑与数据归属受平台限制"
-        correct: true
-      - text: "只能手机端使用"
-        correct: false
-    explain: "平台能力与数据位置是主要边界。"
-agentPrompt: "请评估下面这个需求用低代码平台能否完成，列出平台限制与需要人工处理的部分。"
+aliases:
+  - "No-code"
+  - "Low-code"
+  - "零代码"
+  - "低代码"
+definition: "通过可视化拖拽、组件配置与少量脚本来构建软件应用和自动化流程的开发方式。"
+example: "运营人员在可视化平台中配置表单字段、审批流和数据视图，无需编写后端代码即可发布一套活动报名工具。"
 order: 4
-related: ["vibe-coding", "deployment"]
-updated: "2026-10-30"
+related:
+  - "vibe-coding"
+  - "workflow"
+  - "deployment"
+  - "natural-language-programming"
+updated: "2026-11-18"
 sources:
   - title: "Microsoft Power Platform 官方文档"
     url: "https://learn.microsoft.com/en-us/power-platform/"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "AI 初审（负责人授权）"
-reviewNote: "AI 按定义、例子及参考资料初审；链接可访问，未逐项核验全部事实或实测产品。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 是什么
+无代码与低代码（No-code / Low-code）是一类以图形化配置与模块化组装为核心的软件构建方法。平台将常见的页面[组件](/glossary/component/)、数据存储和业务规则封装为可复用的可视化积木，使非技术背景人员或工程师能够以极少的手工编码完成应用搭建，近年来也常与[自然语言编程](/glossary/natural-language-programming/)结合以进一步简化配置。
 
-无代码/低代码是用可视化配置搭应用：无代码几乎不写代码，低代码在关键处补少量脚本。
+## 无代码与低代码的差异
 
-## 什么时候会遇到
+两者均以可视化构建为核心，但在代码扩展深度上有所区分：
 
-做报名表、审批流、数据看板时；平台宣传「拖拽即可上线」。
+| 类型 | 构建方式 | 扩展能力 | 常见适用场景 |
+| --- | --- | --- | --- |
+| **无代码**（No-code） | 纯拖拽界面与预设规则 | 依赖平台内置功能与插件 | 收集表、展示页、轻量[工作流](/glossary/workflow/) |
+| **低代码**（Low-code） | 可视化主体加局部脚本 | 支持自定义函数与外部 [API](/glossary/api/) | 内部管理系统、审批看板 |
 
-## 和 AI 的关系
+## 常见构成与运行机制
 
-AI 可以帮助这类平台理解需求，但复杂逻辑仍受平台能力限制。数据可能由平台托管，也可能自行部署，要核对实际方案、导出方式与权限。
+无代码/低代码平台通常围绕三类能力提供支持：
 
-## 想深入再看
+- **界面编排**：在画布中拖拽表单、表格与图表，快速形成可交互的 [UI](/glossary/ui/) 或[原型](/glossary/prototype/)。
+- **数据与逻辑连接**：内置轻量[数据库](/glossary/database/)或外部数据源连接器，并通过条件分支编排业务规则。
+- **托管与发布**：多数平台集成权限控制与一键[部署](/glossary/deployment/)能力，应用可由平台托管，部分方案也支持私有化运行。
 
-相关词条：Vibe Coding、部署。
+## 与 AI 辅助开发的关系
+
+借助[大语言模型](/glossary/llm/)，平台用户可通过自然语言生成初始页面结构或补充低代码脚本。与自由产出源码的 [Vibe Coding](/glossary/vibe-coding/) 相比，无代码/低代码的结果受平台元模型与组件规范约束，结构更可控，但灵活度也受平台限制。
+
+## 局限与概念边界
+
+- **平台锁定与迁移成本**：应用逻辑与数据结构往往绑定特定服务商，超出平台能力上限后，通常难以直接导出为独立通用的源码工程。
+- **并非零门槛**：构建稳定应用仍需清晰的数据建模思维、权限意识及对[需求](/glossary/requirements/)的准确拆解；数据托管位置与导出权限也需按实际方案核实。

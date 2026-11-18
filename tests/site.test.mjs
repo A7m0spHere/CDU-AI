@@ -277,8 +277,8 @@ test('每个术语都有可读的详情页与结构化数据', async () => {
     assert.match(html, /data-term-module/, slug + ' 缺少术语模块容器');
     assert.match(html, /data-copy-markdown/, slug + ' 缺少「复制 Markdown」按钮');
     assert.match(html, /term-definition/, slug + ' 缺少定义块');
-    assert.match(html, /term-example/, slug + ' 缺少校园场景');
-    assert.match(html, /先知道/, slug + ' 缺少「先知道」分类');
+    assert.match(html, /term-body/, slug + ' 缺少正文区');
+    assert.ok(html.includes('/glossary/?category=' + fields.category), slug + ' 缺少所属分类入口');
     assert.match(html, /application\/ld\+json/, slug + ' 缺少结构化数据');
     assert.match(html, /href="\/glossary\/"/, slug + ' 缺少返回术语表的入口');
     // 术语模块的可选区块：写了 frontmatter 就必须渲染出来

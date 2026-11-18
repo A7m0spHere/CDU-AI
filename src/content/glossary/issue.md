@@ -2,56 +2,48 @@
 term: "Issue（议题）"
 en: "Issue"
 category: "git"
-aliases: ["Issue", "议题", "问题单"]
-definition: "在仓库里记录问题、建议或任务，便于讨论和跟踪。"
-example: "发现文档里的链接失效，开一个 Issue 说明页面和现象，维护者跟进处理。"
-youMaySay: "有问题直接在群里说不行吗？"
-scenario:
-  title: "报告一个文档错误"
-  steps:
-    - label: "开 Issue"
-      body: "写清页面地址、原文和问题现象。"
-      note: "信息越具体，越容易被处理。"
-    - label: "讨论"
-      body: "维护者在 Issue 下追问、补充信息、分工处理。"
-    - label: "关闭"
-      body: "修复后关联对应提交，再把 Issue 关闭。"
-quiz:
-  - question: "Issue 最适合用来做什么？"
-    options:
-      - text: "存放大文件"
-        correct: false
-      - text: "记录和跟踪问题、建议与任务"
-        correct: true
-      - text: "替代代码仓库"
-        correct: false
-    explain: "Issue 是问题与任务的跟踪入口，不是文件存储。"
-agentPrompt: "请帮我把这个文档问题整理成一条 Issue：标题、现象、页面地址、复现步骤和期望结果。"
+aliases:
+  - "Issue"
+  - "议题"
+  - "问题单"
+definition: "代码托管平台中用于记录缺陷、功能建议、讨论事项与待办任务的跟踪条目。"
+example: "用户发现页面链接失效后新建一条 Issue 并附上访问路径与复现步骤，维护者据此分配任务并关联后续修复提交。"
 order: 7
-related: ["pull-request", "fork"]
-updated: "2026-10-26"
+related:
+  - "pull-request"
+  - "bug"
+  - "requirements"
+  - "repository"
+updated: "2026-11-18"
 sources:
   - title: "About issues · GitHub Docs"
     url: "https://docs.github.com/en/issues/tracking-your-work-with-issues/learning-about-issues/about-issues"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "AI 初审（负责人授权）"
-reviewNote: "AI 按定义、例子及参考资料初审；链接可访问，未逐项核验全部事实或实测产品。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 是什么
+Issue 是代码托管平台中用于公开记录、讨论与追踪项目事项的结构化条目。每个[仓库](/glossary/repository/)中的每条 Issue 都拥有唯一编号、开启或关闭状态以及完整的讨论时间线，使维护者与参与者能够在动手修改代码之前对齐问题背景、明确目标并沉淀协作记录。
 
-Issue 是仓库里的问题单：可以报告 bug、提建议、记录待办，每条有编号、状态和讨论记录。
+## 主要用途与结构要素
 
-## 什么时候会遇到
+围绕软件与文档项目的日常维护，Issue 通常承担三类核心职能：
 
-发现文档错误、想建议收录某个工具、或者维护者让你「开个 issue 描述一下」时。
+| 常见用途 | 核心记录内容 | 后续流转方式 |
+| --- | --- | --- |
+| **缺陷报告** | 错误现象、运行环境、预期结果与复现步骤 | 定位 [Bug](/glossary/bug/) 原因并关联修复代码 |
+| **需求与建议** | 新功能设想、文档补充方向或体验改进建议 | 讨论[需求](/glossary/requirements/)优先级后拆解排期 |
+| **任务追踪** | 阶段性待办清单、版本发布检查项与分工记录 | 逐项核对完成状态并留存决策依据 |
 
-## 和 AI 的关系
+此外，平台通常提供**标签**（Label）、**负责人**（Assignee）与**里程碑**（Milestone）等元数据工具，便于按模块或紧急程度筛选事项。Issue 还可以与具体[提交](/glossary/commit/)或 [Pull Request](/glossary/pull-request/) 相互关联，当对应修复方案被[合并](/glossary/merge/)入主线时，系统可自动将关联的 Issue 标记为已关闭。
 
-AI 能帮你把零散描述整理成结构清楚的 Issue，但现象、页面地址和复现步骤必须真实，不能编。
+## AI 辅助整理与信息真实性
 
-## 想深入再看
+当遇到零散的报错日志、模糊的使用困惑或多条反馈时，借助[对话助手](/glossary/chatbot/)将口头描述整理为结构清晰的 Issue 草稿，能够显著提升维护者的排查效率。
 
-相关词条：Pull Request、Fork。
+但在使用 AI 整理内容时必须守住真实性底线：报错原文、访问路径、版本号以及已经验证过的复现步骤必须全部来自真实操作结果，绝不能让模型补充未经验证的猜测或虚构错误现象，否则反而会误导排查方向。
+
+## 概念边界
+
+- **本身不包含代码改动**：Issue 属于问题管理与沟通层面的记录工具，开启或关闭一条 Issue 不会改变仓库中的任何文件；实际变更仍需通过[分支](/glossary/branch/)修改与 PR 提交实现。
+- **不是即时聊天窗口**：高质量的 Issue 强调上下文自洽与长期可检索性，适合沉淀明确且可跟进的事项，而不宜充当缺乏背景说明的碎片化闲聊。

@@ -2,35 +2,19 @@
 term: "部署"
 en: "Deployment"
 category: "backend"
-aliases: ["Deployment", "上线", "发布"]
-definition: "将网站、应用或服务安装、发布到目标运行环境，使指定用户或系统能够使用。"
-example: "本地做好的社团工具，部署之后同学点链接就能用，不用把你的电脑一直开着。"
-youMaySay: "本地做好，怎么让同学直接打开链接就能用？"
-scenario:
-  title: "发布社团工具"
-  steps:
-    - label: "本地完成"
-      body: "页面在自己电脑上能跑。"
-      note: "只有你能访问。"
-    - label: "部署上线"
-      body: "推到托管平台，得到公开链接。"
-      meta: "别人可访问"
-    - label: "检查范围"
-      body: "确认没有把测试数据或密钥一起发布。"
-quiz:
-  - question: "部署前最容易被忽略的检查是？"
-    options:
-      - text: "页面颜色"
-        correct: false
-      - text: "密钥与测试数据是否被一起发布"
-        correct: true
-      - text: "按钮数量"
-        correct: false
-    explain: "部署可能让文件或服务被目标用户访问，需检查访问范围和敏感信息。"
-agentPrompt: "请帮我列一份部署前检查清单，重点看密钥、测试数据、访问权限和回滚方式。"
+aliases:
+  - "Deployment"
+  - "上线"
+  - "发布"
+definition: "将开发完成的软件、网站或服务配置并发布到目标运行环境，使其能够被外部稳定访问的过程。"
+example: "开发者在本地调试通过一个工具网页后，将其构建产物上传至静态托管平台并绑定域名，其他用户即可通过链接直接访问。"
 order: 3
-related: ["server", "api"]
-updated: "2026-11-01"
+related:
+  - "server"
+  - "local-deployment"
+  - "version-control"
+  - "api"
+updated: "2026-11-18"
 sources:
   - title: "Deployments overview · Vercel"
     url: "https://vercel.com/docs/deployments/overview"
@@ -38,23 +22,28 @@ sources:
     url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Your_first_website/Publishing_your_website"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "A7m"
-reviewNote: "负责人确认修改定义和题目解释；托管网页正文保留，未实测托管平台。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 是什么
+在本地计算机完成代码编写与初步[调试](/glossary/debugging/)后，程序通常只能在开发者的本机环境中运行。部署解决的是将软件从开发状态推向可访问运行状态的问题，涵盖依赖安装、构建打包、环境变量注入、进程托管以及网络入口配置等一系列环节。
 
-部署可以把本地做好的网站或应用发布到服务器或托管平台，让指定用户能够访问；访问范围取决于配置。
+## 常见部署方式
 
-## 什么时候会遇到
+根据项目是否包含后端服务与持久化需求，常见部署形式有所区分：
 
-做完页面想发给同学看、社团工具要上线、看到「部署成功」的提示。
+| 部署形式 | 运行特征 | 常见适用对象 |
+| --- | --- | --- |
+| **静态站点托管** | 预先构建为 HTML、CSS 与脚本文件后分发，无需维护常驻后端 | 展示页面、文档站点与纯前端网页工具 |
+| **云主机与容器部署** | 在远程[服务器](/glossary/server/)或容器平台中持续运行后端进程，可灵活配置运行环境 | 需要常驻服务、[数据库](/glossary/database/)连接或自定义运行时 |
+| **自动化持续部署** | 与[仓库](/glossary/repository/)及[分支](/glossary/branch/)联动，代码合并后自动触发构建、检查并更新线上版本 | 团队协作开发与需要高频迭代的在线项目 |
 
-## 和 AI 的关系
+## 与 AI 应用及辅助开发的关系
 
-AI 能帮你写部署配置和排查报错，但域名、权限、数据安全仍要自己确认；部署不等于长期运营。
+- **上线 AI 辅助产物**：通过[代码生成](/glossary/code-generation/)或 [Vibe Coding](/glossary/vibe-coding/) 快速完成原型后，仍需经历正式部署才能脱离本机临时端口供他人使用；静态页面与全栈应用所需的托管条件并不相同。
+- **密钥与环境配置**：调用第三方模型 [API](/glossary/api/) 的服务在部署时，必须通过运行环境的保密变量注入凭据，而不能将密钥硬编码进公开源码或前端静态资源中。
+- **私有化与本地运行**：若对数据合规或离线可用性有严格要求，服务也可不发布至公网，而是以[本地部署](/glossary/local-deployment/)或内网部署的形式运行在受控主机中。
 
-## 想深入再看
+## 概念边界
 
-相关词条：服务器、接口（API）。
+- **上线不等于长期稳定**：单次部署成功仅表明当前版本已在目标环境启动，后续仍需依赖[版本控制](/glossary/version-control/)回滚机制、资源监控与依赖维护，否则服务仍可能因流量或环境变化中断。
+- **发布范围由配置决定**：完成部署并不自动意味着向全网公开，服务可以通过访问鉴权、白名单或内网隔离策略限定仅对特定用户群体开放。
