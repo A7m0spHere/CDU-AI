@@ -1305,6 +1305,8 @@ test('首页探索菜单适配主题与减少动效，触摸和无 JS 均可直�
   assert.equal(await touchLibrary.getAttribute('data-library-pitch'), initialPitch, '纵向页面滚动应保留模型俯角');
   assert.equal(await touchLibrary.getAttribute('data-library-dragging'), 'false', '浏览器接管滚动后应结束手势');
   await cdp.detach();
+  // CDP 模拟滚动可能消耗下一次轻点，重新打开首页后独立验证触摸导航。
+  await touchPage.goto(origin);
   await touchPage.addStyleTag({ content: '@view-transition { navigation: none; }' });
   await touchMenu.getByRole('link', { name: /^找个工具试试/ }).tap();
   await touchPage.waitForURL(origin + '/tools/');
@@ -1338,40 +1340,24 @@ test('首页图书馆按屏幕方向旋转，入口开门联动并在离开后�
   assert.equal(await art.evaluate(el => getComputedStyle(el).fill), 'none');
   assert.equal(await art.locator('path').evaluateAll(paths => paths.every(path => getComputedStyle(path).fill === 'none')), true);
 
-  const colors = () => art.evaluate(el => ({
-    host: getComputedStyle(el).color,
-    stroke: getComputedStyle(el.querySelector('path')).stroke,
-  }));
-  // 主题切换可能跨帧生效：先等线条颜色确实更新，再等容器 color 与 currentColor 一致。
-  const settled = async previous => {
-    if (previous) {
-      await page.waitForFunction(
-        prev => getComputedStyle(document.querySelector('[data-library-line-art] path')).stroke !== prev,
-        previous,
-      );
-    }
-    await page.waitForFunction(() => {
+  // 主题过渡可能跨帧注册或结束，在同一帧检查颜色和动画状态。
+  const settledColor = async previous => {
+    const color = await page.waitForFunction(prev => {
       const el = document.querySelector('[data-library-line-art]');
-      return getComputedStyle(el).color === getComputedStyle(el.querySelector('path')).stroke;
-    });
-    return colors();
+      const host = getComputedStyle(el).color;
+      const stroke = getComputedStyle(el.querySelector('path')).stroke;
+      return host !== prev && host === stroke && el.getAnimations().length === 0 ? host : false;
+    }, previous, { timeout: 1000 });
+    return color.jsonValue();
   };
 
   await select(page, 'light');
-  const light = (await settled()).host;
+  const light = await settledColor();
   await select(page, 'dark');
-  const dark = await settled();
-  assert.equal(dark.host, dark.stroke, '线条应通过 currentColor 跟随主题色');
+  const dark = await settledColor(light);
   await select(page, 'preset-forest');
-  const forest = await settled(light);
-  assert.notEqual(forest.host, light, '切换主题强调色后 SVG 线条应更新颜色');
-  assert.equal(forest.host, forest.stroke, '切换主题后线条仍继承主题色');
-  // 主题切换会在 svg 上留下一段极短的 color 过渡，等它结束再确认线稿没有持续动画。
-  await art.evaluate(el => Promise.race([
-    Promise.all(el.getAnimations().map(animation => animation.finished.catch(() => {}))),
-    new Promise(resolve => setTimeout(resolve, 1000)),
-  ]));
-  assert.equal(await art.evaluate(el => el.getAnimations().length), 0, '线稿不应保留持续动画');
+  const forest = await settledColor(dark);
+  assert.notEqual(forest, light, '切换主题强调色后 SVG 线条应更新颜色');
 
   const library = page.locator('[data-library]');
   const viewer = page.locator('[data-library-viewer]');
