@@ -2,69 +2,42 @@
 term: "AI 编程助手"
 en: "Coding Assistant"
 category: "tools"
-aliases: ["Coding Assistant", "AI 写代码", "编程助手"]
-definition: "写代码场景的 AI 产品，能补全、解释、改写和生成代码。"
-example: "在编辑器里边写边得到补全建议，或者把报错贴给 AI 让它解释——都是编程助手。"
-youMaySay: "它写的代码能直接交作业吗？"
-scenario:
-  title: "让 AI 写数据处理脚本"
-  steps:
-    - label: "描述需求"
-      body: "让 AI 写一个读取 CSV 并画图的脚本。"
-      note: "生成初稿很快。"
-    - label: "运行报错"
-      body: "运行时提示列名不匹配。"
-      meta: "生成代码需验证"
-    - label: "调试修改"
-      body: "把报错贴回去，让它按实际列名修改，再自己跑通。"
-quiz:
-  - question: "使用 AI 生成的代码，最重要的一步是？"
-    options:
-      - text: "直接复制提交"
-        correct: false
-      - text: "运行、理解并检查后再使用"
-        correct: true
-      - text: "只要格式正确就行"
-        correct: false
-    explain: "生成代码可能过时或有误，必须验证。"
-agentPrompt: "请解释这段代码每一部分的作用，并指出可能出错的地方；不要直接给我一整段未说明的代码。"
+aliases:
+  - "Coding Assistant"
+  - "AI 写代码"
+  - "编程助手"
+definition: "集成于开发环境或命令行的 AI 辅助工具，用于代码补全、语法解释、缺陷排查与局部改写。"
+example: "开发者在编辑器中输入函数注释后，助手自动生成对应实现代码，并在报错时结合上下文给出修改建议。"
 order: 3
-related: ["code-generation", "debugging"]
-updated: "2026-10-26"
+related:
+  - "code-generation"
+  - "debugging"
+  - "vibe-coding"
+  - "ai-agent"
+updated: "2026-11-18"
 sources:
   - title: "Claude Code overview · Anthropic"
     url: "https://platform.claude.com/docs/en/claude-code/overview"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "AI 初审（负责人授权）"
-reviewNote: "AI 按定义、例子及参考资料初审；链接可访问，未逐项核验全部事实或实测产品。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 一句话说清
+AI 编程助手是将[大语言模型](/glossary/llm/)能力集成到软件开发流程中的专用工具，常见形态包括代码编辑器插件、AI 原生集成开发环境（IDE）以及命令行交互程序。它围绕[代码生成](/glossary/code-generation/)、逻辑理解与[调试](/glossary/debugging/)提供即时辅助，缩短编写与排查周期。
 
-AI 编程助手是面向写代码的 AI 产品：补全、解释报错、生成函数、改写重构。它可以是编辑器插件，也可以是命令行工具。
+## 主要功能形态
 
-## 打个比方
+根据介入开发流程的深度不同，AI 编程助手通常包含三类核心交互模式：
 
-像坐在旁边的助教：能帮你查语法、写样板，但交上去的作业仍要你自己负责。
+- **实时行内补全**：在开发者键入代码或注释时，预测并展示后续单行或多行代码建议，用户可通过快捷键采纳或忽略。
+- **对话式解释与重构**：在侧边栏针对选定代码段提问，用于梳理陌生逻辑、转换编程语言、补充文档注释或分析运行时的 [Bug](/glossary/bug/)。
+- **仓库级多文件协同**：部分进阶助手具备[AI Agent](/glossary/ai-agent/)特征，可通过[工具调用](/glossary/tool-use/)检索整个代码[仓库](/glossary/repository/)、跨文件修改实现、执行终端命令并根据[测试用例](/glossary/test-case/)反馈迭代修正。
 
-## 它是怎么运作的
+## 上下文收集与运行机制
 
-它读取当前文件与上下文，生成代码建议；有的产品还能运行命令、读仓库。能力越强，权限越大。
+高质量的代码建议依赖于充分的项目上下文。编程助手在发起请求前，通常会自动收集当前光标所在文件、相邻打开的标签页、项目目录结构、依赖清单以及终端报错信息，将其与用户指令共同组装至[上下文窗口](/glossary/context-window/)中。部分工具还支持配置项目级规则文件或借助 [MCP](/glossary/mcp/) 接入外部文档与工程系统，以降低模型因缺少项目背景而编造接口的概率。
 
-## 你会碰到它的场景
+## 概念边界
 
-- 编辑器里的灰色补全；
-- 把报错信息贴进对话框问原因；
-- 让 AI 从零写一个小工具。
-
-## 常见误解
-
-- 以为生成的代码能直接交：要跑通、看懂、符合课程要求；
-- 以为它不会犯错：API 用法、版本差异常出错；
-- 以为装上就变强：提问与验证能力仍取决于你。
-
-## 想再深入一点
-
-课程作业是否允许使用 AI，以老师要求为准；引用生成代码也要注意许可。
+- **不保证代码可直接交付**：受训练语料时效与[知识截止](/glossary/knowledge-cutoff/)限制，助手生成的代码可能调用已废弃的库函数、存在隐蔽边界缺陷或产生 [AI 幻觉](/glossary/hallucination/)，仍需人工审阅与测试[验收](/glossary/acceptance/)。
+- **不等于无代码或自动替代开发者**：与屏蔽源码细节的[无代码/低代码](/glossary/no-code-low-code/)平台不同，AI 编程助手仍以源码为中心；其工程质量上限取决于使用者的需求拆解、架构判断与安全审查能力，执行本地命令时也需严格控制权限范围。

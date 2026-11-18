@@ -2,35 +2,19 @@
 term: "Vibe Coding"
 en: "Vibe Coding"
 category: "vibecoding"
-aliases: ["Vibe Coding", "氛围编程", "跟着感觉编程"]
-definition: "一种依靠自然语言让 AI 编写和修改程序、以快速试用和反复调整为主的开发方式；最初的用法强调较少关注生成的代码细节。"
-example: "说一句「做个宿舍值日轮换的小页面」，AI 直接给出能打开的网页，这就是 vibe coding 的典型场景。"
-youMaySay: "完全不懂代码，也能做出能用的东西吗？"
-scenario:
-  title: "做宿舍值日页"
-  steps:
-    - label: "描述需求"
-      body: "说清页面要做什么、给谁用。"
-      note: "需求越清，结果越准。"
-    - label: "生成运行"
-      body: "AI 给出代码，你按说明打开试跑。"
-      meta: "先跑起来"
-    - label: "验收修改"
-      body: "发现问题就描述现象让它改，直到能用。"
-quiz:
-  - question: "Vibe Coding 中，人最不可省略的环节是？"
-    options:
-      - text: "背下所有代码"
-        correct: false
-      - text: "说清需求并验收结果"
-        correct: true
-      - text: "手动敲完每一行"
-        correct: false
-    explain: "AI 写代码，人负责定义与验收。"
-agentPrompt: "请按以下需求生成一个可运行的小页面：宿舍值日轮换表，能添加成员、按周轮换；先给方案再给代码。"
+aliases:
+  - "Vibe Coding"
+  - "氛围编程"
+  - "跟着感觉编程"
+definition: "以自然语言指令驱动 AI 生成并反复调整代码、弱化人工逐行阅读源码的软件构建方式。"
+example: "开发者向模型描述需求并运行预览，发现按钮样式或交互异常后直接用口头语言要求重写，直至效果符合预期。"
 order: 1
-related: ["code-generation", "natural-language-programming"]
-updated: "2026-10-31"
+related:
+  - "natural-language-programming"
+  - "code-generation"
+  - "coding-assistant"
+  - "prototype"
+updated: "2026-11-18"
 sources:
   - title: "What is vibe coding? · IBM"
     url: "https://www.ibm.com/think/topics/vibe-coding"
@@ -38,23 +22,28 @@ sources:
     url: "https://glossary.openssf.org/vibe-coding/"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-10-31"
-reviewedBy: "A7m"
-reviewNote: "AI 辅助审核后负责人确认；未逐一核验全部来源。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 是什么
+Vibe Coding（常译作「氛围编程」）是一种高度依赖[AI 编程助手](/glossary/coding-assistant/)的软件构建实践，属于[自然语言编程](/glossary/natural-language-programming/)的典型体现。其最初定义强调开发者完全通过自然语言描述意图、直接采纳模型生成的变更，并将注意力集中在运行结果与交互体验上，而非逐行阅读或手工维护底层源码。
 
-Vibe Coding 是用自然语言让 AI 编写和修改程序，通过试用结果不断调整。最初的用法强调较少关注生成的代码细节。这个词现在也有人泛指 AI 辅助编程；但认真检查和维护代码的开发方式，不应一概理解为最初意义上的 Vibe Coding。
+## 运行与协作机制
 
-## 什么时候会遇到
+在 Vibe Coding 模式下，人与 AI 形成了一种「表达意图—运行验证—口语修正」的闭环协作流程：
 
-想快速做个报名页、计算器、小工具，又不想从语法学起时；同学之间也会说「先 vibe 一个原型」。
+- **需求输入**：开发者用日常语言向模型说明功能目标、页面布局或交互细节，替代传统的手写[需求](/glossary/requirements/)文档与编码起步。
+- **整段生成与应用**：模型直接完成[代码生成](/glossary/code-generation/)并改动工程文件，开发者通常跳过代码审查，直接运行程序或查看[界面（UI）](/glossary/ui/)渲染效果。
+- **表象驱动迭代**：遇到编译报错或交互异常时，开发者将错误信息原样贴回对话框或口头描述偏差，由模型自行定位并重写代码，而非由人工介入[调试](/glossary/debugging/)。
 
-## 和 AI 的关系
+## 与规范化 AI 辅助开发的关系
 
-AI 负责生成与修改代码，你负责判断「跑起来对不对、是不是真要这样」。能跑不代表安全或便于维护，实际使用前还要检查数据、权限和代码。
+| 维度 | Vibe Coding | 规范化 AI 辅助工程开发 |
+| --- | --- | --- |
+| **代码所有权与理解** | 弱化源码阅读，默认接受模型改动 | 开发者需理解核心逻辑并承担代码责任 |
+| **质量保障手段** | 依赖人工试跑与直观体验判断 | 结合[版本控制](/glossary/version-control/)、代码评审与自动化[测试用例](/glossary/test-case/) |
+| **典型适用阶段** | 快速验证[原型](/glossary/prototype/)、一次性个人脚本或创意演示 | 长期维护、多人协作及生产级系统建设 |
 
-## 想深入再看
+## 局限与概念边界
 
-接下来可以看代码生成、调试和原型这几个词。
+- **表面可用不等于安全可靠**：跳过源码审阅的快速迭代极易引入隐蔽 [Bug](/glossary/bug/)、性能瓶颈、输入校验缺失或[隐私](/glossary/privacy/)泄露风险；在正式对外[部署](/glossary/deployment/)前，仍需经过严谨的安全审计与功能[验收](/glossary/acceptance/)。
+- **不代表全部 AI 编程方式**：随着该词流行，部分讨论将其泛指所有借助 AI 写代码的做法；但严格而言，保留完整架构设计、代码审阅与工程纪律的开发流程仍属传统工程实践的延伸，与最初强调「顺着感觉交由 AI 主导」的 Vibe Coding 存在明确边界。

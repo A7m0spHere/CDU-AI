@@ -2,35 +2,18 @@
 term: "API"
 en: "Application Programming Interface"
 category: "tools"
-aliases: ["接口", "应用程序接口"]
-definition: "让不同程序按约定交换数据或调用功能的接口；AI 服务可通过它供程序调用。"
-example: "做个自动整理实验数据的小工具，就要用 API 把模型接进程序，而不是手动复制粘贴。"
-youMaySay: "为什么网页能用，写脚本就要另外申请 Key？"
-scenario:
-  title: "把模型接进脚本"
-  steps:
-    - label: "申请密钥"
-      body: "在平台创建 API Key，按文档发请求。"
-      note: "密钥是调用凭证，要保密。"
-    - label: "看到计费"
-      body: "分别核对网页版套餐与 API 用量规则，会员未必包含 API 额度。"
-      meta: "计费方式不同"
-    - label: "处理错误"
-      body: "遇到限速与超时，加重试与退避。"
-quiz:
-  - question: "API 和网页版最本质的区别是？"
-    options:
-      - text: "API 用的模型更强"
-        correct: false
-      - text: "API 面向程序调用，网页版面向人操作"
-        correct: true
-      - text: "API 不需要联网"
-        correct: false
-    explain: "两者面向的使用方式不同；可用模型、工具与计费规则也可能不同。"
-agentPrompt: "请根据这份官方 API 文档，说明请求参数、认证方式、返回格式与常见错误；用占位符表示密钥，不要让我公开真实凭证。"
+aliases:
+  - "接口"
+  - "应用程序接口"
+definition: "让不同软件按约定协议交换数据或调用功能的标准接口；AI 服务常借此向外部程序开放模型能力。"
+example: "开发者在自动化脚本中传入密钥与提示词，通过接口获取模型返回的 JSON 数据，而无需在网页端手动复制粘贴。"
 order: 2
-related: ["chatbot", "usage-based-billing", "deployment"]
-updated: "2026-10-30"
+related:
+  - "chatbot"
+  - "usage-based-billing"
+  - "rate-limit"
+  - "deployment"
+updated: "2026-11-18"
 sources:
   - title: "API · MDN Glossary"
     url: "https://developer.mozilla.org/en-US/docs/Glossary/API"
@@ -38,35 +21,29 @@ sources:
     url: "https://platform.claude.com/docs/en/api/overview"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "AI 初审（负责人授权）"
-reviewNote: "AI 按定义、例子及参考资料初审；链接可访问，未逐项核验全部事实或实测产品。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 一句话说清
+API（Application Programming Interface，应用程序接口）是软件系统之间约定请求格式、数据结构与交互规则的通信契约。在人工智能领域，云端模型服务商通过 API 将底层[大语言模型](/glossary/llm/)的推理能力封装为网络接口，使外部程序无需依赖网页端[对话助手](/glossary/chatbot/)即可直接发送请求并获取结果。
 
-API 是程序之间交换数据、调用功能的约定，不只用于 AI。以模型 API 为例，你的程序按格式发请求，服务按格式返回结果；网页版则提供给人直接操作。
+## 请求构成与调用机制
 
-## 打个比方
+一次标准的模型 API 调用通常采用请求—响应模式，由调用方按接口文档组装结构化数据包并发送至服务端：
 
-像餐厅给订餐系统提供固定的下单格式：程序填菜名和数量，餐厅返回订单结果。这个入口和堂食菜单的品类、价格不一定相同。
+- **身份认证**：调用方需在请求头中附带 **API 密钥**（API Key）等凭证，用于校验权限、统计消耗并关联计费账户。密钥泄露可能导致未授权调用与额度损失。
+- **请求参数**：除输入文本或[提示词](/glossary/prompt/)外，程序还可显式指定目标模型版本、[系统提示词](/glossary/system-prompt/)、[温度](/glossary/temperature/)及期望的[输出格式](/glossary/output-format/)（如 JSON）。
+- **响应与状态**：服务端完成推理后返回生成内容及本次消耗的 [token](/glossary/token/) 统计；若触发异常或[速率限制](/glossary/rate-limit/)，则通过状态码与错误信息提示调用方进行重试或降级处理。
 
-## 它是怎么运作的
+## 与网页端产品的差异
 
-云端模型 API 通常需要密钥等认证凭证，按文档发送模型名、消息和参数。服务返回结果，并按相应规则记录用量；泄露凭证可能让别人冒用权限或产生费用。
+| 对比维度 | 网页端对话产品 | 模型 API 接口 |
+| --- | --- | --- |
+| **面向对象** | 终端用户直接通过图形界面操作 | 开发者与自动化程序通过代码集成 |
+| **状态维护** | 平台自动保存历史对话与记忆 | 通常为无状态调用，需自行维护[上下文窗口](/glossary/context-window/) |
+| **计费模式** | 多采用[订阅制](/glossary/subscription/)或[试用额度](/glossary/trial-quota/) | 多按输入与输出长度实行[按量计费](/glossary/usage-based-billing/) |
+| **能力扩展** | 平台内置联网、文件解析等固定工具 | 由调用方按需接入[工具调用](/glossary/tool-use/)与外部系统 |
 
-## 你会碰到它的场景
+## 概念边界
 
-- 做自动化脚本、网站、Agent；
-- 看到「API Key」「接口文档」「调用量」；
-- 比较网页版订阅与 API 用量、模型和工具的差别。
-
-## 常见误解
-
-- 以为 API 更聪明：模型可能一样，差别在参数与工具；
-- 以为有密钥就能随便用：额度、限速、计费都受约束；
-- 以为 API 结果一定稳定：同样有随机性和幻觉。
-
-## 想再深入一点
-
-API 只是通道，真正的产品体验还取决于你怎么写提示词、怎么处理错误与重试。
+- **不等于独立的模型版本**：API 与网页端背后往往指向同类模型，两者效果差异主要来自系统默认指令、采样参数及内置工具链，API 同样存在输出波动与 [AI 幻觉](/glossary/hallucination/)。
+- **不涵盖完整应用逻辑**：API 仅负责提供基础能力通道；前端展示、长会话截断、安全过滤及生产环境[部署](/glossary/deployment/)仍需开发者在客户端或[工作流](/glossary/workflow/)中自行实现。

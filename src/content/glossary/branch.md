@@ -2,56 +2,49 @@
 term: "分支"
 en: "Branch"
 category: "git"
-aliases: ["Branch", "代码分支"]
-definition: "从主线分出来的一条独立修改线，改完再合回去。"
-example: "给社团工具加新功能前先开一个分支，改坏了也不影响正在用的版本。"
-youMaySay: "为什么不直接在 main 上改？"
-scenario:
-  title: "加功能先开分支"
-  steps:
-    - label: "开出分支"
-      body: "从 main 建一个专门做这个功能的分支。"
-      note: "主线保持随时可用。"
-    - label: "独立修改"
-      body: "在分支上多次提交，不影响别人正在用的代码。"
-    - label: "合并回去"
-      body: "测试通过后发起合并，改动回到主线。"
-quiz:
-  - question: "分支的主要作用是？"
-    options:
-      - text: "让代码运行更快"
-        correct: false
-      - text: "隔离修改，让主线保持稳定"
-        correct: true
-      - text: "自动修复 bug"
-        correct: false
-    explain: "分支把未完成的改动隔离开，合并前不影响主线。"
-agentPrompt: "请说明这个新功能应该基于哪个分支开发、分支怎么命名，以及合并前需要检查什么。"
+aliases:
+  - "Branch"
+  - "代码分支"
+definition: "在版本控制系统中从现有提交历史分叉出的独立开发线，用于在不影响主线的前提下隔离修改。"
+example: "开发新功能或修复缺陷时先创建独立分支，待修改验证通过后再合并回主分支，避免未完成的代码影响主线版本。"
 order: 4
-related: ["repository", "merge", "version-control"]
-updated: "2026-10-30"
+related:
+  - "repository"
+  - "commit"
+  - "merge"
+  - "pull-request"
+updated: "2026-11-18"
 sources:
   - title: "About branches · GitHub Docs"
     url: "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "AI 初审（负责人授权）"
-reviewNote: "AI 按定义、例子及参考资料初审；链接可访问，未逐项核验全部事实或实测产品。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 是什么
+在[版本控制](/glossary/version-control/)系统中，分支本质上是指向特定[提交](/glossary/commit/)记录的可移动指针，而非整份项目文件的物理拷贝。每次产生新的提交，当前所在分支的指针便向前推进，从而使同一[仓库](/glossary/repository/)内的多条开发线能够并行演进、互不干扰。
 
-分支是从主线（通常是 main）分出来的一条独立修改线：提交到这个分支的改动不会自动进入主线，改完可以合并回去。
+## 运行机制与常见类型
 
-## 什么时候会遇到
+分支通过共享共同的历史起点并记录各自的后续提交来实现分叉。实际协作中，不同分支通常承担明确的角色分工：
 
-做新功能、修 bug、写文档前，同学让你「开个分支」；PR 页面里显示来源分支和目标分支时。
+| 分支类型 | 核心定位 | 常见生命周期 |
+| --- | --- | --- |
+| **主分支**（Main Branch） | 承载稳定、可交付或当前基准状态的内容 | 长期存在，通常受保护限制直接写入 |
+| **功能分支**（Feature Branch） | 围绕单个新特性、页面或文档专题展开修改 | 从主分支切出，完成后合入并删除 |
+| **修复分支**（Fix Branch） | 专门用于排查和解决已发现的 [Bug](/glossary/bug/) | 针对具体问题创建，验证通过后及时合回 |
 
-## 和 AI 的关系
+## 协作流转与工作区状态
 
-AI 能在分支上帮你改代码，但要先确认当前分支和工作区状态；未提交的改动不一定被分支隔离，切换时可能被带过去或阻止切换。
+一条分支从创建到结束通常遵循「从基准提交分叉—持续产生新提交—经 [Pull Request](/glossary/pull-request/) 审阅—执行[合并](/glossary/merge/)」的流程。多个协作者可以在各自独立的分支上同时修改不同模块，再分批集成回目标分支。
 
-## 想深入再看
+需要注意的是，分支隔离的是**已经提交的版本历史**，而不是工作区中尚未保存或尚未提交的临时修改。若本地存在未提交的改动，切换分支时这些变更可能会被带入新分支，或因与目标分支冲突而被系统阻止。
 
-相关词条：仓库、合并、Pull Request。
+## 与 AI 辅助开发的配合
+
+在使用[AI 编程助手](/glossary/coding-assistant/)进行[代码生成](/glossary/code-generation/)或大范围重构时，先切出独立分支是控制改动风险的关键做法。由于 AI 的多文件改写可能偏离预期，将试验过程留在独立分支中，可以在不满意时直接放弃该分支而不波及主线。在让 AI 修改文件之前，也应确认当前所处分支名称及工作区状态，避免将未验证的产物直接写入主分支。
+
+## 概念边界
+
+- **不等于仓库副本**：分支存在于同一仓库内部，共享权限与底层存储对象；若需跨账号复制整座仓库，则对应 [Fork](/glossary/fork/) 机制。
+- **不隔离外部运行环境**：分支只隔离源码与文档历史，若多个分支共用同一本地端口、配置文件或[数据库](/glossary/database/)，切换分支不会自动还原外部环境中的数据状态。

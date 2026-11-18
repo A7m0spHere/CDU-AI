@@ -2,35 +2,18 @@
 term: "MCP"
 en: "Model Context Protocol"
 category: "agents"
-aliases: ["Model Context Protocol", "模型上下文协议"]
-definition: "让 AI 连接外部工具和数据源的一种开放协议标准。"
-example: "同一个 MCP 服务，可以让不同的 AI 客户端都能读你的本地笔记、查数据库。"
-youMaySay: "配置里那些 server 命令是干什么的？"
-scenario:
-  title: "给 AI 接本地笔记"
-  steps:
-    - label: "添加服务"
-      body: "在客户端配置一个 MCP 服务，指向本地笔记目录。"
-      note: "协议统一接入方式。"
-    - label: "授权范围"
-      body: "只开放只读权限，避免误改。"
-      meta: "最小权限"
-    - label: "使用工具"
-      body: "AI 能检索笔记，但不能删除文件。"
-quiz:
-  - question: "MCP 解决的核心问题是？"
-    options:
-      - text: "让模型更聪明"
-        correct: false
-      - text: "统一 AI 与外部工具、数据源的接入方式"
-        correct: true
-      - text: "替代所有 API"
-        correct: false
-    explain: "MCP 是接入标准，不是模型能力。"
-agentPrompt: "请只读取我的笔记目录回答下面的问题，不要修改或删除任何文件；找不到就说不确定。"
+aliases:
+  - "Model Context Protocol"
+  - "模型上下文协议"
+definition: "规定 AI 应用与外部工具、数据源之间交互方式的开放协议标准。"
+example: "在支持该协议的桌面对话工具或编程助手中配置同一套本地文件服务后，无需为每个客户端单独编写适配代码即可直接读写笔记。"
 order: 6
-related: ["tool-use", "ai-agent"]
-updated: "2026-10-26"
+related:
+  - "tool-use"
+  - "ai-agent"
+  - "api"
+  - "prompt-injection"
+updated: "2026-11-18"
 sources:
   - title: "Model Context Protocol 官方站点"
     url: "https://modelcontextprotocol.io/"
@@ -40,35 +23,31 @@ sources:
     url: "https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices"
 basis: "desk-research"
 aiUsage: "drafted"
-reviewed: "2026-11-01"
-reviewedBy: "A7m"
-reviewNote: "负责人确认保留原文；只读需要服务与系统实际限制权限，未实测配置。"
+reviewNote: "按极简维基体例重构正文与结构，待负责人复审。"
 ---
 
-## 一句话说清
+Model Context Protocol（模型上下文协议）由标准化接口与传输规范构成，旨在解决不同 AI 应用接入各类外部能力时的重复适配问题。在引入统一协议之前，每个[对话助手](/glossary/chatbot/)或[AI 编程助手](/glossary/coding-assistant/)往往需要为不同服务分别编写专有集成逻辑；通过 MCP，客户端与能力提供方只需遵循同一套交互契约即可互通。
 
-MCP（Model Context Protocol）是一套开放协议：规定 AI 应用如何发现和调用外部工具、读取数据源。
+## 核心架构与角色
 
-## 打个比方
+MCP 采用分层架构将用户交互界面、协议调度与外部能力解耦，主要包含以下三个组成部分：
 
-像 USB 接口：设备按同一套标准做，换个电脑也能插上用。
+- **宿主与客户端**（Host / Client）：面向用户的 AI 应用及其内部的协议调度模块，负责向用户界面呈现可用能力、转发模型请求并统筹执行前的权限确认。
+- **服务端**（Server）：连接本地文件、[数据库](/glossary/database/)或远程 [API](/glossary/api/) 的轻量程序，按协议格式向客户端宣告自身能力并执行具体操作。
+- **传输层**（Transport）：支持本机标准输入输出（stdio）与基于 HTTP 的远程通信方式，使服务端既可运行在用户电脑本地，也可托管在远端[服务器](/glossary/server/)上。
 
-## 它是怎么运作的
+## 协议提供的能力原语
 
-服务端暴露工具与资源，客户端（AI 应用）按协议连接、读取清单、发起调用；权限由客户端和服务端共同控制。
+服务端可以通过 MCP 向客户端暴露三类标准化能力，各自对应不同的控制权与触发方式：
 
-## 你会碰到它的场景
+| 能力类型 | 作用定位 | 控制主体 |
+| --- | --- | --- |
+| **工具**（Tools） | 供模型触发的可执行操作，如检索记录、写入文件或调用接口 | 由模型发起意图，经应用确认后执行 |
+| **资源**（Resources） | 结构化或非结构化的只读数据，如文档内容、配置与查询结果 | 由应用按需读取并注入[上下文窗口](/glossary/context-window/) |
+| **提示词模板**（Prompts） | 服务端预置的标准化[提示词模板](/glossary/prompt-template/)与任务片段 | 通常由用户主动选择并加载到对话中 |
 
-- 编程工具支持「添加 MCP 服务器」；
-- 桌面 AI 连接本地文件、数据库；
-- 配置里出现 server 命令与参数。
+## 与工具调用及安全边界的关系
 
-## 常见误解
-
-- 以为 MCP 是模型能力：它是接口标准，模型本身不变；
-- 以为连上就安全：第三方服务可能读取或篡改数据；
-- 以为只有一种实现：协议开放，实现质量参差。
-
-## 想再深入一点
-
-MCP 解决的是「工具接入标准化」，不解决工具本身是否可靠。
+- **与工具调用的区别**：[工具调用](/glossary/tool-use/)描述的是模型生成结构化参数以触发外部功能的机制，而 MCP 定义的是应用层如何发现能力、传输请求与回传结果的通用协议；模型本身并不因接入 MCP 而改变参数或推理能力。
+- **权限与安全风险**：连接外部 MCP 服务意味着第三方程序与数据将接入当前会话。若服务端缺少最小权限隔离，或外部数据源返回带有恶意指令的内容，可能引发敏感数据泄露或间接[提示词注入](/glossary/prompt-injection/)，因此涉及写入与外发的操作仍需人工确认。
+- **概念边界**：MCP 仅负责打通连接规范，既不保证第三方服务端本身的稳定性与结果准确性，也不等价于具备自主规划能力的[AI Agent](/glossary/ai-agent/)。
