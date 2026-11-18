@@ -17,7 +17,9 @@ sources:
     url: "https://ai.meta.com/muse/"
 basis: "desk-research"
 aiUsage: "assisted"
-reviewNote: "按维护者提供的原文录入，已核对 Grok Bot 与 Muse 两条官方介绍页，内容审核待负责人确认。"
+reviewed: "2026-11-18"
+reviewedBy: "A7m"
+reviewNote: "维护者提供的正文按本人上传即通过人工审阅的规则补记，录入时已核对 Grok Bot 与 Muse 的官方介绍。"
 ---
 
 在上一章，我们聊过 AI 使用时的一些常见问题。接下来，带你认识两个可能已经听说过的词：**Agent** 和 **Harness**。

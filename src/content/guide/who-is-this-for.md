@@ -13,6 +13,9 @@ tags: ["入门", "学习路线"]
 sources: []
 basis: "teaching-example"
 aiUsage: "assisted"
+reviewed: "2026-11-18"
+reviewedBy: "A7m"
+reviewNote: "维护者提供的导读正文，按本人上传即通过人工审阅的规则补记。"
 ---
 
 如果你对 AI 有一点好奇，想知道它除了聊天，还能帮自己做些什么，那这份指南就是为你准备的。

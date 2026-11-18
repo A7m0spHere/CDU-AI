@@ -17,7 +17,9 @@ sources:
     url: "https://global.v2ex.com/t/1233011"
 basis: "desk-research"
 aiUsage: "assisted"
-reviewNote: "按维护者提供的原文录入，已核对两条社区原帖，内容审核待负责人确认。"
+reviewed: "2026-11-18"
+reviewedBy: "A7m"
+reviewNote: "维护者提供的正文按本人上传即通过人工审阅的规则补记，已核对两条社区原帖。"
 ---
 
 这一章主要聊聊平时使用 AI 时可能遇到的一些常见问题。内容都比较基础，感兴趣的话可以看看。
