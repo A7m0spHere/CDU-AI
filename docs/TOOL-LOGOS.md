@@ -93,9 +93,6 @@ OpenAI、Claude 与 Grok 平台复用已有官方品牌素材；其余图标从�
 | ModelScope 魔搭社区 | `/tool-logos/modelscope.webp` | https://g.alicdn.com/sail-web/maas/2.13.170/favicon/128.ico | 品牌官网图标，仅用于识别该社区 | 否 |
 | Kaggle | `/tool-logos/kaggle.webp` | https://www.kaggle.com/static/images/favicon-new.ico | 品牌官网图标，仅用于识别该社区 | 否 |
 | 飞桨 AI Studio 星河社区 | `/tool-logos/ai-studio.webp` | https://paddlepaddle-org-cn.cdn.bcebos.com/paddle-site-front/favicon-128.png | 品牌官网图标，仅用于识别该社区 | 否 |
-
-| 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
-| --- | --- | --- | --- | --- |
 | Grok | `/tool-logos/grok.webp` | https://grok.com/images/apple-touch-icon.png | 品牌官网图标，仅用于识别该产品 | 否 |
 | 智谱清言 | `/tool-logos/chatglm.webp` | https://chatglm.cn/favicon.ico | 品牌官网图标，仅用于识别该产品 | 否 |
 | Civitai | `/tool-logos/civitai.webp` | https://civitai.com/images/apple-touch-icon.png | 品牌官网图标，仅用于识别该社区 | 否 |
@@ -124,7 +121,7 @@ OpenAI、Claude 与 Grok 平台复用已有官方品牌素材；其余图标从�
 - 没有配置 `logo` 时显示首字母；已配置图标时默认隐藏字母，`onerror` 移除失败图片后显示首字母。
 - Pi 的官方 SVG 带系统主题媒体查询；保留图形路径，固定为官方浅色单色样式，再由本站主题控制反色，避免系统主题与站点主题不一致。
 
-## 本轮新增资源图标（2026-10-24）
+## 后续增补图标（2026-10-24 起）
 
 | 工具 | 文件 | 来源 | 授权 / 说明 | 深色反色 |
 | --- | --- | --- | --- | --- |

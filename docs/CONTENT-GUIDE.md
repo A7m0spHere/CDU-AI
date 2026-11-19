@@ -30,7 +30,7 @@
 
 ## 3. 学习指南 frontmatter
 
-文件放在 `src/content/guide/`，文件名用英文小写与连字符，例如 `01-ai-first-step.md`。
+文件放在 `src/content/guide/`，文件名与 `src/data/guide-nav.ts` 中登记的英文小写连字符 `slug` 一致，例如 `task-description.md`。
 
 ### 目录归属：`src/data/guide-nav.ts`
 
@@ -153,7 +153,7 @@ frontmatter：
 | `quiz` | 最多 3 题；每题 2–4 个选项，且恰好一个 `correct: true`；可用 `explain` 解释答案 |
 | `agentPrompt` | 可复制给 Agent 的提示词，最多 600 字 |
 
-写法示例放在 [`术语模板`](../src/content/glossary/_TEMPLATE.md)，不写可选区块时页面不渲染。分类与选题批次见 [术语库规划](GLOSSARY-PLAN.md)。
+基础模板见 [`术语模板`](../src/content/glossary/_TEMPLATE.md)，可选交互字段的 schema 约束见 [`src/content.config.ts`](../src/content.config.ts)；不写可选区块时页面不渲染。分类与选题批次见 [术语库规划](GLOSSARY-PLAN.md)。
 
 两类词条的正文写作要求（极简维基体例）：
 
@@ -164,12 +164,12 @@ frontmatter：
 
 写作与互链要求：面向非计算机专业同学，保持客观清晰、不套用固定问答/说教模板；出现本术语表已有概念时，在首次有意义的提及处使用 `[词条名](/glossary/<slug>/)` 添加站内超链接，方便读者串联查阅；需要当场解释的前置概念直接说清。
 
-新词条至少提供 1 条支持正文事实的官方文档或原始论文；`definition` 不超过 60 字。`order` 在同一分类内唯一，`related` 只能引用已存在的词条。词条正文由人规划、起草和确定判断，AI 可协助查证、润色、排版与工程校验；审核结论仍按 [审校规范](CONTENT-REVIEW.md) 执行。
+新词条至少提供 1 条支持正文事实的官方文档或原始论文；`definition` 建议不超过 55 字。`order` 在同一分类内唯一，`related` 只能引用已存在的词条。词条正文由人规划、起草和确定判断，AI 可协助查证、润色、排版与工程校验；审核结论仍按 [审校规范](CONTENT-REVIEW.md) 执行。
 
 来源标注要与实际情况一致，分两层写：
 
 - 词条定义、别名与一句话释义由本站独立撰写，事实与数字以 `sources` 中列出的官方文档为准；
-- 详情页正文（类比、步骤、场景、常见误解）同样由本站独立撰写。**页面状态由 frontmatter 推导**：`needsUpdate: true` 优先显示待更新；没有完整审核记录时显示「初稿 · 尚未审核」，审核负责人确认结论后同时填写 `reviewed` / `reviewedBy` 才会显示「已审核无误」。不要为了消掉提示而提前填日期。
+- 详情页正文（开篇导语与各概念小节）同样由本站独立撰写。**页面状态由 frontmatter 推导**：`needsUpdate: true` 优先显示待更新；没有完整审核记录时显示「初稿 · 尚未审核」，审核负责人确认结论后同时填写 `reviewed` / `reviewedBy` 才会显示「已审核无误」。不要为了消掉提示而提前填日期。
 
 校准一条术语的标准：能指出它「不成立」的边界（例如微调不能可靠记住新事实），并且没有写死会变化的价格、额度、版本号。
 

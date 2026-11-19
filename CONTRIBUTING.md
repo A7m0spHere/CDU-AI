@@ -60,7 +60,7 @@ Issue 表单用于向维护者反馈、建议具体修改或分享经验：
 | 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)；社区通过工具建议 Issue 提供线索，由维护者核对后入库，暂不迁移 Markdown |
 | 活动、首页入口 | `src/data/events.ts`、`home.ts` |
 | 全站搜索索引 | [`src/pages/search-index.json.ts`](src/pages/search-index.json.ts)，构建时生成，不要手工编辑 |
-| 技术文档 | [`docs/`](docs/)：架构、内容规范、设计系统 |
+| 技术与维护文档 | [`docs/`](docs/)：架构、内容规范、设计系统、模块开发说明与维护操作 |
 | 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
 | 内容与页面测试 | [`tests/site.test.mjs`](tests/site.test.mjs) |
 | 内容一致性检查 | [`scripts/check-content.mjs`](scripts/check-content.mjs) 与 `tests/fixtures/content/`（合法 / 错误条目样例） |

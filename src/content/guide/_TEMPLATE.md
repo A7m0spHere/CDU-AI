@@ -1,5 +1,5 @@
 ---
-# 使用方式：把本文件复制为「序号-英文短名.md」（例如 09-my-first-guide.md），再逐项填写。
+# 使用方式：把本文件复制为与 src/data/guide-nav.ts 中 slug 同名的文件（例如 task-description.md），并在 guide-nav.ts 登记该 slug 后逐项填写。
 # 以 _ 开头的文件不会进入构建，本文件仅作模板。
 title: "标题：用动词开头，说清解决什么问题"
 summary: "一句话说清这篇能帮上什么忙。"
