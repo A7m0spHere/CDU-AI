@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 /** @returns {string} */
 export function getGuideHomeUpdated() {
   // 缺少完整历史时使用最后一次已核对的 `_HOME.md` 提交日期。
-  const fallback = '2026-10-26';
+  const fallback = '2026-11-15';
   const options = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] };
   try {
     if (execFileSync('git', ['rev-parse', '--is-shallow-repository'], options).trim() !== 'false') return fallback;

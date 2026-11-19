@@ -22,6 +22,7 @@ const {
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.tagline}`;
+const canonicalUrl = !noIndex && Astro.site ? new URL(Astro.url.pathname, Astro.site).toString() : null;
 
 /* 预设主题在构建期解析为变量表，供首屏防闪烁脚本直接应用 */
 const bootPresets = presetThemes.map((preset) => ({
@@ -41,7 +42,9 @@ const bootPresets = presetThemes.map((preset) => ({
     <meta name="description" content={description} />
     <meta name="author" content={site.organizer} />
     {noIndex && <meta name="robots" content="noindex, follow" />}
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:type" content={ogType} />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content={site.name} />

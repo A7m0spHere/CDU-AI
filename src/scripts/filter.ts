@@ -126,7 +126,7 @@ export function initFilter(options: FilterOptions = {}): { refresh: () => void }
       const queryMatch = !searching || haystack.includes(query);
       return categoryMatch && capsMatch(card) && queryMatch;
     });
-    // 总数始终来自完整匹配集，分页仅决定本次展示哪些卡片。
+    // 总数始终来自完整匹配集，selectCards 可按需筛选本次展示的卡片。
     const selected = new Set(selectCards?.(matches, state) ?? matches);
     let visible = 0;
     for (const card of cards) {

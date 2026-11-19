@@ -38,7 +38,8 @@ const next = index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : u
 const { Content, headings } = await render(entry);
 
 const editUrl = `${repository.url}/edit/${repository.branch}/src/content/glossary/${entry.id}.md`;
-const termUrl = `/glossary/${entry.id}/`;
+const termUrl = Astro.site ? new URL(`/glossary/${entry.id}/`, Astro.site).toString() : `/glossary/${entry.id}/`;
+const glossaryIndexUrl = Astro.site ? new URL('/glossary/', Astro.site).toString() : '/glossary/';
 // 同指南页：sources 有 schema 默认值，仍兜底一次，防止旧内容缓存缺字段时报错。
 const sources = entry.data.sources ?? [];
 const scenario = entry.data.scenario;
@@ -74,7 +75,7 @@ const jsonLd = {
   inDefinedTermSet: {
     '@type': 'DefinedTermSet',
     name: 'CDU AI 术语表',
-    url: '/glossary/',
+    url: glossaryIndexUrl,
   },
 };
 ---
@@ -279,6 +280,8 @@ const jsonLd = {
   </div>
 
   <script>
+    import { copyText } from '../../lib/clipboard';
+
     // 场景拆解：点上方每一步，切换下方对应的「提示画面」。
     document.querySelectorAll<HTMLElement>('[data-scenario]').forEach((scenario) => {
       const tabs = Array.from(scenario.querySelectorAll<HTMLButtonElement>('[data-scenario-tab]'));
@@ -341,7 +344,7 @@ const jsonLd = {
         // textarea 会把换行规范成 CRLF，复制前还原成 LF，和仓库里的文件保持一致
         const text = (source?.value ?? '').replace(/\r\n?/g, '\n');
         try {
-          await navigator.clipboard.writeText(text);
+          await copyText(text);
           button.dataset.state = 'done';
           if (label) label.textContent = '已复制';
         } catch {
@@ -361,7 +364,7 @@ const jsonLd = {
         const text = button.parentElement?.querySelector<HTMLElement>('[data-prompt-text]')?.textContent?.trim() ?? '';
         const label = button.querySelector<HTMLElement>('[data-copy-label]');
         try {
-          await navigator.clipboard.writeText(text);
+          await copyText(text);
           if (label) label.textContent = '已复制';
         } catch {
           if (label) label.textContent = '复制失败，请手动选择';

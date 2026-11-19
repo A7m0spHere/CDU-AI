@@ -123,6 +123,17 @@ test('所有页面具备基本文档结构与唯一 h1', async () => {
     assert.match(html, /<main id="main-content"/, display + ' 缺少 main landmark');
     assert.match(html, /<nav class="desktop-nav" aria-label="主导航"/, display + ' 缺少主导航');
     assert.equal((html.match(/<h1[ >]/g) || []).length, 1, display + ' 应只有一个 h1');
+    const isNoIndex = /<meta name="robots" content="noindex/.test(html);
+    if (isNoIndex) {
+      assert.doesNotMatch(html, /<link rel="canonical"/, display + ' 为 noindex 页面，不应输出 canonical');
+    } else {
+      const normalized = display.split(path.sep).join('/');
+      const routePath = normalized === 'index.html' ? '/' : '/' + normalized.replace(/index\.html$/, '');
+      assert.ok(
+        html.includes(`<link rel="canonical" href="https://wiki.cduai.top${routePath}">`),
+        display + ' 缺少正确的 canonical 地址',
+      );
+    }
   }
 });
 

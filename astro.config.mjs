@@ -15,9 +15,9 @@ console.warn = (...args) => {
   originalWarn(...args);
 };
 
-// Sites 公开开发预览地址，用于生成绝对 URL。
+// 站点正式域名，用于生成绝对 URL 与 canonical。
 export default defineConfig({
-  site: 'https://cdu-ai-commons.a7m0sphere.chatgpt.site',
+  site: 'https://wiki.cduai.top',
   output: 'static',
   devToolbar: {
     enabled: false,

@@ -6,6 +6,7 @@ order: 4
 level: "零基础"
 outcome: "选择一款 Agent，完成一个网页任务，并亲自打开、检查和修改结果。"
 forWho: "第一次使用 Agent，希望从一个具体任务开始的同学。"
+author: "A7m0spHere"
 updated: "2026-11-17"
 tools: ["WorkBuddy", "ZCode"]
 tags: ["入门", "Agent", "网页", "实践"]
