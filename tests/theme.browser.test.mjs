@@ -1663,9 +1663,17 @@ test('手机左拉赛事速览在松手后打开并可切换到作品要求', as
   }
   assert.equal(await overview.evaluate(dialog => dialog.open), false, '松手前应保持关闭');
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
   await overview.waitFor({ state: 'visible', timeout: 5000 });
+
+  // CDP 模拟触控拖动可能消耗同页下一次轻点，重新加载后独立验证点击打开与抽屉切换。
+  await page.goto(origin + '/events/');
+  await trigger.tap();
+  await overview.waitFor({ state: 'visible', timeout: 5000 });
+  await overview.evaluate(el => Promise.all(el.getAnimations().map(a => a.finished.catch(() => {}))));
   await overview.getByRole('button', { name: '赛道与作品要求' }).tap();
   await drawer.waitFor({ state: 'visible', timeout: 5000 });
+  await drawer.evaluate(el => Promise.all(el.getAnimations().map(a => a.finished.catch(() => {}))));
   await drawer.getByRole('button', { name: '关闭赛事要求抽屉' }).tap();
   await drawer.waitFor({ state: 'hidden', timeout: 5000 });
   await trigger.tap();

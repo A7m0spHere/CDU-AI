@@ -205,10 +205,18 @@ function initChallengeDialogs(): void {
       resetPull();
       if (shouldOpen) {
         // Let the gesture finish before the native dialog can handle backdrop taps.
-        window.setTimeout(() => overviewController.open(), 0);
+        window.setTimeout(() => {
+          pulled = false;
+          overviewController.open();
+        }, 0);
+      } else {
+        pulled = false;
       }
     });
-    pullTrigger.addEventListener('pointercancel', resetPull);
+    pullTrigger.addEventListener('pointercancel', () => {
+      pulled = false;
+      resetPull();
+    });
     pullTrigger.addEventListener('click', (event) => {
       if (pulled) {
         pulled = false;
