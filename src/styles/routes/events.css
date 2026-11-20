@@ -91,7 +91,7 @@
   }
 }
 
-@media (min-width: 961px) and (forced-colors: none) {
+@media (forced-colors: none) {
   .page-hero__copy:has(> .challenge-ascii-planet) {
     position: relative;
     isolation: isolate;
@@ -100,15 +100,15 @@
   .challenge-ascii-planet {
     --particle-surface: color-mix(in srgb, var(--brand) 62%, var(--muted));
     --particle-rim: color-mix(in srgb, var(--brand) 65%, var(--sky));
-    --particle-opacity: 0.54;
+    --particle-opacity: 0.38;
 
     position: absolute;
     z-index: -1;
     inset-inline-start: 50%;
     inset-block-start: 50%;
     display: block;
-    inline-size: calc(100% + 2.5rem);
-    block-size: clamp(18rem, 27vw, 24rem);
+    inline-size: 100%;
+    block-size: clamp(13rem, 52vw, 18rem);
     transform: translate(-50%, -50%);
     pointer-events: none;
   }
@@ -116,6 +116,18 @@
   :root[data-theme='dark'] .challenge-ascii-planet {
     --particle-surface: color-mix(in srgb, var(--brand) 52%, var(--ink));
     --particle-rim: color-mix(in srgb, var(--sky) 74%, var(--brand-strong));
+    --particle-opacity: 0.52;
+  }
+}
+
+@media (min-width: 961px) and (forced-colors: none) {
+  .challenge-ascii-planet {
+    --particle-opacity: 0.54;
+    inline-size: calc(100% + 2.5rem);
+    block-size: clamp(18rem, 27vw, 24rem);
+  }
+
+  :root[data-theme='dark'] .challenge-ascii-planet {
     --particle-opacity: 0.76;
   }
 }

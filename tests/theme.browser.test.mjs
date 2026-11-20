@@ -1960,4 +1960,21 @@ test('手机端底部拇指栏、首页显性搜索、本页小节抽屉与代�
   await page.waitForFunction(() => document.querySelector('[data-code-block] .code-copy-btn')?.textContent === '已复制');
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   assert.ok(copied.length > 0, '点击代码块复制按钮应写入真实代码内容');
+
+  // 活动页：手机端也展示 ASCII 星球背景且不发生横向溢出
+  await page.goto(origin + '/events/');
+  await ready(page);
+  const planetMetrics = await page.evaluate(() => {
+    const canvas = document.querySelector('[data-challenge-ascii-planet]');
+    const rect = canvas?.getBoundingClientRect();
+    return {
+      docOverflow: document.documentElement.scrollWidth <= innerWidth + 1,
+      visible: canvas ? getComputedStyle(canvas).display !== 'none' : false,
+      width: rect?.width ?? 0,
+      height: rect?.height ?? 0,
+    };
+  });
+  assert.equal(planetMetrics.docOverflow, true, '活动页手机端启用 ASCII 星球后不应横向溢出');
+  assert.equal(planetMetrics.visible, true, '活动页手机端应展示 ASCII 星球');
+  assert.ok(planetMetrics.width > 200 && planetMetrics.height > 150, '手机端 ASCII 星球画布应具备可见尺寸');
 });
