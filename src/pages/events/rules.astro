@@ -80,49 +80,63 @@ const tocHeadings = ruleSections.flatMap((section) => [
                   {scoringGroups.map((group) => (
                     <div class="challenge-rule-table">
                       <h3 id={`scoring-${group.id}`}>{group.label}</h3>
-                      <table>
-                        <caption class="sr-only">{group.label}及判定依据</caption>
-                        <thead>
-                          <tr>
-                            <th scope="col">评分维度</th>
-                            <th scope="col">分值</th>
-                            <th scope="col">判定依据</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {group.dimensions.map((dimension) => (
-                            <tr>
-                              <th scope="row">{dimension.name}</th>
-                              <td>{dimension.weight}</td>
-                              <td>{dimension.criteria}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <div class="table-scroll" data-table-scroll>
+                        <div class="table-scroll__stage">
+                          <div class="table-scroll__inner">
+                            <table>
+                              <caption class="sr-only">{group.label}及判定依据</caption>
+                              <thead>
+                                <tr>
+                                  <th scope="col">评分维度</th>
+                                  <th scope="col">分值</th>
+                                  <th scope="col">判定依据</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {group.dimensions.map((dimension) => (
+                                  <tr>
+                                    <th scope="row">{dimension.name}</th>
+                                    <td>{dimension.weight}</td>
+                                    <td>{dimension.criteria}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <p class="table-scroll__hint" aria-hidden="true">左右滑动查看完整表格</p>
+                      </div>
                       <p class="challenge-rule-tiebreaker">{group.tiebreak}</p>
                     </div>
                   ))}
                   <div class="challenge-rule-table">
                     <h3>奖项名额与奖励</h3>
-                    <table>
-                      <caption class="sr-only">两组奖项名额与奖励</caption>
-                      <thead>
-                        <tr>
-                          <th scope="col">奖项</th>
-                          <th scope="col">名额</th>
-                          <th scope="col">奖励</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {awardRows.map((award) => (
-                          <tr>
-                            <th scope="row">{award.group} · {award.title}</th>
-                            <td>{award.quantity}</td>
-                            <td>{award.reward}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <div class="table-scroll" data-table-scroll>
+                      <div class="table-scroll__stage">
+                        <div class="table-scroll__inner">
+                          <table>
+                            <caption class="sr-only">两组奖项名额与奖励</caption>
+                            <thead>
+                              <tr>
+                                <th scope="col">奖项</th>
+                                <th scope="col">名额</th>
+                                <th scope="col">奖励</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {awardRows.map((award) => (
+                                <tr>
+                                  <th scope="row">{award.group} · {award.title}</th>
+                                  <td>{award.quantity}</td>
+                                  <td>{award.reward}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <p class="table-scroll__hint" aria-hidden="true">左右滑动查看完整表格</p>
+                    </div>
                     <ul class="challenge-rule-list">
                       {awardNotes.map((note) => <li>{note}</li>)}
                     </ul>

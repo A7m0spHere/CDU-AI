@@ -1002,6 +1002,65 @@
   border-radius: var(--radius-md);
 }
 
+.table-scroll {
+  max-width: 100%;
+}
+
+.table-scroll__stage {
+  position: relative;
+}
+
+.table-scroll__stage::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 2.25rem;
+  background: linear-gradient(to left, var(--table-fade-bg, var(--bg)), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) ease;
+}
+
+.table-scroll[data-overflowing='true']:not([data-scrolled-end='true']) .table-scroll__stage::after {
+  opacity: 1;
+}
+
+.table-scroll__inner {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.table-scroll__inner:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+.table-scroll__hint {
+  display: none;
+  margin: 0.4rem 0 0;
+  color: var(--faint);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.table-scroll[data-overflowing='true'] .table-scroll__hint {
+  display: block;
+}
+
+@media print {
+  .table-scroll__inner {
+    overflow: visible;
+  }
+
+  .table-scroll__stage::after,
+  .table-scroll__hint {
+    display: none !important;
+  }
+}
+
 /* =========================================================
    Forms & directory filtering
    ========================================================= */
@@ -1377,6 +1436,14 @@
     padding: 1rem 0.9rem !important;
     border-radius: var(--radius-sm) !important;
     font-size: 0.78rem;
+  }
+
+  .prose .table-scroll table:has(tr > :nth-child(3)) {
+    min-width: 26rem;
+  }
+
+  .prose .table-scroll table:has(tr > :nth-child(4)) {
+    min-width: 34rem;
   }
 }
 

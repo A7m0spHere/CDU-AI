@@ -85,8 +85,8 @@ const jsonLd = {
     <div class="container term-container article-toc-layout">
       <article>
         <nav class="breadcrumb" aria-label="面包屑">
-          <a href="/">首页</a>
-          <span class="breadcrumb__sep" aria-hidden="true">/</span>
+          <a class="breadcrumb__root" href="/">首页</a>
+          <span class="breadcrumb__sep breadcrumb__root" aria-hidden="true">/</span>
           <a href="/glossary/">术语表</a>
           <span class="breadcrumb__sep" aria-hidden="true">/</span>
           <a href={`/glossary/?category=${entry.data.category}`}>{category?.name ?? '术语'}</a>
@@ -302,15 +302,29 @@ const jsonLd = {
       // 渐进增强：HTML 里默认三个面板都渲染（无 JS 也能读），脚本接管后只显示第一步。
       activate(0);
 
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const scrollTabIntoView = (tab: HTMLButtonElement) => {
+        tab.scrollIntoView({
+          block: 'nearest',
+          inline: 'nearest',
+          behavior: reducedMotion.matches ? 'auto' : 'smooth',
+        });
+      };
+
       tabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => activate(index));
+        tab.addEventListener('click', () => {
+          activate(index);
+          scrollTabIntoView(tab);
+        });
         tab.addEventListener('keydown', (event) => {
           if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
           event.preventDefault();
           const delta = event.key === 'ArrowRight' ? 1 : -1;
           const nextIndex = (index + delta + tabs.length) % tabs.length;
-          tabs[nextIndex]?.focus();
+          const nextTab = tabs[nextIndex];
+          nextTab?.focus();
           activate(nextIndex);
+          if (nextTab) scrollTabIntoView(nextTab);
         });
       });
     });

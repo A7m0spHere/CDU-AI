@@ -263,6 +263,7 @@
 .guide-mobile-nav {
   display: none;
   margin-bottom: 1.1rem;
+  scroll-margin-top: calc(var(--header-h) + 0.75rem);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface);

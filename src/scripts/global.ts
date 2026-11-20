@@ -1,5 +1,6 @@
 import { initNavDock } from './nav-dock';
 import { initImageLightbox } from './image-lightbox';
+import { initTableScroll } from './table-scroll';
 import { copyText } from '../lib/clipboard';
 import './theme';
 import './search';
@@ -84,3 +85,4 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy-target]').forEach((butt
 
 initNavDock();
 initImageLightbox();
+initTableScroll();

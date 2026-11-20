@@ -17,6 +17,7 @@
   --notion-code-block-bg: var(--code-bg);
   --notion-code-block-fg: var(--code-fg);
   --notion-table-head: var(--surface-muted);
+  --table-fade-bg: var(--surface);
 }
 
 .notion-page-head {

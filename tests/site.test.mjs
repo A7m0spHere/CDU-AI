@@ -1102,3 +1102,23 @@ test('首次 Agent Markdown 扩展限定文件范围，已集成但缺失的素�
   assert.match(missing.code, /素材待补充/);
   assert.doesNotMatch(missing.code, /<img\b/);
 });
+
+test('Markdown 与赛事细则表格包裹横向滚动容器，指南文末提供回到目录入口', async () => {
+  const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
+  const { default: config } = await import('../astro.config.mjs');
+  const processor = await createMarkdownProcessor(config.markdown);
+  const rendered = await processor.render('| 列一 | 列二 | 列三 |\n| --- | --- | --- |\n| A | B | C |');
+  assert.match(rendered.code, /class="table-scroll"[^>]*data-table-scroll/);
+  assert.match(rendered.code, /class="table-scroll__inner"[\s\S]*<table>/);
+
+  const multimodal = await read('glossary/multimodal/index.html');
+  assert.match(multimodal, /data-table-scroll/);
+  assert.match(multimodal, /class="breadcrumb__sep breadcrumb__root"/);
+
+  const rules = await read('events/rules/index.html');
+  assert.equal((rules.match(/data-table-scroll/g) ?? []).length, 3, '赛事细则页 3 张表格应全部包裹横向滚动容器');
+
+  const guideArticle = await read('guide/chat-ai-to-agent/index.html');
+  assert.match(guideArticle, /id="guide-mobile-nav"[^>]*data-guide-mobile-nav/);
+  assert.match(guideArticle, /href="#guide-mobile-nav"[^>]*data-open-guide-nav/);
+});

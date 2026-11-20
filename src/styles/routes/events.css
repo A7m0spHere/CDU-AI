@@ -1518,8 +1518,13 @@
 
 .challenge-rule-tables {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.6rem;
   margin-top: 1.4rem;
+}
+
+.challenge-rule-table {
+  min-width: 0;
 }
 
 .challenge-rule-table h3 {
@@ -1624,8 +1629,12 @@
     width: 7rem;
   }
 
+  .challenge-rule-table table {
+    min-width: 28rem;
+  }
+
   .challenge-rule-table th,
   .challenge-rule-table td {
-    padding: 0.55rem 0.36rem;
+    padding: 0.55rem 0.5rem;
   }
 }

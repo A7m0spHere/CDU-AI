@@ -1806,3 +1806,79 @@ test('手机高发浮层与底部抽屉交互可用且不发生窄屏溢出', as
   await page.waitForFunction(() => !document.querySelector('[data-tool-sheet]').open);
   assert.equal(await triggerTile.evaluate(el => el === document.activeElement), true, '下滑关闭工具抽屉后焦点应回到原工具图标');
 });
+
+test('手机端表格横向滚动提示、术语详情热区与指南单列翻页回归', async t => {
+  const page = await setup(t, {
+    viewport: { width: 360, height: 800 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  });
+
+  // 1) 4 列表格在 360px 窄屏使用容器内横向滚动，不撑破整页视口，桌面端不出现多余滑动提示
+  await page.goto(origin + '/glossary/multimodal/');
+  await ready(page);
+  const mobileGlossaryMetrics = await page.evaluate(() => {
+    const docOverflow = document.documentElement.scrollWidth <= innerWidth + 1;
+    const scrollBox = document.querySelector('[data-table-scroll]');
+    const inner = scrollBox?.querySelector('.table-scroll__inner');
+    const hint = scrollBox?.querySelector('.table-scroll__hint');
+    const copyBox = document.querySelector('.term-copy')?.getBoundingClientRect();
+    const rootDisplay = getComputedStyle(document.querySelector('.breadcrumb__root')).display;
+    return {
+      docOverflow,
+      overflowing: scrollBox?.getAttribute('data-overflowing'),
+      scrolledEnd: scrollBox?.getAttribute('data-scrolled-end'),
+      hintVisible: hint ? getComputedStyle(hint).display !== 'none' : false,
+      innerScrollable: inner ? inner.scrollWidth > inner.clientWidth : false,
+      copyHeight: copyBox?.height ?? 0,
+      rootDisplay,
+    };
+  });
+  assert.equal(mobileGlossaryMetrics.docOverflow, true, '含多列表格的术语详情页在 360px 下不应整页横向溢出');
+  assert.equal(mobileGlossaryMetrics.overflowing, 'true', '窄屏多列表格应识别为可横向滚动');
+  assert.equal(mobileGlossaryMetrics.scrolledEnd, 'false');
+  assert.equal(mobileGlossaryMetrics.hintVisible, true, '可滚动表格应显示滑动提示');
+  assert.equal(mobileGlossaryMetrics.innerScrollable, true);
+  assert.ok(mobileGlossaryMetrics.copyHeight >= 44, `复制 Markdown 按钮手机端高度应 >= 44px（实际 ${mobileGlossaryMetrics.copyHeight}）`);
+  assert.equal(mobileGlossaryMetrics.rootDisplay, 'none', '窄屏术语详情页应精简「首页 /」面包屑');
+
+  await page.evaluate(() => {
+    const inner = document.querySelector('[data-table-scroll] .table-scroll__inner');
+    inner.scrollLeft = inner.scrollWidth;
+    inner.dispatchEvent(new Event('scroll'));
+  });
+  await page.waitForFunction(() => document.querySelector('[data-table-scroll]')?.getAttribute('data-scrolled-end') === 'true');
+
+  // 切回桌面 1280px 宽度，700px 正文栏能完整容纳该表格，提示自动收起
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.waitForFunction(() => document.querySelector('[data-table-scroll]')?.getAttribute('data-overflowing') === 'false');
+
+  // 2) 赛事细则页 3 张评分/奖项表在 360px 窄屏可横向滚动且不撑破视口
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto(origin + '/events/rules/');
+  await ready(page);
+  const rulesMetrics = await page.evaluate(() => ({
+    docOverflow: document.documentElement.scrollWidth <= innerWidth + 1,
+    scrollBoxes: Array.from(document.querySelectorAll('[data-table-scroll]')).map(el => el.getAttribute('data-overflowing')),
+  }));
+  assert.equal(rulesMetrics.docOverflow, true, '赛事细则页在 360px 下不应整页横向溢出');
+  assert.deepEqual(rulesMetrics.scrollBoxes, ['true', 'true', 'true'], '赛事细则 3 张表格在 360px 下应启用横向滚动');
+
+  // 3) 指南详情页超窄屏上下章单列堆叠，文末回到目录按钮可滚回并展开顶部目录
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  await ready(page);
+  const pagerBoxes = await page.evaluate(() =>
+    Array.from(document.querySelectorAll('.guide-pager__link')).map(el => el.getBoundingClientRect()),
+  );
+  assert.equal(pagerBoxes.length, 2);
+  assert.ok(pagerBoxes[0].width > 300, `超窄屏翻页按钮应单列撑满（实际宽度 ${pagerBoxes[0].width}）`);
+  assert.ok(pagerBoxes[1].top >= pagerBoxes[0].bottom - 1, '超窄屏上下章应纵向堆叠而非左右挤压');
+
+  const backToNav = page.locator('[data-open-guide-nav]');
+  await backToNav.scrollIntoViewIfNeeded();
+  const backBox = await backToNav.boundingBox();
+  assert.ok(backBox && backBox.height >= 44, '回到目录按钮触控高度应 >= 44px');
+  await backToNav.click();
+  await page.waitForFunction(() => document.querySelector('[data-guide-mobile-nav]')?.open === true);
+});
