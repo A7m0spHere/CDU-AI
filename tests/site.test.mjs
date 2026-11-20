@@ -434,7 +434,9 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(events, /将结果发送至你的 QQ 邮箱/, '报名审核结果应通过 QQ 邮箱通知');
   assert.doesNotMatch(events, /待开放|短信/, '活动页应移除旧状态标签和短信通知');
   assert.match(events, /12 月 4–5 日线上材料初评/, '活动页应展示线上材料初评日期');
-  assert.match(events, /12 月 6 日 18:30–21:00/, '活动页应展示线下答辩与颁奖时间');
+  assert.match(events, /12 月 6 日（具体时间以群通知为准）/, '活动页应保留 12 月 6 日并注明具体时间以群通知为准');
+  assert.match(events, /Demo Day、答辩和颁奖/, '活动页应展示 Demo Day、答辩和颁奖环节');
+  assert.doesNotMatch(events, /18:30|现场展示/, '活动页应移除旧的 18:30 现场展示文案');
   assert.doesNotMatch(events, /WorkBuddy|GitHub\s*托管/i, '活动页避免产品导向的提交说明');
   assert.match(events, /href="https:\/\/docs.qq.com\/form\/page\//, '活动页应链接腾讯文档报名表');
   assert.match(events, /src="\/images\/events\/tencent-docs-registration-qr.png"/, '活动页应展示报名二维码');

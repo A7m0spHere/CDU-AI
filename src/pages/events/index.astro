@@ -124,7 +124,7 @@ const sections = [
         <div class="section-head">
           <div class="section-head__copy">
             <h2 id="schedule-heading">赛程与评审</h2>
-            <p class="section-head__desc">赛期 {dates.overall}。{dates.onlineReview}线上材料初评，{dates.demoDay}举行现场展示、答辩及颁奖。</p>
+            <p class="section-head__desc">赛期 {dates.overall}。{dates.onlineReview}线上材料初评，{dates.demoDay}举行 Demo Day、答辩和颁奖。</p>
           </div>
         </div>
 
@@ -132,8 +132,8 @@ const sections = [
           {timelinePhases.map((phase) => (
             <li class="challenge-linear-step">
               <div class="challenge-linear-step__time">
-                <span class="challenge-linear-step__day">{phase.day} · {phase.time}</span>
-                <span class="challenge-linear-step__tag">{phase.dateLabel}</span>
+                <span class="challenge-linear-step__day">{phase.time ? `${phase.day} · ${phase.time}` : phase.day}</span>
+                {phase.dateLabel && <span class="challenge-linear-step__tag">{phase.dateLabel}</span>}
               </div>
               <div class="challenge-linear-step__body">
                 <h3>{phase.stage}</h3>

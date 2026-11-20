@@ -77,13 +77,13 @@ export const challengeConfig = {
     midterm: '11 月 28 日 20:00 前',
     submission: '12 月 4 日 18:00',
     onlineReview: '12 月 4–5 日',
-    demoDay: '12 月 6 日 18:30–21:00',
+    demoDay: '12 月 6 日（具体时间以群通知为准）',
     kickoffVenue: '第十教学楼（具体教室以选手群通知为准）',
   },
   homeBanner: {
     badge: 'AI 创作挑战赛',
     title,
-    summary: '11/21 10:00 至 11/23 20:00 报名 · 11/24 开赛 · 12/6 18:30 现场答辩及颁奖',
+    summary: '11/21 10:00 至 11/23 20:00 报名 · 11/24 开赛 · 12/6 Demo Day、答辩和颁奖',
     ctaLabel: '查看详情与报名',
     href: '/events/',
   },
@@ -103,7 +103,7 @@ export const quickFacts = [
   { label: '赛期', value: challengeConfig.dates.overall },
   { label: '参赛对象', value: '成都大学在读本科生和研究生，专业、年级不限' },
   { label: '组别', value: '新手组 / 进阶组，分别评奖' },
-  { label: '线下展示及颁奖', value: challengeConfig.dates.demoDay },
+  { label: 'Demo Day、答辩和颁奖', value: challengeConfig.dates.demoDay },
 ];
 
 export const competitionTracks: CompetitionTrack[] = [
@@ -220,9 +220,9 @@ export const timelinePhases: TimelinePhase[] = [
   {
     day: '12/6',
     dateLabel: '周日',
-    time: '18:30–21:00',
-    stage: '现场展示、答辩及颁奖',
-    summary: '现场评委进行 Demo 与答辩评审，随后公布成绩并颁奖。地点与流程以选手群通知为准。',
+    time: '具体时间以群通知为准',
+    stage: 'Demo Day、答辩和颁奖',
+    summary: '现场评委进行 Demo 与答辩评审，随后公布成绩并颁奖。具体时间、地点与流程以选手群通知为准。',
   },
 ];
 
@@ -364,7 +364,7 @@ export const ruleSections: RuleSection[] = [
     bullets: [
       `${challengeConfig.dates.briefing}在${challengeConfig.dates.kickoffVenue}举行开赛会，安排实操演示与答疑。现场仅受理已报名者的信息补正、组别确认和结对登记。`,
       `中期进度材料于 ${challengeConfig.dates.midterm}提交。作品提交于 ${challengeConfig.dates.submission}截止。`,
-      `${challengeConfig.dates.onlineReview}线上材料初评。${challengeConfig.dates.demoDay}举行现场展示、答辩及颁奖，地点与流程以选手群通知为准。`,
+      `${challengeConfig.dates.onlineReview}线上材料初评。${challengeConfig.dates.demoDay}举行 Demo Day、答辩和颁奖，地点与流程以选手群通知为准。`,
     ],
   },
   {
