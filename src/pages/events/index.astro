@@ -3,111 +3,437 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/routes/events.css';
 import PageHero from '../../components/PageHero.astro';
 import Icon from '../../components/Icon.astro';
-import Roadmap from '../../components/Roadmap.astro';
-import { eventFormats, activityBlueprint, roadmap } from '../../data/events';
+import {
+  challengeConfig,
+  quickFacts,
+  competitionTracks,
+  workRequirements,
+  timelinePhases,
+  finalDeliverables,
+  awardRows,
+  resolveExternalUrl,
+} from '../../data/challenge';
 
-const eventIcons = {
-  workshop: 'presentation',
-  clinic: 'wrench',
-  build: 'hammer',
-  stage: 'mic',
-} as const;
+const registration = challengeConfig.registration;
+const registrationUrl = resolveExternalUrl(registration.url);
+const { dates } = challengeConfig;
+const [seriesTitle, challengeTitle] = challengeConfig.titleLines;
+
+const sections = [
+  { label: '赛程与评审', href: '#schedule' },
+  { label: '报名入口', href: '#register' },
+  { label: '组别与形式', href: '#tracks' },
+  { label: '作品要求', href: '#works' },
+  { label: '作品提交', href: '#submit' },
+  { label: '奖项设置', href: '#awards' },
+];
 ---
 
 <BaseLayout
-  title="活动"
-  description="新手工作坊、工具诊所、48 小时共创与作品开放麦。当前没有已确认的活动排期。"
+  title={`${challengeConfig.title} · 活动`}
+  description={`${challengeConfig.title}。含赛程、腾讯文档报名、新手组与进阶组规则、作品提交和奖项设置。`}
 >
   <PageHero
-    eyebrow="活动 · 形式蓝图"
-    title="活动"
-    description="活动形式与流程设计中。当前没有已确认的日期、场地或报名方式。"
+    eyebrow={challengeConfig.eyebrow}
+    title={challengeConfig.title}
+    description={challengeConfig.subtitle}
     crumbs={[{ label: '活动' }]}
     tone="warm"
   >
+    <canvas slot="copy-art" class="challenge-ascii-planet" data-challenge-ascii-planet aria-hidden="true"></canvas>
+
+    <Fragment slot="title">
+      <span class="challenge-title">
+        <span class="challenge-title__series">{seriesTitle}</span>{' '}
+        <span class="challenge-title__name">{challengeTitle}</span>
+      </span>
+    </Fragment>
+
+    <Fragment slot="title-action">
+      <button
+        type="button"
+        class="btn btn--soft challenge-aside-trigger"
+        data-dialog-open="challenge-overview-dialog"
+        aria-controls="challenge-overview-dialog"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+      >
+        <Icon name="calendar" size={16} />
+        <span class="challenge-aside-trigger__label">赛事速览</span>
+        <Icon name="arrow-up-right" size={14} />
+      </button>
+    </Fragment>
+
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href="#register">
+        报名入口
+        <Icon name="arrow-right" size={16} />
+      </a>
+      <button
+        type="button"
+        class="btn btn--soft"
+        data-dialog-open="challenge-info-drawer"
+        aria-controls="challenge-info-drawer"
+        aria-expanded="false"
+      >
+        <Icon name="layers" size={16} />
+        赛道与作品要求
+      </button>
+      <a class="btn btn--soft" href="/events/rules/">
+        完整赛事细则
+        <Icon name="arrow-right" size={15} />
+      </a>
+      <a class="btn btn--ghost" href="#submit">
+        作品提交
+      </a>
+    </Fragment>
+
     <Fragment slot="aside">
-      <div class="aside-card aside-card--brand">
-        <div class="aside-card__head"><Icon name="calendar" size={17} />本页没有活动日历</div>
-        <h2>暂无已确认活动</h2>
-        <p>以下均为形式设计，不含真实日期、地点、嘉宾或报名入口。</p>
-        <div class="status-row"><span class="status-dot" aria-hidden="true"></span><span>形式筹备中</span></div>
-      </div>
+      <img
+        class="challenge-hero-art"
+        src="/images/events/mascot-drawing-world.webp"
+        alt="计协看板娘用羽毛笔在空中绘出旋涡星空"
+        width="1536"
+        height="1024"
+        loading="lazy"
+        decoding="async"
+      />
     </Fragment>
   </PageHero>
 
-  <section class="section section--flush-top">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-head__copy">
-          <p class="eyebrow">活动形式</p>
-          <h2>活动形式</h2>
-          <p class="section-head__desc">工作坊、工具诊所、48 小时共创与作品开放麦。</p>
-        </div>
-        <span class="pill">全部为形式构想</span>
-      </div>
-
-      <div class="event-format-grid">
-        {eventFormats.map((format, index) => (
-          <article class="event-format-card card">
-            <div class="event-format-card__top">
-              <span class="event-format-card__icon"><Icon name={eventIcons[format.icon]} size={22} /></span>
-              <span class="mono">0{index + 1}</span>
-            </div>
-            <p class="event-format-card__subtitle">{format.subtitle}</p>
-            <h3>{format.title}</h3>
-            <p class="event-format-card__desc">{format.description}</p>
-            <div class="event-format-card__best"><span>适合</span>{format.goodFor}</div>
-            <div class="event-format-card__foot">
-              <span class="badge">{format.status}</span>
-              <span class="mono">无具体排期</span>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div class="blueprint-block">
-        <div class="blueprint-block__copy">
-          <p class="eyebrow">流程蓝图</p>
-          <h2>两小时工作坊流程</h2>
-          <p>以下为流程设计，不代表已经举办过。设备、网络与账号条件需在活动确认时评估。</p>
-        </div>
-        <ol class="blueprint-steps">
-          {activityBlueprint.map((step, index) => (
+  <div class="container challenge-program">
+    <nav class="challenge-jumps" aria-label="赛事页面导航">
+      <p class="challenge-jumps__title" aria-hidden="true">赛事导航</p>
+      <div class="challenge-jumps__items">
+        <span class="challenge-jumps__fill" aria-hidden="true"></span>
+        <ul>
+          {sections.map((section) => (
             <li>
-              <span class="blueprint-steps__marker">{step.label}</span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
+              <a href={section.href}>
+                {section.label}
+                <Icon name="arrow-right" size={14} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+
+    <div class="challenge-program__content">
+      <section class="challenge-section" id="schedule" aria-labelledby="schedule-heading">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <h2 id="schedule-heading">赛程与评审</h2>
+            <p class="section-head__desc">赛期 {dates.overall}。{dates.onlineReview}线上材料初评，{dates.demoDay}举行现场展示、答辩及颁奖。</p>
+          </div>
+        </div>
+
+        <ol class="challenge-linear-timeline">
+          {timelinePhases.map((phase) => (
+            <li class="challenge-linear-step">
+              <div class="challenge-linear-step__time">
+                <span class="challenge-linear-step__day">{phase.day} · {phase.time}</span>
+                <span class="challenge-linear-step__tag">{phase.dateLabel}</span>
               </div>
-              <span class="mono">{String(index + 1).padStart(2, '0')}</span>
+              <div class="challenge-linear-step__body">
+                <h3>{phase.stage}</h3>
+                <p>{phase.summary}</p>
+              </div>
             </li>
           ))}
         </ol>
-      </div>
+      </section>
 
-      <div class="roadmap-block" id="roadmap">
+      <section class="challenge-section" id="register" tabindex="-1" aria-labelledby="register-heading">
         <div class="section-head">
           <div class="section-head__copy">
-            <p class="eyebrow">项目路线</p>
-            <h2>项目路线</h2>
-            <p class="section-head__desc">先有内容、规则和负责人，再安排活动。不承诺未确认的时间表。</p>
+            <h2 id="register-heading">报名入口</h2>
+            <p class="section-head__desc">{dates.registration}</p>
           </div>
-          <a class="link-arrow section-head__link" href="/about/#roadmap">在关于页看完整路线<Icon name="arrow-right" size={15} /></a>
         </div>
-        <Roadmap phases={roadmap} />
+
+        <div class="challenge-register-grid">
+          <article class="challenge-register-card card">
+            <div class="challenge-register-card__head">
+              <h3>{registration.platform}报名表</h3>
+              <span
+                class="challenge-status-pill"
+                data-registration-status
+                data-opens-at={registration.opensAt}
+                data-closes-at={registration.closesAt}
+                hidden
+              ></span>
+            </div>
+            <p class="challenge-register-card__lead">{registration.contact}</p>
+            {registrationUrl && (
+              <div class="challenge-register-card__actions">
+                <a class="btn btn--primary" href={registrationUrl} target="_blank" rel="noopener noreferrer">
+                  查看腾讯文档报名表
+                  <Icon name="external-link" size={16} />
+                </a>
+              </div>
+            )}
+            <p class="challenge-registration-privacy">{registration.privacyNotice}</p>
+          </article>
+
+          <figure class="challenge-registration-qr card">
+            <img src={registration.qrImage} alt="腾讯文档报名表二维码" width="148" height="148" loading="lazy" />
+            <figcaption>扫码查看报名表</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="challenge-section" id="tracks" aria-labelledby="tracks-heading">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <h2 id="tracks-heading">组别与形式</h2>
+            <p class="section-head__desc">报名时按经验与项目起点选组，两组分别评奖。</p>
+          </div>
+        </div>
+        <ul class="challenge-summary-list">
+          {competitionTracks.map((track) => (
+            <li>
+              <h3>{track.title}</h3>
+              <div>
+                <p><strong>{track.teamRule}</strong>。{track.summary}</p>
+                <p>{track.requirement}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <a class="link-arrow challenge-detail-link" href="/events/rules/#registration-and-teams">
+          查看组队与调组细则
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </section>
+
+      <section class="challenge-section" id="works" aria-labelledby="works-heading">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <h2 id="works-heading">作品要求</h2>
+            <p class="section-head__desc">让评委能运行作品、复现核心功能，并看清参赛期间完成的工作。</p>
+          </div>
+        </div>
+        <ul class="challenge-summary-list">
+          {workRequirements.map((item) => (
+            <li>
+              <h3>{item.badge}</h3>
+              <p>{item.text}</p>
+            </li>
+          ))}
+        </ul>
+        <a class="link-arrow challenge-detail-link" href="/events/rules/#work-requirements">
+          查看作品与材料细则
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </section>
+
+      <section class="challenge-section" id="submit" aria-labelledby="submit-heading">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <h2 id="submit-heading">作品提交</h2>
+            <p class="section-head__desc">{dates.submission}截止，提交入口以选手群通知为准。</p>
+          </div>
+        </div>
+        <ul class="challenge-deliverables">
+          {finalDeliverables.map((item) => <li>{item}</li>)}
+        </ul>
+      </section>
+
+      <section class="challenge-section" id="awards" aria-labelledby="awards-heading">
+        <div class="section-head">
+          <div class="section-head__copy">
+            <h2 id="awards-heading">奖项设置</h2>
+            <p class="section-head__desc">拟按组别设奖，名额与奖励以组委会最终公示为准。</p>
+          </div>
+        </div>
+        <div class="challenge-award-groups">
+          {competitionTracks.map(({ title }) => (
+            <section class="challenge-award-group" aria-label={`${title}奖项`}>
+              <h3>{title}</h3>
+              <dl>
+                {awardRows.filter((award) => award.group === title).map((award) => (
+                  <div>
+                    <dt>{award.title}</dt>
+                    <dd>{award.quantity} 个</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ))}
+        </div>
+        <a class="link-arrow challenge-detail-link" href="/events/rules/#judging-and-awards">
+          查看评分与评奖细则
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <!-- 赛事速览弹窗（<dialog> Modal） -->
+  <dialog
+    id="challenge-overview-dialog"
+    class="challenge-modal"
+    aria-labelledby="challenge-overview-title"
+    {...({ closedby: 'any' } as Record<string, string>)}
+  >
+    <div class="challenge-modal__panel">
+      <header class="challenge-modal__head">
+        <div>
+          <p class="eyebrow">赛事速览</p>
+          <h2 id="challenge-overview-title">{challengeConfig.shortTitle}</h2>
+        </div>
+        <button
+          type="button"
+          class="challenge-drawer__close"
+          data-dialog-close
+          aria-label="关闭赛事速览弹窗"
+          autofocus
+        >
+          <Icon name="close" size={18} />
+        </button>
+      </header>
+
+      <div class="challenge-modal__body">
+        <div class="status-row">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>{challengeConfig.statusBadge}</span>
+        </div>
+
+        <dl class="meta-rows challenge-modal__rows">
+          {quickFacts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div class="notice">
+          <Icon name="info" size={16} />
+          <p>{challengeConfig.organizerNote}</p>
+        </div>
       </div>
 
-      <div class="events-cta">
-        <div>
-          <p class="eyebrow">想参与或发起？</p>
-          <h2>参与活动筹备</h2>
-          <p>M0 暂不开放线上报名。想参与策划、场地或内容准备，请先看共建说明。</p>
-        </div>
-        <div class="btn-row">
-          <a class="btn btn--primary" href="/about/#contribute">了解共建方式<Icon name="arrow-right" size={16} /></a>
-          <a class="btn btn--soft" href="/community/">查看社区状态</a>
-        </div>
-      </div>
+      <footer class="challenge-modal__foot">
+        <button
+          type="button"
+          class="btn btn--soft"
+          data-dialog-switch="challenge-info-drawer"
+        >
+          <Icon name="layers" size={15} />
+          赛道与作品要求
+        </button>
+        <a class="btn btn--primary" href="/events/rules/">
+          完整赛事细则
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </footer>
     </div>
-  </section>
+  </dialog>
+
+  <!-- 赛道设置与作品要求：右侧滑出抽屉弹窗 -->
+  <dialog
+    id="challenge-info-drawer"
+    class="challenge-drawer"
+    aria-labelledby="challenge-drawer-title"
+    {...({ closedby: 'any' } as Record<string, string>)}
+  >
+    <div class="challenge-drawer__panel">
+      <header class="challenge-drawer__head">
+        <div>
+          <p class="eyebrow">赛制速查</p>
+          <h2 id="challenge-drawer-title">双赛道、作品要求与反作弊审核</h2>
+        </div>
+        <button
+          type="button"
+          class="challenge-drawer__close"
+          data-dialog-close
+          aria-label="关闭赛事要求抽屉"
+          autofocus
+        >
+          <Icon name="close" size={18} />
+        </button>
+      </header>
+
+      <div class="challenge-drawer__body">
+        <section class="challenge-drawer__group" aria-labelledby="drawer-tracks-title">
+          <h3 id="drawer-tracks-title">双赛道设置</h3>
+          <div class="challenge-drawer__list">
+            {competitionTracks.map((track) => (
+              <article class="challenge-drawer__item">
+                <div class="challenge-drawer__item-head">
+                  <strong>{track.title}</strong>
+                  <span class="tag">{track.teamRule}</span>
+                </div>
+                <p>{track.summary} {track.requirement}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section class="challenge-drawer__group" aria-labelledby="drawer-req-title">
+          <h3 id="drawer-req-title">比赛作品要求、审核与反抄袭</h3>
+          <div class="challenge-drawer__list">
+            {workRequirements.map((item) => (
+              <article class="challenge-drawer__item">
+                <div class="challenge-drawer__item-head">
+                  <span class="badge badge--sky">
+                    {item.badge}
+                  </span>
+                  <strong>{item.title}</strong>
+                </div>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section class="challenge-drawer__group" aria-labelledby="drawer-resources-title">
+          <h3 id="drawer-resources-title">配套学习指南与工具</h3>
+          <p class="challenge-drawer__hint">
+            官网配套提供 AI 使用教程、学习指南与工具资源库，帮助零基础同学快速上手。
+          </p>
+          <div class="btn-row">
+            <a class="btn btn--soft btn--sm" href="/guide/">学习指南</a>
+            <a class="btn btn--ghost btn--sm" href="/tools/">工具资源</a>
+          </div>
+        </section>
+      </div>
+
+      <footer class="challenge-drawer__foot">
+        <a class="btn btn--primary" href="/events/rules/">
+          阅读完整赛事细则
+          <Icon name="arrow-right" size={16} />
+        </a>
+        <a class="btn btn--soft" href="#register">前往报名入口</a>
+      </footer>
+    </div>
+  </dialog>
 </BaseLayout>
+
+<script>
+  import '../../scripts/challenge-ascii-planet';
+  import '../../scripts/challenge-drawer';
+  import '../../scripts/challenge-jumps';
+
+  const registrationStatus = document.querySelector<HTMLElement>('[data-registration-status]');
+  if (registrationStatus) {
+    const opensAt = Date.parse(registrationStatus.dataset.opensAt ?? '');
+    const closesAt = Date.parse(registrationStatus.dataset.closesAt ?? '');
+    const updateStatus = () => {
+      const now = Date.now();
+      const hasOpened = now >= opensAt;
+      registrationStatus.hidden = !hasOpened;
+      if (hasOpened) {
+        const hasClosed = now >= closesAt;
+        registrationStatus.textContent = hasClosed ? '已截止' : '报名中';
+        registrationStatus.className = `challenge-status-pill challenge-status-pill--${hasClosed ? 'closed' : 'open'}`;
+      }
+      const nextChange = hasOpened ? closesAt : opensAt;
+      if (nextChange > now) window.setTimeout(updateStatus, Math.min(nextChange - now, 2_147_483_647));
+    };
+
+    updateStatus();
+  }
+</script>

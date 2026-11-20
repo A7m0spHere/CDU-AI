@@ -7,6 +7,7 @@ import { tools, toolCategories, toolCapabilities } from '../data/tools';
 import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 import { glossaryCategoryName } from '../data/glossary';
 import { guideHome } from '../data/guide-nav';
+import { challengeConfig, ruleSections } from '../data/challenge';
 
 interface SearchItem {
   type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
@@ -100,11 +101,53 @@ export const GET: APIRoute = async () => {
     },
     {
       type: '页面',
-      title: '活动',
-      description: '活动形式与流程设计；暂无排期。',
+      title: `活动 · ${challengeConfig.title}`,
+      description: '新手组与进阶组分别评奖。查看腾讯文档报名入口、赛程、作品要求与奖项设置。',
       href: '/events/',
-      keywords: '活动 工作坊 共创 开放麦 组队',
+      keywords: '活动 第八届网络创新大赛 AI创作挑战赛 计协 新手组 进阶组 反抄袭 线上评审 Demo Day 新人奖 创意奖 报名 腾讯文档',
     },
+    {
+      type: '页面',
+      title: `完整赛事细则 · ${challengeConfig.shortTitle}`,
+      description: '组队规则、提交材料、反抄袭、两组评分表与奖项设置。',
+      href: '/events/rules/',
+      keywords: '赛事细则 规则 新手组 进阶组 反作弊 反抄袭 评分表 线上评审 Demo Day 新人奖 创意奖 综测',
+    },
+    {
+      type: '章节',
+      title: '比赛作品要求与反作弊审核',
+      description: '作品须有可验证的核心功能，并说明项目起点与赛期增量。禁止搬运他人作品。',
+      href: '/events/rules/#audit-and-anticheat',
+      keywords: '作品要求 头图 合规 合法性 创意亮点 反作弊 反抄袭 模板 源码 旧项目 提交记录',
+    },
+    {
+      type: '章节',
+      title: '腾讯文档报名入口',
+      description: `线上报名时间为 ${challengeConfig.dates.registration}。通过腾讯文档填写问卷，审核结果通过 QQ 邮箱通知。`,
+      href: '/events/#register',
+      keywords: '报名 腾讯文档 审核 QQ 邮箱 选手群 二维码',
+    },
+    {
+      type: '章节',
+      title: '作品提交',
+      description: '作品提交时间与材料清单，提交入口以选手群通知为准。',
+      href: '/events/#submit',
+      keywords: '作品提交 投稿',
+    },
+    {
+      type: '章节',
+      title: '赛程时间线与 Demo Day',
+      description: `${challengeConfig.dates.briefing}开赛，${challengeConfig.dates.submission}作品提交截止，${challengeConfig.dates.onlineReview}线上材料初评，${challengeConfig.dates.demoDay}现场展示、答辩及颁奖。`,
+      href: '/events/#schedule',
+      keywords: '赛程 11月24日 12月4日 12月5日 12月6日 开赛会 线上评审 Demo Day 答辩 颁奖',
+    },
+    ...ruleSections.map((section) => ({
+      type: '章节' as const,
+      title: section.title,
+      description: `完整赛事细则：${section.lead ?? section.bullets[0] ?? ''}`.slice(0, 180),
+      href: `/events/rules/#${section.id}`,
+      keywords: [challengeConfig.title, section.title, section.lead ?? '', ...section.bullets].join(' '),
+    })),
     {
       type: '页面',
       title: '关于与共建',

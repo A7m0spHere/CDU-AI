@@ -59,6 +59,7 @@ const expectedRoutes = [
   'about/index.html',
   'community/index.html',
   'events/index.html',
+  'events/rules/index.html',
   'guide/index.html',
   'glossary/index.html',
   'tools/index.html',
@@ -407,9 +408,57 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(community, /社区暂不开放/, '社区页应提示暂不开放');
   assert.doesNotMatch(community, /参与路径|讨论起点|社区公约|版块/, '社区页不应再包含指引或版块内容');
 
+  const home = await read('index.html');
+  assert.match(home, /成都大学第八届网络创新大赛——AI创作挑战赛/, '首页应展示当前 AI 创作挑战赛横幅提示');
+  assert.match(home, /class="home-event-banner"[^>]*href="\/events\/"/, '首页赛事横幅应直达活动页');
+  assert.match(home, /11\/23 20:00 报名/, '首页横幅应显示新版报名截止时间');
+
   const events = await read('events/index.html');
-  assert.match(events, /本页没有活动日历/);
-  assert.match(events, /形式筹备中/);
+  const eventHeading = events.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? '';
+  assert.match(eventHeading, /class="challenge-title__series">成都大学第八届网络创新大赛<\/span>[\s\S]*class="challenge-title__name">AI创作挑战赛<\/span>/, '活动页应分行展示赛事名称');
+  assert.doesNotMatch(eventHeading, /——/, '活动页主标题应去掉破折号');
+  assert.doesNotMatch(events, /计协首个 AI 赛事/, '活动页 Hero eyebrow 不应保留多余前缀字符');
+  assert.doesNotMatch(events, /半期考试/, '活动页赛程应移除半期考试相关文字');
+  assert.match(events, /id="challenge-overview-dialog"/, '活动页应提供赛事速览交互弹窗');
+  assert.match(events, /data-dialog-open="challenge-overview-dialog"/, '赛事速览应改为可点击交互触发器');
+  assert.match(events, /id="challenge-info-drawer"/, '活动页应提供赛道与作品要求抽屉弹窗');
+  assert.doesNotMatch(events, /<p class="eyebrow">(01|02|03|04) · /, '活动页分块标题不应包含 01/02/03/04 前缀');
+  assert.doesNotMatch(events, /id="intro"/, '活动页主流程不应保留 01 · 赛事介绍与作品要求模块');
+  assert.doesNotMatch(events, /<dt>核心节点<\/dt>/, '赛事速览不应包含核心节点行');
+  assert.match(events, /新手组/, '抽屉弹窗内应展示新手组赛道');
+  assert.match(events, /进阶组/, '抽屉弹窗内应展示进阶组赛道');
+  assert.match(events, /个人或 2 人团队/, '进阶组摘要应展示默认组队人数');
+  assert.match(events, /2026年11月24日 – 2026年12月4日/, '活动页应展示赛期');
+  assert.match(events, /11 月 21 日 10:00 至 11 月 23 日 20:00/, '活动页应展示线上报名时间');
+  assert.match(events, /data-closes-at="2026-11-23T20:00:00\+08:00"/, '报名状态应使用新截止时间');
+  assert.match(events, /将结果发送至你的 QQ 邮箱/, '报名审核结果应通过 QQ 邮箱通知');
+  assert.doesNotMatch(events, /待开放|短信/, '活动页应移除旧状态标签和短信通知');
+  assert.match(events, /12 月 4–5 日线上材料初评/, '活动页应展示线上材料初评日期');
+  assert.match(events, /12 月 6 日 18:30–21:00/, '活动页应展示线下答辩与颁奖时间');
+  assert.doesNotMatch(events, /WorkBuddy|GitHub\s*托管/i, '活动页避免产品导向的提交说明');
+  assert.match(events, /href="https:\/\/docs.qq.com\/form\/page\//, '活动页应链接腾讯文档报名表');
+  assert.match(events, /src="\/images\/events\/tencent-docs-registration-qr.png"/, '活动页应展示报名二维码');
+  for (const id of ['schedule', 'register', 'tracks', 'works', 'submit', 'awards']) {
+    assert.match(events, new RegExp(`href="#${id}"`), '章节导航应链接 ' + id);
+    assert.match(events, new RegExp(`id="${id}"`), '活动页应有章节 ' + id);
+  }
+  assert.match(events, /href="\/events\/rules\/#judging-and-awards"/, '奖项应链接评分细则');
+  assert.doesNotMatch(events, /<table|评分维度/, '评分表应放在细则页');
+  assert.match(events, /href="\/events\/rules\/"/, '活动页应提供完整赛事细则子页入口');
+  assert.doesNotMatch(events, /href="\/events\/ideas\/"/, '已移除可选选题灵感指南入口');
+  assert.doesNotMatch(events, /本页没有活动日历|两小时工作坊流程/, '活动页应移除旧版占位和常规形式计划');
+
+  const rules = await read('events/rules/index.html');
+  assert.match(rules, /完整赛事细则/, '赛事细则子页应存在');
+  assert.match(rules, /成都大学第八届网络创新大赛——AI创作挑战赛/, '赛事细则应同步更新赛事名称');
+  assert.match(rules, /反抄袭/, '赛事细则应包含反抄袭机制');
+  assert.match(rules, /id="scoring-starter">新手组评分表/, '细则应包含新手组评分表');
+  assert.match(rules, /id="scoring-open">进阶组评分表/, '细则应包含进阶组评分表');
+  assert.match(rules, /材料初评分 × 40% \+ 现场答辩评分 × 60%/, '细则应说明最终分计算方式');
+  assert.match(rules, /单项奖仅发证书/, '细则应说明单项奖奖励');
+  assert.doesNotMatch(rules, /WorkBuddy/i, '赛事细则不应提及 WorkBuddy');
+  assert.doesNotMatch(rules, /GitHub\s*托管/, '赛事细则不应提及 GitHub 托管');
+  assert.doesNotMatch(rules, /href="\/events\/ideas\/"/, '赛事细则不应再链接已移除的选题灵感页面');
 });
 
 test('全站透明说明与内容边界存在', async () => {

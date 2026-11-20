@@ -7,14 +7,33 @@ import HomeScenarios from '../components/HomeScenarios.astro';
 import HomeExploreMenu from '../components/HomeExploreMenu.astro';
 import CduLibraryLineArt from '../components/CduLibraryLineArt.astro';
 import { site } from '../data/site';
+import { challengeConfig } from '../data/challenge';
 import '../styles/routes/home.css';
 import '../styles/home-v2.css';
 
+const banner = challengeConfig.homeBanner;
 ---
 
 <BaseLayout>
   <div class="home-v2">
     <section class="home-hero" aria-labelledby="hero-title">
+      <div class="container home-event-banner-wrap" data-enter style="--enter-index: 0">
+        <a class="home-event-banner" href={banner.href}>
+          <span class="home-event-banner__badge">
+            <span class="status-dot" aria-hidden="true"></span>
+            {banner.badge}
+          </span>
+          <span class="home-event-banner__copy">
+            <strong>{banner.title}</strong>
+            <span>{banner.summary}</span>
+          </span>
+          <span class="home-event-banner__cta">
+            {banner.ctaLabel}
+            <Icon name="arrow-right" size={15} />
+          </span>
+        </a>
+      </div>
+
       <div class="container home-hero__grid">
         <div class="home-hero__main" data-hero-pixels>
           <canvas class="home-hero__pixels" aria-hidden="true"></canvas>

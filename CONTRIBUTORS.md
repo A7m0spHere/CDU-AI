@@ -14,6 +14,7 @@
 | [@FJHin](https://github.com/FJHin) | 内容与结构 | [PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1) |
 | [@kdjdhe](https://github.com/kdjdhe) | 内容初稿、代码与交互 | [PR #26](https://github.com/A7m0spHere/CDU-AI/pull/26)、[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35) |
 | [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)、[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32) |
+| [@litangking114](https://github.com/litangking114) | 赛事内容与报名入口 | [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)、[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44) |
 
 ## 项目发起与维护
 
@@ -49,6 +50,8 @@
 - **开发文档（2026-11-01）**：补齐主题、工具目录和搜索模块说明，整理文档职责、历史状态与代码变更对应的文档入口，在贡献流程和 PR 模板加入文档影响检查，并明确可访问性验收目标与扫描证据的区别。见 [Issue #36](https://github.com/A7m0spHere/CDU-AI/issues/36)、[`af85d4b`](https://github.com/A7m0spHere/CDU-AI/commit/af85d4bbb1e4f95f5e2037b13cb92cdd52338a81)、[`2098ed4`](https://github.com/A7m0spHere/CDU-AI/commit/2098ed47839b797e2afc5005f6c80577c32a7a0b)。
 
 ## 内容与结构贡献
+
+**[@litangking114](https://github.com/litangking114)** — **[PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)**（2026-11-21）：整理第八届网络创新大赛 AI 创作挑战赛的赛程、分组、评审与奖项，提供腾讯文档报名入口和二维码。[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44) 吸收了这些赛事内容。
 
 **[@FJHin](https://github.com/FJHin)**（git 署名 `Scenic`）— **[PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1)**（2026-10-18）：把术语表从 `src/data/glossary.ts` 的数组迁移为 Markdown 内容集合，新增 `/glossary/[id]/` 详情页（一句话说清 / 打个比方 / 它是怎么运作的 / 你会碰到它的场景 / 常见误解），改造搜索索引与分类筛选，并补上内容层测试（49 个文件，+2255 / −411）。这批词条正文在 2026-10-20 的内容重建（#13）中清空重写，但内容集合、详情页与字段校验的结构沿用至今。
 
