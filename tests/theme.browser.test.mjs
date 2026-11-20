@@ -1620,6 +1620,36 @@ test('桌面主题编辑器拖到底部后仍可点击保存', async t => {
   await editor.waitFor({ state: 'hidden' });
 });
 
+test('手机左拉赛事速览在松手后打开并可切换到作品要求', async t => {
+  const page = await setup(t, {
+    viewport: { width: 320, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  });
+  await page.goto(origin + '/events/');
+  const trigger = page.getByRole('button', { name: '赛事速览', exact: true });
+  const overview = page.locator('#challenge-overview-dialog');
+  const drawer = page.locator('#challenge-info-drawer');
+  const bounds = await trigger.boundingBox();
+  const x = bounds.x + bounds.width - 12;
+  const y = bounds.y + bounds.height / 2;
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (const distance of [7, 15, 24]) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - distance, y }] });
+  }
+  assert.equal(await overview.evaluate(dialog => dialog.open), false, '松手前应保持关闭');
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await overview.waitFor({ state: 'visible', timeout: 5000 });
+  await overview.getByRole('button', { name: '赛道与作品要求' }).tap();
+  await drawer.waitFor({ state: 'visible', timeout: 5000 });
+  await drawer.getByRole('button', { name: '关闭赛事要求抽屉' }).tap();
+  await drawer.waitFor({ state: 'hidden', timeout: 5000 });
+  await trigger.tap();
+  await overview.waitFor({ state: 'visible', timeout: 5000 });
+});
+
 test('手机高发浮层与底部抽屉交互可用且不发生窄屏溢出', async t => {
   const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
 

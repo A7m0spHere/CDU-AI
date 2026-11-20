@@ -177,7 +177,7 @@ function initChallengeDialogs(): void {
     });
 
     pullTrigger.addEventListener('pointermove', (event) => {
-      if (!tracking) return;
+      if (!tracking || pulled) return;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
       if (Math.abs(dy) > Math.abs(dx) && Math.abs(dx) < 8) {
@@ -188,12 +188,7 @@ function initChallengeDialogs(): void {
       if (dx < 0) {
         const clamped = Math.max(-18, dx * 0.6);
         pullTrigger.style.transform = `translateX(${clamped}px)`;
-        if (dx <= -18) {
-          pulled = true;
-          tracking = false;
-          pullTrigger.style.transform = '';
-          overviewController.open();
-        }
+        pulled = dx <= -18;
       }
     });
 
@@ -202,7 +197,14 @@ function initChallengeDialogs(): void {
       pullTrigger.style.transform = '';
     };
 
-    pullTrigger.addEventListener('pointerup', resetPull);
+    pullTrigger.addEventListener('pointerup', () => {
+      const shouldOpen = tracking && pulled;
+      resetPull();
+      if (shouldOpen) {
+        // Let the gesture finish before the native dialog can handle backdrop taps.
+        window.setTimeout(() => overviewController.open(), 0);
+      }
+    });
     pullTrigger.addEventListener('pointercancel', resetPull);
     pullTrigger.addEventListener('click', (event) => {
       if (pulled) {
