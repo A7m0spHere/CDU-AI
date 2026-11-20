@@ -48,7 +48,7 @@ const subnavItems = [
       <button
         type="button"
         class="btn btn--soft"
-        data-challenge-drawer-open
+        data-dialog-open="challenge-info-drawer"
         aria-controls="challenge-info-drawer"
         aria-expanded="false"
       >
@@ -65,24 +65,31 @@ const subnavItems = [
     </Fragment>
 
     <Fragment slot="aside">
-      <div class="aside-card aside-card--brand challenge-aside">
-        <div class="aside-card__head">
-          <Icon name="calendar" size={17} />
-          赛事速览
-        </div>
-        <div class="status-row">
+      <button
+        type="button"
+        class="aside-card aside-card--brand challenge-aside challenge-aside-trigger"
+        data-dialog-open="challenge-overview-dialog"
+        aria-controls="challenge-overview-dialog"
+        aria-expanded="false"
+      >
+        <span class="challenge-aside-trigger__head">
+          <span class="aside-card__head">
+            <Icon name="calendar" size={17} />
+            <span class="challenge-aside-trigger__label">赛事速览</span>
+          </span>
+          <span class="challenge-aside-trigger__pill">
+            查看详情
+            <Icon name="arrow-up-right" size={13} />
+          </span>
+        </span>
+        <span class="status-row challenge-aside-trigger__status">
           <span class="status-dot" aria-hidden="true"></span>
           <span>{challengeConfig.statusBadge}</span>
-        </div>
-        <dl class="meta-rows challenge-meta-rows">
-          {quickFacts.map((fact) => (
-            <div>
-              <dt>{fact.label}</dt>
-              <dd>{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+        </span>
+        <span class="challenge-aside-trigger__summary">
+          新手组 / 进阶组双赛道 · 个人参赛为主 · AI 项目开发
+        </span>
+      </button>
     </Fragment>
   </PageHero>
 
@@ -97,7 +104,7 @@ const subnavItems = [
         <button
           type="button"
           class="challenge-subnav__doc challenge-subnav__drawer-btn"
-          data-challenge-drawer-open
+          data-dialog-open="challenge-info-drawer"
           aria-controls="challenge-info-drawer"
           aria-expanded="false"
         >
@@ -263,6 +270,68 @@ const subnavItems = [
     </div>
   </section>
 
+  <!-- 赛事速览弹窗（<dialog> Modal） -->
+  <dialog
+    id="challenge-overview-dialog"
+    class="challenge-modal"
+    aria-labelledby="challenge-overview-title"
+    {...({ closedby: 'any' } as Record<string, string>)}
+  >
+    <div class="challenge-modal__panel">
+      <header class="challenge-modal__head">
+        <div>
+          <p class="eyebrow">赛事速览</p>
+          <h2 id="challenge-overview-title">{challengeConfig.shortTitle}</h2>
+        </div>
+        <button
+          type="button"
+          class="challenge-drawer__close"
+          data-dialog-close
+          aria-label="关闭赛事速览弹窗"
+          autofocus
+        >
+          <Icon name="close" size={18} />
+        </button>
+      </header>
+
+      <div class="challenge-modal__body">
+        <div class="status-row">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>{challengeConfig.statusBadge}</span>
+        </div>
+
+        <dl class="meta-rows challenge-modal__rows">
+          {quickFacts.map((fact) => (
+            <div>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div class="notice">
+          <Icon name="info" size={16} />
+          <p>{challengeConfig.organizerNote}</p>
+        </div>
+      </div>
+
+      <footer class="challenge-modal__foot">
+        <button
+          type="button"
+          class="btn btn--soft"
+          data-dialog-switch="challenge-info-drawer"
+        >
+          <Icon name="layers" size={15} />
+          赛道与作品要求
+        </button>
+        <a class="btn btn--primary" href="/events/rules/">
+          完整赛事细则
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </footer>
+    </div>
+  </dialog>
+
   <!-- 赛道设置与作品要求：右侧滑出抽屉弹窗 -->
   <dialog
     id="challenge-info-drawer"
@@ -279,7 +348,7 @@ const subnavItems = [
         <button
           type="button"
           class="challenge-drawer__close"
-          data-challenge-drawer-close
+          data-dialog-close
           aria-label="关闭赛事要求抽屉"
           autofocus
         >

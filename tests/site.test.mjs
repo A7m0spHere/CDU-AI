@@ -416,6 +416,8 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(events, /成都大学第八届网络创新大赛——AI创作挑战赛/, '活动页应展示当前赛事名称');
   assert.doesNotMatch(events, /计协首个 AI 赛事/, '活动页 Hero eyebrow 不应保留多余前缀字符');
   assert.doesNotMatch(events, /半期考试/, '活动页赛程应移除半期考试相关文字');
+  assert.match(events, /id="challenge-overview-dialog"/, '活动页应提供赛事速览交互弹窗');
+  assert.match(events, /data-dialog-open="challenge-overview-dialog"/, '赛事速览应改为可点击交互触发器');
   assert.match(events, /id="challenge-info-drawer"/, '活动页应提供赛道与作品要求抽屉弹窗');
   assert.doesNotMatch(events, /<p class="eyebrow">(01|02|03|04) · /, '活动页分块标题不应包含 01/02/03/04 前缀');
   assert.doesNotMatch(events, /id="intro"/, '活动页主流程不应保留 01 · 赛事介绍与作品要求模块');
