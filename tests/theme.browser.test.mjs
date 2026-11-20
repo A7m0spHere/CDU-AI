@@ -2649,8 +2649,8 @@ test('光效拖尾：指针划过留下流星尾迹，停下后自己淡完', as
   assert.equal(drawn.active, 'true', '有尾迹时画布要标成 active');
   assert.equal(drawn.display, 'block', '尾迹画布要显示');
 
-  // 停下后尾迹淡完，画布清空、帧循环停下
-  await page.waitForTimeout(820);
+  // 停下后尾迹淡完，画布清空、帧循环停下（尾迹存活 780ms，留一点余量）
+  await page.waitForTimeout(1100);
   const faded = await trailState(page);
   assert.equal(faded.lit, 0, '指针停下后尾迹要淡完');
   assert.equal(faded.active, 'false', '淡完后画布收回 active');
