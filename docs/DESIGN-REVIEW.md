@@ -323,3 +323,15 @@
 - 修掉一处 1px 回归：对话框右上角的关闭键（`.search-dialog__close`）是可纵向滚动 `<dialog>` 里最靠右的一枚，`::before` 横向 `-14px` 的柔光把弹层 `scrollWidth` 顶到 369 > `clientWidth` 368。把 `::before` 的横向外溢抽成 `--glow-bleed-x`，只给两枚贴着弹层右缘的关闭键（`.search-dialog__close` / `.theme-editor__close`）把横向收成 0：上下那圈光仍在，弹层不再出现横向滚动。实测 390×844 下 `scrollWidth` 368 = `clientWidth` 368，与关掉光效时一致。
 - 重新验收：`npm run verify` 通过（astro check 0 error、内容 68 个文件、文档 29 份 / 433 处引用、构建 94 页、49 项 node 测试、内链 94 页无失效）；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **55/55 通过**（上游新增 26 条，覆盖手机工具抽屉、图片灯箱、主题编辑器与搜索截断提示）。
 
+### 2026-11-20 · 补齐上游新控件的光效，并加一条流星拖尾
+
+- 反馈：「修复失效的光效，同时加入光效拖尾功能，像流星一样，再单独设置一个开关和光效开关放一起」。
+- 先查「失效」：把同一套悬停探针跑遍 `/`、`/guide/`、`/guide/first-agent/`、`/glossary/`、`/tools/`、`/works/`。四条老链路（指针光晕 / 导航汇聚 / 按钮与卡片 / Hero 点阵）都还在；真正缺光的是上游这轮重构新长出来的入口——指南页头的「建议修改」、图片灯箱的缩放与关闭键（`.image-lightbox__btn`）、图片上的「点击放大」（`.guide-image-zoom`）、手机工具详情抽屉的关闭键（`.tool-sheet__close`）、术语侧栏的分支展开收起键（`.branch-row__toggle`）。这五个选择器进 `ui-glow.ts` 的 `AUTO_HOSTS` 就补齐了，页头那几枚仍然手写标记。
+- 灯箱相关的三个只在正文真的有 `<img>` 时才生成：当前内容还没有配图，所以测试只断言既有控件是否接光；灯箱与「点击放大」交给 `ui-glow` 的 MutationObserver（对话框和按钮都是后挂到 body 的），有图之后自动接线。
+- 拖尾实现：新增 `CursorTrail.astro` + `scripts/cursor-trail.ts` + `styles/cursor-trail.css`，一张 `position: fixed` 的全屏 canvas。采样点保留 420ms（上限 64 个；间距 <1.5px 只更新头部时间），每帧从旧到新画渐细渐亮的圆头线段（宽度 0.9→4px，透明度 `life^1.6 × 0.62`），头部再叠一颗 22px 的径向亮核；采样点全过期后擦掉画布并停掉 rAF，空闲时零开销。
+- 分层与光晕一致：浅色 `multiply`、深色 `screen`，白底上读成「染出来的蓝」、黑底上读成「发出来的光」，正文对比度不受影响；canvas 不接收事件、`aria-hidden`，减少动效 / 触屏 / 打印 / 开关关闭时整层 `display: none`。
+- 独立开关：`glow-pref.ts` 扩成两个偏好（`cdu-ai-glow` / `cdu-ai-trail`）与两个事件（`cdu:glow-change` / `cdu:trail-change`）；`BaseLayout` 的首屏脚本同时写 `<html data-glow>` / `data-trail`；面板里两个 `role="switch"` 排进同一个 `.theme-panel__switches` 组（上面「鼠标光效 · 跟随指针的柔光」，下面「光效拖尾 · 指针划过的流星尾迹」）。两个开关互不牵连：关掉光晕仍可只留尾迹。
+- 踩坑：第一版在 `draw()` 里写「少于 2 个点就清空」，而 Playwright 的 `mouse.move({ steps })` 一步一帧，快扫时每帧只有 1 个新点，于是每帧都把仅有的点清掉，尾迹永远起不来——手动画弧线却能看到，只靠肉眼很容易误判成「脚本没加载」。改成「只剩一个点也画头部亮核，只有点过期才清空」后正常。
+- 测试：新增 4 条 browser 测试——拖尾画出且停下后淡完、两个开关互不牵连并各自记住、减少动效下不出现、上游新控件接光。全量 `npm run verify` 49 项 node 测试全过、构建 94 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **59/59 通过**。
+- 截图：`design/cursor-trail-light.png` / `design/cursor-trail-dark.png`（划过正文的那道流星）、`design/glow-trail-toggle-light.png` / `design/glow-trail-toggle-dark.png`（面板里并排的两个开关）。
+

@@ -1,0 +1,9 @@
+---
+// 光效拖尾：指针划过的流星尾迹，交给 src/scripts/cursor-trail.ts 画在一张 canvas 上。
+// 纯装饰，不参与可访问性；无 JS、触屏、减少动效都不显示。
+---
+<canvas class="cursor-trail" data-cursor-trail aria-hidden="true"></canvas>
+
+<script>
+  import '../scripts/cursor-trail';
+</script>

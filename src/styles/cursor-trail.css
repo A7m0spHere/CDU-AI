@@ -1,0 +1,50 @@
+/**
+ * 「光效拖尾」的画布：固定在最上层的一整张 canvas，只画指针刚走过的轨迹。
+ *
+ * 和全站指针光晕一样用混合模式：浅色底 multiply、深色底 screen，
+ * 这样白底上是「染出来的蓝」，深色底上是「发出来的光」，文字对比度都不受影响。
+ */
+
+.cursor-trail {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 92;
+  opacity: 0;
+  mix-blend-mode: multiply;
+  transition: opacity 160ms ease;
+}
+
+:root[data-theme='dark'] .cursor-trail {
+  mix-blend-mode: screen;
+}
+
+/* 有尾迹时才显示这一层；画布本身是透明的，不需要额外背景 */
+.cursor-trail[data-active='true'] {
+  opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .cursor-trail {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail {
+    display: none;
+  }
+}
+
+@media print {
+  .cursor-trail {
+    display: none;
+  }
+}
+
+/* 「光效拖尾」开关关闭（见 scripts/glow-pref.ts）：整层画布退场 */
+:root[data-trail='off'] .cursor-trail {
+  display: none;
+}

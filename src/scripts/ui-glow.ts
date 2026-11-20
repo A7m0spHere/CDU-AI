@@ -45,6 +45,14 @@ const AUTO_HOSTS = [
   '.tool-card',
   '.glossary-term',
   '.branch-row__label',
+  // 浮层与页头里后加的控件：图片灯箱的缩放/关闭键、图片上的「点击放大」、
+  // 手机工具详情抽屉的关闭键、指南页头的「建议修改」、术语侧栏的分支开关。
+  // 这些是上游重构后新出现的入口，不接光会像「有的按钮亮、有的不亮」。
+  '.image-lightbox__btn',
+  '.guide-image-zoom',
+  '.tool-sheet__close',
+  '.guide-heading__suggest',
+  '.branch-row__toggle',
   // 学习指南左侧目录：分组标题（details 的 summary）与条目链接。
   // 「待补充」章节虽然是可点的占位页，但不接光——光读起来像「这里有内容」，
   // 留给已经写完的章节。

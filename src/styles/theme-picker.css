@@ -266,7 +266,19 @@
   }
 }
 
-/* ---------- 鼠标光效开关 ---------- */
+/* ---------- 鼠标光效 / 光效拖尾开关 ---------- */
+
+/* 两个开关排成一组：「鼠标光效」管停在指针上的柔光，「光效拖尾」管划过的流星尾迹，
+   互不牵连。整组和下面的导入入口之间只留一条分隔线。 */
+.theme-panel__switches {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.theme-panel__switches .theme-panel__toggle {
+  margin-top: 0;
+}
 
 .theme-panel__toggle {
   display: flex;

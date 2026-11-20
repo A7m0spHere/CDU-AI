@@ -2612,3 +2612,157 @@ test('学习指南侧栏的分组标题与条目也接上同一束光', async t 
     '待补充章节是占位页，不应接光',
   );
 });
+
+
+const trailState = (page) => page.evaluate(() => {
+  const canvas = document.querySelector('[data-cursor-trail]');
+  if (!canvas) return null;
+  const ctx = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  let lit = 0;
+  for (let i = 3; i < data.length; i += 28) if (data[i] > 4) lit += 1;
+  return { active: canvas.dataset.active ?? null, display: getComputedStyle(canvas).display, opacity: getComputedStyle(canvas).opacity, lit };
+});
+
+/** 在空白区域划一道弧线，返回划过之后的尾迹状态 */
+async function streak(page) {
+  await page.mouse.move(360, 620, { steps: 4 });
+  await page.mouse.move(520, 560, { steps: 6 });
+  await page.mouse.move(700, 620, { steps: 6 });
+  await page.mouse.move(860, 540, { steps: 8 });
+  // 尾迹在下一帧才落笔，等一拍再读画布
+  await page.waitForTimeout(90);
+}
+
+test('光效拖尾：指针划过留下流星尾迹，停下后自己淡完', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/');
+  await ready(page);
+
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on', '拖尾默认开着');
+  const canvas = page.locator('[data-cursor-trail]');
+  assert.equal(await canvas.count(), 1, '页面上要有一张拖尾画布');
+
+  await streak(page);
+  const drawn = await trailState(page);
+  assert.ok(drawn.lit > 0, '划过的轨迹要画在画布上');
+  assert.equal(drawn.active, 'true', '有尾迹时画布要标成 active');
+  assert.equal(drawn.display, 'block', '尾迹画布要显示');
+
+  // 停下后尾迹淡完，画布清空、帧循环停下
+  await page.waitForTimeout(820);
+  const faded = await trailState(page);
+  assert.equal(faded.lit, 0, '指针停下后尾迹要淡完');
+  assert.equal(faded.active, 'false', '淡完后画布收回 active');
+
+  // 尾迹会跟着指针走：换一处再划，仍在指针经过的位置出现
+  await page.mouse.move(1100, 300, { steps: 10 });
+  assert.ok((await trailState(page)).lit > 0, '换一处划过同样有尾迹');
+});
+
+test('光效拖尾是单独开关：和鼠标光效互不牵连，刷新后仍记住', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/');
+  await ready(page);
+
+  await menu(page);
+  const glowToggle = page.locator('[data-glow-toggle]');
+  const trailToggle = page.locator('[data-trail-toggle]');
+  assert.equal(await trailToggle.count(), 1, '面板里要有「光效拖尾」开关');
+  assert.match(await trailToggle.innerText(), /光效拖尾/, '开关就叫「光效拖尾」');
+  assert.equal(await trailToggle.getAttribute('aria-checked'), 'true', '默认是开着的');
+  const glowBox = await glowToggle.boundingBox();
+  const trailBox = await trailToggle.boundingBox();
+  assert.ok(Math.abs(trailBox.x - glowBox.x) <= 1, '两个开关左对齐、排在一起');
+  assert.ok(trailBox.y > glowBox.y && trailBox.y - glowBox.y < 70, '拖尾开关紧跟在鼠标光效下面');
+
+  await trailToggle.click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'off', '关掉后 html 上要有标记');
+  assert.equal(await trailToggle.getAttribute('aria-checked'), 'false', '开关要跟着状态走');
+  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-trail')), 'off', '偏好要存下来');
+  assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'none', '关掉后画布退场');
+  await page.keyboard.press('Escape');
+  await streak(page);
+  assert.equal((await trailState(page)).lit, 0, '关掉后不应再画尾迹');
+
+  // 只有拖尾关掉：光晕与卡片光效照旧
+  await page.keyboard.press('Escape');
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const card = page.locator('.tool-card').first();
+  const cardBox = await card.boundingBox();
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 6 });
+  await page.waitForTimeout(420);
+  assert.equal(await card.locator('[data-glow]').getAttribute('data-active'), 'true', '关掉拖尾不影响卡片光');
+
+  // 反过来：鼠标光效关掉，拖尾仍按自己的开关工作
+  await menu(page);
+  await page.locator('[data-glow-toggle]').click();
+  await page.locator('[data-trail-toggle]').click();
+  await page.keyboard.press('Escape');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on');
+  await streak(page);
+  assert.ok((await trailState(page)).lit > 0, '关掉鼠标光效后拖尾仍然要画');
+
+  // 刷新后两个偏好各自保持
+  await page.reload();
+  await ready(page);
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '鼠标光效保持关闭');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on', '拖尾保持打开');
+  await menu(page);
+  await page.locator('[data-trail-toggle]').click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'off', '再点一次要能关掉拖尾');
+});
+
+test('减少动效与触屏下不出现光效拖尾', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/');
+  await ready(page);
+  assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'none', '减少动效下画布不显示');
+  await streak(page);
+  assert.equal((await trailState(page)).lit, 0, '减少动效下不画尾迹');
+});
+
+test('上游新增的浮层控件也接上同一束光：抽屉关闭键、建议修改、分支开关', async t => {
+  const page = await setup(t);
+  await page.goto(origin + '/guide/first-agent/');
+  await ready(page);
+
+  const suggest = page.locator('.guide-heading__suggest').first();
+  assert.equal(
+    await suggest.evaluate(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1),
+    true,
+    '页头「建议修改」要接光',
+  );
+  const suggestBox = await suggest.boundingBox();
+  await page.mouse.move(suggestBox.x + suggestBox.width / 2, suggestBox.y + suggestBox.height / 2, { steps: 5 });
+  await page.waitForTimeout(420);
+  assert.equal(await suggest.locator('[data-glow]').getAttribute('data-active'), 'true', '悬停「建议修改」要亮');
+
+  // 图片灯箱的缩放 / 关闭键与「点击放大」只在内文真实存在图片时才会生成，
+  // 当前内容还没有配图，所以这里不硬造元素；选择器已进 AUTO_HOSTS，
+  // 有图之后由 ui-glow 的 MutationObserver 自动接线（见「自动接线」那条测试）。
+
+  // 术语页侧栏的分支展开 / 收起键
+  await page.goto(origin + '/glossary/');
+  await ready(page);
+  const branchToggle = page.locator('.branch-row__toggle').first();
+  assert.equal(await branchToggle.count(), 1, '术语侧栏要有分支开关');
+  assert.equal(
+    await branchToggle.evaluate(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1),
+    true,
+    '分支开关要接光',
+  );
+
+  // 手机工具详情抽屉的关闭键
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const sheetClose = page.locator('.tool-sheet__close');
+  assert.equal(
+    await sheetClose.evaluate(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1),
+    true,
+    '工具详情抽屉的关闭键要接光',
+  );
+});
