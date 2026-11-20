@@ -69,31 +69,31 @@ export const challengeConfig = {
   statusBadge: '2026年11月24日 – 12月4日',
   subtitle: '用 AI 把一个想法做成可运行、可验证的作品。面向成都大学在读学生，设新手组与进阶组。',
   organizerNote: '由共青团成都大学委员会、成都大学电子信息与电气工程学院主办，成都大学计算机协会承办。',
-  updatedOn: '2026-11-20',
+  updatedOn: '2026-11-21',
   dates: {
     overall: '2026年11月24日 – 2026年12月4日',
-    registration: '11 月 21 日 10:00 至 11 月 24 日 10:00（北京时间）',
+    registration: '11 月 21 日 10:00 至 11 月 23 日 20:00（北京时间）',
     briefing: '11 月 24 日下午',
     midterm: '11 月 28 日 20:00 前',
     submission: '12 月 4 日 18:00',
-    onlineReview: '12 月 5 日',
-    demoDay: '12 月 6 日 14:00–17:30',
-    venue: '第十教学楼（具体教室以选手群通知为准）',
+    onlineReview: '12 月 4–5 日',
+    demoDay: '12 月 6 日 18:30–21:00',
+    kickoffVenue: '第十教学楼（具体教室以选手群通知为准）',
   },
   homeBanner: {
     badge: 'AI 创作挑战赛',
     title,
-    summary: '11/21 10:00 至 11/24 10:00 报名 · 11/24 开赛 · 12/6 线下展示及颁奖',
+    summary: '11/21 10:00 至 11/23 20:00 报名 · 11/24 开赛 · 12/6 18:30 现场答辩及颁奖',
     ctaLabel: '查看详情与报名',
     href: '/events/',
   },
   registration: {
     opensAt: '2026-11-21T10:00:00+08:00',
-    closesAt: '2026-11-24T10:00:00+08:00',
+    closesAt: '2026-11-23T20:00:00+08:00',
     platform: '腾讯文档',
     url: 'https://docs.qq.com/form/page/DYXhGYXJYQ2V0bnZD',
     qrImage: '/images/events/tencent-docs-registration-qr.png',
-    contact: '提交后 24 小时内，组委会通过短信或 QQ 发送确认信息与选手群入口。',
+    contact: '请先填写腾讯文档报名问卷。报名截止后，组委会统一审核，并将结果发送至你的 QQ 邮箱。通过审核的同学会在邮件中收到选手群入口。',
     privacyNotice: '报名信息用于资格核验、赛事通知与组队对接。联系方式与作品公开展示资料分开管理。',
   },
 };
@@ -155,19 +155,25 @@ export const timelinePhases: TimelinePhase[] = [
     summary: '腾讯文档报名表上线；可个人报名，也可按规则提交团队报名。',
   },
   {
-    day: '11/24',
-    dateLabel: '周二',
-    time: '10:00',
+    day: '11/23',
+    dateLabel: '周一',
+    time: '20:00',
     stage: '报名截止',
-    summary: '线上报名截止，信息补正与现场补报名安排以组委会通知为准。',
+    summary: '腾讯文档报名表关闭，开始统一审核。',
+  },
+  {
+    day: '11/23–11/24',
+    dateLabel: '周一至周二',
+    time: '晚间至次日上午',
+    stage: '报名审核与组别确认',
+    summary: '组委会核验资格、补正信息并确认组别，审核结果通过 QQ 邮箱发送。',
   },
   {
     day: '11/24',
     dateLabel: '周二',
     time: '下午',
     stage: '开赛会（线下）',
-    summary:
-      '规则讲解、评分说明、Agent 实操演示、选题指导、现场组队、结对与答疑。',
+    summary: '规则讲解、Agent 实操演示、选题指导与答疑。现场仅受理已报名者的信息补正、组别确认和结对登记。',
   },
   {
     day: '11/26',
@@ -205,18 +211,18 @@ export const timelinePhases: TimelinePhase[] = [
     summary: '提交作品访问方式、2 分钟录屏和 1 页作品说明，团队另附分工表。',
   },
   {
-    day: '12/5',
-    dateLabel: '周六',
+    day: '12/4–12/5',
+    dateLabel: '周五至周六',
     time: '线上',
-    stage: '线上评审',
-    summary: '评委线上查看材料与作品，形成初评意见；具体安排以选手群通知为准。',
+    stage: '线上材料初评',
+    summary: '材料评委在作品提交截止后线上审阅作品与材料，参赛者无需到场。',
   },
   {
     day: '12/6',
-    dateLabel: '周日下午',
-    time: '14:00–17:30',
-    stage: '线下讲解、Demo 与颁奖',
-    summary: '现场讲解 + Demo + 答辩 + 公布成绩并颁奖；每队 5 分钟（3 分钟演示 + 2 分钟提问）。',
+    dateLabel: '周日',
+    time: '18:30–21:00',
+    stage: '现场展示、答辩及颁奖',
+    summary: '现场评委进行 Demo 与答辩评审，随后公布成绩并颁奖。地点与流程以选手群通知为准。',
   },
 ];
 
@@ -248,7 +254,7 @@ export const scoringGroups: ScoringGroup[] = [
       {
         name: '展示与表达',
         weight: 10,
-        criteria: '5 分钟内能否讲清「做了什么、怎么做的、还差什么」。',
+        criteria: '能否在规定时间内讲清「做了什么、怎么做的、还差什么」。',
       },
     ],
     tiebreak: '同分时依次比较「可运行与完成度」「改造深度」得分。',
@@ -293,9 +299,9 @@ export const scoringGroups: ScoringGroup[] = [
 ];
 
 export const scoringExecution = [
-  '现场评委组 3–5 人（技术核查评委不少于 1 人、创意体验评委不少于 1 人）；项目评委组 7–10 人，负责材料初评与项目评审。',
-  '项目评委组材料初评占 40%，现场评委组 Demo 与答辩占 60%。',
-  '各组评委独立打分，取平均分；同分时按两组各自的同分排序规则比较。',
+  '材料评委组 7–10 人，负责线上材料初评。现场评委组 3–5 人，负责现场 Demo 与答辩，其中技术核查和创意体验评委各不少于 1 人。',
+  '评委独立打分，各评委组分别取平均分。最终分 = 材料初评分 × 40% + 现场答辩评分 × 60%。',
+  '同分时，按参赛组别对应的同分排序规则比较。',
   '技术评委拥有真实性核验权：发现核心功能虚构、静态写死冒充动态系统、旧作未披露直接参赛的，可提请评委组降档或取消评奖资格。',
   '评委本人指导的团队须回避。',
 ];
@@ -317,7 +323,7 @@ export const awardRows: AwardRow[] = [
 export const awardNotes = [
   '奖项数量可根据实际参赛人数调整，调整前公示；允许奖项空缺。',
   '某组别参赛作品少于 5 件时，组委会可合并评奖。',
-  '所有获奖作品须通过真实性核验。证书级别与综测认定以最终通知为准。',
+  '所有获奖作品须通过真实性核验。一、二、三等奖发放证书及奖品，单项奖仅发证书。证书级别与综测认定以最终通知为准。',
   '验收结束后 3 个工作日内公示成绩，公示期 3 个工作日；对成绩有异议可在公示期内向组委会书面提出。',
 ];
 
@@ -356,9 +362,9 @@ export const ruleSections: RuleSection[] = [
     title: '四、赛程安排与线下交流',
     lead: `赛期为 ${challengeConfig.dates.overall}。答疑和中期检查安排见活动主页时间线。`,
     bullets: [
-      `${challengeConfig.dates.briefing}线下开赛会，讲解赛制并安排选题、实操演示与答疑。`,
+      `${challengeConfig.dates.briefing}在${challengeConfig.dates.kickoffVenue}举行开赛会，安排实操演示与答疑。现场仅受理已报名者的信息补正、组别确认和结对登记。`,
       `中期进度材料于 ${challengeConfig.dates.midterm}提交。作品提交于 ${challengeConfig.dates.submission}截止。`,
-      `${challengeConfig.dates.onlineReview}线上评审。${challengeConfig.dates.demoDay}在${challengeConfig.dates.venue}举行线下展示与颁奖，每队 3 分钟演示、2 分钟答辩。`,
+      `${challengeConfig.dates.onlineReview}线上材料初评。${challengeConfig.dates.demoDay}举行现场展示、答辩及颁奖，地点与流程以选手群通知为准。`,
     ],
   },
   {
@@ -372,7 +378,7 @@ export const ruleSections: RuleSection[] = [
   {
     id: 'judging-and-awards',
     title: '六、评分标准与奖项',
-    lead: '两组各用一套 100 分评分表。现场评委与项目评委分别评审，评分以组委会最终公示为准。',
+    lead: '新手组和进阶组各用一套 100 分评分表。材料评委与现场评委分别评审，评分以组委会最终公示为准。',
     bullets: [...scoringExecution, aiAssistNote],
   },
   {

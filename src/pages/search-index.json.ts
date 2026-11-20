@@ -123,9 +123,9 @@ export const GET: APIRoute = async () => {
     {
       type: '章节',
       title: '腾讯文档报名入口',
-      description: '线上报名时间、腾讯文档报名表、报名二维码和选手群通知方式。',
+      description: `线上报名时间为 ${challengeConfig.dates.registration}。通过腾讯文档填写问卷，审核结果通过 QQ 邮箱通知。`,
       href: '/events/#register',
-      keywords: '报名 腾讯文档 选手群 二维码',
+      keywords: '报名 腾讯文档 审核 QQ 邮箱 选手群 二维码',
     },
     {
       type: '章节',
@@ -137,7 +137,7 @@ export const GET: APIRoute = async () => {
     {
       type: '章节',
       title: '赛程时间线与 Demo Day',
-      description: '11 月 24 日开赛，12 月 4 日 18:00 作品提交截止，12 月 5 日线上评审，12 月 6 日线下展示与颁奖。',
+      description: `${challengeConfig.dates.briefing}开赛，${challengeConfig.dates.submission}作品提交截止，${challengeConfig.dates.onlineReview}线上材料初评，${challengeConfig.dates.demoDay}现场展示、答辩及颁奖。`,
       href: '/events/#schedule',
       keywords: '赛程 11月24日 12月4日 12月5日 12月6日 开赛会 线上评审 Demo Day 答辩 颁奖',
     },

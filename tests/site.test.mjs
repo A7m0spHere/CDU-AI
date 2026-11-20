@@ -411,6 +411,7 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   const home = await read('index.html');
   assert.match(home, /成都大学第八届网络创新大赛——AI创作挑战赛/, '首页应展示当前 AI 创作挑战赛横幅提示');
   assert.match(home, /class="home-event-banner"[^>]*href="\/events\/"/, '首页赛事横幅应直达活动页');
+  assert.match(home, /11\/23 20:00 报名/, '首页横幅应显示新版报名截止时间');
 
   const events = await read('events/index.html');
   const eventHeading = events.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? '';
@@ -428,8 +429,12 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(events, /进阶组/, '抽屉弹窗内应展示进阶组赛道');
   assert.match(events, /个人或 2 人团队/, '进阶组摘要应展示默认组队人数');
   assert.match(events, /2026年11月24日 – 2026年12月4日/, '活动页应展示赛期');
-  assert.match(events, /12 月 5 日线上评审/, '活动页应展示线上评审日期');
-  assert.match(events, /12 月 6 日 14:00–17:30/, '活动页应展示线下展示与颁奖时间');
+  assert.match(events, /11 月 21 日 10:00 至 11 月 23 日 20:00/, '活动页应展示线上报名时间');
+  assert.match(events, /data-closes-at="2026-11-23T20:00:00\+08:00"/, '报名状态应使用新截止时间');
+  assert.match(events, /将结果发送至你的 QQ 邮箱/, '报名审核结果应通过 QQ 邮箱通知');
+  assert.doesNotMatch(events, /待开放|短信/, '活动页应移除旧状态标签和短信通知');
+  assert.match(events, /12 月 4–5 日线上材料初评/, '活动页应展示线上材料初评日期');
+  assert.match(events, /12 月 6 日 18:30–21:00/, '活动页应展示线下答辩与颁奖时间');
   assert.doesNotMatch(events, /WorkBuddy|GitHub\s*托管/i, '活动页避免产品导向的提交说明');
   assert.match(events, /href="https:\/\/docs.qq.com\/form\/page\//, '活动页应链接腾讯文档报名表');
   assert.match(events, /src="\/images\/events\/tencent-docs-registration-qr.png"/, '活动页应展示报名二维码');
@@ -449,6 +454,8 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(rules, /反抄袭/, '赛事细则应包含反抄袭机制');
   assert.match(rules, /id="scoring-starter">新手组评分表/, '细则应包含新手组评分表');
   assert.match(rules, /id="scoring-open">进阶组评分表/, '细则应包含进阶组评分表');
+  assert.match(rules, /材料初评分 × 40% \+ 现场答辩评分 × 60%/, '细则应说明最终分计算方式');
+  assert.match(rules, /单项奖仅发证书/, '细则应说明单项奖奖励');
   assert.doesNotMatch(rules, /WorkBuddy/i, '赛事细则不应提及 WorkBuddy');
   assert.doesNotMatch(rules, /GitHub\s*托管/, '赛事细则不应提及 GitHub 托管');
   assert.doesNotMatch(rules, /href="\/events\/ideas\/"/, '赛事细则不应再链接已移除的选题灵感页面');

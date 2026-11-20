@@ -259,11 +259,6 @@
   white-space: nowrap;
 }
 
-.challenge-status-pill--upcoming {
-  background: var(--sun-soft);
-  color: var(--sun);
-}
-
 .challenge-status-pill--open {
   background: color-mix(in srgb, var(--ok) 14%, var(--surface));
   color: var(--ok);
