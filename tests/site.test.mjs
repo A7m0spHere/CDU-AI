@@ -59,6 +59,8 @@ const expectedRoutes = [
   'about/index.html',
   'community/index.html',
   'events/index.html',
+  'events/rules/index.html',
+  'events/ideas/index.html',
   'guide/index.html',
   'glossary/index.html',
   'tools/index.html',
@@ -407,9 +409,27 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(community, /社区暂不开放/, '社区页应提示暂不开放');
   assert.doesNotMatch(community, /参与路径|讨论起点|社区公约|版块/, '社区页不应再包含指引或版块内容');
 
+  const home = await read('index.html');
+  assert.match(home, /成都大学首届 AI 创作挑战赛/, '首页应展示首届 AI 创作挑战赛横幅提示');
+  assert.match(home, /class="home-event-banner"[^>]*href="\/events\/"/, '首页赛事横幅应直达活动页');
+
   const events = await read('events/index.html');
-  assert.match(events, /本页没有活动日历/);
-  assert.match(events, /形式筹备中/);
+  assert.match(events, /成都大学首届 AI 创作挑战赛/, '活动页应展示首届 AI 创作挑战赛');
+  assert.match(events, /飞书/, '活动页应保留飞书报名入口说明');
+  assert.match(events, /待定/, '未确认的赛事日期应保留待定占位');
+  assert.match(events, /群二维码/, '活动页应预留赛事交流群二维码位置');
+  assert.match(events, /项目起点登记表/, '活动页应保留三阶段作品提交信息');
+  assert.match(events, /href="\/events\/rules\/"/, '活动页应提供完整赛事细则子页入口');
+  assert.match(events, /href="\/events\/ideas\/"/, '活动页应提供可选选题灵感指南子页入口');
+  assert.doesNotMatch(events, /本页没有活动日历|两小时工作坊流程/, '活动页应移除旧版占位和常规形式计划');
+
+  const rules = await read('events/rules/index.html');
+  assert.match(rules, /完整赛事细则/, '赛事细则子页应存在');
+  assert.match(rules, /学生评委|公信力护栏/, '赛事细则应包含评委公信力护栏');
+
+  const ideas = await read('events/ideas/index.html');
+  assert.match(ideas, /可选选题灵感指南/, '选题灵感子页应存在');
+  assert.match(ideas, /低依赖/, '选题灵感子页应按资源依赖分级');
 });
 
 test('全站透明说明与内容边界存在', async () => {

@@ -7,6 +7,7 @@ import { tools, toolCategories, toolCapabilities } from '../data/tools';
 import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 import { glossaryCategoryName } from '../data/glossary';
 import { guideHome } from '../data/guide-nav';
+import { challengeConfig, ruleSections } from '../data/challenge';
 
 interface SearchItem {
   type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
@@ -100,11 +101,53 @@ export const GET: APIRoute = async () => {
     },
     {
       type: '页面',
-      title: '活动',
-      description: '活动形式与流程设计；暂无排期。',
+      title: `活动 · ${challengeConfig.title}`,
+      description: '不限专业、零编程基础可参与，1–2 人组队，14 天用 AI 做出真实可运行作品；含飞书报名入口、作品提交说明、赛程与评分标准。',
       href: '/events/',
-      keywords: '活动 工作坊 共创 开放麦 组队',
+      keywords: '活动 挑战赛 黑客松 AI创作挑战赛 报名 飞书 作品提交 赛程 评分 奖项 Demo Day 队伍编号 交流群 二维码',
     },
+    {
+      type: '页面',
+      title: `完整赛事细则 · ${challengeConfig.shortTitle}`,
+      description: '参赛资格、1–2 人组队规则、最低交付标准、旧项目增量、数据合规、三阶段提交、学生评委公信力护栏与 48 小时申诉机制。',
+      href: '/events/rules/',
+      keywords: '赛事细则 规则 组队 旧项目 增量 数据合规 评委 公信力护栏 补正窗口 申诉 版权 授权',
+    },
+    {
+      type: '页面',
+      title: `可选选题灵感指南 · ${challengeConfig.shortTitle}`,
+      description: '按低依赖、中依赖、高依赖分类的自由创作方向与范围收敛示例，不作为赛题要求或评分偏好。',
+      href: '/events/ideas/',
+      keywords: '选题 灵感 方向 低依赖 新手 小游戏 工具 可视化 自由创作',
+    },
+    {
+      type: '章节',
+      title: '赛事报名入口与交流群',
+      description: '阶段 A 意向报名（飞书表单）、阶段 B 正式组队确认与唯一队伍编号、赛事交流群二维码。',
+      href: '/events/#register',
+      keywords: '报名 飞书 意向报名 组队 队伍编号 交流群 二维码',
+    },
+    {
+      type: '章节',
+      title: '作品提交入口与三阶段表单',
+      description: 'D1 项目起点登记表、D7 中期进度提交表（不淘汰）、D11–D12 最终作品提交表与四项提交材料清单。',
+      href: '/events/#submit',
+      keywords: '作品提交 投稿 表单 MVP 中期 最终提交 补正窗口 材料清单',
+    },
+    {
+      type: '章节',
+      title: '100 分评分标准与奖项设置',
+      description: '实际完成度与可用性 30 分、需求与创意 20 分、测试验证/AI使用/学习迭代各 15 分、展示表达 5 分，另设现场最受欢迎奖（零加分）。',
+      href: '/events/#scoring',
+      keywords: '评分 评分标准 奖项 奖金 最佳探索奖 现场最受欢迎奖 同分',
+    },
+    ...ruleSections.map((section) => ({
+      type: '章节' as const,
+      title: section.title,
+      description: `完整赛事细则：${section.lead ?? section.bullets[0] ?? ''}`.slice(0, 180),
+      href: `/events/rules/#${section.id}`,
+      keywords: [challengeConfig.title, section.title, section.lead ?? '', ...section.bullets].join(' '),
+    })),
     {
       type: '页面',
       title: '关于与共建',

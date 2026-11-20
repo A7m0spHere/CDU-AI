@@ -12,8 +12,115 @@
    --------------------------------------------------------- */
 .home-hero {
   position: relative;
-  padding-top: clamp(2.2rem, 5vw, 4.2rem);
+  padding-top: clamp(1.4rem, 3.6vw, 2.8rem);
   padding-bottom: clamp(1.4rem, 3vw, 2.2rem);
+}
+
+/* 首页赛事横幅提示 */
+.home-event-banner-wrap {
+  margin-bottom: clamp(1.1rem, 2.2vw, 1.7rem);
+}
+
+.home-event-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1rem;
+  padding: 0.78rem 1.05rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+  border-radius: var(--radius-md);
+  background: linear-gradient(125deg, var(--surface) 0%, var(--brand-tint) 100%);
+  box-shadow: var(--shadow-xs);
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease,
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.home-event-banner:hover {
+  border-color: var(--brand);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.home-event-banner:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.home-event-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  padding: 0.18rem 0.62rem;
+  border-radius: var(--radius-pill);
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+.home-event-banner__copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.65rem;
+  flex: 1 1 20rem;
+  min-width: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.home-event-banner__copy strong {
+  color: var(--ink);
+  font-weight: 680;
+}
+
+.home-event-banner__copy span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.home-event-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: none;
+  margin-left: auto;
+  color: var(--brand);
+  font-size: 0.82rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.home-event-banner:hover .home-event-banner__cta svg {
+  transform: translateX(2px);
+}
+
+.home-event-banner__cta svg {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+@media (max-width: 760px) {
+  .home-event-banner {
+    padding: 0.8rem 0.9rem;
+  }
+
+  .home-event-banner__cta {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-event-banner,
+  .home-event-banner__cta svg {
+    transition: none;
+    transform: none !important;
+  }
 }
 
 .home-hero__grid {

@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
   { label: '术语表', href: '/glossary/', description: 'AI 术语速查' },
   { label: '工具资源', href: '/tools/', description: '按真实场景整理的工具索引' },
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
-  { label: '活动', href: '/events/', description: '一起工作坊、共创与开放麦' },
+  { label: '活动', href: '/events/', description: '成都大学首届 AI 创作挑战赛' },
 ];
 
 export interface GuideStageMeta {
@@ -87,7 +87,7 @@ export const footerGroups = [
     title: '参与',
     links: [
       { label: '社区（暂不开放）', href: '/community/' },
-      { label: '活动形式', href: '/events/' },
+      { label: '活动', href: '/events/' },
       { label: '共建方式', href: '/about/#contribute' },
       { label: '纠错与贡献', href: `${repository.url}/blob/main/CONTRIBUTING.md` },
       { label: '贡献者', href: `${repository.url}/blob/main/CONTRIBUTORS.md` },
@@ -110,14 +110,14 @@ export const transparencyItems = [
   },
   {
     title: '不虚构作品与活动',
-    text: 'M0 中的作品均明确标注为「策划示例」，不是真实学生投稿；活动只展示形式蓝图，不写未经确认的日期与场地。',
+    text: 'M0 中的作品均明确标注为「策划示例」，不是真实学生投稿；活动页未确认的日期、场地与提交入口均明确标注「待定」。',
   },
   {
     title: '工具收录不等于推荐',
     text: '工具目录用于学习索引，不是广告或商业推荐。能力、价格与可用性会变化，请以官方页面为准。',
   },
   {
-    title: '不收集访客信息',
-    text: '当前没有登录、评论、投稿表单、广告或第三方统计脚本。未来引入相关能力时会先说明数据用途。',
+    title: '最小化信息收集',
+    text: '本站本身不设账号、评论、广告或第三方追踪脚本；活动报名通过外部飞书表单收集，仅用于赛事联络与评审，并与公开展示资料严格隔离。',
   },
 ];
