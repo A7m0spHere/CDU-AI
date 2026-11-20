@@ -3,6 +3,12 @@
    覆盖：/events/、/events/rules/
    ========================================================= */
 
+@font-face {
+  font-family: 'CDU Event Pixels';
+  src: url('/fonts/fusion-pixel/cdu-event-pixels.woff2') format('woff2');
+  font-display: swap;
+}
+
 .page-hero h1:has(.challenge-title) {
   max-width: none;
 }
@@ -11,7 +17,7 @@
   display: grid;
   container-type: inline-size;
   gap: 0.28rem;
-  font-family: 'Fusion Pixel 12px', var(--font-sans);
+  font-family: 'CDU Event Pixels', var(--font-sans);
   font-weight: 400;
   font-synthesis: none;
   letter-spacing: 0;

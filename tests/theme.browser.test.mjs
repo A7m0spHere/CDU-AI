@@ -1620,6 +1620,28 @@ test('桌面主题编辑器拖到底部后仍可点击保存', async t => {
   await editor.waitFor({ state: 'hidden' });
 });
 
+test('从赛事抽屉到报名入口后，键盘焦点继续停在报名区', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/events/');
+  const drawer = page.locator('#challenge-info-drawer');
+  const trigger = page.locator('.page-hero [data-dialog-open="challenge-info-drawer"]');
+  const registration = page.locator('#register');
+
+  for (const expectedHash of ['', '#register']) {
+    assert.equal(new URL(page.url()).hash, expectedHash);
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+    await drawer.getByRole('link', { name: '前往报名入口' }).focus();
+    await page.keyboard.press('Enter');
+    await drawer.waitFor({ state: 'hidden' });
+    await page.waitForURL(origin + '/events/#register');
+    await page.waitForFunction(() => document.activeElement?.id === 'register');
+    await page.keyboard.press('Tab');
+    assert.equal(await registration.getByRole('link', { name: '查看腾讯文档报名表' })
+      .evaluate(link => document.activeElement === link), true);
+  }
+});
+
 test('手机左拉赛事速览在松手后打开并可切换到作品要求', async t => {
   const page = await setup(t, {
     viewport: { width: 320, height: 844 },

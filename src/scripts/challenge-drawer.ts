@@ -88,12 +88,15 @@ function createDialogController(dialog: HTMLDialogElement): DialogController {
 
   for (const link of anchorLinks) {
     link.addEventListener('click', async (event) => {
-      const hash = link.getAttribute('href');
-      if (!hash || !hash.startsWith('#')) return;
-      event.preventDefault();
-      await close();
+      const hash = link.hash;
       const target = document.getElementById(hash.slice(1));
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!target || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      if (closing) return;
+      await close();
+      if (window.location.hash === hash) target.scrollIntoView();
+      else window.location.hash = hash;
+      target.focus({ preventScroll: true });
     });
   }
 
