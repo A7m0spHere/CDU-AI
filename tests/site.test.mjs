@@ -417,9 +417,12 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(events, /新手组/, '活动页应说明新手组');
   assert.match(events, /进阶组/, '活动页应说明进阶组');
   assert.match(events, /11 月 21 日 10:00/, '活动页应展示报名开放时间');
+  assert.match(events, /11 月 23 日（周一）20:00/, '活动页应展示 11/23 20:00 报名截止时间');
   assert.match(events, /12 月 4 日（周五）18:00/, '活动页应展示作品提交截止时间');
-  assert.match(events, /12\/4–12\/5[\s\S]*线上最终评审/, '活动页应展示 12/4–12/5 线上最终评审节点');
-  assert.match(events, /12\/6[\s\S]*线下颁奖/, '活动页应展示 12/6 线下颁奖');
+  assert.match(events, /12\/4–12\/5[\s\S]*线上材料初评/, '活动页应展示 12/4–12/5 线上材料初评节点');
+  assert.match(events, /12\/6[\s\S]*现场 Demo\/答辩[\s\S]*线下颁奖/, '活动页应展示 12/6 现场 Demo/答辩 + 线下颁奖');
+  assert.match(events, /QQ号/, '活动页应展示 QQ 号联系方式');
+  assert.match(events, /学院（自行填写）/, '活动页应说明学院由报名者自行填写');
   assert.match(events, /两套 100 分评分表/, '活动页应展示两组评分表');
   assert.doesNotMatch(events, /本页没有活动日历|两小时工作坊流程|首届 AI 创作挑战赛/, '活动页应移除旧版占位与旧赛事名称');
 });
