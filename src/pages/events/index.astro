@@ -104,16 +104,19 @@ const sections = [
   <div class="container challenge-program">
     <nav class="challenge-jumps" aria-label="赛事页面导航">
       <p class="challenge-jumps__title" aria-hidden="true">赛事导航</p>
-      <ul>
-        {sections.map((section) => (
-          <li>
-            <a href={section.href}>
-              {section.label}
-              <Icon name="arrow-right" size={14} />
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div class="challenge-jumps__items">
+        <span class="challenge-jumps__fill" aria-hidden="true"></span>
+        <ul>
+          {sections.map((section) => (
+            <li>
+              <a href={section.href}>
+                {section.label}
+                <Icon name="arrow-right" size={14} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
 
     <div class="challenge-program__content">
@@ -412,16 +415,7 @@ const sections = [
 <script>
   import '../../scripts/challenge-ascii-planet';
   import '../../scripts/challenge-drawer';
-
-  const chapterLinks = document.querySelectorAll<HTMLAnchorElement>('.challenge-jumps a');
-  const markChapter = () => {
-    for (const link of chapterLinks) {
-      if (link.hash === location.hash) link.setAttribute('aria-current', 'location');
-      else link.removeAttribute('aria-current');
-    }
-  };
-  window.addEventListener('hashchange', markChapter);
-  markChapter();
+  import '../../scripts/challenge-jumps';
 
   const registrationStatus = document.querySelector<HTMLElement>('[data-registration-status]');
   if (registrationStatus) {
