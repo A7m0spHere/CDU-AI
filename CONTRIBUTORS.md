@@ -31,8 +31,10 @@
 
 以下按时间段记录 **[@A7m0spHere](https://github.com/A7m0spHere)** 的阶段维护成果；外部贡献者的初稿、代码与主题设计按各自条目独立署名。
 
-#### 2026-11-01—2026-11-19
+#### 2026-11-01—2026-11-21
 
+- **第八届 AI 创作挑战赛页面融合与上线（2026-11-21）**：在保留 [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43) 上游赛制内容与原始提交署名的基础上，重构活动页线性赛程、桌面看板娘与 ASCII 星球背景、像素字体子集标题、赛事速览弹窗与赛道抽屉、移动端左拉抽拉片及 `/events/rules/` 完整细则页，并修复跳转焦点回落与浏览器回归时序。见 [PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44)、[`ca9d8eb`](https://github.com/A7m0spHere/CDU-AI/commit/ca9d8eb)。
+- **移动端交互与大图灯箱（2026-11-20）**：优化手机术语表分支切换与单行横滑分类胶囊，为指南详情页加入全屏图片灯箱（双击缩放、防横滑误触与桌面拖动画布），精简工具页手机端筛选（移除独立能力筛选、能力标签并入关键词搜索），并修复主题编辑器、搜索与底部抽屉手势问题。见 [PR #42](https://github.com/A7m0spHere/CDU-AI/pull/42)。
 - **学习指南正文与交互（2026-11-01—2026-11-18）**：统一指南简约阅读排版，完善欢迎页与文档编辑 Issue 联动，补充《这份指南适合谁》《AI 使用常见问题》《从 Chat AI 到 Agent》（含流程图）与《第一次使用 Agent》（含工具切换、提示词复制与素材占位），调整 Agent 入门路径，记录嵌入式官方教程 NO-GO 决策与维护者上传正文审阅规则。见 [`2cbbe83`](https://github.com/A7m0spHere/CDU-AI/commit/2cbbe83)、[`7030f07`](https://github.com/A7m0spHere/CDU-AI/commit/7030f07)、[`2564ff4`](https://github.com/A7m0spHere/CDU-AI/commit/2564ff4)、[`8809e2b`](https://github.com/A7m0spHere/CDU-AI/commit/8809e2b)、[`4cbd91c`](https://github.com/A7m0spHere/CDU-AI/commit/4cbd91c) 及 [素材清单](docs/first-agent-media-checklist.md)。
 - **首页探索区（2026-11-12—2026-11-13）**：探索区改为成都大学主图书馆纯线条 SVG，并实现三维坐标重投影的拖动旋转、键盘操作与入口开门联动。见 [`7d4e5d2`](https://github.com/A7m0spHere/CDU-AI/commit/7d4e5d2)、[PR #39](https://github.com/A7m0spHere/CDU-AI/pull/39)。
 - **阅读体验（2026-11-14—2026-11-15）**：调整纯文本代码块主题配色，为指南、术语和作品详情页新增桌面端右侧「本页目录」（`ArticleToc`）。见 [`6bacd9d`](https://github.com/A7m0spHere/CDU-AI/commit/6bacd9d)、[`caeb741`](https://github.com/A7m0spHere/CDU-AI/commit/caeb741)。

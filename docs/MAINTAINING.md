@@ -25,7 +25,7 @@ npm run verify
 
 ### 浏览器回归
 
-主题、搜索、工具目录和正文阅读共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
+主题、搜索、首页交互、术语表、工具目录、正文阅读、图片灯箱与赛事弹窗/抽屉共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
 
 ```bash
 npx playwright install chromium
