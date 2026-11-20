@@ -328,7 +328,7 @@
 - 反馈：「修复失效的光效，同时加入光效拖尾功能，像流星一样，再单独设置一个开关和光效开关放一起」。
 - 先查「失效」：把同一套悬停探针跑遍 `/`、`/guide/`、`/guide/first-agent/`、`/glossary/`、`/tools/`、`/works/`。四条老链路（指针光晕 / 导航汇聚 / 按钮与卡片 / Hero 点阵）都还在；真正缺光的是上游这轮重构新长出来的入口——指南页头的「建议修改」、图片灯箱的缩放与关闭键（`.image-lightbox__btn`）、图片上的「点击放大」（`.guide-image-zoom`）、手机工具详情抽屉的关闭键（`.tool-sheet__close`）、术语侧栏的分支展开收起键（`.branch-row__toggle`）。这五个选择器进 `ui-glow.ts` 的 `AUTO_HOSTS` 就补齐了，页头那几枚仍然手写标记。
 - 灯箱相关的三个只在正文真的有 `<img>` 时才生成：当前内容还没有配图，所以测试只断言既有控件是否接光；灯箱与「点击放大」交给 `ui-glow` 的 MutationObserver（对话框和按钮都是后挂到 body 的），有图之后自动接线。
-- 拖尾实现：新增 `CursorTrail.astro` + `scripts/cursor-trail.ts` + `styles/cursor-trail.css`，一张 `position: fixed` 的全屏 canvas。采样点保留 780ms（上限 160 个；间距 <1.2px 只更新头部时间），相邻采样点按约 8px 插值补点，画成一条「渐变宽度的带」（尾部约 1px、头部约 11.6px，外加一层 7px 模糊的外发光），沿轴向从透明渐亮到 0.62，头部再叠一颗 28px 的径向亮核；采样点全过期后擦掉画布并停掉 rAF，空闲时零开销。
+- 拖尾实现：新增 `CursorTrail.astro` + `scripts/cursor-trail.ts` + `styles/cursor-trail.css`，一张 `position: fixed` 的全屏 canvas。采样点保留 780ms（上限 160 个；间距 <1.2px 只更新头部时间），相邻采样点按约 8px 插值补点，画成一条「渐变宽度的带」（尾部约 1px、头部约 11.6px），沿轴向从透明渐亮到 0.55；边缘分两层糊开——18px 的大范围外晕（深色主题浓度乘 1.3）+ 本体 2.6px 柔边，头部再叠一颗 28px 的径向亮核；采样点全过期后擦掉画布并停掉 rAF，空闲时零开销。
 - 第一版按 0.9→4px 的逐段描线做，被指出「太细、拖尾太短」：把存活从 420ms 提到 780ms、宽度提到 1→11.6px，并补上外发光。逐段 stroke 时相邻圆头会互相叠加，尾巴上会出现一串珠子，所以改成一次性 `fill` 的变宽带子；另外浏览器给的是离散采样，一步跨 100px 时连线是一段段折线，按 8px 插值后才顺。
 - 分层与光晕一致：浅色 `multiply`、深色 `screen`，白底上读成「染出来的蓝」、黑底上读成「发出来的光」，正文对比度不受影响；canvas 不接收事件、`aria-hidden`，减少动效 / 触屏 / 打印 / 开关关闭时整层 `display: none`。
 - 独立开关：`glow-pref.ts` 扩成两个偏好（`cdu-ai-glow` / `cdu-ai-trail`）与两个事件（`cdu:glow-change` / `cdu:trail-change`）；`BaseLayout` 的首屏脚本同时写 `<html data-glow>` / `data-trail`；面板里两个 `role="switch"` 排进同一个 `.theme-panel__switches` 组（上面「鼠标光效 · 跟随指针的柔光」，下面「光效拖尾 · 指针划过的流星尾迹」）。两个开关互不牵连：关掉光晕仍可只留尾迹。

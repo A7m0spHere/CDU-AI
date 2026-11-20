@@ -109,10 +109,10 @@ if (canvas) {
         ribbon.addColorStop(at, 'rgba(' + rgb + ', ' + (alpha * strength).toFixed(3) + ')');
       };
       stop(0, 0);
-      stop(0.45, 0.05);
-      stop(0.7, 0.24);
-      stop(0.88, 0.46);
-      stop(1, 0.62);
+      stop(0.45, 0.045);
+      stop(0.7, 0.2);
+      stop(0.88, 0.4);
+      stop(1, 0.55);
 
       ctx.beginPath();
       ctx.moveTo(left[0].x, left[0].y);
@@ -120,17 +120,20 @@ if (canvas) {
       for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i].x, right[i].y);
       ctx.closePath();
 
-      // 先糊一层同样的形状当外发光，再叠清晰的那一条：
-      // 单靠一条实心带子会读成「画上去的线」，外面有一圈晕才像光
+      // 两层叠出柔光：先铺一层大范围模糊当外晕，再叠一层只糊一点边的本体。
+      // 只画实心带子会读成「画上去的一条线」；本体也带一点点模糊，边缘才不会留硬边。
       ctx.save();
-      ctx.filter = 'blur(7px)';
-      ctx.globalAlpha = 0.6;
+      ctx.filter = 'blur(18px)';
+      ctx.globalAlpha = 0.9;
       ctx.fillStyle = ribbon;
       ctx.fill();
       ctx.restore();
 
+      ctx.save();
+      ctx.filter = 'blur(2.6px)';
       ctx.fillStyle = ribbon;
       ctx.fill();
+      ctx.restore();
     }
 
     // 头部亮核：一小团径向光，让尾迹有个「星」的头
