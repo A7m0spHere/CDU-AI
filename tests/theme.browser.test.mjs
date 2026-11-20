@@ -1509,6 +1509,117 @@ test('指南详情页手机全宽铺排，保持原流程图并支持点击放�
   assert.equal(await zoomTrigger.evaluate(el => el === document.activeElement), true, '关闭图片灯箱后焦点应回到原触发按钮');
 });
 
+test('手机灯箱仅用双击缩放，连续横滑和捏合结束不会误触发', async t => {
+  const page = await setup(t, {
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  });
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  await page.locator('[data-image-zoom]').tap();
+  const image = page.locator('[data-lightbox-img]');
+  await image.evaluate(el => el.decode());
+
+  const zooms = await image.evaluate(img => {
+    const touch = (clientX, identifier = 1) => new Touch({ target: img, identifier, clientX, clientY: 300 });
+    const send = (type, touches, changedTouches = touches) => {
+      img.dispatchEvent(new TouchEvent(type, { touches, changedTouches, bubbles: true, cancelable: true }));
+    };
+    const zoom = () => img.closest('dialog').dataset.zoomScale;
+    const tap = () => {
+      send('touchstart', [touch(120)]);
+      send('touchend', [], [touch(120)]);
+    };
+    const swipe = () => {
+      send('touchstart', [touch(120)]);
+      send('touchmove', [touch(60)]);
+      send('touchend', [], [touch(60)]);
+    };
+
+    swipe();
+    swipe();
+    const afterSwipes = zoom();
+    tap();
+    tap();
+    const afterDoubleTap = zoom();
+
+    send('touchstart', [touch(100)]);
+    send('touchstart', [touch(100), touch(140, 2)]);
+    send('touchmove', [touch(80), touch(160, 2)]);
+    send('touchend', [touch(80)], [touch(160, 2)]);
+    send('touchend', [], [touch(80)]);
+    const afterPinch = zoom();
+    tap();
+    const afterSingleTap = zoom();
+    send('touchstart', [touch(120)]);
+    send('touchcancel', [], [touch(120)]);
+    tap();
+    const afterCancelledTap = zoom();
+    return { afterSwipes, afterDoubleTap, afterPinch, afterSingleTap, afterCancelledTap };
+  });
+
+  assert.deepEqual(zooms, {
+    afterSwipes: '200',
+    afterDoubleTap: '100',
+    afterPinch: '200',
+    afterSingleTap: '200',
+    afterCancelledTap: '200',
+  });
+});
+
+test('桌面灯箱放大后仍可单击图片、拖动画布并双击复位', async t => {
+  const page = await setup(t, { viewport: { width: 1024, height: 768 }, reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  await page.locator('[data-image-zoom]').click();
+  const lightbox = page.locator('[data-image-lightbox]');
+  await page.locator('[data-lightbox-img]').evaluate(img => img.decode());
+  await page.locator('[data-lightbox-in]').click();
+  await page.locator('[data-lightbox-in]').click();
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '200');
+
+  const stage = page.locator('[data-lightbox-stage]');
+  const bounds = await stage.boundingBox();
+  const x = Math.round(bounds.x + bounds.width / 2);
+  const y = Math.round(bounds.y + bounds.height / 2);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 1, y);
+  await page.mouse.up();
+  assert.equal(await lightbox.evaluate(el => el.open), true, '带少量移动的单击应保留图片预览');
+
+  const startScroll = await stage.evaluate(el => el.scrollLeft);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 60, y, { steps: 6 });
+  await page.mouse.up();
+  assert.ok(await stage.evaluate(el => el.scrollLeft) > startScroll, '拖动应移动放大的画布');
+
+  await page.mouse.dblclick(x, y);
+  assert.equal(await lightbox.evaluate(el => el.open), true);
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '100');
+});
+
+test('桌面主题编辑器拖到底部后仍可点击保存', async t => {
+  const page = await setup(t, { viewport: { width: 1024, height: 768 }, reducedMotion: 'reduce' });
+  await create(page);
+  await page.locator('[data-theme-field="name"]').fill('拖动测试主题');
+  const editor = page.locator('[data-theme-editor]');
+  const grip = await page.locator('[data-theme-editor-grip]').boundingBox();
+  const before = await editor.boundingBox();
+
+  await page.mouse.move(grip.x + 55, grip.y + 24);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + 55, 767, { steps: 8 });
+  await page.mouse.up();
+
+  const after = await editor.boundingBox();
+  assert.ok(after.y > before.y, '鼠标可以向下移动对话框');
+  assert.ok(after.y + after.height <= 768, '整个对话框应留在视口内');
+  await page.locator('[data-theme-save]').click();
+  await editor.waitFor({ state: 'hidden' });
+});
+
 test('手机高发浮层与底部抽屉交互可用且不发生窄屏溢出', async t => {
   const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
 
@@ -1615,8 +1726,7 @@ test('手机高发浮层与底部抽屉交互可用且不发生窄屏溢出', as
   assert.ok(sheetMetrics.primaryBox.height >= 44, `工具抽屉主按钮高度应 >= 44px（实际 ${sheetMetrics.primaryBox.height}）`);
   assert.ok(sheetMetrics.closeBox.width >= 42 && sheetMetrics.closeBox.height >= 42, '工具抽屉关闭按钮应 >= 42px');
 
-  await page.evaluate(() => {
-    const sheet = document.querySelector('[data-tool-sheet]');
+  const swipeToolSheet = eventType => page.evaluate(type => {
     const handle = document.querySelector('.tool-sheet__handle');
     const mkTouch = (y) => new Touch({ identifier: 1, target: handle, clientX: 195, clientY: y, pageX: 195, pageY: y });
     const t0 = mkTouch(200);
@@ -1625,9 +1735,14 @@ test('手机高发浮层与底部抽屉交互可用且不发生窄屏溢出', as
     handle.dispatchEvent(new TouchEvent('touchmove', { touches: [t1], targetTouches: [t1], changedTouches: [t1], bubbles: true, cancelable: true }));
     const t2 = mkTouch(320);
     handle.dispatchEvent(new TouchEvent('touchmove', { touches: [t2], targetTouches: [t2], changedTouches: [t2], bubbles: true, cancelable: true }));
-    handle.dispatchEvent(new TouchEvent('touchend', { touches: [], targetTouches: [], changedTouches: [t2], bubbles: true, cancelable: true }));
-    return sheet.open;
-  });
+    handle.dispatchEvent(new TouchEvent(type, { changedTouches: [t2], bubbles: true, cancelable: true }));
+  }, eventType);
+
+  await swipeToolSheet('touchcancel');
+  const sheet = page.locator('[data-tool-sheet]');
+  assert.equal(await sheet.evaluate(el => el.open), true, '手势取消后抽屉应保持打开');
+  assert.equal(await sheet.evaluate(el => el.classList.contains('is-dragging') || Boolean(el.style.transform)), false, '手势取消后抽屉应回到原位');
+  await swipeToolSheet('touchend');
   await page.waitForFunction(() => !document.querySelector('[data-tool-sheet]').open);
   assert.equal(await triggerTile.evaluate(el => el === document.activeElement), true, '下滑关闭工具抽屉后焦点应回到原工具图标');
 });

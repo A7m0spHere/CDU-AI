@@ -1,6 +1,9 @@
 const MIN_SCALE = 1;
 const MAX_SCALE = 3.5;
 const STEP_SCALE = 0.5;
+const TAP_DELAY = 280;
+const TAP_MOVE_LIMIT = 10;
+const DOUBLE_TAP_RADIUS = 24;
 
 export function initImageLightbox(): void {
   const images = Array.from(document.querySelectorAll<HTMLImageElement>('.notion-prose img')).filter(
@@ -97,7 +100,7 @@ export function initImageLightbox(): void {
       </div>
       <div class="image-lightbox__stage" data-lightbox-stage>
         <div class="image-lightbox__canvas" data-lightbox-canvas>
-          <img class="image-lightbox__img" data-lightbox-img alt="" />
+          <img class="image-lightbox__img" data-lightbox-img alt="" draggable="false" />
         </div>
       </div>
       <div class="image-lightbox__caption" data-lightbox-caption>
@@ -129,52 +132,74 @@ export function initImageLightbox(): void {
       applyScale(scale > 1.2 ? 1 : 2);
     });
 
-    // 移动端双击图片快速切换 100% / 200%
-    let lastTapTime = 0;
-    lightboxImg?.addEventListener(
-      'touchend',
-      (event) => {
-        if (event.touches.length > 0) return;
-        const now = performance.now();
-        if (now - lastTapTime < 280) {
-          event.preventDefault();
-          applyScale(scale > 1.2 ? 1 : 2);
-          lastTapTime = 0;
-        } else {
-          lastTapTime = now;
-        }
-      },
-      { passive: false },
-    );
-
-    // 双指捏合缩放
+    // 双击只统计图片上的单指轻触，横滑和捏合会取消待配对的轻触。
+    type TimedTouch = { touch: Touch; time: number };
+    let tapStart: TimedTouch | null = null;
+    let lastTap: TimedTouch | null = null;
     let pinchStartDist = 0;
     let pinchStartScale = 1;
+    const touchDistance = (a: Touch, b: Touch) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    const resetTouch = () => {
+      tapStart = null;
+      lastTap = null;
+      pinchStartDist = 0;
+    };
+
     stage?.addEventListener(
       'touchstart',
       (event) => {
-        if (event.touches.length === 2) {
-          const [t1, t2] = [event.touches[0], event.touches[1]];
-          pinchStartDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-          pinchStartScale = scale;
+        if (event.touches.length === 1 && event.target === lightboxImg) {
+          tapStart = { touch: event.touches[0], time: performance.now() };
+          return;
         }
+        resetTouch();
+        if (event.touches.length !== 2) return;
+        pinchStartDist = touchDistance(event.touches[0], event.touches[1]);
+        pinchStartScale = scale;
       },
       { passive: true },
     );
     stage?.addEventListener(
       'touchmove',
       (event) => {
-        if (event.touches.length === 2 && pinchStartDist > 10) {
+        const touches = event.touches;
+        if (tapStart && touches.length === 1 && touchDistance(tapStart.touch, touches[0]) > TAP_MOVE_LIMIT) {
+          resetTouch();
+        }
+        if (touches.length === 2 && pinchStartDist > 10) {
           event.preventDefault();
-          const [t1, t2] = [event.touches[0], event.touches[1]];
-          const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-          applyScale(pinchStartScale * (dist / pinchStartDist));
+          applyScale(pinchStartScale * touchDistance(touches[0], touches[1]) / pinchStartDist);
         }
       },
       { passive: false },
     );
+    stage?.addEventListener(
+      'touchend',
+      (event) => {
+        const start = tapStart;
+        const touch = event.changedTouches[0];
+        tapStart = null;
+        pinchStartDist = 0;
+        if (!start || !touch || event.touches.length !== 0) return;
+        const time = performance.now();
+        if (time - start.time > TAP_DELAY || touchDistance(start.touch, touch) > TAP_MOVE_LIMIT) {
+          lastTap = null;
+          return;
+        }
+        if (lastTap && time - lastTap.time < TAP_DELAY && touchDistance(lastTap.touch, touch) <= DOUBLE_TAP_RADIUS) {
+          event.preventDefault();
+          applyScale(scale > 1.2 ? 1 : 2);
+          lastTap = null;
+        } else {
+          lastTap = { touch, time };
+        }
+      },
+      { passive: false },
+    );
+    stage?.addEventListener('touchcancel', resetTouch, { passive: true });
 
     // 桌面鼠标按住拖移画布
+    let panPointerId: number | null = null;
     let panning = false;
     let panStartX = 0;
     let panStartY = 0;
@@ -182,31 +207,36 @@ export function initImageLightbox(): void {
     let panScrollTop = 0;
     stage?.addEventListener('pointerdown', (event) => {
       if (event.pointerType !== 'mouse' || event.button !== 0 || scale <= 1.02 || !stage) return;
-      panning = true;
-      suppressBackdropClick = false;
+      panPointerId = event.pointerId;
       panStartX = event.clientX;
       panStartY = event.clientY;
       panScrollLeft = stage.scrollLeft;
       panScrollTop = stage.scrollTop;
-      stage.setPointerCapture(event.pointerId);
-      stage.classList.add('is-panning');
     });
-    stage?.addEventListener('pointermove', (event) => {
-      if (!panning || !stage) return;
+    dialog.addEventListener('pointerdown', () => { suppressBackdropClick = false; });
+    dialog.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== panPointerId || !stage) return;
       const dx = event.clientX - panStartX;
       const dy = event.clientY - panStartY;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) suppressBackdropClick = true;
+      if (!panning) {
+        if (Math.abs(dx) <= 4 && Math.abs(dy) <= 4) return;
+        panning = true;
+        suppressBackdropClick = true;
+        stage.setPointerCapture(event.pointerId);
+        stage.classList.add('is-panning');
+      }
       stage.scrollLeft = panScrollLeft - dx;
       stage.scrollTop = panScrollTop - dy;
     });
     const stopPan = (event: PointerEvent) => {
-      if (!panning || !stage) return;
+      if (event.pointerId !== panPointerId || !stage) return;
+      panPointerId = null;
       panning = false;
       stage.classList.remove('is-panning');
       if (stage.hasPointerCapture(event.pointerId)) stage.releasePointerCapture(event.pointerId);
     };
-    stage?.addEventListener('pointerup', stopPan);
-    stage?.addEventListener('pointercancel', stopPan);
+    dialog.addEventListener('pointerup', stopPan);
+    dialog.addEventListener('pointercancel', stopPan);
 
     dialog.addEventListener('click', (event) => {
       if (suppressBackdropClick) {
@@ -233,6 +263,11 @@ export function initImageLightbox(): void {
     });
 
     dialog.addEventListener('close', () => {
+      resetTouch();
+      panPointerId = null;
+      panning = false;
+      suppressBackdropClick = false;
+      stage?.classList.remove('is-panning');
       if (lastTrigger?.isConnected) {
         lastTrigger.focus({ preventScroll: true });
       }

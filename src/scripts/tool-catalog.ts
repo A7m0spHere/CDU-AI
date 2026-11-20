@@ -304,13 +304,13 @@ export function initToolCatalog(): void {
       { passive: false },
     );
 
-    const endTouch = () => {
+    const endTouch = (event: TouchEvent) => {
       if (!dragActive) return;
       const wasDragging = dragging;
       stopDragTracking();
       if (!wasDragging) return;
 
-      if (lastDy >= 80 || (lastDy >= 36 && velocity >= 0.45)) {
+      if (event.type === 'touchend' && (lastDy >= 80 || (lastDy >= 36 && velocity >= 0.45))) {
         closeSheet(true);
         return;
       }

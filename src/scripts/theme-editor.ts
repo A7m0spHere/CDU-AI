@@ -970,7 +970,7 @@ export async function initThemeEditor(host: ThemeEditorHost) {
     const minDx = 8 - baseLeft;
     const maxDx = Math.max(minDx, window.innerWidth - rect.width - 8 - baseLeft);
     const minDy = 8 - baseTop;
-    const maxDy = Math.max(minDy, window.innerHeight - 64 - baseTop);
+    const maxDy = Math.max(minDy, window.innerHeight - rect.height - 8 - baseTop);
     const startX = event.clientX - editorDx;
     const startY = event.clientY - editorDy;
     grip.setPointerCapture(event.pointerId);
