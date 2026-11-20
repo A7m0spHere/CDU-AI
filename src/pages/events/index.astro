@@ -47,6 +47,21 @@ const sections = [
       </span>
     </Fragment>
 
+    <Fragment slot="title-action">
+      <button
+        type="button"
+        class="btn btn--soft challenge-aside-trigger"
+        data-dialog-open="challenge-overview-dialog"
+        aria-controls="challenge-overview-dialog"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+      >
+        <Icon name="calendar" size={16} />
+        <span class="challenge-aside-trigger__label">赛事速览</span>
+        <Icon name="arrow-up-right" size={14} />
+      </button>
+    </Fragment>
+
     <Fragment slot="actions">
       <a class="btn btn--primary" href="#register">
         报名入口
@@ -72,31 +87,15 @@ const sections = [
     </Fragment>
 
     <Fragment slot="aside">
-      <button
-        type="button"
-        class="aside-card aside-card--brand challenge-aside challenge-aside-trigger"
-        data-dialog-open="challenge-overview-dialog"
-        aria-controls="challenge-overview-dialog"
-        aria-expanded="false"
-      >
-        <span class="challenge-aside-trigger__head">
-          <span class="aside-card__head">
-            <Icon name="calendar" size={17} />
-            <span class="challenge-aside-trigger__label">赛事速览</span>
-          </span>
-          <span class="challenge-aside-trigger__pill">
-            查看详情
-            <Icon name="arrow-up-right" size={13} />
-          </span>
-        </span>
-        <span class="status-row challenge-aside-trigger__status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span>{challengeConfig.statusBadge}</span>
-        </span>
-        <span class="challenge-aside-trigger__summary">
-          新手组 / 进阶组双赛道 · 个人参赛为主 · AI 项目开发
-        </span>
-      </button>
+      <img
+        class="challenge-hero-art"
+        src="/images/events/mascot-drawing-world.webp"
+        alt="计协看板娘执笔在空中绘出一颗小星球"
+        width="1536"
+        height="1024"
+        loading="lazy"
+        decoding="async"
+      />
     </Fragment>
   </PageHero>
 
