@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
   { label: '术语表', href: '/glossary/', description: 'AI 术语速查' },
   { label: '工具资源', href: '/tools/', description: '按真实场景整理的工具索引' },
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
-  { label: '活动', href: '/events/', description: '成都大学首届 AI 创作挑战赛' },
+  { label: '活动', href: '/events/', description: '第八届网络创新大赛 · AI 创作挑战赛' },
 ];
 
 export interface GuideStageMeta {
@@ -110,7 +110,7 @@ export const transparencyItems = [
   },
   {
     title: '不虚构作品与活动',
-    text: 'M0 中的作品均明确标注为「策划示例」，不是真实学生投稿；活动页未确认的日期、场地与提交入口均明确标注「待定」。',
+    text: 'M0 中的作品均明确标注为「策划示例」，不是真实学生投稿；活动页已上线第八届网络创新大赛 · AI 创作挑战赛，腾讯文档报名入口已开放（报名截止 11 月 24 日 10:00），教室与具体时间点以选手群通知为准。',
   },
   {
     title: '工具收录不等于推荐',
@@ -118,6 +118,6 @@ export const transparencyItems = [
   },
   {
     title: '最小化信息收集',
-    text: '本站本身不设账号、评论、广告或第三方追踪脚本；活动报名通过外部飞书表单收集，仅用于赛事联络与评审，并与公开展示资料严格隔离。',
+    text: '本站本身不设账号、评论、广告或第三方追踪脚本；活动报名通过外部腾讯文档收集表收集，仅用于赛事联络与资格核对，并与公开展示资料严格隔离。',
   },
 ];

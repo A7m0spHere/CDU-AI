@@ -1632,3 +1632,120 @@
     gap: 0.45rem;
   }
 }
+
+/* =========================================================
+   单页赛事：组队规则、作品范围、评分分组与奖项表
+   ========================================================= */
+.challenge-team-rules {
+  margin-top: 1.25rem;
+  padding: 1.3rem 1.45rem;
+}
+
+.challenge-team-rules h4 {
+  color: var(--ink);
+  font-size: 0.96rem;
+}
+
+.challenge-team-rules ul {
+  margin-top: 0.55rem;
+  padding-left: 1.15rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.78;
+}
+
+.challenge-team-rules li + li {
+  margin-top: 0.32rem;
+}
+
+.challenge-scope-grid {
+  margin-top: 1rem;
+}
+
+.challenge-scope-card h3 {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.challenge-scope-card .challenge-form-card__top {
+  margin-bottom: 0;
+}
+
+.challenge-works-layout {
+  margin-top: 1.25rem;
+}
+
+.challenge-submission-grid {
+  margin-top: 1.5rem;
+}
+
+.challenge-scoring-groups {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: 1.2rem;
+}
+
+.challenge-scoring-group {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.challenge-scoring-group__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.6rem 1.2rem;
+}
+
+.challenge-scoring-group__head h3 {
+  margin-top: 0.35rem;
+  font-size: 1.2rem;
+}
+
+.challenge-scoring-group__head p {
+  max-width: 42ch;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.challenge-scoring-execution {
+  margin-top: 1.5rem;
+}
+
+.challenge-scoring-execution .challenge-guardrail-card:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
+@media (max-width: 760px) {
+  .challenge-scoring-execution .challenge-guardrail-card:last-child:nth-child(odd) {
+    grid-column: span 1;
+  }
+}
+
+.challenge-ai-note {
+  margin-top: 1.1rem;
+}
+
+.challenge-awards-table {
+  margin-top: 1rem;
+}
+
+.challenge-table--awards {
+  --col-1: "奖项";
+  --col-2: "数量";
+  --col-3: "奖励";
+}
+
+.challenge-award-notes {
+  margin-top: 0.9rem;
+  padding-left: 1.15rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+
+.challenge-award-notes li + li {
+  margin-top: 0.25rem;
+}

@@ -83,22 +83,6 @@ export interface Tool {
   caution?: string;
 }
 
-export interface EventFormat {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  goodFor: string;
-  status: string;
-  icon: 'workshop' | 'clinic' | 'build' | 'stage';
-}
-
-export interface BlueprintStep {
-  label: string;
-  title: string;
-  text: string;
-}
-
 export interface RoadmapPhase {
   phase: string;
   title: string;

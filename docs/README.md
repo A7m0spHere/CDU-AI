@@ -39,7 +39,7 @@
 | 术语 | [`src/content/glossary/`](../src/content/glossary/) | 分类取自 [`glossary.ts`](../src/data/glossary.ts)，审核结论按实际情况标注 |
 | 作品示例 | [`src/content/works/`](../src/content/works/) | M0 保留 `status: example`，不虚构真实投稿 |
 | 工具目录 | [`src/data/tools.ts`](../src/data/tools.ts) | 官网和仓库入口分别维护，图标来源同步记录 |
-| 活动形式与项目路线 | [`src/data/events.ts`](../src/data/events.ts) | 只写已确认的形式，不填写虚构排期 |
+| 活动信息与赛事报名 | [`src/data/challenge.ts`](../src/data/challenge.ts) | 赛事赛制、赛程、报名与评分数据；未确认的教室、时间点与表单入口明确标注 |
 | 搜索索引 | [`src/pages/search-index.json.ts`](../src/pages/search-index.json.ts) | 构建时从内容与数据生成，不直接编辑构建产物 |
 
 以 `_` 开头的 Markdown 文件不作为内容集合条目加载。`_TEMPLATE.md` 是写作模板。[`_HOME.md`](../src/content/guide/_HOME.md) 是「欢迎来到 CDU AI」正文，由页面直接导入并参与构建。欢迎页的审核记录方式见[内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)。

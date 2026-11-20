@@ -7,7 +7,7 @@ import { tools, toolCategories, toolCapabilities } from '../data/tools';
 import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 import { glossaryCategoryName } from '../data/glossary';
 import { guideHome } from '../data/guide-nav';
-import { challengeConfig, ruleSections } from '../data/challenge';
+import { challengeConfig } from '../data/challenge';
 
 interface SearchItem {
   type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
@@ -102,52 +102,47 @@ export const GET: APIRoute = async () => {
     {
       type: '页面',
       title: `活动 · ${challengeConfig.title}`,
-      description: '不限专业、零编程基础可参与，1–2 人组队，14 天用 AI 做出真实可运行作品；含飞书报名入口、作品提交说明、赛程与评分标准。',
+      description:
+        '不设统一命题、不要求编程基础，新手组 / 进阶组双轨参赛，10 天做出可运行、可演示的数字作品；含腾讯文档报名入口、赛程、作品要求与两套评分标准。',
       href: '/events/',
-      keywords: '活动 挑战赛 黑客松 AI创作挑战赛 报名 飞书 作品提交 赛程 评分 奖项 Demo Day 队伍编号 交流群 二维码',
-    },
-    {
-      type: '页面',
-      title: `完整赛事细则 · ${challengeConfig.shortTitle}`,
-      description: '参赛资格、1–2 人组队规则、最低交付标准、旧项目增量、数据合规、三阶段提交、学生评委公信力护栏与 48 小时申诉机制。',
-      href: '/events/rules/',
-      keywords: '赛事细则 规则 组队 旧项目 增量 数据合规 评委 公信力护栏 补正窗口 申诉 版权 授权',
-    },
-    {
-      type: '页面',
-      title: `可选选题灵感指南 · ${challengeConfig.shortTitle}`,
-      description: '按低依赖、中依赖、高依赖分类的自由创作方向与范围收敛示例，不作为赛题要求或评分偏好。',
-      href: '/events/ideas/',
-      keywords: '选题 灵感 方向 低依赖 新手 小游戏 工具 可视化 自由创作',
+      keywords:
+        '活动 挑战赛 AI创作挑战赛 第八届网络创新大赛 报名 腾讯文档 新手组 进阶组 作品提交 赛程 评分 奖项',
     },
     {
       type: '章节',
-      title: '赛事报名入口与交流群',
-      description: '阶段 A 意向报名（飞书表单）、阶段 B 正式组队确认与唯一队伍编号、赛事交流群二维码。',
+      title: '赛事报名入口与报名流程',
+      description: '腾讯文档收集表报名（11/21 10:00–11/24 10:00）、报名确认、选手群与开赛会。',
       href: '/events/#register',
-      keywords: '报名 飞书 意向报名 组队 队伍编号 交流群 二维码',
+      keywords: '报名 腾讯文档 收集表 报名确认 选手群 开赛会',
     },
     {
       type: '章节',
-      title: '作品提交入口与三阶段表单',
-      description: 'D1 项目起点登记表、D7 中期进度提交表（不淘汰）、D11–D12 最终作品提交表与四项提交材料清单。',
-      href: '/events/#submit',
-      keywords: '作品提交 投稿 表单 MVP 中期 最终提交 补正窗口 材料清单',
+      title: '组别与参赛形式',
+      description: '新手组仅限个人、模板改造；进阶组个人或 ≤2 人团队、自由选题；两组分开评奖。',
+      href: '/events/#tracks',
+      keywords: '新手组 进阶组 组队 团队 模板 自由选题',
     },
     {
       type: '章节',
-      title: '100 分评分标准与奖项设置',
-      description: '实际完成度与可用性 30 分、需求与创意 20 分、测试验证/AI使用/学习迭代各 15 分、展示表达 5 分，另设现场最受欢迎奖（零加分）。',
+      title: '10 天赛程与关键节点',
+      description: '11/21 报名启动、11/24 10:00 报名截止并开赛、11/28 中期检查、12/4 18:00 提交截止、12/5 线上评审、12/6 下午线下讲解与颁奖。',
+      href: '/events/#schedule',
+      keywords: '赛程 时间 开赛会 中期检查 提交截止 线上评审 线下讲解 颁奖',
+    },
+    {
+      type: '章节',
+      title: '作品要求与提交材料',
+      description: '至少 1 项可运行功能；在线链接 / 代码仓库 / 本地包三选一；2 分钟录屏、1 页说明与团队分工表。',
+      href: '/events/#works',
+      keywords: '作品要求 提交 材料 在线链接 代码仓库 本地包 录屏 说明文档',
+    },
+    {
+      type: '章节',
+      title: '两套 100 分评分标准与奖项设置',
+      description: '新手组完成度 40 分、进阶组完成度 30 分；两套评分表分开评奖，含最佳新人奖与最佳创意奖。',
       href: '/events/#scoring',
-      keywords: '评分 评分标准 奖项 奖金 最佳探索奖 现场最受欢迎奖 同分',
+      keywords: '评分 评分标准 奖项 新手组 进阶组 最佳新人奖 最佳创意奖',
     },
-    ...ruleSections.map((section) => ({
-      type: '章节' as const,
-      title: section.title,
-      description: `完整赛事细则：${section.lead ?? section.bullets[0] ?? ''}`.slice(0, 180),
-      href: `/events/rules/#${section.id}`,
-      keywords: [challengeConfig.title, section.title, section.lead ?? '', ...section.bullets].join(' '),
-    })),
     {
       type: '页面',
       title: '关于与共建',

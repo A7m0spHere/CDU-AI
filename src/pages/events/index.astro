@@ -7,28 +7,29 @@ import {
   challengeConfig,
   quickFacts,
   coreHighlights,
-  workCategories,
-  admissionSteps,
-  registrationFieldsPreview,
+  tracks,
   teamRuleSummary,
-  submissionForms,
-  finalDeliverables,
-  notRequiredItems,
+  registrationSteps,
+  registrationFieldsPreview,
+  workScope,
+  minimumDeliverables,
+  submissionOptions,
+  finalMaterials,
   submissionRedlines,
   timelinePhases,
-  demoDaySessions,
-  scoringDimensions,
-  tiebreakerNote,
-  awardsList,
+  scoringGroups,
+  scoringExecution,
+  aiAssistNote,
+  awardRows,
+  awardNotes,
   challengeFaqs,
   resolveExternalUrl,
 } from '../../data/challenge';
 
-const intentForm = challengeConfig.registration.intentForm;
-const teamConfirmForm = challengeConfig.registration.teamConfirmForm;
-const intentUrl = intentForm.status === 'open' ? resolveExternalUrl(intentForm.url) : undefined;
-const teamConfirmUrl = teamConfirmForm.status === 'open' ? resolveExternalUrl(teamConfirmForm.url) : undefined;
-const qrImage = challengeConfig.communityGroup.qrImage.trim();
+const registrationForm = challengeConfig.registration.form;
+const registrationUrl =
+  registrationForm.status === 'open' ? resolveExternalUrl(registrationForm.url) : undefined;
+const registrationQr = challengeConfig.registration.qrImage.trim();
 
 const statusTextMap = {
   upcoming: '待开放',
@@ -38,17 +39,18 @@ const statusTextMap = {
 
 const subnavItems = [
   { label: '赛事介绍', href: '#intro' },
+  { label: '组别与形式', href: '#tracks' },
   { label: '报名入口', href: '#register' },
-  { label: '作品提交', href: '#submit' },
-  { label: '14 天赛程', href: '#schedule' },
+  { label: '赛程安排', href: '#schedule' },
+  { label: '作品要求', href: '#works' },
   { label: '评分与奖项', href: '#scoring' },
-  { label: '常见疑问', href: '#faq' },
+  { label: '常见问题', href: '#faq' },
 ];
 ---
 
 <BaseLayout
   title={`${challengeConfig.title} · 活动`}
-  description="成都大学首届 AI 创作挑战赛：不限专业、零编程基础可参与，1–2 人组队，14 天做出真实可运行数字作品。包含赛事介绍、飞书报名入口、作品提交说明、赛程与评分细则。"
+  description="成都大学第八届网络创新大赛 · AI 创作挑战赛：不设统一命题、不要求编程基础，新手组 / 进阶组双轨参赛，10 天做出可运行、可演示的数字作品。含赛制、赛程、评分标准与腾讯文档报名入口。"
 >
   <PageHero
     eyebrow={challengeConfig.eyebrow}
@@ -59,16 +61,11 @@ const subnavItems = [
   >
     <Fragment slot="actions">
       <a class="btn btn--primary" href="#register">
-        报名入口
+        查看报名入口
         <Icon name="arrow-right" size={16} />
       </a>
-      <a class="btn btn--soft" href="#submit">
-        作品提交说明
-      </a>
-      <a class="btn btn--ghost" href="/events/rules/">
-        完整赛事细则
-        <Icon name="arrow-right" size={15} />
-      </a>
+      <a class="btn btn--soft" href="#schedule">赛程安排</a>
+      <a class="btn btn--ghost" href="#scoring">评分与奖项</a>
     </Fragment>
 
     <Fragment slot="aside">
@@ -101,13 +98,13 @@ const subnavItems = [
         ))}
       </div>
       <div class="challenge-subnav__pages">
-        <a class="challenge-subnav__doc" href="/events/rules/">
-          <Icon name="book-open" size={14} />
-          完整细则
+        <a class="challenge-subnav__doc" href="#register">
+          <Icon name="external-link" size={14} />
+          腾讯文档报名
         </a>
-        <a class="challenge-subnav__doc" href="/events/ideas/">
-          <Icon name="spark" size={14} />
-          选题灵感
+        <a class="challenge-subnav__doc" href="#faq">
+          <Icon name="book-open" size={14} />
+          参赛答疑
         </a>
       </div>
     </div>
@@ -119,13 +116,13 @@ const subnavItems = [
       <div class="section-head">
         <div class="section-head__copy">
           <p class="eyebrow">01 · 赛事介绍</p>
-          <h2 id="intro-heading">把想法做成可运行、可体验的数字作品</h2>
+          <h2 id="intro-heading">用 AI 把一个想法真正做出来</h2>
           <p class="section-head__desc">
-            这是一场实践与学习导向的校园限时创作赛事，而不是创业融资路演或算法竞赛。我们更看重你能否在 14 天内借助 AI
-            把脑中的点子真正跑起来，并通过恰当的测试不断迭代。
+            这是一场面向全校学生的 AI 实践与创作赛事，不是编程考试，也不以代码量、算法难度或商业价值作为评价核心。
+            我们更看重你能否在 10 天内借助 AI 把脑中的点子真正跑起来，并通过基本验证说明它确实可用。
           </p>
         </div>
-        <span class="pill">具体日期待定 · 规则已发布</span>
+        <span class="pill">赛前公示 · {challengeConfig.dates.competition}</span>
       </div>
 
       <div class="challenge-highlight-grid">
@@ -140,74 +137,109 @@ const subnavItems = [
         ))}
       </div>
 
-      <div class="challenge-tracks">
-        <div class="challenge-tracks__head">
-          <h3>两类作品在主赛中平等参赛</h3>
-          <p>评委只看 AI 是否被合理使用、作品是否真实可用，不凭“有没有接大模型 API”额外加分。</p>
-        </div>
-        <div class="challenge-tracks__grid">
-          {workCategories.map((cat) => (
-            <article class="challenge-track-card card">
-              <div class="challenge-track-card__top">
-                <span class="badge badge--brand">{cat.code}</span>
-                <h4>{cat.title}</h4>
-              </div>
-              <p class="challenge-track-card__summary">{cat.summary}</p>
-              <p class="challenge-track-card__examples">
-                <span>常见形态</span>
-                {cat.examples}
-              </p>
-              <p class="challenge-track-card__note">{cat.note}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-
       <div class="challenge-guide-strip card">
         <div class="challenge-guide-strip__copy">
-          <p class="eyebrow">还没想好做什么或如何上手？</p>
-          <h3>选题灵感与新手学习资源</h3>
+          <p class="eyebrow">赛事组织</p>
+          <h3>共青团成都大学委员会 · 电子信息与电气工程学院主办</h3>
           <p>
-            我们按资源依赖度整理了「可选选题灵感指南」，帮助你避开高依赖踩坑；零基础同学也可以先参考站内学习指南与工具目录。
-            比赛保持工具中立，不要求使用任何指定教程、平台或厂商产品。
+            本届赛事由共青团成都大学委员会、成都大学电子信息与电气工程学院主办，成都大学计算机协会承办。
+            {challengeConfig.maintainerNote} 具体教室、时间点与表单入口以选手群和开赛会通知为准。
           </p>
         </div>
         <div class="btn-row">
-          <a class="btn btn--soft btn--sm" href="/events/ideas/">
-            查看可选选题灵感
+          <a class="btn btn--soft btn--sm" href="#tracks">
+            查看组别与形式
             <Icon name="arrow-right" size={14} />
           </a>
-          <a class="btn btn--ghost btn--sm" href="/guide/">学习指南</a>
-          <a class="btn btn--ghost btn--sm" href="/tools/">工具资源</a>
+          <a class="btn btn--ghost btn--sm" href="#works">作品要求</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 二、报名入口与交流群 -->
-  <section class="section challenge-section challenge-section--alt" id="register" aria-labelledby="register-heading">
+  <!-- 二、组别与形式 -->
+  <section class="section challenge-section challenge-section--alt" id="tracks" aria-labelledby="tracks-heading">
     <div class="container">
       <div class="section-head">
         <div class="section-head__copy">
-          <p class="eyebrow">02 · 报名入口</p>
-          <h2 id="register-heading">两步报名入场，先来再组队</h2>
+          <p class="eyebrow">02 · 组别与形式</p>
+          <h2 id="tracks-heading">新手组与进阶组，同场参赛、分开评奖</h2>
           <p class="section-head__desc">
-            报名统一通过外部<strong>{challengeConfig.registration.platform}</strong>收集。没有项目点子、还没找到队友也可以先完成个人意向报名，入群后再自由组队或以单人队参赛。
+            零基础和有经验的同学分开竞争，各自评奖。新手组用模板降低起点，进阶组自由选题；两组第一名同样上台领奖。
           </p>
         </div>
-        <span class="badge badge--accent">每队 1–2 人 · 鼓励个人参赛</span>
+        <span class="badge badge--accent">每队最多 2 人 · 新手组仅限个人</span>
       </div>
 
-      <ol class="challenge-stage-bar" aria-label="三阶段准入流程">
-        {admissionSteps.map((step, index) => (
+      <div class="challenge-tracks">
+        <div class="challenge-tracks__head">
+          <h3>两条轨道，各自的起点与最低要求</h3>
+          <p>报名时自行选择组别，组委会在报名截止后 3 天内完成审核；新手组可申请升入进阶组，进阶组不得降入新手组。</p>
+        </div>
+        <div class="challenge-tracks__grid">
+          {tracks.map((track) => (
+            <article class="challenge-track-card card">
+              <div class="challenge-track-card__top">
+                <span class="badge badge--brand">{track.label}</span>
+                <h4>{track.shortLabel}</h4>
+              </div>
+              <p class="challenge-track-card__summary">{track.audience}</p>
+              <p class="challenge-track-card__examples">
+                <span>参赛形式</span>
+                {track.form}
+              </p>
+              <p class="challenge-track-card__examples">
+                <span>作品起点</span>
+                {track.startingPoint}
+              </p>
+              <p class="challenge-track-card__examples">
+                <span>最低要求</span>
+                {track.minimum}
+              </p>
+              <p class="challenge-track-card__note">{track.scoring}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="card challenge-mini-rules challenge-team-rules">
+        <h4>组队与报名规则</h4>
+        <ul>
+          {teamRuleSummary.map((rule) => (
+            <li>{rule}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 三、报名入口 -->
+  <section class="section challenge-section" id="register" aria-labelledby="register-heading">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__copy">
+          <p class="eyebrow">03 · 报名入口</p>
+          <h2 id="register-heading">腾讯文档报名，填写约 2–3 分钟</h2>
+          <p class="section-head__desc">
+            报名统一通过<strong>{challengeConfig.registration.platform}</strong>收集。填写报名表后加入选手群，即可参加开赛会并开始准备作品；
+            没有项目点子、还没找到队友也可以先报名。
+          </p>
+        </div>
+        <span class="badge badge--accent">报名 11/21 10:00 — 11/24 10:00</span>
+      </div>
+
+      <ol class="challenge-stage-bar" aria-label="报名与开赛流程">
+        {registrationSteps.map((step, index) => (
           <li class="challenge-stage-step card">
             <div class="challenge-stage-step__head">
               <span class="mono">{step.code}</span>
-              <span class="challenge-stage-step__time">时间：{step.timing}</span>
+              <span class="challenge-stage-step__time">{step.timing}</span>
             </div>
             <h3>{step.title}</h3>
             <p>{step.text}</p>
-            <span class="challenge-stage-step__num mono" aria-hidden="true">0{index + 1}</span>
+            <span class="challenge-stage-step__num mono" aria-hidden="true">
+              0{index + 1}
+            </span>
           </li>
         ))}
       </ol>
@@ -216,31 +248,31 @@ const subnavItems = [
         <article class="challenge-register-card card">
           <div class="challenge-register-card__head">
             <div>
-              <span class="badge badge--brand">{intentForm.code} · {challengeConfig.registration.platform}</span>
-              <h3>{intentForm.title}</h3>
+              <span class="badge badge--brand">{challengeConfig.registration.platform}</span>
+              <h3>{registrationForm.title}</h3>
             </div>
-            <span class:list={['challenge-status-pill', `challenge-status-pill--${intentForm.status}`]}>
-              {statusTextMap[intentForm.status]}
+            <span class:list={['challenge-status-pill', `challenge-status-pill--${registrationForm.status}`]}>
+              {statusTextMap[registrationForm.status]}
             </span>
           </div>
 
-          <p class="challenge-register-card__lead">{intentForm.purpose}</p>
-          {intentForm.highlight && (
+          <p class="challenge-register-card__lead">{registrationForm.purpose}</p>
+          {registrationForm.highlight && (
             <p class="challenge-register-card__highlight">
               <Icon name="check" size={15} />
-              <span>{intentForm.highlight}</span>
+              <span>{registrationForm.highlight}</span>
             </p>
           )}
 
           <div class="challenge-fields-preview">
-            <p class="challenge-fields-preview__label">意向报名表字段预览（轻量收集）</p>
+            <p class="challenge-fields-preview__label">报名表主要内容（腾讯文档收集表）</p>
             <ul class="challenge-field-list">
               {registrationFieldsPreview.map((field) => (
                 <li>
                   <span class="challenge-field-list__name">
                     {field.name}
                     <small class:list={['challenge-req', { 'challenge-req--opt': !field.required }]}>
-                      {field.required ? '必填' : '选填'}
+                      {field.required ? '必填' : '团队填写'}
                     </small>
                   </span>
                   <span class="challenge-field-list__note">{field.note}</span>
@@ -250,36 +282,20 @@ const subnavItems = [
           </div>
 
           <div class="challenge-register-card__actions">
-            {intentUrl ? (
+            {registrationUrl ? (
               <a
                 class="btn btn--primary"
-                href={intentUrl}
+                href={registrationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {intentForm.buttonLabel}
+                {registrationForm.buttonLabel}
                 <Icon name="external-link" size={16} />
               </a>
             ) : (
               <span class="btn btn--soft challenge-btn-pending" aria-disabled="true">
-                <Icon name="external-link" size={16} />
-                {intentForm.pendingLabel}
-              </span>
-            )}
-
-            {teamConfirmUrl ? (
-              <a
-                class="btn btn--soft"
-                href={teamConfirmUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {teamConfirmForm.buttonLabel}
-                <Icon name="external-link" size={15} />
-              </a>
-            ) : (
-              <span class="btn btn--ghost challenge-btn-pending" aria-disabled="true">
-                {teamConfirmForm.pendingLabel}（阶段 B）
+                <Icon name="clock" size={16} />
+                {registrationForm.pendingLabel}
               </span>
             )}
           </div>
@@ -287,19 +303,10 @@ const subnavItems = [
           <p class="challenge-register-card__timing">
             <Icon name="clock" size={14} />
             <span>
-              意向报名：{challengeConfig.dates.registration} · 组队确认截止：{challengeConfig.dates.teamConfirm}
-              {!intentUrl && '（飞书表单链接确定后将直接开放跳转）'}
+              {registrationForm.dateLabel}
+              {!registrationUrl && ' · 入口开放后本页按钮将直接跳转腾讯文档'}
             </span>
           </p>
-
-          <div class="challenge-mini-rules">
-            <h4>组队核心规则</h4>
-            <ul>
-              {teamRuleSummary.map((rule) => (
-                <li>{rule}</li>
-              ))}
-            </ul>
-          </div>
 
           <div class="notice challenge-privacy-notice">
             <Icon name="shield-check" size={17} />
@@ -307,123 +314,127 @@ const subnavItems = [
           </div>
         </article>
 
-        <aside class="challenge-group-card card" aria-label="赛事交流群">
+        <aside class="challenge-group-card card" aria-label="报名确认与咨询">
           <div class="challenge-group-card__head">
-            <span class="badge">{challengeConfig.communityGroup.platform}</span>
-            <h3>{challengeConfig.communityGroup.title}</h3>
+            <span class="badge">报名确认</span>
+            <h3>报名后会发生什么</h3>
           </div>
-          <p class="challenge-group-card__desc">{challengeConfig.communityGroup.description}</p>
+          <p class="challenge-group-card__desc">{challengeConfig.contact.confirmation}</p>
 
           <div class="challenge-qr-box">
-            {qrImage ? (
+            {registrationQr ? (
               <img
-                src={qrImage}
-                alt={challengeConfig.communityGroup.qrAlt}
+                src={registrationQr}
+                alt={challengeConfig.registration.qrAlt}
                 width="220"
                 height="220"
                 loading="lazy"
               />
             ) : (
-              <div class="challenge-qr-placeholder" role="img" aria-label="赛事交流群二维码待补充">
-                <Icon name="message-circle" size={32} />
-                <strong>群二维码待补充</strong>
-                <span>{challengeConfig.communityGroup.placeholderHint}</span>
+              <div class="challenge-qr-placeholder" role="img" aria-label="腾讯文档报名二维码">
+                <Icon name="message-circle" size={30} />
+                <strong>报名二维码</strong>
+                <span>请使用手机扫码填写腾讯文档报名表</span>
               </div>
             )}
           </div>
 
           <dl class="meta-rows challenge-group-meta">
             <div>
-              <dt>群号 / 入口</dt>
-              <dd>{challengeConfig.communityGroup.groupIdText}</dd>
+              <dt>报名截止</dt>
+              <dd>11 月 24 日（周二）10:00</dd>
             </div>
             <div>
-              <dt>入群用途</dt>
-              <dd>赛期通知 · 自由寻队友 · 技术答疑</dd>
+              <dt>后续通知</dt>
+              <dd>选手群</dd>
+            </div>
+            <div>
+              <dt>报名咨询</dt>
+              <dd>选手群 / 组委会联系人</dd>
             </div>
           </dl>
 
-          <a class="link-arrow challenge-group-link" href="/events/rules/#registration-and-teams">
-            查看完整组队与人员变动细则
-            <Icon name="arrow-right" size={14} />
-          </a>
+          <p class="challenge-group-card__desc">{challengeConfig.contact.channel}</p>
         </aside>
       </div>
     </div>
   </section>
 
-  <!-- 三、作品提交入口 -->
-  <section class="section challenge-section" id="submit" aria-labelledby="submit-heading">
+  <!-- 四、赛程安排 -->
+  <section class="section challenge-section challenge-section--alt" id="schedule" aria-labelledby="schedule-heading">
+    <div class="container">
+      <div class="blueprint-block challenge-schedule-block">
+        <div class="blueprint-block__copy">
+          <p class="eyebrow">04 · 赛程安排</p>
+          <h2 id="schedule-heading">10 天赛程：线上开发 + 线上评审 + 线下讲解颁奖</h2>
+          <p>
+            中期检查是轻量节点，提交当前可运行截图或 30 秒录屏 + 进度说明即可；
+            无故缺席且未说明的，取消评奖资格。
+          </p>
+          <div class="blueprint-note">
+            <Icon name="calendar" size={16} />
+            <span>
+              开赛会地点：{challengeConfig.dates.venue}；12/5 线上评审、12/6 下午线下讲解与颁奖，具体安排以选手群通知为准。
+            </span>
+          </div>
+        </div>
+
+        <ol class="blueprint-steps challenge-timeline">
+          {timelinePhases.map((phase, index) => (
+            <li>
+              <div class="challenge-timeline__left">
+                <span class="blueprint-steps__marker">{phase.day}</span>
+                <span class="challenge-timeline__date">
+                  {phase.dateLabel} · {phase.time}
+                </span>
+              </div>
+              <div>
+                <h3>{phase.stage}</h3>
+                <p>{phase.summary}</p>
+                <p class="challenge-timeline__deliverable">{phase.deliverable}</p>
+              </div>
+              <span class="mono">{String(index + 1).padStart(2, '0')}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 五、作品要求与提交 -->
+  <section class="section challenge-section" id="works" aria-labelledby="works-heading">
     <div class="container">
       <div class="section-head">
         <div class="section-head__copy">
-          <p class="eyebrow">03 · 作品提交</p>
-          <h2 id="submit-heading">三张独立表单，用唯一队伍编号串联全程</h2>
+          <p class="eyebrow">05 · 作品要求</p>
+          <h2 id="works-heading">至少 1 项可运行的真实功能，拒绝纯 PPT</h2>
           <p class="section-head__desc">
-            作品提交入口目前暂定，具体链接将在开赛前于本页与交流群公布。全流程以组委会分配的<strong>唯一队伍编号（如 CDUAI-007）</strong>作为主键，分三个节点提交对应材料。
+            本届不设海报、视频、纯艺术创作独立赛道。允许原型不完整、外观不成熟、有已知缺陷，但必须有可观察、可验证的实际功能。
           </p>
         </div>
-        <span class="pill">提交入口暂定 · 规范已明确</span>
+        <span class="pill">作品范围：数字应用与交互作品</span>
       </div>
 
-      <div class="challenge-forms-grid">
-        {submissionForms.map((form) => {
-          const safeUrl = form.status === 'open' ? resolveExternalUrl(form.url) : undefined;
-          return (
-            <article class="challenge-form-card card">
-              <div class="challenge-form-card__top">
-                <span class="badge badge--sky">{form.code}</span>
-                <span class:list={['challenge-status-pill', `challenge-status-pill--${form.status}`]}>
-                  {statusTextMap[form.status]}
-                </span>
-              </div>
-              <p class="challenge-form-card__stage">{form.stageLabel}</p>
-              <h3>{form.title}</h3>
-              <p class="challenge-form-card__date">
-                <Icon name="calendar" size={14} />
-                <span>开放节点：{form.dateLabel}</span>
-              </p>
-              <div class="challenge-form-card__block">
-                <span>核心收集</span>
-                <p>{form.collects}</p>
-              </div>
-              <div class="challenge-form-card__block">
-                <span>评审用途</span>
-                <p>{form.purpose}</p>
-              </div>
-              {form.highlight && (
-                <p class="challenge-form-card__callout">{form.highlight}</p>
-              )}
-              <div class="challenge-form-card__foot">
-                {safeUrl ? (
-                  <a
-                    class="btn btn--primary btn--sm"
-                    href={safeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {form.buttonLabel}
-                    <Icon name="external-link" size={14} />
-                  </a>
-                ) : (
-                  <span class="btn btn--soft btn--sm challenge-btn-pending" aria-disabled="true">
-                    {form.pendingLabel}
-                  </span>
-                )}
-              </div>
-            </article>
-          );
-        })}
+      <div class="challenge-forms-grid challenge-scope-grid">
+        {workScope.map((scope, index) => (
+          <article class="challenge-form-card card challenge-scope-card">
+            <div class="challenge-form-card__top">
+              <span class="badge badge--sky">方向 0{index + 1}</span>
+              <Icon name="layers" size={16} />
+            </div>
+            <h3>{scope}</h3>
+          </article>
+        ))}
       </div>
 
-      <div class="challenge-deliverables-layout">
+      <div class="challenge-deliverables-layout challenge-works-layout">
         <div class="challenge-deliverables card">
           <div class="challenge-deliverables__head">
-            <h3>最终作品提交材料清单（表 3）</h3>
-            <p>推荐提交简洁、可核查的材料，避免冗长包装。</p>
+            <h3>最低交付标准</h3>
+            <p>四项至少同时满足，才有主赛评奖资格。</p>
           </div>
           <div class="challenge-deliverables__list">
-            {finalDeliverables.map((item, idx) => (
+            {minimumDeliverables.map((item, idx) => (
               <div class="challenge-deliverable-item">
                 <span class="mono">0{idx + 1}</span>
                 <div>
@@ -440,21 +451,69 @@ const subnavItems = [
 
         <div class="challenge-submit-side">
           <div class="card challenge-not-required">
-            <h4>明确不强制提供</h4>
+            <h4>允许使用 AI、模板与旧项目</h4>
             <ul>
-              {notRequiredItems.map((item) => (
-                <li>
-                  <Icon name="check" size={15} />
-                  <span>{item}</span>
-                </li>
-              ))}
+              <li><Icon name="check" size={15} /><span>允许使用 AI 工具、开源项目、模板或此前作品。</span></li>
+              <li><Icon name="check" size={15} /><span>须披露项目起点与已有完成度；评分只针对赛期新增/改进部分。</span></li>
+              <li><Icon name="check" size={15} /><span>不得将他人现成作品冒充为本次原创成果。</span></li>
             </ul>
           </div>
 
           <div class="card challenge-redlines">
             <h4>
               <Icon name="alert-triangle" size={16} />
-              交付与补正红线
+              数据与诚信底线
+            </h4>
+            <ul>
+              <li>不得未经授权获取校内非公开系统数据或绕过访问控制。</li>
+              <li>不得在提交材料中泄露 API 密钥、账号密码或他人隐私。</li>
+              <li>伪造运行结果、用户测试或开发记录的，降档或取消评奖资格。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="challenge-forms-grid challenge-submission-grid">
+        {submissionOptions.map((option) => (
+          <article class="challenge-form-card card">
+            <div class="challenge-form-card__top">
+              <span class="badge badge--brand">{option.code} · 提交方式</span>
+              <span class="tag">评分平等</span>
+            </div>
+            <h3>{option.title}</h3>
+            <p>{option.summary}</p>
+            <p class="challenge-form-card__callout">{option.note}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="challenge-deliverables-layout challenge-works-layout">
+        <div class="challenge-deliverables card">
+          <div class="challenge-deliverables__head">
+            <h3>最终作品提交材料</h3>
+            <p>截止时间：{challengeConfig.dates.submission}，逾期视为弃赛。</p>
+          </div>
+          <div class="challenge-deliverables__list">
+            {finalMaterials.map((item, idx) => (
+              <div class="challenge-deliverable-item">
+                <span class="mono">0{idx + 1}</span>
+                <div>
+                  <div class="challenge-deliverable-item__title">
+                    <h4>{item.title}</h4>
+                    <span class="tag">{item.badge}</span>
+                  </div>
+                  <p>{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="challenge-submit-side">
+          <div class="card challenge-redlines">
+            <h4>
+              <Icon name="alert-triangle" size={16} />
+              提交红线
             </h4>
             <ul>
               {submissionRedlines.map((line) => (
@@ -467,152 +526,144 @@ const subnavItems = [
     </div>
   </section>
 
-  <!-- 四、14 天赛程与 Demo Day -->
-  <section class="section challenge-section challenge-section--alt" id="schedule" aria-labelledby="schedule-heading">
-    <div class="container">
-      <div class="blueprint-block challenge-schedule-block">
-        <div class="blueprint-block__copy">
-          <p class="eyebrow">04 · 14 天赛程</p>
-          <h2 id="schedule-heading">线上自由开发 + 全员线下 Demo Day</h2>
-          <p>
-            不强制连续熬夜或全天驻场。只要作品达到最低交付标准（至少一项真实可运行功能、非纯 PPT），全部入围 D14 线下展示，不设中途淘汰。
-          </p>
-          <div class="blueprint-note">
-            <Icon name="calendar" size={16} />
-            <span>具体日历日期与校内场地目前<strong>待定</strong>，确认后将按 D1–D14 节点同步更新到本表。</span>
-          </div>
-        </div>
-
-        <ol class="blueprint-steps challenge-timeline">
-          {timelinePhases.map((phase, index) => (
-            <li>
-              <div class="challenge-timeline__left">
-                <span class="blueprint-steps__marker">{phase.day}</span>
-                <span class="challenge-timeline__date">{phase.dateLabel}</span>
-              </div>
-              <div>
-                <h3>{phase.stage}</h3>
-                <p>{phase.summary}</p>
-                <p class="challenge-timeline__deliverable">{phase.deliverable}</p>
-              </div>
-              <span class="mono">{String(index + 1).padStart(2, '0')}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <div class="challenge-demoday">
-        <div class="challenge-demoday__head">
-          <div>
-            <p class="eyebrow">D14 线下亮点</p>
-            <h3>全员 Demo Day 执行节奏</h3>
-          </div>
-          <span class="badge badge--brand">开场 60 秒内进入真实可运行界面</span>
-        </div>
-
-        <div class="challenge-demoday__grid">
-          {demoDaySessions.map((session) => (
-            <article class="challenge-demoday-card card">
-              <div class="challenge-demoday-card__top">
-                <span class="mono">{session.step}</span>
-                <span class="tag">{session.duration}</span>
-              </div>
-              <h4>{session.title}</h4>
-              <p>{session.text}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 五、评分标准与奖项 -->
-  <section class="section challenge-section" id="scoring" aria-labelledby="scoring-heading">
+  <!-- 六、评分与奖项 -->
+  <section class="section challenge-section challenge-section--alt" id="scoring" aria-labelledby="scoring-heading">
     <div class="container">
       <div class="section-head">
         <div class="section-head__copy">
-          <p class="eyebrow">05 · 评分与奖项</p>
-          <h2 id="scoring-heading">100 分评审维度与奖项设置</h2>
+          <p class="eyebrow">06 · 评分与奖项</p>
+          <h2 id="scoring-heading">两套 100 分评分表，按组别分开评奖</h2>
           <p class="section-head__desc">
-            D13 线上初评先行完成前五项（95 分基线），D14 结合现场实操与 Open Demo 上手体验补填「展示与表达（5 分）」并锁定最终成绩。
+            材料初评占 40%，现场 Demo 与答辩占 60%；每位评委独立打分取平均分。两组的同分排序规则不同，详见各表下方说明。
           </p>
         </div>
-        <a class="link-arrow section-head__link" href="/events/rules/#judging-and-guardrails">
-          查看评委公信力护栏
+        <a class="link-arrow section-head__link" href="#awards">
+          查看奖项设置
           <Icon name="arrow-right" size={15} />
         </a>
       </div>
 
-      <div
-        tabindex="0"
-        role="region"
-        aria-labelledby="scoring-table-caption"
-        class="challenge-table-wrap card"
-      >
-        <table class="challenge-table challenge-table--scoring">
-          <caption id="scoring-table-caption" class="sr-only">成都大学首届 AI 创作挑战赛 100 分评分标准</caption>
-          <thead>
-            <tr>
-              <th scope="col">评分维度</th>
-              <th scope="col">分值权重</th>
-              <th scope="col">主要判断依据</th>
-            </tr>
-          </thead>
-          <tbody>
-            {scoringDimensions.map((dim) => (
-              <tr>
-                <th scope="row">{dim.name}</th>
-                <td class="challenge-table__score">
-                  <div class="score-meter">
-                    <strong>{dim.weight} 分</strong>
-                    <span class="score-meter__bar" aria-hidden="true">
-                      <span style={`width: ${Math.round((dim.weight / 30) * 100)}%`}></span>
-                    </span>
-                  </div>
-                </td>
-                <td>{dim.criteria}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div class="challenge-scoring-groups">
+        {scoringGroups.map((group) => (
+          <section class="challenge-scoring-group" aria-labelledby={`scoring-${group.id}-heading`}>
+            <div class="challenge-scoring-group__head">
+              <div>
+                <span class="badge badge--brand">{group.tag}</span>
+                <h3 id={`scoring-${group.id}-heading`}>{group.label}</h3>
+              </div>
+              <p>{group.summary}</p>
+            </div>
+
+            <div
+              tabindex="0"
+              role="region"
+              aria-labelledby={`scoring-${group.id}-caption`}
+              class="challenge-table-wrap card"
+            >
+              <table class="challenge-table challenge-table--scoring">
+                <caption id={`scoring-${group.id}-caption`} class="sr-only">
+                  {group.label}评分标准
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">评分维度</th>
+                    <th scope="col">分值权重</th>
+                    <th scope="col">主要判断依据</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {group.dimensions.map((dim) => (
+                    <tr>
+                      <th scope="row">{dim.name}</th>
+                      <td class="challenge-table__score">
+                        <div class="score-meter">
+                          <strong>{dim.weight} 分</strong>
+                          <span class="score-meter__bar" aria-hidden="true">
+                            <span style={`width: ${Math.round((dim.weight / 40) * 100)}%`}></span>
+                          </span>
+                        </div>
+                      </td>
+                      <td>{dim.criteria}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p class="challenge-tiebreaker">
+              <Icon name="info" size={16} />
+              <span><strong>同分排序：</strong>{group.tiebreak}</span>
+            </p>
+          </section>
+        ))}
       </div>
 
-      <p class="challenge-tiebreaker">
-        <Icon name="info" size={16} />
-        <span><strong>同分排序规则：</strong>{tiebreakerNote}</span>
-      </p>
+      <div class="challenge-guardrail-grid challenge-scoring-execution">
+        {scoringExecution.map((item, idx) => (
+          <article class="challenge-guardrail-card card">
+            <span class="mono">规则 0{idx + 1}</span>
+            <p>{item}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="notice challenge-ai-note">
+        <Icon name="shield-check" size={17} />
+        <p><strong>评审说明：</strong>{aiAssistNote}</p>
+      </div>
 
       <div class="challenge-awards" id="awards">
         <div class="challenge-awards__head">
           <h3>奖项设置</h3>
-          <p>奖金与证书发放形式将按校内财务及活动管理规定执行。</p>
+          <p>新手组、进阶组分开评奖，互不占用名额；获奖者颁发校级证书与奖品。</p>
         </div>
-        <div class="challenge-awards__grid">
-          {awardsList.map((award) => (
-            <article class:list={['challenge-award-card card', { 'challenge-award-card--special': award.independent }]}>
-              <div class="challenge-award-card__top">
-                <span class:list={['badge', award.independent ? 'badge--example' : 'badge--brand']}>
-                  {award.badge}
-                </span>
-                <strong class="challenge-award-card__reward">{award.reward}</strong>
-              </div>
-              <h4>{award.title}</h4>
-              <p>{award.description}</p>
-            </article>
+
+        <div
+          tabindex="0"
+          role="region"
+          aria-labelledby="awards-table-caption"
+          class="challenge-table-wrap card challenge-awards-table"
+        >
+          <table class="challenge-table challenge-table--awards">
+            <caption id="awards-table-caption" class="sr-only">新手组与进阶组奖项设置</caption>
+            <thead>
+              <tr>
+                <th scope="col">奖项</th>
+                <th scope="col">数量</th>
+                <th scope="col">奖励</th>
+              </tr>
+            </thead>
+            <tbody>
+              {awardRows.map((award) => (
+                <tr>
+                  <th scope="row">{award.group} · {award.title}</th>
+                  <td>{award.quantity}</td>
+                  <td>{award.reward}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <ul class="challenge-award-notes">
+          {awardNotes.map((note) => (
+            <li>{note}</li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- 六、常见疑问与完整细则入口 -->
-  <section class="section challenge-section challenge-section--alt" id="faq" aria-labelledby="faq-heading">
+  <!-- 七、常见问题 -->
+  <section class="section challenge-section" id="faq" aria-labelledby="faq-heading">
     <div class="container">
       <div class="section-head">
         <div class="section-head__copy">
-          <p class="eyebrow">06 · 常见疑问</p>
+          <p class="eyebrow">07 · 常见问题</p>
           <h2 id="faq-heading">参赛前你可能关心的问题</h2>
-          <p class="section-head__desc">更多完整条款（含旧项目增量认定、数据合规红线、评委回避与 48 小时申诉机制）请查阅完整赛事细则。</p>
+          <p class="section-head__desc">
+            更多规则细节可在开赛会现场咨询，或通过选手群联系组委会；赛程与表单入口如有调整，以选手群通知为准。
+          </p>
         </div>
       </div>
 
@@ -631,18 +682,20 @@ const subnavItems = [
 
       <div class="events-cta challenge-bottom-cta">
         <div>
-          <p class="eyebrow">完整细则与灵感参考</p>
-          <h2>继续查看赛事细则与选题指南</h2>
-          <p>{challengeConfig.organizerNote} 细则如有修订，将在本页及交流群同步标注更新时间。</p>
+          <p class="eyebrow">准备开始</p>
+          <h2>报名开放中 · 11 月 24 日 10:00 截止</h2>
+          <p>
+            {challengeConfig.organizerNote}。{challengeConfig.maintainerNote}
+            本页最后更新于 {challengeConfig.updatedOn}。
+          </p>
         </div>
         <div class="btn-row">
-          <a class="btn btn--primary" href="/events/rules/">
-            阅读完整赛事细则
+          <a class="btn btn--primary" href="#register">
+            回到报名入口
             <Icon name="arrow-right" size={16} />
           </a>
-          <a class="btn btn--soft" href="/events/ideas/">
-            浏览可选选题灵感
-          </a>
+          <a class="btn btn--soft" href="/guide/">学习指南</a>
+          <a class="btn btn--ghost" href="/tools/">工具资源</a>
         </div>
       </div>
     </div>
