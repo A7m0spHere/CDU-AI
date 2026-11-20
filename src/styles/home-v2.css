@@ -937,6 +937,9 @@
     font-size: clamp(3.1rem, 13vw, 4.4rem);
   }
 
+  .home-status {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1259,16 +1262,9 @@
   }
 
   .hero-network__links,
-  .hero-network__halo {
-    display: none;
-  }
-
+  .hero-network__halo,
   .hero-network__figure {
-    position: relative;
-    left: auto;
-    bottom: auto;
-    width: min(68%, 270px);
-    transform: none;
+    display: none;
   }
 
   .hero-network__nodes {

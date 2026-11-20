@@ -1882,3 +1882,16 @@ test('手机端表格横向滚动提示、术语详情热区与指南单列翻�
   await backToNav.click();
   await page.waitForFunction(() => document.querySelector('[data-guide-mobile-nav]')?.open === true);
 });
+
+test('首页手机端隐藏看板娘插画与内容重建提示条，桌面端正常展示', async t => {
+  const page = await setup(t, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+  await page.goto(origin);
+  await ready(page);
+  assert.equal(await page.locator('.home-status').isVisible(), false, '手机端应隐藏内容重建状态条');
+  assert.equal(await page.locator('.hero-network__figure').isVisible(), false, '手机端应隐藏看板娘插画');
+  assert.equal(await page.locator('.hero-network__nodes').isVisible(), true, '手机端导航入口卡片仍应保留显示');
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  assert.equal(await page.locator('.home-status').isVisible(), true, '桌面端应正常显示内容重建状态条');
+  assert.equal(await page.locator('.hero-network__figure').isVisible(), true, '桌面端应正常显示看板娘插画');
+});
