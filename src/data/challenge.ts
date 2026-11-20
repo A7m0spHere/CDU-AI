@@ -399,8 +399,8 @@ export const timelinePhases: TimelinePhase[] = [
   },
   {
     day: '12/6',
-    dateLabel: '周日',
-    time: '下午 14:00–17:30',
+    dateLabel: '周日下午',
+    time: '14:00–17:30',
     stage: '线下讲解、Demo 与颁奖',
     summary: '现场讲解 + Demo + 答辩 + 公布成绩并颁奖；每队 5 分钟（3 分钟演示 + 2 分钟提问）。',
     deliverable: '现场讲解、答辩与颁奖',
