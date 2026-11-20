@@ -30,7 +30,7 @@ export const navItems: NavItem[] = [
   { label: '术语表', href: '/glossary/', description: 'AI 术语速查' },
   { label: '工具资源', href: '/tools/', description: '按真实场景整理的工具索引' },
   { label: '作品广场', href: '/works/', description: '看示例，想自己的第一个作品' },
-  { label: '活动', href: '/events/', description: '成都大学首届 AI 创作挑战赛' },
+  { label: '活动', href: '/events/', description: '成都大学第八届网络创新大赛——AI创作挑战赛' },
 ];
 
 export interface GuideStageMeta {
@@ -110,7 +110,7 @@ export const transparencyItems = [
   },
   {
     title: '不虚构作品与活动',
-    text: 'M0 中的作品均明确标注为「策划示例」，不是真实学生投稿；活动页未确认的日期、场地与提交入口均明确标注「待定」。',
+    text: 'M0 中的作品均明确标注为「策划示例」，不是真实学生投稿；活动页如实区分已定赛程与待公布表单/细则。',
   },
   {
     title: '工具收录不等于推荐',

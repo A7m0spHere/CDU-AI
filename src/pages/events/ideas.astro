@@ -13,12 +13,12 @@ import {
 
 <BaseLayout
   title={`可选选题灵感指南 · ${challengeConfig.title}`}
-  description="成都大学首届 AI 创作挑战赛可选选题灵感指南：按资源依赖程度分类的自由创作方向参考，不作为赛题要求或评分偏好。"
+  description="成都大学第八届网络创新大赛——AI创作挑战赛可选选题灵感指南：聚焦校园 AI 网页开发，提供新手组参考模板改进思路与进阶组网页方向参考，不作为赛题限制。"
 >
   <PageHero
     eyebrow="活动 · 灵感参考"
     title="可选选题灵感指南"
-    description="本届比赛不设置统一命题。以下方向仅用于帮初次接触 AI 创作的同学寻找切入点，不作为赛题要求或评分偏好。"
+    description="本届比赛聚焦校园 AI 网页开发，不设统一命题。以下方向仅用于帮初次参赛的同学寻找切入点，不构成赛题限制。"
     crumbs={[
       { label: '活动', href: '/events/' },
       { label: '可选选题灵感指南' },
@@ -42,18 +42,17 @@ import {
       <div class="notice challenge-doc-banner">
         <Icon name="info" size={17} />
         <p>
-          <strong>自由选题声明：</strong>不要求创意绝对原创，也不要求解决“校园痛点”或具备商业价值。常见题材同样可以参赛，只要在
-          14 天内做出真实可运行、经恰当验证的数字作品即可。
+          <strong>选题与原创说明：</strong>新手组可基于官方参考模板完成至少一项有意义的改进，进阶组可自由设计与开发；所有作品均须发布至公网并自制核心功能头图，严禁直接套壳或搬运源码。
         </p>
       </div>
 
       <div class="challenge-ideas-block" id="dependency">
         <div class="section-head">
           <div class="section-head__copy">
-            <p class="eyebrow">01 · 按资源依赖选择切入点</p>
-            <h2>新手优先做“低依赖、可独立运行”的最小作品</h2>
+            <p class="eyebrow">01 · 按外部依赖度选择网页切入点</p>
+            <h2>新手优先做“低依赖、公网稳定可测”的最小网页</h2>
             <p class="section-head__desc">
-              14 天赛期里，最大的隐性风险往往来自外部账号限额、网络波动或非公开系统权限。选对依赖级别，能把精力留给真正的打磨与验证。
+              在 7–10 天开发期（{challengeConfig.dates.overall}）里，外部账号限额、跨域配置或受限校内接口往往是最容易卡住进度的风险点。选对依赖级别，能把精力留给交互体验、核心亮点与头图打磨。
             </p>
           </div>
         </div>
@@ -87,9 +86,9 @@ import {
       <div class="challenge-ideas-block" id="directions">
         <div class="section-head">
           <div class="section-head__copy">
-            <p class="eyebrow">02 · 六类非限定创作方向</p>
+            <p class="eyebrow">02 · 六类校园 AI 网页创作方向</p>
             <h2>从兴趣、学习或日常小麻烦出发</h2>
-            <p class="section-head__desc">既可以做成不接大模型的 A 类实用作品，也可以做成集成 AI 能力的 B 类应用。</p>
+            <p class="section-head__desc">无论是新手组在参考模板上增加实用模块，还是进阶组独立构建交互网页，都可以从以下场景切入。</p>
           </div>
         </div>
 
@@ -118,10 +117,10 @@ import {
       <div class="challenge-ideas-block" id="scope">
         <div class="section-head">
           <div class="section-head__copy">
-            <p class="eyebrow">03 · 合理缩小范围</p>
-            <h2>把“大想法”收敛成 14 天能跑通的真东西</h2>
+            <p class="eyebrow">03 · 合理收敛范围</p>
+            <h2>把“大想法”收敛成 7–10 天能上线公网的真网页</h2>
             <p class="section-head__desc">
-              评审评价的是已实现功能的真实性与质量，不会因为你主动砍掉了非必要的校园系统接口或次要模块而扣分。
+              线上评审看重实际完成度、合规性与独特创意亮点。与其堆砌打不开的空页面，不如把一个高频小场景做到顺滑可测，并做好核心功能头图展示。
             </p>
           </div>
         </div>
@@ -147,9 +146,9 @@ import {
       <div class="events-cta challenge-bottom-cta">
         <div>
           <p class="eyebrow">准备开始动手？</p>
-          <h2>回到活动页报名，或先浏览站内教程</h2>
+          <h2>回到活动页查看报名，或先浏览站内教程</h2>
           <p>
-            CDU AI 站内的学习指南与工具目录可作为入门参考，但比赛保持工具中立，不强制使用任何指定教程或产品。
+            官网同步配套 AI 使用教程、学习指南与工具资源库，可作为入门与选型参考。
           </p>
         </div>
         <div class="btn-row">

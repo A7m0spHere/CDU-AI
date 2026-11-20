@@ -410,13 +410,23 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.doesNotMatch(community, /参与路径|讨论起点|社区公约|版块/, '社区页不应再包含指引或版块内容');
 
   const home = await read('index.html');
-  assert.match(home, /成都大学首届 AI 创作挑战赛/, '首页应展示首届 AI 创作挑战赛横幅提示');
+  assert.match(home, /成都大学第八届网络创新大赛——AI创作挑战赛/, '首页应展示当前 AI 创作挑战赛横幅提示');
   assert.match(home, /class="home-event-banner"[^>]*href="\/events\/"/, '首页赛事横幅应直达活动页');
 
   const events = await read('events/index.html');
-  assert.match(events, /成都大学首届 AI 创作挑战赛/, '活动页应展示首届 AI 创作挑战赛');
+  assert.match(events, /成都大学第八届网络创新大赛——AI创作挑战赛/, '活动页应展示当前赛事名称');
+  assert.match(events, /新手组/, '活动页应展示新手组赛道');
+  assert.match(events, /进阶组/, '活动页应展示进阶组赛道');
+  assert.match(events, /原则上不超过 2 人/, '进阶组人数要求应只保留原则上不超过 2 人');
+  assert.match(events, /发布至公网/, '活动页作品要求应包含公网发布');
+  assert.match(events, /头图/, '活动页作品要求应包含自制头图');
+  assert.match(events, /追溯正赛前 3–4 天的代码提交记录/, '活动页作品要求应包含反作弊与旧项目追溯机制');
+  assert.match(events, /2026年11月24日 – 2026年12月4日/, '活动页应使用已确认的赛程时间');
+  assert.match(events, /线上评审/, '活动页应体现 12 月 4 日晚开启线上评审');
+  assert.doesNotMatch(events, /WorkBuddy/i, '比赛详细页不应提及 WorkBuddy');
+  assert.doesNotMatch(events, /GitHub\s*托管/, '比赛详细页不应提及 GitHub 托管');
   assert.match(events, /飞书/, '活动页应保留飞书报名入口说明');
-  assert.match(events, /待定/, '未确认的赛事日期应保留待定占位');
+  assert.match(events, /待定/, '未确认的报名或提交入口应保留待定占位');
   assert.match(events, /群二维码/, '活动页应预留赛事交流群二维码位置');
   assert.match(events, /项目起点登记表/, '活动页应保留三阶段作品提交信息');
   assert.match(events, /href="\/events\/rules\/"/, '活动页应提供完整赛事细则子页入口');
@@ -425,11 +435,15 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
 
   const rules = await read('events/rules/index.html');
   assert.match(rules, /完整赛事细则/, '赛事细则子页应存在');
-  assert.match(rules, /学生评委|公信力护栏/, '赛事细则应包含评委公信力护栏');
+  assert.match(rules, /成都大学第八届网络创新大赛——AI创作挑战赛/, '赛事细则应同步更新赛事名称');
+  assert.match(rules, /反抄袭/, '赛事细则应包含反抄袭机制');
+  assert.doesNotMatch(rules, /WorkBuddy/i, '赛事细则不应提及 WorkBuddy');
+  assert.doesNotMatch(rules, /GitHub\s*托管/, '赛事细则不应提及 GitHub 托管');
 
   const ideas = await read('events/ideas/index.html');
   assert.match(ideas, /可选选题灵感指南/, '选题灵感子页应存在');
-  assert.match(ideas, /低依赖/, '选题灵感子页应按资源依赖分级');
+  assert.match(ideas, /低依赖网页/, '选题灵感子页应按依赖分级给出网页灵感');
+  assert.doesNotMatch(ideas, /WorkBuddy/i, '选题灵感子页不应提及 WorkBuddy');
 });
 
 test('全站透明说明与内容边界存在', async () => {
