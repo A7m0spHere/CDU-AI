@@ -56,7 +56,7 @@
 .hover-glow::before {
   content: '';
   position: absolute;
-  inset: -10px -14px;
+  inset: -10px var(--glow-bleed-x, -14px);
   z-index: -1;
   border-radius: calc(var(--glow-r, var(--radius-sm)) + 12px);
   background: radial-gradient(
@@ -69,6 +69,13 @@
 
 .hover-glow[data-active='true'] {
   opacity: 1;
+}
+
+/* 对话框右上角的关闭键紧贴弹层右缘：横向外溢的柔光会让弹层多出 1px 横向滚动条，
+   这里只收掉横向那一截（--glow-bleed-x: 0），上下那圈光仍然照常漫出去。 */
+.search-dialog__close > .hover-glow::before,
+.theme-editor__close > .hover-glow::before {
+  --glow-bleed-x: 0px;
 }
 
 /* 卡片内部变体：光铺满整张卡、圆角跟着卡片，不再需要外部写入坐标 */

@@ -2587,7 +2587,7 @@ test('学习指南侧栏的分组标题与条目也接上同一束光', async t 
   assert.equal(await page.locator('.guide-nav [data-glow][data-active="true"]').count(), 1, '同时只应有一处发光');
   assert.equal(await page.evaluate(() => document.documentElement.dataset.uiLight), 'true', '全站光晕要让位');
 
-  const item = page.locator('.guide-nav ul a').first();
+  const item = page.locator('.guide-nav ul a:not([data-planned])').first();
   const itemBox = await item.boundingBox();
   await page.mouse.move(itemBox.x + itemBox.width * 0.62, itemBox.y + itemBox.height / 2, { steps: 6 });
   await page.waitForTimeout(420);
@@ -2602,10 +2602,13 @@ test('学习指南侧栏的分组标题与条目也接上同一束光', async t 
   const footLink = page.locator('.guide-sidebar__foot a').first();
   assert.equal(await footLink.evaluate(el => el.querySelectorAll(':scope > .hover-glow').length), 1, '侧栏底部链接也要有光层');
 
-  // 不可点击的「规划中」不接管光效，避免误读成按钮
+  // 只有占位页的「待补充」章节不接管光效：光读起来像「这里有内容」，
+  // 留给已经写完的章节。它们现在是可点的链接（data-planned="true"），但保持无光。
+  const planned = page.locator('.guide-nav ul a[data-planned="true"]');
+  assert.ok(await planned.count() > 0, '目录里应仍有待补充章节');
   assert.equal(
-    await page.locator('.guide-nav__planned').first().evaluate(el => el.hasAttribute('data-glow-host')),
-    false,
-    '规划中的条目不可点击，不应接光',
+    await planned.evaluateAll(els => els.filter(el => el.hasAttribute('data-glow-host')).length),
+    0,
+    '待补充章节是占位页，不应接光',
   );
 });

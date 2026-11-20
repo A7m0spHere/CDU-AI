@@ -45,9 +45,11 @@ const AUTO_HOSTS = [
   '.tool-card',
   '.glossary-term',
   '.branch-row__label',
-  // 学习指南左侧目录：分组标题（details 的 summary）与条目链接
+  // 学习指南左侧目录：分组标题（details 的 summary）与条目链接。
+  // 「待补充」章节虽然是可点的占位页，但不接光——光读起来像「这里有内容」，
+  // 留给已经写完的章节。
   '.guide-nav__summary',
-  '.guide-nav ul a',
+  '.guide-nav ul a:not([data-planned])',
   '.guide-sidebar__foot a',
 ];
 

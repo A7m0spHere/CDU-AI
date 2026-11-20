@@ -313,3 +313,13 @@
 - 层叠：分组标题与条目都有自身底色，但光层在宿主的 `isolation: isolate` 里位于 `z-index: -1`，绘制顺序在「元素底色之上、子内容之下」，因此不用像搜索框那样抬到 `z-index: 1`，文字仍然是压在最上面的一层。
 - 实测：分组标题与条目各有且只有一层 `.hover-glow`，悬停后 `data-active="true"`、光宽与宿主宽差 ≤3px、`--glow-cx` 跟着指针偏到 62%、`html[data-ui-light="true"]`、同时只有一处发光。
 - 截图：`design/guide-nav-glow-light.png` / `design/guide-nav-glow-dark.png`（悬停「02 开始学习」）、`design/guide-nav-item-glow-light.png` / `design/guide-nav-item-glow-dark.png`（悬停「指南首页」）。
+
+- 截图：`design/guide-nav-glow-light.png` / `design/guide-nav-glow-dark.png`（悬停「02 开始学习」）、`design/guide-nav-item-glow-light.png` / `design/guide-nav-item-glow-dark.png`（悬停「指南首页」）。
+
+### 2026-11-20 · 同步上游 38 个提交后重新接光
+
+- 上游 `main` 从 `016c0ed` 快进到 `0dad767`（38 个提交：#38–#42，重写术语目录与详情页、工具目录手机端改成 App 网格 + 底部抽屉、阅读样式拆到 `reading.css`、主题面板拆出 `theme-editor.{ts,css}`、页头与导航结构微调）。本地 7 个光效提交 rebase 到新 `main`，只有一处冲突：上游新增的 CLI 主题导入与 `global.ts` 的 import 段重叠，两边都保留（`image-lightbox` / `clipboard` 与 `./ui-glow`）。
+- 上游把「规划中」占位从非链接文本改成可点的占位页链接（`<a data-planned="true">`），`.guide-nav__planned` 这个类已不存在。取舍：占位页仍不接光——光读起来像「这里有内容」，留给已经写完的章节；选择器改成 `.guide-nav ul a:not([data-planned])`，测试同步改成断言 `a[data-planned="true"]` 里没有宿主类。
+- 修掉一处 1px 回归：对话框右上角的关闭键（`.search-dialog__close`）是可纵向滚动 `<dialog>` 里最靠右的一枚，`::before` 横向 `-14px` 的柔光把弹层 `scrollWidth` 顶到 369 > `clientWidth` 368。把 `::before` 的横向外溢抽成 `--glow-bleed-x`，只给两枚贴着弹层右缘的关闭键（`.search-dialog__close` / `.theme-editor__close`）把横向收成 0：上下那圈光仍在，弹层不再出现横向滚动。实测 390×844 下 `scrollWidth` 368 = `clientWidth` 368，与关掉光效时一致。
+- 重新验收：`npm run verify` 通过（astro check 0 error、内容 68 个文件、文档 29 份 / 433 处引用、构建 94 页、49 项 node 测试、内链 94 页无失效）；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **55/55 通过**（上游新增 26 条，覆盖手机工具抽屉、图片灯箱、主题编辑器与搜索截断提示）。
+
