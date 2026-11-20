@@ -66,6 +66,9 @@ async function ready(page) {
   if (await page.locator('[data-tool-catalog]').count()) {
     await page.waitForSelector('[data-tool-catalog][data-catalog-ready="true"]');
   }
+  if (await page.locator('[data-glossary-catalog]').count()) {
+    await page.waitForSelector('[data-glossary-catalog][data-glossary-ready="true"]');
+  }
 }
 
 async function menu(page) {
@@ -464,7 +467,10 @@ test('开源 Agent 折叠数量跟随搜索及手动展开，开源筛选不借�
   assert.equal(await collapsed.evaluate(element => element.open), true);
 
   await page.locator('[data-filter-value="llm-chat"]').press('Enter');
-  await page.locator('[data-filter-cap="open-source"]').press('Enter');
+  assert.equal((await page.locator('[data-tool-id="qwen-chat"]').getAttribute('data-capabilities') ?? '').includes('open-source'), false);
+  assert.equal((await page.locator('[data-tool-id="rikkahub"]').getAttribute('data-capabilities') ?? '').includes('open-source'), true);
+  await page.locator('[data-filter-search]').fill('RikkaHub');
+  await page.waitForFunction(() => document.querySelector('[data-filter-count]').textContent === '1');
   assert.equal(await page.locator('[data-filter-count]').textContent(), '1');
   assert.equal(await page.locator('[data-tool-id="qwen-chat"]').isVisible(), false);
   assert.equal(await page.locator('[data-tool-id="cherry-studio"]').isVisible(), false);
@@ -495,9 +501,9 @@ test('桌面深度滚动后筛选回到列表开头，搜索保留输入焦点',
   await atStart();
   assert.equal(await page.locator('[data-filter-value="agent"]').evaluate(el => el === document.activeElement), true);
   await scrollDown();
-  await page.locator('[data-filter-cap="open-source"]').press('Enter');
+  await page.locator('[data-filter-value="llm-chat"]').press('Enter');
   await atStart();
-  assert.equal(await page.locator('[data-filter-cap="open-source"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-filter-value="llm-chat"]').getAttribute('aria-pressed'), 'true');
   await page.locator('[data-clear-filters]').click();
   await atStart();
   assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
@@ -673,28 +679,12 @@ test('手机端点击 App 图标打开底部详情抽屉，支持键盘关闭与
   assert.equal(await page.locator('[data-tool-id="deepseek"] [data-tool-tile]').isVisible(), true);
 });
 
-test('手机端可折叠能力筛选、URL 恢复与开源折叠兼容', async t => {
+test('手机端工具页无独立能力筛选，精简页头与开源折叠搜索兼容', async t => {
   const page = await setup(t, { viewport: { width: 390, height: 844 } });
   await page.goto(origin + '/tools/');
   await ready(page);
 
-  const capToggle = page.locator('[data-cap-toggle]');
-  const capList = page.locator('[data-cap-list]');
-  assert.equal(await capToggle.isVisible(), true);
-  assert.equal(await capToggle.getAttribute('aria-expanded'), 'false');
-  assert.equal(await capList.isVisible(), false);
-
-  await capToggle.click();
-  assert.equal(await capToggle.getAttribute('aria-expanded'), 'true');
-  assert.equal(await capList.isVisible(), true);
-
-  await page.goto(origin + '/tools/?caps=open-source');
-  await ready(page);
-  assert.equal(await capToggle.getAttribute('aria-expanded'), 'true');
-  assert.equal(await capList.isVisible(), true);
-  assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.filter(tool => tool.capabilities.includes('open-source')).length));
-
-  await page.locator('[data-clear-filters]').click();
+  assert.equal(await page.locator('[data-cap-panel], [data-filter-cap]').count(), 0);
   assert.equal(await page.locator('[data-filter-count]').textContent(), String(tools.length));
   assert.equal(await page.locator('.page-header__chips').isVisible(), true);
   assert.equal(await page.locator('.notice--warm').isVisible(), false);
@@ -1419,4 +1409,340 @@ test('首页图书馆按屏幕方向旋转，入口开门联动并在离开后�
   await page.setViewportSize({ width: 390, height: 844 });
   assert.equal(await art.isVisible(), true);
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+});
+
+test('手机术语表采用分支切换与单行横滑胶囊，首屏露出术语且不触发竖向滚动', async t => {
+  const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'no-preference' });
+  for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto(origin + '/glossary/');
+    await ready(page);
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${viewport.width}×${viewport.height} 不应出现横向溢出`);
+    const firstTermBox = await page.locator('.glossary-term:visible').first().boundingBox();
+    assert.ok(firstTermBox, `${viewport.width}×${viewport.height} 应存在可见术语卡片`);
+    if (viewport.height >= 700) {
+      assert.ok(firstTermBox.y + firstTermBox.height <= viewport.height, `${viewport.width}×${viewport.height} 首屏应完整露出第一条术语`);
+    } else {
+      assert.ok(firstTermBox.y <= viewport.height - 96, `${viewport.width}×${viewport.height} 首屏应明显露出第一条术语内容`);
+    }
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(origin + '/glossary/');
+  await ready(page);
+  const nav = page.locator('[data-glossary-nav]');
+  assert.equal(await nav.getAttribute('data-active-branch'), 'main');
+  assert.equal(await page.locator('.branch-group--main .branch-rows').isVisible(), true);
+  assert.equal(await page.locator('.branch-group--vibe .branch-rows').isVisible(), false);
+
+  await page.locator('[data-filter-value="vibe-branch"]').click();
+  assert.equal(await nav.getAttribute('data-active-branch'), 'vibe');
+  assert.equal(await page.locator('.branch-group--vibe .branch-rows').isVisible(), true);
+  assert.equal(await page.locator('.branch-group--main .branch-rows').isVisible(), false);
+
+  const beforeScroll = await page.evaluate(() => scrollY);
+  await page.locator('[data-filter-value="git"]').click();
+  await page.waitForFunction(() => new URLSearchParams(location.search).get('category') === 'git');
+  await page.waitForTimeout(200);
+  const afterScroll = await page.evaluate(() => scrollY);
+  assert.ok(Math.abs(afterScroll - beforeScroll) < 2, '手机点击子分类胶囊不应触发竖向滚动');
+
+  await page.goto(origin + '/glossary/?category=vibecoding');
+  await ready(page);
+  assert.equal(await nav.getAttribute('data-active-branch'), 'vibe');
+  assert.equal(await page.locator('[data-filter-value="vibe-branch"]').getAttribute('aria-pressed'), 'true');
+
+  // 桌面端折叠分支后再缩回手机宽度，活动分支胶囊条仍应可见。
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(origin + '/glossary/');
+  await ready(page);
+  await page.locator('[data-branch="main"] [data-branch-toggle]').click();
+  assert.equal(await page.locator('.branch-group--main .branch-rows').isVisible(), false);
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.locator('.branch-group--main .branch-rows').isVisible(), true);
+});
+
+test('指南详情页手机全宽铺排，保持原流程图并支持点击放大灯箱浏览', async t => {
+  const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  await ready(page);
+  assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), '指南详情页手机宽度不应横向溢出');
+
+  const widths = await page.evaluate(() => ({
+    paper: document.querySelector('.guide-paper')?.getBoundingClientRect().width ?? 0,
+    prose: document.querySelector('.notion-prose')?.getBoundingClientRect().width ?? 0,
+  }));
+  assert.ok(widths.paper >= 388, `手机阅读卡应接近全宽铺排（实际 ${widths.paper}）`);
+  assert.ok(widths.prose >= 350, `手机正文可用宽度应释放（实际 ${widths.prose}）`);
+
+  const zoomTrigger = page.locator('[data-image-zoom]').first();
+  await zoomTrigger.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => {
+    const img = document.querySelector('[data-image-zoom] img');
+    return img && img.complete && img.naturalWidth === 1700 && img.naturalHeight === 960;
+  });
+
+  await zoomTrigger.click();
+  const lightbox = page.locator('[data-image-lightbox]');
+  await page.waitForFunction(() => {
+    const dlg = document.querySelector('[data-image-lightbox]');
+    const img = document.querySelector('[data-lightbox-img]');
+    return dlg?.open && img?.complete && img.getBoundingClientRect().width > 600;
+  });
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '200', '移动端宽幅流程图打开灯箱应默认放大至 200%');
+
+  const initialZoomWidth = await page.locator('[data-lightbox-img]').evaluate(el => el.getBoundingClientRect().width);
+  assert.ok(initialZoomWidth > 600, `放大后图片宽度应显著大于视口宽度以支持拖动阅读（实际 ${initialZoomWidth}）`);
+
+  await page.locator('[data-lightbox-in]').click();
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '250');
+  await page.waitForFunction((prev) => document.querySelector('[data-lightbox-img]').getBoundingClientRect().width > prev, initialZoomWidth);
+  const enlargedWidth = await page.locator('[data-lightbox-img]').evaluate(el => el.getBoundingClientRect().width);
+  assert.ok(enlargedWidth > initialZoomWidth);
+
+  await page.locator('[data-lightbox-reset]').click();
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '100');
+
+  await page.locator('[data-lightbox-close]').click();
+  await page.waitForFunction(() => !document.querySelector('[data-image-lightbox]')?.open);
+  assert.equal(await zoomTrigger.evaluate(el => el === document.activeElement), true, '关闭图片灯箱后焦点应回到原触发按钮');
+});
+
+test('手机灯箱仅用双击缩放，连续横滑和捏合结束不会误触发', async t => {
+  const page = await setup(t, {
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  });
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  await page.locator('[data-image-zoom]').tap();
+  const image = page.locator('[data-lightbox-img]');
+  await image.evaluate(el => el.decode());
+
+  const zooms = await image.evaluate(img => {
+    const touch = (clientX, identifier = 1) => new Touch({ target: img, identifier, clientX, clientY: 300 });
+    const send = (type, touches, changedTouches = touches) => {
+      img.dispatchEvent(new TouchEvent(type, { touches, changedTouches, bubbles: true, cancelable: true }));
+    };
+    const zoom = () => img.closest('dialog').dataset.zoomScale;
+    const tap = () => {
+      send('touchstart', [touch(120)]);
+      send('touchend', [], [touch(120)]);
+    };
+    const swipe = () => {
+      send('touchstart', [touch(120)]);
+      send('touchmove', [touch(60)]);
+      send('touchend', [], [touch(60)]);
+    };
+
+    swipe();
+    swipe();
+    const afterSwipes = zoom();
+    tap();
+    tap();
+    const afterDoubleTap = zoom();
+
+    send('touchstart', [touch(100)]);
+    send('touchstart', [touch(100), touch(140, 2)]);
+    send('touchmove', [touch(80), touch(160, 2)]);
+    send('touchend', [touch(80)], [touch(160, 2)]);
+    send('touchend', [], [touch(80)]);
+    const afterPinch = zoom();
+    tap();
+    const afterSingleTap = zoom();
+    send('touchstart', [touch(120)]);
+    send('touchcancel', [], [touch(120)]);
+    tap();
+    const afterCancelledTap = zoom();
+    return { afterSwipes, afterDoubleTap, afterPinch, afterSingleTap, afterCancelledTap };
+  });
+
+  assert.deepEqual(zooms, {
+    afterSwipes: '200',
+    afterDoubleTap: '100',
+    afterPinch: '200',
+    afterSingleTap: '200',
+    afterCancelledTap: '200',
+  });
+});
+
+test('桌面灯箱放大后仍可单击图片、拖动画布并双击复位', async t => {
+  const page = await setup(t, { viewport: { width: 1024, height: 768 }, reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/chat-ai-to-agent/');
+  await page.locator('[data-image-zoom]').click();
+  const lightbox = page.locator('[data-image-lightbox]');
+  await page.locator('[data-lightbox-img]').evaluate(img => img.decode());
+  await page.locator('[data-lightbox-in]').click();
+  await page.locator('[data-lightbox-in]').click();
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '200');
+
+  const stage = page.locator('[data-lightbox-stage]');
+  const bounds = await stage.boundingBox();
+  const x = Math.round(bounds.x + bounds.width / 2);
+  const y = Math.round(bounds.y + bounds.height / 2);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 1, y);
+  await page.mouse.up();
+  assert.equal(await lightbox.evaluate(el => el.open), true, '带少量移动的单击应保留图片预览');
+
+  const startScroll = await stage.evaluate(el => el.scrollLeft);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x - 60, y, { steps: 6 });
+  await page.mouse.up();
+  assert.ok(await stage.evaluate(el => el.scrollLeft) > startScroll, '拖动应移动放大的画布');
+
+  await page.mouse.dblclick(x, y);
+  assert.equal(await lightbox.evaluate(el => el.open), true);
+  assert.equal(await lightbox.getAttribute('data-zoom-scale'), '100');
+});
+
+test('桌面主题编辑器拖到底部后仍可点击保存', async t => {
+  const page = await setup(t, { viewport: { width: 1024, height: 768 }, reducedMotion: 'reduce' });
+  await create(page);
+  await page.locator('[data-theme-field="name"]').fill('拖动测试主题');
+  const editor = page.locator('[data-theme-editor]');
+  const grip = await page.locator('[data-theme-editor-grip]').boundingBox();
+  const before = await editor.boundingBox();
+
+  await page.mouse.move(grip.x + 55, grip.y + 24);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + 55, 767, { steps: 8 });
+  await page.mouse.up();
+
+  const after = await editor.boundingBox();
+  assert.ok(after.y > before.y, '鼠标可以向下移动对话框');
+  assert.ok(after.y + after.height <= 768, '整个对话框应留在视口内');
+  await page.locator('[data-theme-save]').click();
+  await editor.waitFor({ state: 'hidden' });
+});
+
+test('手机高发浮层与底部抽屉交互可用且不发生窄屏溢出', async t => {
+  const page = await setup(t, { isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+
+  // 1) Theme editor & colorpop at 320x568 + touch badge visibility
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto(origin);
+  await ready(page);
+  await create(page);
+
+  const editorMetrics = await page.evaluate(() => {
+    const editor = document.querySelector('.theme-editor');
+    const foot = document.querySelector('.theme-editor__foot');
+    return {
+      editorOverflow: editor.scrollWidth - editor.clientWidth,
+      footOverflow: foot.scrollWidth - foot.clientWidth,
+      rect: editor.getBoundingClientRect(),
+    };
+  });
+  assert.ok(editorMetrics.editorOverflow <= 1, `320px 主题编辑器不应横向溢出（overflow=${editorMetrics.editorOverflow}）`);
+  assert.ok(editorMetrics.footOverflow <= 1, `320px 主题编辑器底栏按钮不应横向溢出（overflow=${editorMetrics.footOverflow}）`);
+
+  await page.locator('[data-theme-color-btn]').first().click();
+  await page.waitForFunction(() => {
+    const pop = document.querySelector('.theme-colorpop');
+    return pop && !pop.hidden;
+  });
+  const popBounds = await page.evaluate(() => {
+    const editor = document.querySelector('.theme-editor').getBoundingClientRect();
+    const pop = document.querySelector('.theme-colorpop').getBoundingClientRect();
+    return { editorLeft: editor.left, editorRight: editor.right, popLeft: pop.left, popRight: pop.right };
+  });
+  assert.ok(popBounds.popLeft >= popBounds.editorLeft - 1 && popBounds.popRight <= popBounds.editorRight + 1, '取色弹窗应被夹紧在编辑器框内');
+
+  await page.evaluate(() => {
+    const grip = document.querySelector('[data-theme-editor-grip]');
+    grip.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', button: 0, clientX: 80, clientY: 80, bubbles: true }));
+    grip.dispatchEvent(new PointerEvent('pointermove', { pointerType: 'touch', clientX: 120, clientY: 130, bubbles: true }));
+    grip.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'touch', clientX: 120, clientY: 130, bubbles: true }));
+  });
+  assert.equal(await page.locator('.theme-editor').evaluate(el => el.style.transform), '', '手机触屏不应拖动编辑器位置');
+
+  await page.locator('[data-theme-field="name"]').fill('触控测试主题');
+  await page.locator('[data-theme-save]').click();
+  await page.waitForFunction(() => !document.querySelector('[data-theme-editor]').open);
+
+  await menu(page);
+  const badgeMetrics = await page.evaluate(() => {
+    const edit = document.querySelector('.theme-swatch__badge--edit');
+    const del = document.querySelector('.theme-swatch__badge--del');
+    return {
+      editOpacity: getComputedStyle(edit).opacity,
+      delOpacity: getComputedStyle(del).opacity,
+      editBox: edit.getBoundingClientRect(),
+      delBox: del.getBoundingClientRect(),
+    };
+  });
+  assert.equal(badgeMetrics.editOpacity, '1', '触控设备自定义主题编辑角标应常显');
+  assert.equal(badgeMetrics.delOpacity, '1', '触控设备自定义主题删除角标应常显');
+  assert.ok(badgeMetrics.editBox.width >= 24 && badgeMetrics.editBox.height >= 24);
+  assert.ok(badgeMetrics.delBox.width >= 24 && badgeMetrics.delBox.height >= 24);
+  assert.ok(badgeMetrics.editBox.right <= badgeMetrics.delBox.left + 1, '编辑与删除角标不应互相重叠');
+  await page.keyboard.press('Escape');
+
+  // 2) Search dialog top-anchoring & >= 40px close target at 390x844
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-search-open]').click();
+  await page.waitForFunction(() => document.querySelector('.search-dialog')?.open);
+  const searchMetrics = await page.evaluate(() => ({
+    dialogTop: document.querySelector('.search-dialog').getBoundingClientRect().top,
+    closeBox: document.querySelector('.search-dialog__close').getBoundingClientRect(),
+  }));
+  assert.ok(searchMetrics.dialogTop <= 60, `手机搜索弹窗应靠上固定以留出键盘空间（top=${searchMetrics.dialogTop}）`);
+  assert.ok(searchMetrics.closeBox.width >= 40 && searchMetrics.closeBox.height >= 40, '搜索关闭按钮触控尺寸应 >= 40px');
+  await page.locator('.search-dialog__close').click();
+  await page.waitForFunction(() => !document.querySelector('.search-dialog')?.open);
+
+  // 3) Mobile menu scroll containment on short viewport (390x400)
+  await page.setViewportSize({ width: 390, height: 400 });
+  await page.locator('[data-mobile-menu] > summary').click();
+  await page.waitForFunction(() => document.querySelector('[data-mobile-menu]')?.open);
+  const menuPanelMetrics = await page.evaluate(() => {
+    const panel = document.querySelector('.mobile-menu__panel');
+    return {
+      overflowY: getComputedStyle(panel).overflowY,
+      bottom: panel.getBoundingClientRect().bottom,
+    };
+  });
+  assert.equal(menuPanelMetrics.overflowY, 'auto');
+  assert.ok(menuPanelMetrics.bottom <= 400, `短屏下移动菜单应限高并在视口内滚动（bottom=${menuPanelMetrics.bottom}）`);
+  await page.locator('[data-mobile-menu] > summary').click();
+
+  // 4) Tools bottom sheet 44px CTA buttons & swipe-down-to-close gesture
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const triggerTile = page.locator('[data-tool-id="deepseek"] [data-tool-tile]');
+  await triggerTile.click();
+  await page.waitForFunction(() => document.querySelector('[data-tool-sheet]')?.open);
+
+  const sheetMetrics = await page.evaluate(() => ({
+    primaryBox: document.querySelector('.tool-sheet__primary').getBoundingClientRect(),
+    closeBox: document.querySelector('.tool-sheet__close').getBoundingClientRect(),
+  }));
+  assert.ok(sheetMetrics.primaryBox.height >= 44, `工具抽屉主按钮高度应 >= 44px（实际 ${sheetMetrics.primaryBox.height}）`);
+  assert.ok(sheetMetrics.closeBox.width >= 42 && sheetMetrics.closeBox.height >= 42, '工具抽屉关闭按钮应 >= 42px');
+
+  const swipeToolSheet = eventType => page.evaluate(type => {
+    const handle = document.querySelector('.tool-sheet__handle');
+    const mkTouch = (y) => new Touch({ identifier: 1, target: handle, clientX: 195, clientY: y, pageX: 195, pageY: y });
+    const t0 = mkTouch(200);
+    handle.dispatchEvent(new TouchEvent('touchstart', { touches: [t0], targetTouches: [t0], changedTouches: [t0], bubbles: true, cancelable: true }));
+    const t1 = mkTouch(220);
+    handle.dispatchEvent(new TouchEvent('touchmove', { touches: [t1], targetTouches: [t1], changedTouches: [t1], bubbles: true, cancelable: true }));
+    const t2 = mkTouch(320);
+    handle.dispatchEvent(new TouchEvent('touchmove', { touches: [t2], targetTouches: [t2], changedTouches: [t2], bubbles: true, cancelable: true }));
+    handle.dispatchEvent(new TouchEvent(type, { changedTouches: [t2], bubbles: true, cancelable: true }));
+  }, eventType);
+
+  await swipeToolSheet('touchcancel');
+  const sheet = page.locator('[data-tool-sheet]');
+  assert.equal(await sheet.evaluate(el => el.open), true, '手势取消后抽屉应保持打开');
+  assert.equal(await sheet.evaluate(el => el.classList.contains('is-dragging') || Boolean(el.style.transform)), false, '手势取消后抽屉应回到原位');
+  await swipeToolSheet('touchend');
+  await page.waitForFunction(() => !document.querySelector('[data-tool-sheet]').open);
+  assert.equal(await triggerTile.evaluate(el => el === document.activeElement), true, '下滑关闭工具抽屉后焦点应回到原工具图标');
 });

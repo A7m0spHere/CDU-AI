@@ -5,6 +5,7 @@
   position: sticky;
   z-index: 100;
   top: 0;
+  padding-top: env(safe-area-inset-top, 0px);
   border-bottom: 1px solid transparent;
   background: var(--header-bg);
   -webkit-backdrop-filter: blur(18px) saturate(1.2);
@@ -155,6 +156,9 @@
   top: calc(100% + 0.7rem);
   right: 0;
   width: min(21rem, calc(100vw - var(--gutter) * 2));
+  max-height: calc(100dvh - var(--header-h) - env(safe-area-inset-top, 0px) - 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.65rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -163,16 +167,7 @@
 }
 
 .mobile-menu__panel::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  right: 17px;
-  width: 9px;
-  height: 9px;
-  border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
-  background: var(--surface-strong);
-  transform: rotate(45deg);
+  display: none;
 }
 
 .mobile-nav-list {

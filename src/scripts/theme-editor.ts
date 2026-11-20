@@ -140,16 +140,15 @@ export async function initThemeEditor(host: ThemeEditorHost) {
   function positionColorPop(anchor: HTMLElement): void {
     const anchorRect = anchor.getBoundingClientRect();
     const dialogRect = editor.getBoundingClientRect();
-    const popWidth = 248;
+    const popWidth = colorPop.offsetWidth || Math.min(248, Math.max(180, editor.clientWidth - 16));
     const popHeight = colorPop.offsetHeight || 268;
     let left = anchorRect.left - dialogRect.left + editor.clientLeft;
     let top = anchorRect.bottom - dialogRect.top + editor.clientTop + 8;
-    if (left + popWidth > editor.clientWidth - 8) {
-      left = Math.max(8, editor.clientWidth - popWidth - 8);
-    }
+    left = Math.max(8, Math.min(left, editor.clientWidth - popWidth - 8));
     if (top + popHeight > editor.clientHeight - 8) {
       const above = anchorRect.top - dialogRect.top + editor.clientTop - popHeight - 8;
       if (above >= 8) top = above;
+      else top = Math.max(8, editor.clientHeight - popHeight - 8);
     }
     colorPop.style.left = `${left}px`;
     colorPop.style.top = `${top}px`;
@@ -951,24 +950,39 @@ export async function initThemeEditor(host: ThemeEditorHost) {
      --------------------------------------------------------- */
 
   const grip = editor.querySelector<HTMLElement>('[data-theme-editor-grip]')!;
+  const narrowViewport = window.matchMedia('(max-width: 560px)');
   let editorDx = 0;
   let editorDy = 0;
 
+  const resetEditorPosition = () => {
+    editorDx = 0;
+    editorDy = 0;
+    editor.style.transform = '';
+  };
+
   grip.addEventListener('pointerdown', (event) => {
-    if (event.button !== 0) return;
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    if (narrowViewport.matches) return;
     if ((event.target as HTMLElement).closest('button')) return;
+    const rect = editor.getBoundingClientRect();
+    const baseLeft = rect.left - editorDx;
+    const baseTop = rect.top - editorDy;
+    const minDx = 8 - baseLeft;
+    const maxDx = Math.max(minDx, window.innerWidth - rect.width - 8 - baseLeft);
+    const minDy = 8 - baseTop;
+    const maxDy = Math.max(minDy, window.innerHeight - rect.height - 8 - baseTop);
     const startX = event.clientX - editorDx;
     const startY = event.clientY - editorDy;
     grip.setPointerCapture(event.pointerId);
     editor.classList.add('is-dragging');
     const move = (ev: PointerEvent) => {
-      editorDx = ev.clientX - startX;
-      editorDy = ev.clientY - startY;
+      editorDx = Math.min(maxDx, Math.max(minDx, ev.clientX - startX));
+      editorDy = Math.min(maxDy, Math.max(minDy, ev.clientY - startY));
       editor.style.transform = `translate(${editorDx}px, ${editorDy}px)`;
     };
     const end = () => {
       editor.classList.remove('is-dragging');
-      grip.releasePointerCapture(event.pointerId);
+      if (grip.hasPointerCapture(event.pointerId)) grip.releasePointerCapture(event.pointerId);
       grip.removeEventListener('pointermove', move);
       grip.removeEventListener('pointerup', end);
       grip.removeEventListener('pointercancel', end);
@@ -976,6 +990,10 @@ export async function initThemeEditor(host: ThemeEditorHost) {
     grip.addEventListener('pointermove', move);
     grip.addEventListener('pointerup', end);
     grip.addEventListener('pointercancel', end);
+  });
+
+  narrowViewport.addEventListener('change', (ev) => {
+    if (ev.matches) resetEditorPosition();
   });
 
   /* ---------------------------------------------------------
@@ -987,6 +1005,7 @@ export async function initThemeEditor(host: ThemeEditorHost) {
   editor.querySelector('[data-theme-save]')?.addEventListener('click', saveEditor);
   editor.querySelector('[data-theme-export]')?.addEventListener('click', handleExport);
   editor.addEventListener('close', () => {
+    resetEditorPosition();
     cancelPreview();
     editorSession += 1;
     closeColorPop();

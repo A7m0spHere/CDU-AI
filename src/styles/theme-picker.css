@@ -67,7 +67,7 @@
 .theme-panel__grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem 0.45rem;
+  gap: 0.7rem 0.55rem;
 }
 
 .theme-panel__foot {
@@ -228,6 +228,24 @@
   line-height: 1.5;
 }
 
+@media (hover: none), (pointer: coarse) {
+  .theme-swatch__badge {
+    top: -6px;
+    width: 24px;
+    height: 24px;
+    opacity: 1;
+  }
+
+  .theme-swatch__badge--edit {
+    right: auto;
+    left: 0;
+  }
+
+  .theme-swatch__badge--del {
+    right: 0;
+  }
+}
+
 @media (max-width: 560px) {
   .header-actions {
     position: relative;
@@ -240,6 +258,7 @@
   .theme-panel {
     max-height: calc(100dvh - var(--header-h) - 1.5rem);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .theme-panel::before {
