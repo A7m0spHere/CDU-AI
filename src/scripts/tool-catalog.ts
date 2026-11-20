@@ -48,10 +48,6 @@ export function initToolCatalog(): void {
   const pool = root.querySelector<HTMLElement>('[data-catalog-pool]')!;
   const results = root.querySelector<HTMLElement>('[data-catalog-results]')!;
 
-  const capToggle = root.querySelector<HTMLButtonElement>('[data-cap-toggle]');
-  const capToggleLabel = root.querySelector<HTMLElement>('[data-cap-toggle-label]');
-  const capList = root.querySelector<HTMLElement>('[data-cap-list]');
-
   const sheet = root.querySelector<HTMLDialogElement>('[data-tool-sheet]');
   const sheetMark = sheet?.querySelector<HTMLElement>('[data-sheet-mark]') ?? null;
   const sheetTitle = sheet?.querySelector<HTMLElement>('[data-sheet-title]') ?? null;
@@ -69,6 +65,8 @@ export function initToolCatalog(): void {
   const sheetRepo = sheet?.querySelector<HTMLAnchorElement>('[data-sheet-repo]') ?? null;
   const sheetClose = sheet?.querySelector<HTMLButtonElement>('[data-sheet-close]') ?? null;
   const sheetBody = sheet?.querySelector<HTMLElement>('[data-sheet-body]') ?? null;
+  const sheetHandle = sheet?.querySelector<HTMLElement>('.tool-sheet__handle') ?? null;
+  const sheetHead = sheet?.querySelector<HTMLElement>('.tool-sheet__head') ?? null;
 
   const mobile = window.matchMedia('(max-width: 760px)');
   const desktop = window.matchMedia('(min-width: 1021px)');
@@ -76,36 +74,22 @@ export function initToolCatalog(): void {
 
   let currentView = '';
   let printing = false;
-  let capExpanded = false;
-  let activeCapCount = 0;
   let lastTrigger: HTMLButtonElement | null = null;
   let closeTimer = 0;
 
   const isMobileAppMode = () => mobile.matches && !printing;
 
-  const syncCapPanel = () => {
-    if (!capToggle || !capList) return;
-    const compact = isMobileAppMode();
-    capToggle.hidden = !compact;
-    if (!compact) {
-      capList.hidden = false;
-      capToggle.setAttribute('aria-expanded', 'true');
-      return;
-    }
-    capList.hidden = !capExpanded;
-    capToggle.setAttribute('aria-expanded', String(capExpanded));
-    if (capToggleLabel) {
-      if (activeCapCount > 0) {
-        capToggleLabel.textContent = capExpanded ? `收起（已选 ${activeCapCount}）` : `已选 ${activeCapCount} 项`;
-      } else {
-        capToggleLabel.textContent = capExpanded ? '收起' : '展开';
-      }
-    }
+  const resetSheetMotion = () => {
+    if (!sheet) return;
+    sheet.classList.remove('is-dragging');
+    sheet.style.transform = '';
+    sheet.style.transition = '';
   };
 
   const closeSheet = (immediate = false) => {
     if (!sheet?.open) return;
     window.clearTimeout(closeTimer);
+    resetSheetMotion();
     if (immediate || reducedMotion.matches) {
       sheet.classList.remove('is-closing');
       delete sheet.dataset.closing;
@@ -117,6 +101,7 @@ export function initToolCatalog(): void {
     sheet.classList.add('is-closing');
     const finish = () => {
       window.clearTimeout(closeTimer);
+      resetSheetMotion();
       sheet.classList.remove('is-closing');
       delete sheet.dataset.closing;
       if (sheet.open) sheet.close();
@@ -141,8 +126,6 @@ export function initToolCatalog(): void {
         else section.removeAttribute('aria-hidden');
       });
     });
-
-    syncCapPanel();
   };
 
   const openSheet = (card: HTMLElement, trigger: HTMLButtonElement) => {
@@ -204,6 +187,7 @@ export function initToolCatalog(): void {
     }
 
     window.clearTimeout(closeTimer);
+    resetSheetMotion();
     sheet.classList.remove('is-closing');
     delete sheet.dataset.closing;
 
@@ -219,11 +203,6 @@ export function initToolCatalog(): void {
     if (card) openSheet(card, trigger);
   });
 
-  capToggle?.addEventListener('click', () => {
-    capExpanded = !capExpanded;
-    syncCapPanel();
-  });
-
   sheetClose?.addEventListener('click', () => closeSheet());
   sheet?.addEventListener('click', (event) => {
     if (event.target === sheet) closeSheet();
@@ -234,6 +213,7 @@ export function initToolCatalog(): void {
   });
   sheet?.addEventListener('close', () => {
     window.clearTimeout(closeTimer);
+    resetSheetMotion();
     sheet.classList.remove('is-closing');
     delete sheet.dataset.closing;
     if (lastTrigger?.isConnected && !lastTrigger.hidden) {
@@ -241,6 +221,119 @@ export function initToolCatalog(): void {
     }
     lastTrigger = null;
   });
+
+  if (sheet) {
+    let dragActive = false;
+    let dragging = false;
+    let fromBody = false;
+    let startX = 0;
+    let startY = 0;
+    let lastDy = 0;
+    let lastTime = 0;
+    let velocity = 0;
+
+    const stopDragTracking = () => {
+      dragActive = false;
+      dragging = false;
+      fromBody = false;
+      sheet.classList.remove('is-dragging');
+    };
+
+    sheet.addEventListener(
+      'touchstart',
+      (event) => {
+        if (!sheet.open || event.touches.length !== 1 || sheet.dataset.closing === 'true') return;
+        const target = event.target as HTMLElement | null;
+        if (!target) return;
+
+        const inHandle = Boolean(sheetHandle?.contains(target));
+        const inHead = Boolean(sheetHead?.contains(target) && !target.closest('[data-sheet-close], button, a'));
+        const inBody = Boolean(sheetBody?.contains(target) && (sheetBody?.scrollTop ?? 0) <= 0);
+        if (!inHandle && !inHead && !inBody) return;
+
+        const touch = event.touches[0];
+        dragActive = true;
+        dragging = false;
+        fromBody = inBody && !inHandle && !inHead;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        lastDy = 0;
+        lastTime = performance.now();
+        velocity = 0;
+        sheet.style.transition = '';
+      },
+      { passive: true },
+    );
+
+    sheet.addEventListener(
+      'touchmove',
+      (event) => {
+        if (!dragActive || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+
+        if (!dragging) {
+          if (fromBody && (sheetBody?.scrollTop ?? 0) > 0) {
+            stopDragTracking();
+            return;
+          }
+          if (dy < -6 || Math.abs(dx) > Math.max(12, dy)) {
+            stopDragTracking();
+            return;
+          }
+          if (dy > 8 && dy > Math.abs(dx) * 1.2) {
+            dragging = true;
+            sheet.classList.add('is-dragging');
+          } else {
+            return;
+          }
+        }
+
+        event.preventDefault();
+        const now = performance.now();
+        const nextDy = Math.max(0, dy);
+        const dt = now - lastTime;
+        if (dt > 0) velocity = (nextDy - lastDy) / dt;
+        lastDy = nextDy;
+        lastTime = now;
+        if (!reducedMotion.matches) {
+          sheet.style.transform = `translateY(${lastDy}px)`;
+        }
+      },
+      { passive: false },
+    );
+
+    const endTouch = () => {
+      if (!dragActive) return;
+      const wasDragging = dragging;
+      stopDragTracking();
+      if (!wasDragging) return;
+
+      if (lastDy >= 80 || (lastDy >= 36 && velocity >= 0.45)) {
+        closeSheet(true);
+        return;
+      }
+
+      if (reducedMotion.matches) {
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+        return;
+      }
+
+      sheet.style.transition = 'transform 160ms var(--ease-out)';
+      sheet.style.transform = 'translateY(0)';
+      window.setTimeout(() => {
+        if (!dragging && sheet.open && sheet.dataset.closing !== 'true') {
+          sheet.style.transform = '';
+          sheet.style.transition = '';
+        }
+      }, 170);
+    };
+
+    sheet.addEventListener('touchend', endTouch, { passive: true });
+    sheet.addEventListener('touchcancel', endTouch, { passive: true });
+  }
 
   const filter = initFilter({
     searchWithinCategory: true,
@@ -275,14 +368,9 @@ export function initToolCatalog(): void {
         if (!assigned.has(id)) pool.append(card);
       });
     },
-    afterApply: ({ reason, capabilities, category }) => {
+    afterApply: ({ reason, category }) => {
       if (category !== 'all') root.dataset.singleCategory = 'true';
       else delete root.dataset.singleCategory;
-      activeCapCount = capabilities.length;
-      if ((reason === 'init' || reason === 'history') && activeCapCount > 0) {
-        capExpanded = true;
-      }
-      syncCapPanel();
       if (reason === 'filter' && desktop.matches && !printing) {
         results.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
       }

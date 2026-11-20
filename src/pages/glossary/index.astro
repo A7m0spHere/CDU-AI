@@ -58,7 +58,7 @@ const contributeLinks = [
         crumbs={[{ label: '术语表' }]}
       />
 
-      <div class="catalog-layout glossary-layout" data-filter-root data-reveal>
+      <div class="catalog-layout glossary-layout" data-filter-root data-glossary-catalog>
         <aside class="catalog-sidebar glossary-sidebar" aria-label="术语分类">
           <label class="sr-only" for="glossary-search">搜索术语、别名或场景</label>
           <div class="search-field">
@@ -72,13 +72,13 @@ const contributeLinks = [
             />
           </div>
 
-          <nav class="branch-tree" aria-label="术语分支">
+          <nav class="branch-tree" aria-label="术语分支" data-glossary-nav data-active-branch="main">
             <p class="branch-tree__head">
               <span class="mono">技术分支</span>
               <span class="branch-tree__total">{total} 条</span>
             </p>
 
-            <div class="branch-group branch-group--main" data-branch>
+            <div class="branch-group branch-group--main" data-branch="main">
               <div class="branch-row branch-row--head" data-lane="main" data-lanes="main">
                 <span class="branch-dot" aria-hidden="true"></span>
                 <button
@@ -128,7 +128,7 @@ const contributeLinks = [
               </ul>
             </div>
 
-            <div class="branch-group branch-group--vibe" data-branch>
+            <div class="branch-group branch-group--vibe" data-branch="vibe">
               <div class="branch-row branch-row--head" data-lane="vibe" data-lanes="vibe">
                 <span class="branch-dot" aria-hidden="true"></span>
                 <button
@@ -285,13 +285,44 @@ const contributeLinks = [
 <script>
   import { initFilter } from '../../scripts/filter';
 
+  const root = document.querySelector<HTMLElement>('[data-glossary-catalog]');
+  const nav = document.querySelector<HTMLElement>('[data-glossary-nav]');
   const results = document.querySelector<HTMLElement>('[data-glossary-results]');
   const desktop = window.matchMedia('(min-width: 1021px)');
+  const mobile = window.matchMedia('(max-width: 760px)');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const vibeBranchIds = new Set(
+    (nav?.querySelector<HTMLElement>('[data-filter-value="vibe-branch"]')?.dataset.filterMatch ?? '')
+      .split(/\s+/)
+      .filter(Boolean),
+  );
+
+  const syncMobileBranchNav = (activeBranch: 'main' | 'vibe', reason: string) => {
+    if (!nav || !mobile.matches) return;
+    const list = nav.querySelector<HTMLElement>(`.branch-group--${activeBranch} .branch-rows`);
+    if (!list) return;
+    const activePill = list.querySelector<HTMLElement>('.branch-row__label[aria-pressed="true"]');
+    const behavior = reason === 'init' || reducedMotion.matches ? 'instant' : 'smooth';
+    if (!activePill) {
+      list.scrollTo({ left: 0, behavior });
+      return;
+    }
+    const listRect = list.getBoundingClientRect();
+    const pillRect = activePill.getBoundingClientRect();
+    const targetLeft = Math.max(
+      0,
+      list.scrollLeft + (pillRect.left - listRect.left) - (list.clientWidth - pillRect.width) / 2,
+    );
+    list.scrollTo({ left: targetLeft, behavior });
+  };
 
   initFilter({
-    afterApply: ({ reason }) => {
-      // 沿用工具目录：结果更新后定位，不改变筛选焦点或手机输入位置。
+    categoryAliases: { vibecoding: 'vibe-branch' },
+    afterApply: ({ category, reason }) => {
+      const activeBranch = category === 'vibe-branch' || vibeBranchIds.has(category) ? 'vibe' : 'main';
+      if (nav) nav.dataset.activeBranch = activeBranch;
+      syncMobileBranchNav(activeBranch, reason);
+      // 沿用工具目录：桌面端结果更新后定位，手机端绝不抢占垂直滚动或输入焦点。
       if (reason === 'filter' && desktop.matches) {
         results?.scrollIntoView({ block: 'start', behavior: reducedMotion.matches ? 'instant' : 'smooth' });
       }
@@ -310,4 +341,6 @@ const contributeLinks = [
       toggle.setAttribute('aria-label', (collapsed ? toggle.dataset.labelCollapse : toggle.dataset.labelExpand) ?? '折叠或展开分支');
     });
   });
+
+  if (root) root.dataset.glossaryReady = 'true';
 </script>

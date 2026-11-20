@@ -560,41 +560,6 @@
 }
 
 /* 手机端筛选条、App 网格与底部详情抽屉 */
-.catalog-caps-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  min-height: 30px;
-  margin-left: auto;
-  padding: 0.15rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(--surface-muted);
-  color: var(--ink-soft);
-  font-size: 0.72rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
-}
-
-.catalog-caps-toggle:hover {
-  border-color: var(--line-strong);
-  color: var(--ink);
-}
-
-.catalog-caps-toggle[hidden] {
-  display: none;
-}
-
-.catalog-caps-toggle svg {
-  transition: transform var(--dur-fast) ease;
-}
-
-.catalog-caps-toggle[aria-expanded='true'] svg {
-  transform: rotate(180deg);
-}
-
-.catalog-nav--caps .filter-chips[hidden],
 .tool-card__tile[hidden] {
   display: none;
 }
@@ -691,8 +656,7 @@
     white-space: normal;
   }
 
-  [data-tool-catalog] .catalog-nav--categories .catalog-nav__head,
-  [data-tool-catalog] .catalog-nav--caps:has([data-cap-toggle]:not([hidden])) .filter-count {
+  [data-tool-catalog] .catalog-nav--categories .catalog-nav__head {
     display: none;
   }
 
@@ -719,10 +683,6 @@
     padding: 0.28rem 0.65rem;
     border-radius: var(--radius-pill);
     font-size: 0.76rem;
-  }
-
-  [data-tool-catalog] .catalog-nav--caps .filter-chips--vertical {
-    margin-top: 0.35rem;
   }
 
   [data-mobile-app-grid='true'] .tool-grid {
@@ -851,6 +811,7 @@
   color: var(--ink);
   box-shadow: var(--shadow-float);
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .tool-sheet::backdrop {
@@ -865,6 +826,11 @@
 
 .tool-sheet.is-closing {
   animation: sheet-out 150ms var(--ease-out) both;
+}
+
+.tool-sheet.is-dragging {
+  animation: none;
+  transition: none;
 }
 
 @keyframes sheet-in {
@@ -901,8 +867,10 @@ html:has(.tool-sheet[open]) {
 .tool-sheet__handle {
   display: flex;
   justify-content: center;
-  padding: 0.55rem 0 0.2rem;
+  padding: 0.65rem 0 0.35rem;
   flex: none;
+  touch-action: none;
+  cursor: grab;
 }
 
 .tool-sheet__handle span {
@@ -919,6 +887,7 @@ html:has(.tool-sheet[open]) {
   padding: 0.5rem 1rem 0.85rem;
   border-bottom: 1px solid var(--line);
   flex: none;
+  touch-action: none;
 }
 
 .tool-sheet__head .tool-mark {
@@ -951,8 +920,8 @@ html:has(.tool-sheet[open]) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   flex: none;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
@@ -973,6 +942,7 @@ html:has(.tool-sheet[open]) {
   flex-direction: column;
   gap: 0.7rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.9rem 1rem;
 }
 
@@ -1052,14 +1022,18 @@ html:has(.tool-sheet[open]) {
   flex: none;
 }
 
-.tool-sheet__primary {
+.tool-sheet__foot .tool-sheet__primary {
   flex: 1;
-  min-height: 42px;
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
   justify-content: center;
 }
 
-.tool-sheet__repo {
-  min-height: 42px;
+.tool-sheet__foot .tool-sheet__repo {
+  min-height: 44px;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
   justify-content: center;
 }
 
@@ -1070,8 +1044,7 @@ html:has(.tool-sheet[open]) {
 
 @media print {
   .tool-sheet,
-  .tool-card__tile,
-  .catalog-caps-toggle {
+  .tool-card__tile {
     display: none !important;
   }
 }

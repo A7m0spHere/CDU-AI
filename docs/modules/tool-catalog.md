@@ -14,10 +14,10 @@
 | [`tools.ts`](../../src/data/tools.ts) | 工具条目、分类、能力及依据标签 |
 | [`tool-sections.mjs`](../../src/data/tool-sections.mjs) | 分类内分区、展示顺序、折叠配置及旧分类别名 |
 | [`tool-catalog.mjs`](../../src/lib/tool-catalog.mjs) | `createCatalogView` 生成视图、`getToolSectionLabels` 提供分区关键词、`validateCatalogSections` 校验覆盖 |
-| [`tools/index.astro`](../../src/pages/tools/index.astro) | 构建全部视图，生成卡片、底部抽屉结构、`data-catalog-config` JSON 与能力折叠开关 |
+| [`tools/index.astro`](../../src/pages/tools/index.astro) | 构建全部视图，生成卡片、底部抽屉结构与 `data-catalog-config` JSON |
 | [`ToolCard.astro`](../../src/components/ToolCard.astro) | 链接、图标、分类/能力标记、`data-best-for`、`data-search` 文本及手机瓷贴触发器 |
 | [`filter.ts`](../../src/scripts/filter.ts) | 工具页与术语页共用的筛选、计数、空状态及 URL 恢复 |
-| [`tool-catalog.ts`](../../src/scripts/tool-catalog.ts) | 卡片重排、手机端 App 网格与底部抽屉、能力筛选折叠、打印与结果定位 |
+| [`tool-catalog.ts`](../../src/scripts/tool-catalog.ts) | 卡片重排、手机端 App 网格与底部抽屉、打印与结果定位 |
 | [`tools.css`](../../src/styles/routes/tools.css) | 工具页布局、手机端横向分类条、App 网格及底部抽屉样式 |
 | [`check-content.mjs`](../../scripts/check-content.mjs) | 解析工具源码，检查内容中的工具引用，并提供 `validateTools` |
 
@@ -37,8 +37,8 @@
 `initToolCatalog` 调用 `initFilter`，传入 `searchWithinCategory: true`、分类别名和两个钩子：
 
 1. `beforeApply`：按栏目选择视图，把卡片移入普通或折叠目标分区。
-2. `filter.ts`：用分类、关键词和能力计算完整匹配集，更新卡片、分区、折叠计数及 `aria-pressed`。
-3. `afterApply`：同步手机能力筛选按钮计数与初始展开状态，桌面端按变化原因决定是否定位结果区域。
+2. `filter.ts`：用分类和关键词计算完整匹配集，更新卡片、分区、折叠计数及 `aria-pressed`。
+3. `afterApply`：同步单栏目状态标记，桌面端按变化原因决定是否定位结果区域。
 
 `FilterState.reason` 区分 `init`、`filter`、`history` 和 `refresh`。工具页与术语页共享筛选器，但术语页输入关键词时可跨分类检索；不要通过修改默认选项把两页的搜索范围意外统一。
 
@@ -46,12 +46,12 @@
 
 | 状态 | 当前处理 |
 | --- | --- |
-| `category` / `caps` / `q` | 筛选器读取并恢复；能力以逗号分隔并校验合法值，关键词归一化。用户筛选通过 `replaceState` 同步 URL |
+| `category` / `q` | 筛选器读取并恢复；关键词归一化。用户筛选通过 `replaceState` 同步 URL |
 | 旧分类 | 经 `toolCategoryAliases` 映射后选择视图，保留搜索条件；完整映射以分区配置为准 |
 | 手机 App 网格（≤ 760px） | 仅屏幕浏览且脚本就绪时启用（`data-mobile-app-grid="true"`）：`360–760px` 为 4 列，`≤ 359px` 为 3 列，仅显示图标与名称，按分区直接展示全部匹配条目，不再分页；页头仅保留标题与 3 个常规状态胶囊，隐藏外层分类大标题（全部工具下保留单分区栏目小标题），结果栏视觉隐藏「匹配 N 项」仅保留无障碍播报与清除筛选入口 |
-| 手机底部抽屉 | 点击图标瓷贴打开原生 `<dialog data-tool-sheet>`，填充该工具完整信息与官网/仓库入口；关闭（按钮、遮罩、`Esc` 或切回桌面）后焦点回到原图标 |
-| 手机能力与场景条 | 场景分类为单行横向滚动胶囊；能力筛选默认折叠，URL 含 `caps` 时自动展开 |
-| 折叠 | 普通浏览默认收起，关键词或能力筛选自动展开匹配条目；折叠数量随匹配集和手动开合更新 |
+| 手机底部抽屉 | 点击图标瓷贴打开原生 `<dialog data-tool-sheet>`，填充该工具完整信息与官网/仓库入口（44px 主操作按钮）；支持点击关闭按钮、遮罩、`Esc`、顶部手柄或正文顶部下滑关闭，以及切回桌面自动收起，关闭后焦点回到原图标 |
+| 手机场景分类条 | 场景分类为单行横向滚动胶囊 |
+| 折叠 | 普通浏览默认收起，关键词搜索自动展开匹配条目；折叠数量随匹配集和手动开合更新 |
 
 打印前临时关闭手机 App 网格与抽屉、展示完整信息卡片并展开折叠区，打印后恢复屏幕视图；无 JS 时保留完整静态卡片和原生折叠入口。
 

@@ -191,7 +191,7 @@ frontmatter：
 
 **对话工具分组**：「语言模型与对话」按 `toolSections['llm-chat']` 的顺序展示国内工具、海外工具、开源项目。条目的 `catalogGroup` 分别填写 `domestic`、`overseas`、`open-source`；不能仅因关联模型有开放权重就给在线产品添加开源能力标签。开源客户端与项目不分地区，没有匹配结果的分组自动隐藏。
 
-「Agent 与 Harness」保留 `agent` 分类，按 `toolSections.agent` 依次展示「Personal Agent · 个人助理」、国内工具、海外工具、开源工具。个人助理分区收录围绕个人目标持续工作、保留上下文并连接应用或执行定时流程的产品与项目，通过 `toolIds` 明确维护展示顺序。相同 ID 由其余分区的 `excludeIds` 排除，`catalogGroup` 继续记录原有地区或来源。其他厂商官方产品按国内或海外归组，社区开源项目归开源工具，开源能力按工具自身许可填写。OpenClaw、Hermes Agent 在个人助理分区直接展示；OpenCode、Pi、Cherry Studio、RAGFlow 在开源工具分区直接展示，其他开源条目收进「更多开源 Agent 与 Harness」。搜索或能力筛选时展开匹配项，手动展开同步更新折叠数量。
+「Agent 与 Harness」保留 `agent` 分类，按 `toolSections.agent` 依次展示「Personal Agent · 个人助理」、国内工具、海外工具、开源工具。个人助理分区收录围绕个人目标持续工作、保留上下文并连接应用或执行定时流程的产品与项目，通过 `toolIds` 明确维护展示顺序。相同 ID 由其余分区的 `excludeIds` 排除，`catalogGroup` 继续记录原有地区或来源。其他厂商官方产品按国内或海外归组，社区开源项目归开源工具，开源能力按工具自身许可填写。OpenClaw、Hermes Agent 在个人助理分区直接展示；OpenCode、Pi、Cherry Studio、RAGFlow 在开源工具分区直接展示，其他开源条目收进「更多开源 Agent 与 Harness」。搜索时展开匹配项，手动展开同步更新折叠数量。
 
 **AIGC 分组与收录边界**：`aigc` 一级分类按 `toolSections.aigc` 展示图片创作、视频创作、设计与排版、演示文稿、文档与表格、创作工作流，`aigcSection` 分别填写 `image`、`video`、`design`、`presentation`、`document`、`workflow`。即梦归入视频创作，Midjourney 归入图片创作；Canva 归入设计与排版，Gamma 归入演示文稿，WPS AI 归入文档与表格，ComfyUI、RunningHub 归入创作工作流。Civitai 只在模型与数据社区出现，API 平台与算力服务使用独立入口。
 
@@ -309,10 +309,9 @@ Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模�
 ### 6.6 页面上的筛选规则
 
 - 场景分类：单选，工具页搜索限定在当前栏目，点击「全部工具」扩大搜索范围并保留关键词；术语页仍采用原有的全局搜索规则。
-- 能力筛选（开源 / 本地部署 / 入门友好 / 中文界面）：多选，取交集，搜索时依然生效。
-- 搜索范围：名称、别名、技术类型、形态、分类、能力与标签。
-- Agent 与 Harness 中的更多开源 Agent 与 Harness 默认收在折叠区；进入或切换场景分类时保持收起，可手动展开。输入关键词或启用能力筛选时自动展开匹配条目，清除关键词与能力筛选后恢复收起。
-- 三者都满足才显示，结果数量、空状态与 URL（`?category=&caps=&q=`）始终一致；计数使用「匹配 N 项」，另标出当前已折叠数量。
+- 搜索范围：名称、别名、技术类型、形态、分类、能力标签（开源 / 本地部署 / 入门友好 / 中文界面）与普通标签。
+- Agent 与 Harness 中的更多开源 Agent 与 Harness 默认收在折叠区；进入或切换场景分类时保持收起，可手动展开。输入关键词时自动展开匹配条目，清除关键词后恢复收起。
+- 分类与关键词同时满足才显示，结果数量、空状态与 URL（`?category=&q=`）始终一致；计数使用「匹配 N 项」，另标出当前已折叠数量。
 - 不按热度或「综合评分」排序：分类与分区配置决定目录顺序，显式工具列表按配置排列，字段分组保留数据数组顺序；工具的 `featured` 字段不参与当前目录的排序或折叠。分区、折叠、手机端展示和 URL 的实现见[工具目录开发说明](modules/tool-catalog.md)。
 
 ### 6.7 社区建议

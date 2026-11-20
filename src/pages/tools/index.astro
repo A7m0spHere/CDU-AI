@@ -4,12 +4,11 @@ import '../../styles/routes/tools.css';
 import PageHeader from '../../components/PageHeader.astro';
 import Icon from '../../components/Icon.astro';
 import ToolCard from '../../components/ToolCard.astro';
-import { tools, toolCategories, toolCapabilities } from '../../data/tools';
+import { tools, toolCategories } from '../../data/tools';
 import { toolSections, toolCategoryAliases } from '../../data/tool-sections.mjs';
 import { createCatalogView, validateCatalogSections } from '../../lib/tool-catalog.mjs';
 
 const counts = new Map(toolCategories.map((category) => [category.id, tools.filter((tool) => tool.category === category.id || (tool.alsoIn ?? []).includes(category.id)).length]));
-const capCounts = new Map(toolCapabilities.map((cap) => [cap.id, tools.filter((tool) => tool.capabilities.includes(cap.id)).length]));
 const hasTools = tools.length > 0;
 const suggestionUrl = 'https://github.com/A7m0spHere/CDU-AI/issues/new?template=tool-suggestion.yml';
 const catalogErrors = validateCatalogSections(tools, toolCategories);
@@ -116,41 +115,9 @@ const catalogConfig = JSON.stringify({
             </div>
           </nav>
 
-          <div class="catalog-nav catalog-nav--caps" data-cap-panel>
-            <div class="catalog-nav__head">
-              <span>能力筛选</span>
-              <span class="filter-count">可多选</span>
-              <button
-                class="catalog-caps-toggle"
-                type="button"
-                data-cap-toggle
-                aria-expanded="false"
-                aria-controls="catalog-cap-list"
-                hidden
-              >
-                <span data-cap-toggle-label>展开</span>
-                <Icon name="chevron-down" size={14} />
-              </button>
-            </div>
-            <div class="filter-chips filter-chips--vertical" id="catalog-cap-list" data-cap-list role="group" aria-label="按能力筛选">
-              {toolCapabilities.map((cap) => (
-                <button
-                  class="filter-chip filter-chip--cap"
-                  type="button"
-                  data-filter-cap={cap.id}
-                  aria-pressed="false"
-                  title={cap.hint}
-                >
-                  {cap.label}
-                  <span class="filter-chip__count">{capCounts.get(cap.id) ?? 0}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           <p class="catalog-sidebar__note">
             <Icon name="info" size={14} />
-            搜索限定在当前栏目；选择「全部工具」可扩大搜索范围。能力可多选并取交集。更多开源 Agent 与 Harness 默认收起，搜索或能力筛选时自动展开匹配项。
+            搜索限定在当前栏目；选择「全部工具」可扩大搜索范围。更多开源 Agent 与 Harness 默认收起，搜索时自动展开匹配项。
           </p>
         </aside>
 
@@ -187,7 +154,7 @@ const catalogConfig = JSON.stringify({
                           <summary class="tool-more__summary">
                             <span class="tool-more__heading">
                               <span class="tool-more__title">{section.collapse.label}</span>
-                              <span class="tool-more__meta"><span data-collapse-count>{group.collapsedIds.length}</span> 个条目 · 默认收起，搜索或能力筛选时自动展开</span>
+                              <span class="tool-more__meta"><span data-collapse-count>{group.collapsedIds.length}</span> 个条目 · 默认收起，搜索时自动展开</span>
                             </span>
                             <Icon name="chevron-down" size={18} class="tool-more__icon" />
                           </summary>
@@ -257,11 +224,11 @@ const catalogConfig = JSON.stringify({
               <p class="tool-card__verify" data-sheet-verify></p>
             </div>
             <div class="tool-sheet__foot">
-              <a class="btn btn--primary btn--sm tool-sheet__primary" data-sheet-url target="_blank" rel="noopener noreferrer">
+              <a class="btn btn--primary tool-sheet__primary" data-sheet-url target="_blank" rel="noopener noreferrer">
                 打开官网
                 <Icon name="arrow-up-right" size={15} />
               </a>
-              <a class="btn btn--soft btn--sm tool-sheet__repo" data-sheet-repo target="_blank" rel="noopener noreferrer" hidden>
+              <a class="btn btn--soft tool-sheet__repo" data-sheet-repo target="_blank" rel="noopener noreferrer" hidden>
                 <Icon name="github" size={15} />
                 代码仓库
               </a>

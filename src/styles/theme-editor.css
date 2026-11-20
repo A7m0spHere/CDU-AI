@@ -4,13 +4,14 @@
 
 .theme-editor {
   width: min(40rem, calc(100vw - 2rem));
-  max-height: min(84vh, 46rem);
+  max-height: min(86dvh, 46rem);
   padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
   color: var(--ink);
   box-shadow: var(--shadow-float);
+  overscroll-behavior: contain;
 }
 
 /* 背景压暗但不加模糊：调色时能看见整页实时预览 */
@@ -37,7 +38,7 @@
 
 .theme-editor__inner {
   display: flex;
-  max-height: min(84vh, 46rem);
+  max-height: min(86dvh, 46rem);
   flex-direction: column;
 }
 
@@ -86,7 +87,10 @@
 
 .theme-editor__body {
   display: flex;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   flex-direction: column;
   gap: 1.15rem;
   padding: 1rem 1.1rem 1.2rem;
@@ -94,6 +98,7 @@
 
 .theme-editor__foot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   padding: 0.8rem 1.1rem;
@@ -326,7 +331,7 @@
   position: absolute;
   z-index: 60;
   display: flex;
-  width: 248px;
+  width: min(248px, calc(100% - 16px));
   flex-direction: column;
   gap: 0.6rem;
   padding: 0.65rem;
@@ -652,6 +657,9 @@
 
 .theme-import {
   width: min(30rem, calc(100vw - 2rem));
+  max-height: min(88dvh, 38rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -726,9 +734,39 @@
   margin-top: 0.3rem;
 }
 
-/* ---------- 小屏适配 ---------- */
+/* ---------- 小屏与触控适配 ---------- */
+
+@media (hover: none), (pointer: coarse) {
+  .theme-editor__head {
+    cursor: default;
+    touch-action: auto;
+  }
+}
 
 @media (max-width: 560px) {
+  .theme-editor {
+    width: calc(100vw - 1rem);
+    max-height: min(88dvh, 46rem);
+  }
+
+  .theme-editor__inner {
+    max-height: min(88dvh, 46rem);
+  }
+
+  .theme-editor__head {
+    cursor: default;
+    touch-action: auto;
+  }
+
+  .theme-editor__close {
+    min-width: 38px;
+    min-height: 38px;
+    justify-content: center;
+  }
+
+  .theme-editor__close kbd {
+    display: none;
+  }
 
   .theme-editor__body {
     padding: 0.85rem 0.9rem 1rem;
@@ -737,6 +775,39 @@
   .theme-editor__head,
   .theme-editor__foot {
     padding-inline: 0.9rem;
+  }
+
+  .theme-editor__foot {
+    gap: 0.45rem;
+    padding-block: 0.72rem;
+  }
+
+  .theme-editor__foot-spacer {
+    display: none;
+  }
+
+  .theme-editor__foot [data-theme-export] {
+    margin-right: auto;
+  }
+
+  .theme-editor__foot .btn {
+    min-height: 38px;
+    padding-inline: 0.78rem;
+  }
+
+  @media (max-width: 360px) {
+    .theme-editor__foot [data-theme-save] {
+      flex: 1 0 100%;
+      justify-content: center;
+    }
+  }
+
+  .theme-import {
+    width: calc(100vw - 1rem);
+  }
+
+  .theme-import__foot {
+    flex-wrap: wrap;
   }
 
   .theme-color-grid {

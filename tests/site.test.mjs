@@ -892,10 +892,8 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /class="tool-mark__fallback"[^>]*data-fallback hidden/, '有 Logo 时首字母兜底必须默认隐藏');
   assert.match(html, /data-mono="true"/, '单色标志需要 data-mono 钩子做深色反色');
 
-  // 能力筛选与场景筛选
-  assert.match(html, /data-filter-cap="open-source"/, '缺少「开源」能力筛选');
-  assert.match(html, /data-filter-cap="local"/, '缺少「本地部署」能力筛选');
-  assert.match(html, /data-filter-cap="beginner"/, '缺少「入门友好」能力筛选');
+  // 能力标签保留在卡片数据与搜索文本中，工具页不再渲染独立能力筛选栏
+  assert.doesNotMatch(html, /data-filter-cap=/, '工具页不应再渲染能力筛选按钮');
   assert.match(html, /data-capabilities=/, '卡片缺少能力标签数据属性');
 
   // 建议收录入口指向现有的 GitHub Issue 模板
@@ -908,7 +906,7 @@ test('Agent 与 Harness 展示个人助理及地区、开源分组，工具不�
   const html = await read('tools/index.html');
   assert.match(html, /data-collapse/, '缺少更多开源 Agent 折叠区');
   assert.match(html, /更多开源 Agent 与 Harness/, '折叠区缺少标题');
-  assert.match(html, /默认收起，搜索或能力筛选时自动展开/, '折叠区缺少展开说明');
+  assert.match(html, /默认收起，搜索时自动展开/, '折叠区缺少展开说明');
 
   const groups = Object.fromEntries(['personal', 'domestic', 'overseas', 'open-source'].map((id) => [
     id,

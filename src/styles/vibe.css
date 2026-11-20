@@ -723,13 +723,14 @@ body.search-open {
 .search-dialog {
   width: min(42rem, calc(100vw - 2rem));
   max-width: none;
-  max-height: min(78vh, 40rem);
+  max-height: min(78dvh, 40rem);
   padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
   color: var(--ink);
   box-shadow: var(--shadow-float);
+  overscroll-behavior: contain;
 }
 
 .search-dialog::backdrop {
@@ -772,7 +773,7 @@ body.search-open {
 
 .search-dialog__inner {
   display: flex;
-  max-height: min(78vh, 40rem);
+  max-height: min(78dvh, 40rem);
   flex-direction: column;
 }
 
@@ -836,6 +837,7 @@ body.search-open {
 
 .search-dialog__results {
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 0.3rem 0.5rem 0.55rem;
 }
 
@@ -985,11 +987,12 @@ body.search-open {
 
   .search-dialog {
     width: calc(100vw - 1.25rem);
-    max-height: min(82vh, 40rem);
+    max-height: min(82dvh, 40rem);
+    margin: calc(0.75rem + env(safe-area-inset-top, 0px)) auto auto;
   }
 
   .search-dialog__inner {
-    max-height: min(82vh, 40rem);
+    max-height: min(82dvh, 40rem);
   }
 
   .search-dialog__foot {
@@ -1045,6 +1048,12 @@ body.search-open {
 
   .search-dialog__head {
     padding: 0.8rem;
+  }
+
+  .search-dialog__close {
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
   }
 
   .search-dialog__close kbd {
