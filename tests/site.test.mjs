@@ -60,7 +60,6 @@ const expectedRoutes = [
   'community/index.html',
   'events/index.html',
   'events/rules/index.html',
-  'events/ideas/index.html',
   'guide/index.html',
   'glossary/index.html',
   'tools/index.html',
@@ -415,22 +414,29 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
 
   const events = await read('events/index.html');
   assert.match(events, /成都大学第八届网络创新大赛——AI创作挑战赛/, '活动页应展示当前赛事名称');
-  assert.match(events, /新手组/, '活动页应展示新手组赛道');
-  assert.match(events, /进阶组/, '活动页应展示进阶组赛道');
+  assert.doesNotMatch(events, /计协首个 AI 赛事/, '活动页 Hero eyebrow 不应保留多余前缀字符');
+  assert.doesNotMatch(events, /半期考试/, '活动页赛程应移除半期考试相关文字');
+  assert.match(events, /id="challenge-info-drawer"/, '活动页应提供赛道与作品要求抽屉弹窗');
+  assert.doesNotMatch(events, /<p class="eyebrow">(01|02|03|04) · /, '活动页分块标题不应包含 01/02/03/04 前缀');
+  assert.doesNotMatch(events, /id="intro"/, '活动页主流程不应保留 01 · 赛事介绍与作品要求模块');
+  assert.doesNotMatch(events, /<dt>核心节点<\/dt>/, '赛事速览不应包含核心节点行');
+  assert.match(events, /新手组/, '抽屉弹窗内应展示新手组赛道');
+  assert.match(events, /进阶组/, '抽屉弹窗内应展示进阶组赛道');
   assert.match(events, /原则上不超过 2 人/, '进阶组人数要求应只保留原则上不超过 2 人');
-  assert.match(events, /发布至公网/, '活动页作品要求应包含公网发布');
-  assert.match(events, /头图/, '活动页作品要求应包含自制头图');
-  assert.match(events, /追溯正赛前 3–4 天的代码提交记录/, '活动页作品要求应包含反作弊与旧项目追溯机制');
+  assert.match(events, /头图/, '抽屉弹窗作品要求应包含自制头图');
+  assert.match(events, /追溯正赛前 3–4 天的代码提交记录/, '抽屉弹窗作品要求应包含反作弊与旧项目追溯机制');
   assert.match(events, /2026年11月24日 – 2026年12月4日/, '活动页应使用已确认的赛程时间');
   assert.match(events, /线上评审/, '活动页应体现 12 月 4 日晚开启线上评审');
+  assert.match(events, /12月5日/, '活动页应体现 12 月 5 日线下 Demo Day');
+  assert.match(events, /Demo Day/, '活动页应说明线下 Demo Day 项目展示与交流');
   assert.doesNotMatch(events, /WorkBuddy/i, '比赛详细页不应提及 WorkBuddy');
   assert.doesNotMatch(events, /GitHub\s*托管/, '比赛详细页不应提及 GitHub 托管');
-  assert.match(events, /飞书/, '活动页应保留飞书报名入口说明');
-  assert.match(events, /待定/, '未确认的报名或提交入口应保留待定占位');
+  assert.match(events, /飞书/, '活动页应保留飞书报名入口按钮');
+  assert.doesNotMatch(events, /阶段 A|意向报名表字段预览/, '活动页报名入口应精简为单个飞书跳转交互按钮');
+  assert.doesNotMatch(events, /明确不强制提供|交付与补正红线|项目起点登记表/, '作品提交页面介绍应留空并移除多余说明块');
   assert.match(events, /群二维码/, '活动页应预留赛事交流群二维码位置');
-  assert.match(events, /项目起点登记表/, '活动页应保留三阶段作品提交信息');
   assert.match(events, /href="\/events\/rules\/"/, '活动页应提供完整赛事细则子页入口');
-  assert.match(events, /href="\/events\/ideas\/"/, '活动页应提供可选选题灵感指南子页入口');
+  assert.doesNotMatch(events, /href="\/events\/ideas\/"/, '已移除可选选题灵感指南入口');
   assert.doesNotMatch(events, /本页没有活动日历|两小时工作坊流程/, '活动页应移除旧版占位和常规形式计划');
 
   const rules = await read('events/rules/index.html');
@@ -439,11 +445,7 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(rules, /反抄袭/, '赛事细则应包含反抄袭机制');
   assert.doesNotMatch(rules, /WorkBuddy/i, '赛事细则不应提及 WorkBuddy');
   assert.doesNotMatch(rules, /GitHub\s*托管/, '赛事细则不应提及 GitHub 托管');
-
-  const ideas = await read('events/ideas/index.html');
-  assert.match(ideas, /可选选题灵感指南/, '选题灵感子页应存在');
-  assert.match(ideas, /低依赖网页/, '选题灵感子页应按依赖分级给出网页灵感');
-  assert.doesNotMatch(ideas, /WorkBuddy/i, '选题灵感子页不应提及 WorkBuddy');
+  assert.doesNotMatch(rules, /href="\/events\/ideas\/"/, '赛事细则不应再链接已移除的选题灵感页面');
 });
 
 test('全站透明说明与内容边界存在', async () => {
