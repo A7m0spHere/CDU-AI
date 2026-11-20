@@ -3,6 +3,34 @@
    覆盖：/events/、/events/rules/
    ========================================================= */
 
+.page-hero h1:has(.challenge-title) {
+  max-width: none;
+}
+
+.challenge-title {
+  display: grid;
+  container-type: inline-size;
+  gap: 0.28rem;
+  font-family: 'Fusion Pixel 12px', var(--font-sans);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1.18;
+}
+
+.challenge-title__series {
+  color: var(--ink-soft);
+  font-size: clamp(0.875rem, 7.3cqi, 1.5rem);
+}
+
+.challenge-title__name {
+  color: var(--brand);
+  font-size: clamp(1.5rem, 12.5cqi, 2.625rem);
+  text-shadow:
+    0.035em 0.045em 0 var(--brand-strong),
+    0.07em 0.09em 0 color-mix(in srgb, var(--ink) 27%, var(--brand-soft));
+}
+
 /* 侧边速览交互入口卡 */
 .challenge-aside-trigger {
   display: flex;

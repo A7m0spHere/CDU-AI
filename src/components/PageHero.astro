@@ -40,14 +40,16 @@ const hasActions = Astro.slots.has('actions');
       <div class="page-hero__copy">
         {eyebrow && <p class="eyebrow">{eyebrow}</p>}
         <h1>
-          {titleLines && titleLines.length > 0
-            ? titleLines.map((line, index) => (
-                <Fragment>
-                  {line}
-                  {index < titleLines.length - 1 && <br class="title-br" />}
-                </Fragment>
-              ))
-            : title}
+          <slot name="title">
+            {titleLines && titleLines.length > 0
+              ? titleLines.map((line, index) => (
+                  <Fragment>
+                    {line}
+                    {index < titleLines.length - 1 && <br class="title-br" />}
+                  </Fragment>
+                ))
+              : title}
+          </slot>
         </h1>
         {description && <p class="page-hero__lede">{description}</p>}
         {hasActions && (

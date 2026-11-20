@@ -413,7 +413,9 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(home, /class="home-event-banner"[^>]*href="\/events\/"/, '首页赛事横幅应直达活动页');
 
   const events = await read('events/index.html');
-  assert.match(events, /成都大学第八届网络创新大赛——AI创作挑战赛/, '活动页应展示当前赛事名称');
+  const eventHeading = events.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1] ?? '';
+  assert.match(eventHeading, /class="challenge-title__series">成都大学第八届网络创新大赛<\/span>[\s\S]*class="challenge-title__name">AI创作挑战赛<\/span>/, '活动页应分行展示赛事名称');
+  assert.doesNotMatch(eventHeading, /——/, '活动页主标题应去掉破折号');
   assert.doesNotMatch(events, /计协首个 AI 赛事/, '活动页 Hero eyebrow 不应保留多余前缀字符');
   assert.doesNotMatch(events, /半期考试/, '活动页赛程应移除半期考试相关文字');
   assert.match(events, /id="challenge-overview-dialog"/, '活动页应提供赛事速览交互弹窗');

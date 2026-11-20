@@ -58,8 +58,12 @@ export function resolveExternalUrl(url?: string): string | undefined {
   return isSafeExternalUrl(trimmed) ? trimmed : undefined;
 }
 
+const titleLines = ['成都大学第八届网络创新大赛', 'AI创作挑战赛'] as const;
+const title = titleLines.join('——');
+
 export const challengeConfig = {
-  title: '成都大学第八届网络创新大赛——AI创作挑战赛',
+  title,
+  titleLines,
   shortTitle: '第八届网络创新大赛 · AI创作挑战赛',
   eyebrow: '活动',
   statusBadge: '2026年11月24日 – 12月4日',
@@ -78,7 +82,7 @@ export const challengeConfig = {
   },
   homeBanner: {
     badge: 'AI 创作挑战赛',
-    title: '成都大学第八届网络创新大赛——AI创作挑战赛',
+    title,
     summary: '11/21 10:00 至 11/24 10:00 报名 · 11/24 开赛 · 12/6 线下展示及颁奖',
     ctaLabel: '查看详情与报名',
     href: '/events/',

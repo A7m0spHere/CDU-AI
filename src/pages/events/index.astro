@@ -17,6 +17,7 @@ import {
 const registration = challengeConfig.registration;
 const registrationUrl = resolveExternalUrl(registration.url);
 const { dates } = challengeConfig;
+const [seriesTitle, challengeTitle] = challengeConfig.titleLines;
 
 const sections = [
   { label: '赛程与评审', href: '#schedule' },
@@ -39,6 +40,13 @@ const sections = [
     crumbs={[{ label: '活动' }]}
     tone="warm"
   >
+    <Fragment slot="title">
+      <span class="challenge-title">
+        <span class="challenge-title__series">{seriesTitle}</span>{' '}
+        <span class="challenge-title__name">{challengeTitle}</span>
+      </span>
+    </Fragment>
+
     <Fragment slot="actions">
       <a class="btn btn--primary" href="#register">
         报名入口
