@@ -7,24 +7,27 @@ import Icon from '../../components/Icon.astro';
 import {
   challengeConfig,
   ruleSections,
-  reviewAndAwardHighlights,
+  scoringGroups,
+  awardRows,
+  awardNotes,
 } from '../../data/challenge';
 
-const tocHeadings = ruleSections.map((section) => ({
-  depth: 2,
-  slug: section.id,
-  text: section.title,
-}));
+const tocHeadings = ruleSections.flatMap((section) => [
+  { depth: 2, slug: section.id, text: section.title },
+  ...(section.id === 'judging-and-awards'
+    ? scoringGroups.map((group) => ({ depth: 3, slug: `scoring-${group.id}`, text: group.label }))
+    : []),
+]);
 ---
 
 <BaseLayout
   title={`完整赛事细则 · ${challengeConfig.title}`}
-  description="成都大学第八届网络创新大赛——AI创作挑战赛完整赛事细则：双赛道与组队规范、网页公网发布与头图要求、反抄袭与旧项目追溯机制、11月24日–12月4日赛程安排及线上评审说明。"
+  description={`${challengeConfig.title}完整赛事细则，含组队、作品提交、赛程、评分表与奖项。`}
 >
   <PageHero
     eyebrow="活动 · 正式细则"
     title="完整赛事细则"
-    description={`${challengeConfig.title}执行细则（含双赛道设置、作品与反抄袭要求、赛程豁免、线上评审及奖项说明）。`}
+    description={`${challengeConfig.title}的组队、作品提交、评审和奖项规则。`}
     crumbs={[
       { label: '活动', href: '/events/' },
       { label: '完整赛事细则' },
@@ -50,7 +53,7 @@ const tocHeadings = ruleSections.map((section) => ({
         </div>
         <dl class="meta-rows">
           <div><dt>适用赛事</dt><dd>{challengeConfig.shortTitle}</dd></div>
-          <div><dt>承办定位</dt><dd>计算机协会首个 AI 赛事</dd></div>
+          <div><dt>承办</dt><dd>成都大学计算机协会</dd></div>
           <div><dt>活动周期</dt><dd>{challengeConfig.dates.overall}</dd></div>
           <div><dt>最近更新</dt><dd>{challengeConfig.updatedOn}</dd></div>
         </dl>
@@ -62,13 +65,6 @@ const tocHeadings = ruleSections.map((section) => ({
     <div class="container">
       <div class="challenge-doc-layout">
         <div class="challenge-doc-main">
-          <div class="notice challenge-doc-banner">
-            <Icon name="info" size={17} />
-            <p>
-              <strong>阅读提示：</strong>本页为当前筹备期赛制细则说明；评分系统指标与具体评奖细则将在 11 月 24 日正式开赛后逐步制定并公开，校级认证与综测认可按最终批复结果为准。
-            </p>
-          </div>
-
           {ruleSections.map((section) => (
             <section class="challenge-rule-section" id={section.id} aria-labelledby={`${section.id}-heading`}>
               <h2 id={`${section.id}-heading`}>{section.title}</h2>
@@ -80,22 +76,58 @@ const tocHeadings = ruleSections.map((section) => ({
               </ul>
 
               {section.id === 'judging-and-awards' && (
-                <div class="challenge-guardrail-grid">
-                  {reviewAndAwardHighlights.map((item) => (
-                    <article class="challenge-guardrail-card card">
-                      <span class="mono">{item.step} · {item.badge}</span>
-                      <h3>{item.title}</h3>
-                      <p>{item.text}</p>
-                    </article>
+                <div class="challenge-rule-tables">
+                  {scoringGroups.map((group) => (
+                    <div class="challenge-rule-table">
+                      <h3 id={`scoring-${group.id}`}>{group.label}</h3>
+                      <table>
+                        <caption class="sr-only">{group.label}及判定依据</caption>
+                        <thead>
+                          <tr>
+                            <th scope="col">评分维度</th>
+                            <th scope="col">分值</th>
+                            <th scope="col">判定依据</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {group.dimensions.map((dimension) => (
+                            <tr>
+                              <th scope="row">{dimension.name}</th>
+                              <td>{dimension.weight}</td>
+                              <td>{dimension.criteria}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <p class="challenge-rule-tiebreaker">{group.tiebreak}</p>
+                    </div>
                   ))}
+                  <div class="challenge-rule-table">
+                    <h3>奖项名额与奖励</h3>
+                    <table>
+                      <caption class="sr-only">两组奖项名额与奖励</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">奖项</th>
+                          <th scope="col">名额</th>
+                          <th scope="col">奖励</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {awardRows.map((award) => (
+                          <tr>
+                            <th scope="row">{award.group} · {award.title}</th>
+                            <td>{award.quantity}</td>
+                            <td>{award.reward}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <ul class="challenge-rule-list">
+                      {awardNotes.map((note) => <li>{note}</li>)}
+                    </ul>
+                  </div>
                 </div>
-              )}
-
-              {section.note && (
-                <p class="challenge-rule-note">
-                  <Icon name="clock" size={14} />
-                  <span>{section.note}</span>
-                </p>
               )}
             </section>
           ))}
@@ -121,7 +153,7 @@ const tocHeadings = ruleSections.map((section) => ({
             </div>
             <ul class="challenge-aside-links">
               <li><a href="/events/#schedule">赛程时间线与线上评审 →</a></li>
-              <li><a href="/events/#register">报名入口与交流群 →</a></li>
+              <li><a href="/events/#register">腾讯文档报名入口 →</a></li>
               <li><a href="/events/#submit">作品提交说明 →</a></li>
             </ul>
           </div>

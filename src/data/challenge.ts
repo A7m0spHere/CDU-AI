@@ -1,53 +1,44 @@
 import { isSafeExternalUrl } from '../lib/url-guard.mjs';
 
-export type EntryStatus = 'upcoming' | 'open' | 'closed';
-
-export interface ExternalEntry {
-  id: string;
-  code: string;
-  stageLabel: string;
-  title: string;
-  dateLabel: string;
-  status: EntryStatus;
-  /** 外部表单链接（如飞书表单 URL）。留空时页面自动显示待开放状态，不输出无效链接。 */
-  url: string;
-  buttonLabel: string;
-  pendingLabel: string;
-  closedLabel?: string;
-  collects: string;
-  purpose: string;
-  highlight?: string;
-}
-
 export interface CompetitionTrack {
-  code: string;
   title: string;
   teamRule: string;
   summary: string;
   requirement: string;
-  note: string;
 }
 
 export interface WorkRequirementItem {
   badge: string;
   title: string;
   text: string;
-  tone?: 'brand' | 'warn';
 }
 
 export interface TimelinePhase {
   day: string;
   dateLabel: string;
+  time: string;
   stage: string;
   summary: string;
-  deliverable: string;
 }
 
-export interface ReviewHighlight {
-  step: string;
-  badge: string;
+export interface ScoringDimension {
+  name: string;
+  weight: number;
+  criteria: string;
+}
+
+export interface ScoringGroup {
+  id: 'starter' | 'open';
+  label: string;
+  dimensions: ScoringDimension[];
+  tiebreak: string;
+}
+
+export interface AwardRow {
+  group: '新手组' | '进阶组';
   title: string;
-  text: string;
+  quantity: string;
+  reward: string;
 }
 
 export interface RuleSection {
@@ -55,7 +46,6 @@ export interface RuleSection {
   title: string;
   lead?: string;
   bullets: string[];
-  note?: string;
 }
 
 /**
@@ -68,420 +58,325 @@ export function resolveExternalUrl(url?: string): string | undefined {
   return isSafeExternalUrl(trimmed) ? trimmed : undefined;
 }
 
-/**
- * ============================================================================
- * 赛事统一配置区（正式发版 / 赛程推进时，只需更新以下配置即可全站生效）
- * ============================================================================
- */
 export const challengeConfig = {
   title: '成都大学第八届网络创新大赛——AI创作挑战赛',
   shortTitle: '第八届网络创新大赛 · AI创作挑战赛',
   eyebrow: '活动',
   statusBadge: '2026年11月24日 – 12月4日',
-  subtitle:
-    '由成都大学计算机协会承办的首个 AI 相关赛事，设新手组与进阶组双赛道，以个人参赛为主。',
-  organizerNote:
-    '由成都大学计算机协会承办（协会承办的首个 AI 相关赛事），积极争取校团委盖章认证与学院综测加分认可；本站为社区活动信息页，非成都大学官方平台。',
+  subtitle: '用 AI 把一个想法做成可运行、可验证的作品。面向成都大学在读学生，设新手组与进阶组。',
+  organizerNote: '由共青团成都大学委员会、成都大学电子信息与电气工程学院主办，成都大学计算机协会承办。',
   updatedOn: '2026-11-20',
-
-  /** 关键日期配置：保留未确认表单占位，同时同步已定核心赛程节点 */
   dates: {
     overall: '2026年11月24日 – 2026年12月4日',
-    briefing: '2026年11月24日（周二）',
-    onlineReview: '2026年12月4日（周五）晚间',
-    registration: '待定',
-    teamConfirm: '待定（开赛前截止）',
-    kickoff: '待定（D1）',
-    midterm: '待定（D7）',
-    submission: '待定（D11–D12）',
-    correction: '待定（D12 截止后 2–4 小时）',
-    preliminary: '待定（D13）',
-    demoDay: '待定（D14）',
-    venue: '待定（校内线下场地）',
+    registration: '11 月 21 日 10:00 至 11 月 24 日 10:00（北京时间）',
+    briefing: '11 月 24 日下午',
+    midterm: '11 月 28 日 20:00 前',
+    submission: '12 月 4 日 18:00',
+    onlineReview: '12 月 5 日',
+    demoDay: '12 月 6 日 14:00–17:30',
+    venue: '第十教学楼（具体教室以选手群通知为准）',
   },
-
-  /** 首页顶部横幅提示 */
   homeBanner: {
-    badge: '计协首个 AI 赛事',
+    badge: 'AI 创作挑战赛',
     title: '成都大学第八届网络创新大赛——AI创作挑战赛',
-    summary: '2026年11月24日 – 12月4日 · 设新手组与进阶组，以个人参赛为主，12月5日线下 Demo Day',
+    summary: '11/21 10:00 至 11/24 10:00 报名 · 11/24 开赛 · 12/6 线下展示及颁奖',
     ctaLabel: '查看详情与报名',
     href: '/events/',
   },
-
-  /**
-   * 报名入口配置（计划使用飞书外部表单）
-   * 使用方法：将 url 替换为真实飞书表单地址（https://...），并将 status 改为 'open' 即可激活跳转。
-   */
   registration: {
-    platform: '飞书表单',
-    intentForm: {
-      id: 'intent-registration',
-      code: '阶段 A',
-      stageLabel: '意向报名（个人可先报）',
-      title: '前往飞书填写意向报名表',
-      dateLabel: '开放时间：待定',
-      status: 'upcoming' as EntryStatus,
-      url: '',
-      buttonLabel: '前往飞书填写报名表',
-      pendingLabel: '飞书报名入口待开放',
-      closedLabel: '意向报名已截止',
-      collects: '姓名、学院与年级、常用联系方式、当前组队情况（选填：感兴趣方向、开发经验、期望队友）',
-      purpose: '先入场再成队：还没想好点子、没有队友都可以先报名进群。',
-      highlight: '无需提交项目策划书、GitHub 账号或 API 使用计划。',
-    } satisfies ExternalEntry,
-    teamConfirmForm: {
-      id: 'team-confirmation',
-      code: '阶段 B',
-      stageLabel: '正式组队确认（开赛前截止）',
-      title: '正式组队确认与编号发放',
-      dateLabel: '截止时间：待定',
-      status: 'upcoming' as EntryStatus,
-      url: '',
-      buttonLabel: '前往飞书确认组队',
-      pendingLabel: '组队确认入口待开放',
-      closedLabel: '组队确认已截止',
-      collects: '最终 1–2 人成员名单、双人队指定 1 名队长作为主要联系人',
-      purpose: '确认参赛资格，由组委会统一发放唯一队伍编号（如 CDUAI-001），作为全赛程提交主键。',
-    } satisfies ExternalEntry,
-    privacyNotice:
-      '报名通过外部飞书表单收集，仅用于赛事通知、资格核对与组队对接。个人联系方式与后续公开展示的作品资料分表隔离，未经本人同意不对外公开。',
-  },
-
-  /**
-   * 赛事交流群二维码配置
-   * 使用方法：将二维码图片放到 public/images/events/challenge-group-qr.png，
-   * 然后把下方 qrImage 改为 '/images/events/challenge-group-qr.png' 即可显示。
-   */
-  communityGroup: {
-    title: '赛事通知与组队交流群',
-    platform: 'QQ / 微信交流群',
-    qrImage: '',
-    qrAlt: '成都大学第八届网络创新大赛——AI创作挑战赛交流群二维码',
-    groupIdText: '待公布',
-    description: '用于发布赛程时间确认通知、飞书报名与提交链接、自由寻找队友以及赛期答疑交流。',
-    placeholderHint: '群二维码待补充，确认后将在此直接展示',
+    opensAt: '2026-11-21T10:00:00+08:00',
+    closesAt: '2026-11-24T10:00:00+08:00',
+    platform: '腾讯文档',
+    url: 'https://docs.qq.com/form/page/DYXhGYXJYQ2V0bnZD',
+    qrImage: '/images/events/tencent-docs-registration-qr.png',
+    contact: '提交后 24 小时内，组委会通过短信或 QQ 发送确认信息与选手群入口。',
+    privacyNotice: '报名信息用于资格核验、赛事通知与组队对接。联系方式与作品公开展示资料分开管理。',
   },
 };
 
 export const quickFacts = [
-  { label: '活动周期', value: `${challengeConfig.dates.overall}（7–10 天）` },
-  { label: '承办定位', value: '计算机协会承办的首个 AI 相关赛事' },
-  { label: '双赛道设置', value: '新手组 / 进阶组' },
-  { label: '参赛人数', value: '个人参赛为主（进阶组原则上不超过 2 人）' },
-  { label: '作品形式', value: 'AI 项目开发 · 自制功能头图' },
+  { label: '线上报名', value: challengeConfig.dates.registration },
+  { label: '赛期', value: challengeConfig.dates.overall },
+  { label: '参赛对象', value: '成都大学在读本科生和研究生，专业、年级不限' },
+  { label: '组别', value: '新手组 / 进阶组，分别评奖' },
+  { label: '线下展示及颁奖', value: challengeConfig.dates.demoDay },
 ];
 
 export const competitionTracks: CompetitionTrack[] = [
   {
-    code: '赛道一',
     title: '新手组',
-    teamRule: '尽量单人参赛（防怠工）',
-    summary: '面向首次接触 AI 项目开发、希望在参考框架上完成第一次真实实践的同学。',
-    requirement: '基于活动提供的优秀参考模板开展创作，参赛作品须在模板基础上实现至少一项有意义的改进。',
-    note: '后续将结合报名情况统计新手人数，并依托官网学习指南与工具库提供针对性引导。',
+    teamRule: '个人参赛',
+    summary: '适合零基础或第一次用 AI 做作品的同学。',
+    requirement: '选一个组委会提供的模板，跑通后做至少一项实质改进。',
   },
   {
-    code: '赛道二',
     title: '进阶组',
-    teamRule: '鼓励单人 · 组队原则上不超过 2 人',
-    summary: '面向具备一定开发或交互设计经验、希望自主打造完整功能的同学。',
-    requirement: '独立或至多两人协作完成原创项目设计与功能实现，并自行设计展示核心功能的头图。',
-    note: '双人组队须明确各自实质开发分工，不接受跨队挂名或空挂名义参与。',
+    teamRule: '个人或 2 人团队',
+    summary: '适合有开发经验或用过 Agent 的同学。',
+    requirement: '自由选题，交付至少一项可现场运行的核心功能。',
   },
 ];
 
 export const workRequirements: WorkRequirementItem[] = [
   {
-    badge: '形式要求',
-    title: '完成可演示的 AI 创作项目',
-    text: '围绕赛事方向开发可真实运行或可完整演示的创作项目，做好核心流程验证，便于线上评审与线下 Demo Day 展示体验。',
+    badge: '功能',
+    title: '至少一项可验证的功能',
+    text: '评委能实际操作或复现核心流程。纯 PPT、静态效果图或无法验证的录屏不足以作为参赛作品。',
   },
   {
-    badge: '展示要求',
-    title: '自制核心功能展示头图',
-    text: '参赛者须自行设计一张作品头图，清晰展现项目的核心功能、使用场景与创意卖点，随作品资料一并呈现。',
+    badge: '交付',
+    title: '提供可运行的作品与说明',
+    text: '在线链接、代码仓库或本地运行包任选一种，并说明运行方式和已知限制。',
   },
   {
-    badge: '作品审核',
-    title: '重点审查合规、合法与创意亮点',
-    text: '审核环节将重点核查作品内容的合规性、合法性及是否具备独特的创意亮点，不接收仅做静态包装的空壳页面或违规内容。',
-  },
-  {
-    badge: '反作弊底线',
-    title: '严禁套壳搬运 · 旧作追溯提交记录',
-    text: '严禁直接复制参考模板或搬运他人开源源码充当作品。若基于个人旧项目参赛，将追溯正赛前 3–4 天的代码提交记录进行判定，只认可赛期真实新增与改进成果。',
-    tone: 'warn',
-  },
-];
-
-export const admissionSteps = [
-  {
-    code: '阶段 A',
-    title: '意向报名',
-    timing: challengeConfig.dates.registration,
-    text: '面向个人开放。没有项目点子、还没找到队友都可以先通过飞书表报名并加入交流群。',
-  },
-  {
-    code: '阶段 B',
-    title: '正式组队确认',
-    timing: challengeConfig.dates.teamConfirm,
-    text: '确认最终 1–2 人名单（双人队指定 1 名队长），组委会核验后分配唯一队伍编号（如 CDUAI-001）。',
-  },
-  {
-    code: '阶段 C',
-    title: 'D1 项目起点登记',
-    timing: challengeConfig.dates.kickoff,
-    text: '开赛当天登记选题方向、成员初步分工与既有项目基础（如有），作为后续“赛期增量评价”的基线。',
-  },
-];
-
-export const registrationFieldsPreview = [
-  { name: '姓名', required: true, note: '校内身份识别' },
-  { name: '学院与年级', required: true, note: '基础统计与校内参赛资格核对' },
-  { name: '常用联系方式', required: true, note: 'QQ / 微信，用于赛事通知与拉群' },
-  { name: '当前组队情况', required: true, note: '个人参赛 / 已有队友 / 希望寻找队友' },
-  { name: '感兴趣的创作方向', required: false, note: '用于自愿组队匹配参考' },
-  { name: '项目开发经验', required: false, note: '仅用于统计与匹配，不影响评分' },
-  { name: '期望队友方向', required: false, note: '仅面向希望寻找队友的同学' },
-];
-
-export const teamRuleSummary = [
-  '每队 1–2 人，鼓励个人参赛；双人队不会因人数更多而获得更高的基准评价。',
-  '每人仅允许加入 1 支队伍，严禁跨队挂名或兼职开发；所有成员须有明确交付分工。',
-  '阶段 B 截止前允许自由组队或拆分；确认后原则上锁定名单，赛中若有一人退赛，另一人可保留原编号以单人队继续完赛。',
-  '寻找队友的匹配完全自愿，匹配未成功默认转为个人参赛；未经本人同意不公开私人联系方式。',
-];
-
-/**
- * 作品提交入口配置（目前暂定，保留三阶段独立表单结构与信息）
- * 使用方法：各节点开放前填入对应外部表单 url，并将 status 改为 'open'。
- */
-export const submissionForms: ExternalEntry[] = [
-  {
-    id: 'form-d1-baseline',
-    code: '表 1 · D1',
-    stageLabel: '开赛起点登记',
-    title: '项目起点登记表',
-    dateLabel: challengeConfig.dates.kickoff,
-    status: 'upcoming',
-    url: '',
-    buttonLabel: '填写起点登记表',
-    pendingLabel: '提交入口暂定',
-    closedLabel: '起点登记已截止',
-    collects: '唯一队伍编号、选题名称、成员初步分工、既有项目/代码基础（如有则附链接或截图）、赛期计划新增内容。',
-    purpose: '建立增量评价基线，明确区分旧项目原有功能与本次赛期新增工作。',
-  },
-  {
-    id: 'form-d7-midterm',
-    code: '表 2 · D7',
-    stageLabel: '中期轻量节点',
-    title: '中期进度提交表',
-    dateLabel: challengeConfig.dates.midterm,
-    status: 'upcoming',
-    url: '',
-    buttonLabel: '提交中期进度',
-    pendingLabel: '提交入口暂定',
-    closedLabel: '中期提交已截止',
-    collects: '唯一队伍编号、当前已完成功能简述、最小可运行原型（MVP）截图或 15 秒操作录屏、遇到的主要困难。',
-    purpose: '验证开发真实过程，留足下半程测试与迭代时间。',
-    highlight: 'D7 不设硬性淘汰：尚未做出完整 MVP 也须如实提交当前进度与卡点，保留继续开发与参评资格。',
-  },
-  {
-    id: 'form-d12-final',
-    code: '表 3 · D11–D12',
-    stageLabel: '最终作品交付',
-    title: '最终作品提交表',
-    dateLabel: challengeConfig.dates.submission,
-    status: 'upcoming',
-    url: '',
-    buttonLabel: '提交最终作品',
-    pendingLabel: '提交入口暂定',
-    closedLabel: '作品提交已截止',
-    collects: '唯一队伍编号、2 页以内项目说明文档、实际运行入口、操作演示视频、测试与验证证据、最终成员交付分工。',
-    purpose: '作为 D13 线上初评与真实性核验的主要依据。截止前允许重复提交覆盖，以最后一次为准。',
+    badge: '原创',
+    title: '说明项目起点与赛期增量',
+    text: '允许使用模板、AI 或继续自己的旧项目。需说明已有内容、赛期新增成果及 AI 用途。',
   },
 ];
 
 export const finalDeliverables = [
-  {
-    title: '项目说明文档',
-    badge: '必填 · 建议 ≤ 2 页',
-    text: 'PDF 或 Markdown。写清创作目标、核心功能、运行方式、开赛起点与赛期增量、AI 使用方式、成员具体分工、测试验证情况及已知限制。',
-  },
-  {
-    title: '实际运行材料',
-    badge: '必填 · 任选其一',
-    text: '网页应用提供在线访问链接（及必要测试账号）；桌面软件/游戏提供安装包或压缩包链接 + 运行说明；本地依赖项目提供代码仓库 + 复现步骤或说明 D14 现场自带设备演示。',
-  },
-  {
-    title: '简短操作演示视频',
-    badge: '强烈建议 · 1–3 分钟',
-    text: '帮助评委在 D13 快速预览核心流程，并作为现场突发网络/设备故障时的辅助参考；视频不能替代实际运行验收。',
-  },
-  {
-    title: '测试与验证证据',
-    badge: '必填 · 按类型自选',
-    text: '功能测试用例、边界测试记录、性能/效果对照、交互试玩反馈等均可，不强制外部真人用户试用或固定人数门槛。',
-  },
-];
-
-export const notRequiredItems = [
-  '不需要商业计划书或融资测算',
-  '不强制提交完整 AI 对话或提示词记录',
-  '不强制开源整个项目代码',
-  '不强制公开部署到公网服务器',
-];
-
-export const submissionRedlines = [
-  '唯一主键关联：三张独立表单统一通过「唯一队伍编号（如 CDUAI-007）」串联，请勿填错编号。',
-  '入口与大文件分离：表单主要收集说明与外部访问链接（网页地址、合规网盘、代码仓库等），请确保链接在评审彻底结束前持续有效。',
-  '安全与隐私红线：严禁在提交材料、代码或测试账号中泄露 API 密钥、个人密码、他人隐私或未经授权的数据。',
-  '材料补正窗口：D12 正式截止后设 2–4 小时统一补正窗口，仅限修复链接失效、提取码错误、文件损坏或必填项漏填，严禁借此新增功能或大幅修改代码。',
+  '作品访问或运行方式',
+  '2 分钟演示录屏',
+  '1 页作品说明',
+  '团队分工表（团队提交）',
 ];
 
 export const timelinePhases: TimelinePhase[] = [
   {
-    day: '赛前窗口期',
-    dateLabel: '11月24日前',
-    stage: '宣传发布与报名窗口',
-    summary: '公开活动页面、赛制说明与飞书报名入口，预留多日窗口期。',
-    deliverable: '浏览赛制与教程 · 前往飞书完成报名',
+    day: '11/21',
+    dateLabel: '周六',
+    time: '10:00',
+    stage: '报名启动',
+    summary: '腾讯文档报名表上线；可个人报名，也可按规则提交团队报名。',
   },
   {
-    day: '11月24日（周二）',
-    dateLabel: '正式开赛',
-    stage: '线下宣讲会与开赛说明',
-    summary: '召开线下宣讲会，集中讲解双赛道赛制、综测方向政策说明、新人引导与组队意向收集。',
-    deliverable: '明确赛道 · 核对参考模板或项目思路',
+    day: '11/24',
+    dateLabel: '周二',
+    time: '10:00',
+    stage: '报名截止',
+    summary: '线上报名截止，信息补正与现场补报名安排以组委会通知为准。',
   },
   {
-    day: '11月24日 – 12月4日',
-    dateLabel: '7–10 天开发期',
-    stage: 'AI 项目开发与迭代',
+    day: '11/24',
+    dateLabel: '周二',
+    time: '下午',
+    stage: '开赛会（线下）',
     summary:
-      '新手组基于参考模板完成至少一项有意义的改进，进阶组自主完成项目设计与开发，并自行设计展示核心功能的头图。',
-    deliverable: '参赛开发项目 + 核心功能自制头图',
+      '规则讲解、评分说明、Agent 实操演示、选题指导、现场组队、结对与答疑。',
   },
   {
-    day: '12月4日（周五）晚间',
-    dateLabel: '截稿与线上评审',
-    stage: '作品提交截止并开启线上评审',
-    summary:
-      '当晚统一截止提交参赛作品，并随即开启线上评审。组织方重点进行合规、创意与反抄袭核验，由真人评委结合 AI 多维度评分综合评定。',
-    deliverable: '线上评审 · 评选新人奖与创新奖等赛道奖项',
+    day: '11/26',
+    dateLabel: '周四',
+    time: '20:00–20:30',
+    stage: '线上答疑（第 1 次）',
+    summary: '自愿参加；集中回答开发环境、模板改造与选题问题。',
   },
   {
-    day: '12月5日（周六）',
-    dateLabel: '线下 Demo Day',
-    stage: '开启线下 Demo Day（项目展示与交流）',
-    summary: '开展线下 Demo Day，包含参赛项目展示、现场体验交流以及奖项相关环节。',
-    deliverable: '线下 Demo Day · 项目展示与交流',
+    day: '11/28',
+    dateLabel: '周六',
+    time: '20:00 前',
+    stage: '中期检查',
+    summary: '提交当前可运行截图或 30 秒录屏 + 进度说明；团队须逐人单独说明。',
+  },
+  {
+    day: '11/30–12/3',
+    dateLabel: '周一至周四',
+    time: '全天',
+    stage: '自主开发',
+    summary: '线上自由开发，按自己的节奏完善功能与测试。',
+  },
+  {
+    day: '12/2',
+    dateLabel: '周三',
+    time: '20:00–20:30',
+    stage: '线上答疑（第 2 次）',
+    summary: '自愿参加；重点回答提交材料、部署上线与现场演示准备。',
+  },
+  {
+    day: '12/4',
+    dateLabel: '周五',
+    time: '18:00',
+    stage: '作品提交截止',
+    summary: '提交作品访问方式、2 分钟录屏和 1 页作品说明，团队另附分工表。',
+  },
+  {
+    day: '12/5',
+    dateLabel: '周六',
+    time: '线上',
+    stage: '线上评审',
+    summary: '评委线上查看材料与作品，形成初评意见；具体安排以选手群通知为准。',
+  },
+  {
+    day: '12/6',
+    dateLabel: '周日下午',
+    time: '14:00–17:30',
+    stage: '线下讲解、Demo 与颁奖',
+    summary: '现场讲解 + Demo + 答辩 + 公布成绩并颁奖；每队 5 分钟（3 分钟演示 + 2 分钟提问）。',
   },
 ];
 
-export const reviewAndAwardHighlights: ReviewHighlight[] = [
+export const scoringGroups: ScoringGroup[] = [
   {
-    step: '01',
-    badge: '线上评审',
-    title: 'AI 多维度 + 真人评委',
-    text: '引入真人评委保障评审公平性，结合 AI 多维度评分与人类评委主观评价，并适当设定权重对比进行综合评定。',
+    id: 'starter',
+    label: '新手组评分表',
+    dimensions: [
+      {
+        name: '可运行与完成度',
+        weight: 40,
+        criteria: '模板是否跑通，核心流程是否完整，能否现场演示。',
+      },
+      {
+        name: '改造深度',
+        weight: 20,
+        criteria: '是否在模板基础上有实质性改造（功能、交互、数据），而非仅换配色或文字。',
+      },
+      {
+        name: '学习与过程记录',
+        weight: 20,
+        criteria: '中期检查、每日记录、遇到的问题与解决过程是否真实可查。',
+      },
+      {
+        name: 'AI 使用合理性',
+        weight: 10,
+        criteria: '是否用 AI 完成关键环节，能否解释 AI 产出的内容。',
+      },
+      {
+        name: '展示与表达',
+        weight: 10,
+        criteria: '5 分钟内能否讲清「做了什么、怎么做的、还差什么」。',
+      },
+    ],
+    tiebreak: '同分时依次比较「可运行与完成度」「改造深度」得分。',
   },
   {
-    step: '02',
-    badge: '动态公开',
-    title: '评分细则开赛后公布',
-    text: '具体的线上评分系统指标与评奖细则将在比赛正式开始后逐步制定并向全体参赛者公开，不提前锁死刚性指标。',
-  },
-  {
-    step: '03',
-    badge: '赛道奖项',
-    title: '新人奖与创新奖',
-    text: '分设新人奖、创新奖等赛道奖项，主要奖励物理实体奖品（实物样品）与证书，鼓励新手完成首次实践与创意突破。',
-  },
-  {
-    step: '04',
-    badge: '认证推进',
-    title: '争取校级盖章与综测认可',
-    text: '正积极争取校团委盖章认证以提升比赛层级，从而推动学院对获奖者综测加分的认可（最终认定以官方批复为准）。',
+    id: 'open',
+    label: '进阶组评分表',
+    dimensions: [
+      {
+        name: '实际完成度与可用性',
+        weight: 30,
+        criteria: '核心功能是否真实运行，关键流程是否完整，有无伪造数据。',
+      },
+      {
+        name: '需求与创意',
+        weight: 20,
+        criteria: '创作目标是否清晰，想法是否有趣、设计是否合理。',
+      },
+      {
+        name: '测试与验证',
+        weight: 15,
+        criteria: '是否有与作品类型匹配的测试证据，是否识别边界与已知问题。',
+      },
+      {
+        name: 'AI 使用与技术合理性',
+        weight: 15,
+        criteria: 'AI 在工作流或产品中的角色，技术选择是否适合任务。',
+      },
+      {
+        name: '学习与迭代',
+        weight: 15,
+        criteria: '赛期解决了哪些困难，是否基于反馈产生可观察改进。',
+      },
+      {
+        name: '展示与表达',
+        weight: 5,
+        criteria: '是否在规定时间内清晰展示实操，回答是否坦诚准确。',
+      },
+    ],
+    tiebreak: '同分时依次比较「实际完成度与可用性」「测试与验证」得分。',
   },
 ];
 
-/**
- * 完整赛事细则（/events/rules/）章节数据
- * 每个章节的 id 与 title 同步生成右侧 ArticleToc 目录和站内搜索索引。
- */
+export const scoringExecution = [
+  '现场评委组 3–5 人（技术核查评委不少于 1 人、创意体验评委不少于 1 人）；项目评委组 7–10 人，负责材料初评与项目评审。',
+  '项目评委组材料初评占 40%，现场评委组 Demo 与答辩占 60%。',
+  '各组评委独立打分，取平均分；同分时按两组各自的同分排序规则比较。',
+  '技术评委拥有真实性核验权：发现核心功能虚构、静态写死冒充动态系统、旧作未披露直接参赛的，可提请评委组降档或取消评奖资格。',
+  '评委本人指导的团队须回避。',
+];
+
+export const aiAssistNote =
+  '组委会计划使用 AI 工具辅助材料查重与初筛，帮助识别直接搬运的开源项目与明显失真的材料；最终评分由真人评委按两套 100 分评分表独立完成，AI 不直接决定奖项。';
+
+export const awardRows: AwardRow[] = [
+  { group: '新手组', title: '一等奖', quantity: '1', reward: '证书及奖品' },
+  { group: '新手组', title: '二等奖', quantity: '2', reward: '证书及奖品' },
+  { group: '新手组', title: '三等奖', quantity: '3', reward: '证书及奖品' },
+  { group: '新手组', title: '最佳新人奖', quantity: '1', reward: '证书' },
+  { group: '进阶组', title: '一等奖', quantity: '1', reward: '证书及奖品' },
+  { group: '进阶组', title: '二等奖', quantity: '2', reward: '证书及奖品' },
+  { group: '进阶组', title: '三等奖', quantity: '3', reward: '证书及奖品' },
+  { group: '进阶组', title: '最佳创意奖', quantity: '1', reward: '证书' },
+];
+
+export const awardNotes = [
+  '奖项数量可根据实际参赛人数调整，调整前公示；允许奖项空缺。',
+  '某组别参赛作品少于 5 件时，组委会可合并评奖。',
+  '所有获奖作品须通过真实性核验。证书级别与综测认定以最终通知为准。',
+  '验收结束后 3 个工作日内公示成绩，公示期 3 个工作日；对成绩有异议可在公示期内向组委会书面提出。',
+];
+
 export const ruleSections: RuleSection[] = [
   {
     id: 'positioning',
     title: '一、赛事定位与承办说明',
-    lead: '成都大学第八届网络创新大赛——AI创作挑战赛由成都大学计算机协会承办，是计协承办的首个 AI 相关专项赛事，聚焦 AI 项目创作实践。',
+    lead: challengeConfig.organizerNote,
     bullets: [
-      '活动定位：面向全校各专业同学，以真实可演示的 AI 开发项目为载体，鼓励零基础新人与有经验开发者借助 AI 工具落地创意。',
-      '赛期设置：开发周期为 7–10 天，安排为 2026年11月24日（周二）线下宣讲启动，12月4日（周五）晚间截稿并开启线上评审，12月5日（周六）开启线下 Demo Day。',
-      '辅助资源支持：官网同步提供 AI 使用教程、学习指南与工具库，并在宣讲后统计新手用户人数，评估提供针对性入门指导。',
+      '面向成都大学在读本科生和研究生。参赛作品围绕真实可运行、可演示的数字成果展开。',
+      '不设统一命题，新手可从模板起步。活动期间提供学习指南、工具资源与答疑。',
     ],
   },
   {
     id: 'registration-and-teams',
-    title: '二、双赛道设置与组队规范',
-    lead: '比赛划分为「新手组」与「进阶组」两个赛道，均以个人参加为主，鼓励独立开发与真实动手实践。',
+    title: '二、组别与组队规则',
     bullets: [
-      '新手组规范：为防止组队依赖与怠工，新手组尽量单人参赛；赛事将提供官方参考模板，参赛作品须基于模板实现至少一项有意义的改进。',
-      '进阶组规范：有经验的开发者同样鼓励单人参赛，如需组队，原则上不超过 2 人；队伍成员须有明确分工与实际代码或设计贡献。',
-      '参赛纪律：每人仅限参与一支队伍，不得跨队挂名或代为开发。',
+      `腾讯文档线上报名时间为 ${challengeConfig.dates.registration}。${challengeConfig.registration.contact}`,
+      ...competitionTracks.map((track) => `${track.title} · ${track.teamRule}。${track.requirement}`),
+      '进阶组如需 3 人及以上组队，须在报名时书面申请，经组委会审核。每人只能参与一件作品，每位团队成员须有至少 2 项可验证交付物。',
+      '报名时自行选组。新手组可申请升入进阶组，进阶组不得降入新手组。',
     ],
   },
   {
     id: 'work-requirements',
-    title: '三、作品形式与基础展示要求',
-    lead: '参赛作品强调真实可演示的开发成果与清晰的核心功能展示。',
+    title: '三、作品形式与提交材料',
+    lead: '提交能够验证核心功能的作品，并写清如何运行与演示。',
     bullets: [
-      '项目可演示要求：提交的参赛开发项目须具备清晰可验证的核心功能，确保 12 月 4 日晚间线上评审与 12 月 5 日线下 Demo Day 能够正常演示与体验。',
-      '自制核心头图：参赛者须自行设计一张作品头图，用于直观展示项目的核心功能、亮点交互或适用场景。',
-      '真实边界说明：项目如使用示例数据或外部公开接口，须在说明中如实标注适用范围与已知局限，不得虚构不存在的实时功能。',
+      ...workRequirements.map((item) => item.text),
+      `提交材料包括${finalDeliverables.join('、')}。作品说明应包含已实现功能、项目起点、关键依赖、AI 使用方式与已知问题。`,
+      '在线链接须能在未登录的无痕窗口中访问，有效期覆盖至 12 月 8 日。核心功能展示头图可作为说明素材，是否列为必交材料以组委会通知为准。',
     ],
   },
   {
     id: 'schedule-and-exemptions',
     title: '四、赛程安排与线下交流',
-    lead: '赛程包含赛前报名窗口、周二线下宣讲、7–10 天开发期、12月4日晚间线上评审及 12月5日线下 Demo Day。',
+    lead: `赛期为 ${challengeConfig.dates.overall}。答疑和中期检查安排见活动主页时间线。`,
     bullets: [
-      '报名窗口期：在 11 月 24 日开赛前预留多日线上宣传与飞书报名窗口期。',
-      '周二线下宣讲会（11 月 24 日）：开展线下宣讲会议，集中讲解双赛道赛制、综测方向政策说明、新人引导与组队意向收集。',
-      '截稿与线上评审（12 月 4 日周五晚间）：正式截止作品提交，并同步启动线上评审工作。',
-      '线下 Demo Day（12 月 5 日周六）：开展线下 Demo Day，包含参赛项目展示与现场交流环节。',
+      `${challengeConfig.dates.briefing}线下开赛会，讲解赛制并安排选题、实操演示与答疑。`,
+      `中期进度材料于 ${challengeConfig.dates.midterm}提交。作品提交于 ${challengeConfig.dates.submission}截止。`,
+      `${challengeConfig.dates.onlineReview}线上评审。${challengeConfig.dates.demoDay}在${challengeConfig.dates.venue}举行线下展示与颁奖，每队 3 分钟演示、2 分钟答辩。`,
     ],
   },
   {
     id: 'audit-and-anticheat',
-    title: '五、作品审核标准与反抄袭机制',
-    lead: '所有参赛作品须经过严格的内容与原创性审核，确保比赛公平性与真实创作价值。',
+    title: '五、真实性核验与反抄袭',
     bullets: [
-      '审核重点：重点审查作品的合规性、合法性以及是否具有独特的创意亮点；存在违规内容或无法正常运行的作品将不予通过。',
-      '严禁直接复制搬运：禁止直接复制官方参考模板交差（仅改标题或少量文案不视为有效改进），严禁搬运他人或公开仓库源码充当参赛成果。',
-      '旧项目追溯判定：对于使用个人旧项目继续改造参赛的情况，将追溯正赛前 3–4 天的代码提交记录进行核查判定，仅认可赛期内的实质性增量创作。',
-      '数据与安全底线：严禁未经授权抓取或接入校内非公开系统，提交材料与展示内容中不得泄露 API 密钥、个人隐私或受限数据。',
+      '禁止直接搬运他人作品或把已有项目冒充赛期成果。旧项目须披露已有进度，必要时复核提交记录，以赛期内可验证的增量为评价依据。',
+      '说明示例数据、外部接口与功能限制。提交材料与作品展示中不得暴露 API 密钥、个人隐私或受限数据。',
     ],
   },
   {
     id: 'judging-and-awards',
-    title: '六、评审机制、奖项规划与细则公布',
-    lead: '结合线上评审与 12 月 5 日线下 Demo Day 展示交流，兼顾多维客观指标与评委专业判断。',
-    bullets: [
-      '线上多元评审：引入真人评委把关评审公平性，同时结合 AI 多维度评分与人工主观评价，适当设定权重对比进行综合评定。',
-      '评分细则动态公开：具体的评分系统指标与完整评奖细则将在比赛正式开始后逐步制定并公开，确保评判标准透明可预期。',
-      '奖项与奖励形式：分设「新人奖」与「创新奖」等赛道奖项，主要奖励物理实体奖品（实物样品）与证书。',
-      '校级认证争取：主办团队正积极争取校团委盖章认证以提升比赛层级，从而争取学院对获奖者综测加分的认可；具体加分认定以最终官方批复与学校学院规定为准。',
-    ],
-    note: '具体评分系统指标与评奖细则将于 11 月 24 日正式开赛后逐步制定并同步至本页及赛事交流群。',
+    title: '六、评分标准与奖项',
+    lead: '两组各用一套 100 分评分表。现场评委与项目评委分别评审，评分以组委会最终公示为准。',
+    bullets: [...scoringExecution, aiAssistNote],
   },
   {
     id: 'rights-and-privacy',
     title: '七、作品权益与信息保护',
     bullets: [
-      '作品所有权：参赛作品的知识产权与所有权归参赛者（或团队）所有；主办方仅在获得授权后用于赛果展示与经验分享，不取得商业使用权。',
-      '信息隔离与隐私保护：报名收集的个人联系方式仅用于赛事通知与组队协调，与公开展示材料隔离管理，未经本人同意不对外公开。',
+      '参赛作品著作权归参赛者或团队。组委会在获得授权后可用于赛事成果展示。',
+      challengeConfig.registration.privacyNotice,
     ],
   },
 ];

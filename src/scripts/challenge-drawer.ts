@@ -1,6 +1,7 @@
 /**
- * 活动页「赛道与作品要求」右侧抽屉弹窗控制器。
- * 遵循原生 <dialog> Top Layer 模式：showModal() + @starting-style 入场 + 跨浏览器退场动画回退。
+ * 活动页原生 <dialog> 弹窗与抽屉控制器。
+ * 统一管理「赛事速览」弹窗与「赛道与作品要求」右侧抽屉：
+ * showModal() + @starting-style 入场 + 跨浏览器退场动画回退 + closedby="any" 遮罩关闭回退。
  */
 let supportsDisplayTransition: boolean | undefined;
 
@@ -23,13 +24,17 @@ function supportsTopLayerExit(): boolean {
   return Boolean(window.CSS?.supports?.('overlay', 'auto')) && canTransitionDisplay();
 }
 
-function initChallengeDrawer(): void {
-  const drawer = document.getElementById('challenge-info-drawer');
-  if (!(drawer instanceof HTMLDialogElement)) return;
+interface DialogController {
+  open: () => void;
+  close: () => Promise<void>;
+}
 
-  const openButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-challenge-drawer-open]'));
-  const closeButton = drawer.querySelector<HTMLButtonElement>('[data-challenge-drawer-close]');
-  const anchorLinks = Array.from(drawer.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+function createDialogController(dialog: HTMLDialogElement): DialogController {
+  const openButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>(`[data-dialog-open="${dialog.id}"]`),
+  );
+  const closeButtons = Array.from(dialog.querySelectorAll<HTMLButtonElement>('[data-dialog-close]'));
+  const anchorLinks = Array.from(dialog.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
 
   const setExpanded = (expanded: boolean) => {
     for (const btn of openButtons) {
@@ -39,77 +44,76 @@ function initChallengeDrawer(): void {
 
   let closing = false;
 
-  const openDrawer = () => {
-    if (drawer.open) return;
-    drawer.removeAttribute('data-closing');
+  const open = () => {
+    if (dialog.open) return;
+    dialog.removeAttribute('data-closing');
     closing = false;
-    drawer.showModal();
+    dialog.showModal();
     setExpanded(true);
   };
 
-  const closeDrawer = async () => {
-    if (!drawer.open || closing) return;
+  const close = async () => {
+    if (!dialog.open || closing) return;
     closing = true;
 
     if (!supportsTopLayerExit()) {
-      drawer.setAttribute('data-closing', '');
-      const animations = drawer.getAnimations({ subtree: true });
+      dialog.setAttribute('data-closing', '');
+      const animations = dialog.getAnimations({ subtree: true });
       if (animations.length > 0) {
         await Promise.race([
           Promise.allSettled(animations.map((animation) => animation.finished)),
           new Promise((resolve) => window.setTimeout(resolve, 400)),
         ]);
       }
-      if (!drawer.hasAttribute('data-closing')) {
+      if (!dialog.hasAttribute('data-closing')) {
         closing = false;
         return;
       }
-      drawer.removeAttribute('data-closing');
+      dialog.removeAttribute('data-closing');
     }
 
-    drawer.close();
+    dialog.close();
     closing = false;
   };
 
   for (const btn of openButtons) {
-    btn.addEventListener('click', openDrawer);
+    btn.addEventListener('click', open);
   }
 
-  closeButton?.addEventListener('click', () => {
-    void closeDrawer();
-  });
+  for (const btn of closeButtons) {
+    btn.addEventListener('click', () => {
+      void close();
+    });
+  }
 
-  // 站内锚点跳转前先平滑关闭抽屉，再滚动到目标区域。
   for (const link of anchorLinks) {
     link.addEventListener('click', async (event) => {
       const hash = link.getAttribute('href');
       if (!hash || !hash.startsWith('#')) return;
       event.preventDefault();
-      await closeDrawer();
+      await close();
       const target = document.getElementById(hash.slice(1));
       target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
-  // 拦截 Esc / closedby 产生的 cancel 请求以保留滑出退场动画。
-  drawer.addEventListener('cancel', (event) => {
+  dialog.addEventListener('cancel', (event) => {
     if (event.cancelable) {
       event.preventDefault();
-      void closeDrawer();
+      void close();
     }
   });
 
-  drawer.addEventListener('close', () => {
-    drawer.removeAttribute('data-closing');
-    drawer.returnValue = '';
+  dialog.addEventListener('close', () => {
+    dialog.removeAttribute('data-closing');
+    dialog.returnValue = '';
     closing = false;
     setExpanded(false);
   });
 
-  // 对尚未实现 closedby="any" 的浏览器（如 Safari）补充遮罩点击关闭回退。
   if (!('closedBy' in HTMLDialogElement.prototype)) {
     const isOutside = (event: PointerEvent) => {
-      const rect = drawer.getBoundingClientRect();
+      const rect = dialog.getBoundingClientRect();
       return (
         event.clientX < rect.left ||
         event.clientX > rect.right ||
@@ -119,30 +123,95 @@ function initChallengeDrawer(): void {
     };
 
     let pressedOutside = false;
-    drawer.addEventListener('pointerdown', (event) => {
+    dialog.addEventListener('pointerdown', (event) => {
       pressedOutside = isOutside(event);
     });
-    drawer.addEventListener('pointerup', (event) => {
+    dialog.addEventListener('pointerup', (event) => {
       if (pressedOutside && isOutside(event)) {
-        void closeDrawer();
+        void close();
       }
       pressedOutside = false;
     });
   }
+
+  return { open, close };
 }
 
-function initPendingEntryFeedback(): void {
-  const pendingButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-pending-entry]'));
-  const feedback = document.querySelector<HTMLElement>('[data-pending-feedback]');
-  if (!feedback || pendingButtons.length === 0) return;
+function initChallengeDialogs(): void {
+  const controllers = new Map<string, DialogController>();
 
-  for (const button of pendingButtons) {
-    button.addEventListener('click', () => {
-      feedback.textContent = button.getAttribute('data-pending-entry') ?? '报名入口暂未开放。';
-      feedback.hidden = false;
+  for (const id of ['challenge-overview-dialog', 'challenge-info-drawer']) {
+    const el = document.getElementById(id);
+    if (el instanceof HTMLDialogElement) {
+      controllers.set(id, createDialogController(el));
+    }
+  }
+
+  // 支持从「赛事速览」弹窗平滑切换到「赛道与作品要求」抽屉。
+  const switchButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dialog-switch]'));
+  for (const btn of switchButtons) {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.getAttribute('data-dialog-switch');
+      const currentDialog = btn.closest('dialog');
+      if (!targetId || !(currentDialog instanceof HTMLDialogElement)) return;
+      await controllers.get(currentDialog.id)?.close();
+      controllers.get(targetId)?.open();
     });
+  }
+
+  // 手机端右侧「赛事速览」抽拉片：支持向左轻拉打开弹窗，同时保留普通点击交互。
+  const pullTrigger = document.querySelector<HTMLButtonElement>('.challenge-aside-trigger');
+  const overviewController = controllers.get('challenge-overview-dialog');
+  if (pullTrigger && overviewController) {
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    let pulled = false;
+
+    pullTrigger.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      startX = event.clientX;
+      startY = event.clientY;
+      tracking = true;
+      pulled = false;
+    });
+
+    pullTrigger.addEventListener('pointermove', (event) => {
+      if (!tracking) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dx) < 8) {
+        tracking = false;
+        pullTrigger.style.transform = '';
+        return;
+      }
+      if (dx < 0) {
+        const clamped = Math.max(-18, dx * 0.6);
+        pullTrigger.style.transform = `translateX(${clamped}px)`;
+        if (dx <= -18) {
+          pulled = true;
+          tracking = false;
+          pullTrigger.style.transform = '';
+          overviewController.open();
+        }
+      }
+    });
+
+    const resetPull = () => {
+      tracking = false;
+      pullTrigger.style.transform = '';
+    };
+
+    pullTrigger.addEventListener('pointerup', resetPull);
+    pullTrigger.addEventListener('pointercancel', resetPull);
+    pullTrigger.addEventListener('click', (event) => {
+      if (pulled) {
+        pulled = false;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
   }
 }
 
-initChallengeDrawer();
-initPendingEntryFeedback();
+initChallengeDialogs();
