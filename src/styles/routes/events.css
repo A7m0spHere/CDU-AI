@@ -24,11 +24,22 @@
 }
 
 .challenge-title__name {
-  color: var(--brand);
+  color: var(--ink);
   font-size: clamp(1.5rem, 12.5cqi, 2.625rem);
-  text-shadow:
-    0.035em 0.045em 0 var(--brand-strong),
-    0.07em 0.09em 0 color-mix(in srgb, var(--ink) 27%, var(--brand-soft));
+}
+
+@supports (background-clip: text) {
+  .challenge-title__name {
+    background-image: linear-gradient(180deg, var(--ink), var(--faint));
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@media (forced-colors: active) {
+  .challenge-title__name {
+    color: CanvasText;
+  }
 }
 
 /* 侧边速览交互入口卡 */
