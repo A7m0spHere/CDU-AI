@@ -1,0 +1,41 @@
+---
+import Icon from './Icon.astro';
+
+const rawPath = Astro.url.pathname;
+const currentPath = rawPath.endsWith('/') ? rawPath : `${rawPath}/`;
+
+const items = [
+  { label: '首页', href: '/', icon: 'home' as const, exact: true },
+  { label: '指南', href: '/guide/', icon: 'book-open' as const, exact: false },
+  { label: '工具', href: '/tools/', icon: 'wrench' as const, exact: false },
+  { label: '术语', href: '/glossary/', icon: 'type' as const, exact: false },
+];
+
+function isActive(href: string, exact: boolean): boolean {
+  return exact ? currentPath === href : currentPath.startsWith(href);
+}
+---
+
+<nav class="mobile-dock" aria-label="快捷导航" data-mobile-dock data-dock-hidden="false">
+  <div class="mobile-dock__inner">
+    {items.map((item) => (
+      <a
+        class="mobile-dock__item"
+        href={item.href}
+        aria-current={isActive(item.href, item.exact) ? 'page' : undefined}
+      >
+        <Icon name={item.icon} size={18} />
+        <span>{item.label}</span>
+      </a>
+    ))}
+    <button
+      class="mobile-dock__item mobile-dock__search"
+      type="button"
+      data-dock-search
+      aria-label="打开站内搜索"
+    >
+      <Icon name="search" size={18} />
+      <span>搜索</span>
+    </button>
+  </div>
+</nav>

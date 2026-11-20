@@ -1,5 +1,6 @@
 ---
 type IconName =
+  | 'home'
   | 'arrow-right'
   | 'arrow-left'
   | 'arrow-up-right'
@@ -52,6 +53,7 @@ interface Props {
 const { name, size = 20, strokeWidth = 1.8, label, class: className } = Astro.props;
 
 const paths: Record<IconName, string> = {
+  home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-5.5h5V20"/>',
   type: '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
   'arrow-right': '<path d="M4 12h15"/><path d="m13 6 6 6-6 6"/>',
   'arrow-left': '<path d="M20 12H5"/><path d="m11 18-6-6 6-6"/>',

@@ -1895,3 +1895,69 @@ test('首页手机端隐藏看板娘插画与内容重建提示条，桌面端�
   assert.equal(await page.locator('.home-status').isVisible(), true, '桌面端应正常显示内容重建状态条');
   assert.equal(await page.locator('.hero-network__figure').isVisible(), true, '桌面端应正常显示看板娘插画');
 });
+
+test('手机端底部拇指栏、首页显性搜索、本页小节抽屉与代码块一键复制', async t => {
+  const page = await setup(t, { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
+  await page.goto(origin);
+  await ready(page);
+
+  const dock = page.locator('[data-mobile-dock]');
+  assert.equal(await dock.isVisible(), true, '手机端应显示底部拇指快捷栏');
+  assert.equal(await page.locator('.header-github').isVisible(), false, '手机端顶栏应隐藏 GitHub 图标以保持宽松');
+  assert.equal(await page.locator('.home-mobile-search').isVisible(), true, '手机端首页首屏应显示显性搜索入口');
+
+  const dockItems = await dock.locator('.mobile-dock__item').evaluateAll(els =>
+    els.map(el => ({ text: el.textContent?.trim(), height: el.getBoundingClientRect().height })),
+  );
+  assert.equal(dockItems.length, 5);
+  for (const item of dockItems) {
+    assert.ok(item.height >= 44, `底部栏入口「${item.text}」高度应 >= 44px（实际 ${item.height}）`);
+  }
+
+  // 向下滚动超过阈值时底部栏自动隐退，向上回拉时重新浮现
+  await page.evaluate(() => window.scrollTo(0, 500));
+  await page.waitForFunction(() => document.querySelector('[data-mobile-dock]')?.getAttribute('data-dock-hidden') === 'true');
+  await page.evaluate(() => window.scrollTo(0, 420));
+  await page.waitForFunction(() => document.querySelector('[data-mobile-dock]')?.getAttribute('data-dock-hidden') === 'false');
+
+  // 点击首页显性搜索打开全站搜索时，底部栏自动退避隐藏
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.locator('.home-mobile-search').click();
+  await page.waitForFunction(() => document.querySelector('.search-dialog')?.open === true);
+  assert.equal(await dock.getAttribute('data-dock-hidden'), 'true', '搜索弹窗打开时底部栏应自动退避');
+  await page.locator('.search-dialog__close').click();
+  await page.waitForFunction(() => !document.querySelector('.search-dialog')?.open);
+
+  // 切换到桌面端，底部栏、首页手机搜索隐藏，顶栏 GitHub 恢复显示
+  await page.setViewportSize({ width: 1280, height: 800 });
+  assert.equal(await dock.isVisible(), false);
+  assert.equal(await page.locator('.home-mobile-search').isVisible(), false);
+  assert.equal(await page.locator('.header-github').isVisible(), true);
+
+  // 指南长文页：本页小节底部抽屉与代码块一键复制
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(origin + '/guide/ai-faq/');
+  await ready(page);
+
+  const tocFab = page.locator('[data-toc-open]');
+  assert.equal(await tocFab.isVisible(), true, '手机端长文页应显示「本页小节」悬浮按钮');
+  const [fabBox, dockBox] = await Promise.all([tocFab.boundingBox(), dock.boundingBox()]);
+  assert.ok(fabBox && dockBox && fabBox.y + fabBox.height <= dockBox.y + 1, '悬浮按钮与底部栏不应重叠');
+
+  await tocFab.click();
+  const tocSheet = page.locator('[data-toc-sheet]');
+  await page.waitForFunction(() => document.querySelector('[data-toc-sheet]')?.open === true);
+  const firstTocLink = tocSheet.locator('[data-toc-link]').nth(1);
+  const targetId = decodeURIComponent((await firstTocLink.getAttribute('href')).slice(1));
+  await firstTocLink.click();
+  await page.waitForFunction(() => !document.querySelector('[data-toc-sheet]')?.open);
+  assert.equal(decodeURIComponent(new URL(page.url()).hash.slice(1)), targetId);
+
+  const copyBtn = page.locator('[data-code-block] .code-copy-btn').first();
+  assert.equal(await copyBtn.isVisible(), true);
+  await copyBtn.click();
+  await page.waitForFunction(() => document.querySelector('[data-code-block] .code-copy-btn')?.textContent === '已复制');
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  assert.ok(copied.length > 0, '点击代码块复制按钮应写入真实代码内容');
+});

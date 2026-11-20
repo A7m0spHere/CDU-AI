@@ -112,6 +112,29 @@
   }
 }
 
+@media (max-width: 760px) {
+  .page-header {
+    padding-block: 0.85rem 1.1rem;
+  }
+
+  .page-header__container .breadcrumb {
+    margin-bottom: 0.65rem;
+  }
+
+  .page-header__copy {
+    gap: 0.55rem;
+  }
+
+  .page-header h1 {
+    font-size: clamp(1.65rem, 6.8vw, 2.05rem);
+  }
+
+  .page-header__lede {
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+}
+
 /* 空状态 v2（EmptyContent 组件使用；工具页筛选空态保持原样式） */
 .empty-state--v2 {
   position: relative;
