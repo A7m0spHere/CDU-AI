@@ -39,7 +39,8 @@
 | 术语 | [`src/content/glossary/`](../src/content/glossary/) | 分类取自 [`glossary.ts`](../src/data/glossary.ts)，审核结论按实际情况标注 |
 | 作品示例 | [`src/content/works/`](../src/content/works/) | M0 保留 `status: example`，不虚构真实投稿 |
 | 工具目录 | [`src/data/tools.ts`](../src/data/tools.ts) | 官网和仓库入口分别维护，图标来源同步记录 |
-| 活动形式与项目路线 | [`src/data/events.ts`](../src/data/events.ts) | 只写已确认的形式，不填写虚构排期 |
+| 赛事赛程、报名与细则 | [`src/data/challenge.ts`](../src/data/challenge.ts) | 核对组委会通知，同步正文、报名状态、首页横幅和搜索摘要 |
+| 项目路线 | [`src/data/events.ts`](../src/data/events.ts) | 阶段路线与当前赛事安排分开维护 |
 | 搜索索引 | [`src/pages/search-index.json.ts`](../src/pages/search-index.json.ts) | 构建时从内容与数据生成，不直接编辑构建产物 |
 
 以 `_` 开头的 Markdown 文件不作为内容集合条目加载。`_TEMPLATE.md` 是写作模板。[`_HOME.md`](../src/content/guide/_HOME.md) 是「欢迎来到 CDU AI」正文，由页面直接导入并参与构建。欢迎页的审核记录方式见[内容审校规范](CONTENT-REVIEW.md#指南首页与独立页面正文)。
@@ -89,6 +90,9 @@ PR 按[贡献流程](../CONTRIBUTING.md#7-审稿与合并维护者检查清单)�
 | 站点 Logo | [`LogoMark.astro`](../src/components/LogoMark.astro)，使用 [`logo-160.png`](../public/brand/logo-160.png)，另保留 [`512px 版本`](../public/brand/logo-512.png) |
 | 浏览器与 PWA 图标 | [`site.webmanifest`](../public/site.webmanifest)、[`favicon-32.png`](../public/favicon-32.png)、[`apple-touch-icon.png`](../public/apple-touch-icon.png) |
 | 首页角色插画 | [`mascot.webp`](../public/brand/mascot.webp)；原始插画保存在 [`docs/design/brand/`](design/brand/) |
+| 赛事页角色插画 | [`mascot-drawing-world.webp`](../public/images/events/mascot-drawing-world.webp)，以站内看板娘为原型，通过 ImageGen 生成羽毛笔与星空插画 |
+| 赛事报名二维码 | [`tencent-docs-registration-qr.png`](../public/images/events/tencent-docs-registration-qr.png)，来源和报名链接见 [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43) |
+| 赛事页首屏预览 | [`events-hero.png`](screenshots/events-hero.png)，采集于 2026-11-21 的本地生产构建 |
 | 作品封面组件 | [`WorkArt.astro`](../src/components/WorkArt.astro)，当前用于示例版式 |
 | 工具品牌图标 | [`public/tool-logos/`](../public/tool-logos/)，来源与处理方式见 [TOOL-LOGOS.md](TOOL-LOGOS.md) |
 | 主题图片、贴图与字体 | 来源、署名及各自许可见 [THEME-ASSETS.md](THEME-ASSETS.md) |

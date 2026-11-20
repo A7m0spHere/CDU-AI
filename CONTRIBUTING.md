@@ -58,7 +58,7 @@ Issue 表单用于向维护者反馈、建议具体修改或分享经验：
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
 | 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |
 | 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)；社区通过工具建议 Issue 提供线索，由维护者核对后入库，暂不迁移 Markdown |
-| 活动、首页入口 | `src/data/events.ts`、`home.ts` |
+| 活动赛程、报名入口、细则及首页赛事横幅 | [`src/data/challenge.ts`](src/data/challenge.ts) |
 | 全站搜索索引 | [`src/pages/search-index.json.ts`](src/pages/search-index.json.ts)，构建时生成，不要手工编辑 |
 | 技术与维护文档 | [`docs/`](docs/)：架构、内容规范、设计系统、模块开发说明与维护操作 |
 | 内容状态与审校规范 | [`docs/CONTENT-REVIEW.md`](docs/CONTENT-REVIEW.md)：状态模型、审校清单、署名与迁移规则 |
