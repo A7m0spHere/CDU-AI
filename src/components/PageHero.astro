@@ -38,6 +38,7 @@ const hasActions = Astro.slots.has('actions');
 
     <div class="page-hero__inner">
       <div class="page-hero__copy">
+        <slot name="copy-art" />
         {eyebrow && <p class="eyebrow">{eyebrow}</p>}
         <div class="page-hero__heading">
           <h1>

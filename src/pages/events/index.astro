@@ -40,6 +40,8 @@ const sections = [
     crumbs={[{ label: '活动' }]}
     tone="warm"
   >
+    <canvas slot="copy-art" class="challenge-ascii-planet" data-challenge-ascii-planet aria-hidden="true"></canvas>
+
     <Fragment slot="title">
       <span class="challenge-title">
         <span class="challenge-title__series">{seriesTitle}</span>{' '}
@@ -408,6 +410,7 @@ const sections = [
 </BaseLayout>
 
 <script>
+  import '../../scripts/challenge-ascii-planet';
   import '../../scripts/challenge-drawer';
 
   const chapterLinks = document.querySelectorAll<HTMLAnchorElement>('.challenge-jumps a');
