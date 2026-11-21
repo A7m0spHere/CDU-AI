@@ -23,6 +23,7 @@ function isActive(href: string) {
     </a>
 
     <nav class="desktop-nav" aria-label="主导航">
+      <span class="hover-glow nav-glow" data-nav-glow aria-hidden="true"></span>
       {navItems.map((item) => (
         <a
           class="nav-link"
@@ -36,7 +37,8 @@ function isActive(href: string) {
     </nav>
 
     <div class="header-actions">
-      <button class="search-trigger" type="button" data-search-open>
+      <button class="search-trigger hover-glow-host" type="button" data-search-open data-glow-host>
+        <span class="hover-glow hover-glow--inset" data-glow aria-hidden="true"></span>
         <Icon name="search" size={16} />
         <span class="search-trigger__label">搜索指南、术语、工具或作品</span>
         <span class="sr-only">打开站内搜索</span>
@@ -46,13 +48,15 @@ function isActive(href: string) {
       <ThemePicker />
 
       <a
-        class="icon-button header-github"
+        class="icon-button header-github hover-glow-host"
         href={repository.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub 仓库（在新标签页打开）"
         title="在 GitHub 上查看与共建"
+        data-glow-host
       >
+        <span class="hover-glow hover-glow--inset" data-glow aria-hidden="true"></span>
         <Icon name="github" size={18} />
       </a>
 

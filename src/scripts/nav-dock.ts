@@ -1,10 +1,20 @@
 /**
- * 顶部导航的 dock 放大效果（参考 macOS Dock 的邻近放大，但只做很小的幅度）。
+ * 顶部导航的两处光效行为（都只在这一个脚本里，避免再拆一个文件）：
+ *
+ * 1. dock 放大：参考 macOS Dock 的邻近放大，但幅度很小——鼠标 x 到入口中心的距离
+ *    映射成 1 → 1.12 的缩放和 2.4px 的上浮。
+ * 2. 光效汇聚：指针落到某个入口上时，把 `.nav-glow` 这团光挪到那一枚按钮的几何位置上，
+ *    （外观见 styles/hover-glow.css，与首页引导图节点共用同一套渐变），
+ *    并让光心跟着指针在这枚按钮里左右偏移；离开导航则熄灭。
+ *    同时给 <html> 打上 data-nav-light，让全站指针光晕先撤走（见 cursor-glow.css），
+ *    看起来就是「光收进了按钮」，而不是两处同时发亮。
  *
  * 为什么手写而不是上库：站点是 Astro + 原生脚本，没有 React / motion；
- * 这里的交互只用到「鼠标 x 到元素中心的距离 → 缩放」一条逻辑，用 rAF + 缓动足够。
+ * 这里只有「距离 → 缩放」和「矩形 → 光的位置」两条逻辑，rAF 足够。
  * 关闭条件：触屏 / 减少动效偏好 / 导航隐藏（移动端）时直接不启用。
  */
+
+import { GLOW_CHANGE, glowEnabled } from './glow-pref';
 
 type DockEntry = {
   el: HTMLElement;
@@ -16,6 +26,7 @@ const AMPLITUDE = 0.12; // 最大放大比例（1 → 1.12）
 const RANGE = 120; // 影响半径（px）
 const EASE = 0.22; // 每帧逼近目标的比例
 const LIFT = 2.4; // 最大上浮（px）
+const HIT_SLOP = 14; // 命中判定在按钮左右各放宽的像素（填补按钮之间的缝）
 
 export function initNavDock(): void {
   const nav = document.querySelector<HTMLElement>('.desktop-nav');
@@ -28,24 +39,77 @@ export function initNavDock(): void {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (!finePointer.matches || reducedMotion.matches) return;
 
+  const glow = nav.querySelector<HTMLElement>('.nav-glow');
+  const docEl = document.documentElement;
   const entries: DockEntry[] = items.map((el) => ({ el, value: 0 }));
   let pointerX: number | null = null;
+  let clientX: number | null = null;
   let frameId = 0;
+  let hovered: HTMLElement | null = null;
 
   /** 指针到元素中心的距离，映射成 0–1 的放大强度（近处为 1，超出半径为 0）。 */
-  const targetFor = (el: HTMLElement): number => {
+  const targetFor = (rect: DOMRect): number => {
     if (pointerX === null) return 0;
-    const rect = el.getBoundingClientRect();
     const distance = Math.abs(pointerX - (rect.left + rect.width / 2));
     if (distance >= RANGE) return 0;
     const falloff = 1 - distance / RANGE;
     return falloff * falloff; // 平方衰减，靠近时更明显、远处更平缓
   };
 
+  const setGlowActive = (active: boolean): void => {
+    if (!glow) return;
+    // 总开关关掉时，导航这一束光也不出现（dock 放大仍然保留）
+    const on = active && glowEnabled();
+    glow.dataset.active = on ? 'true' : 'false';
+    // 注意：这里不能叫 navGlow，否则会和 .nav-glow 自己的 data-nav-glow 撞名
+    docEl.dataset.navLight = on ? 'true' : 'false';
+  };
+
+  /** 把光挪到某个入口上；pointerX 有值时顺便让光心贴住指针。 */
+  const aimGlow = (el: HTMLElement, pointerXPos?: number): void => {
+    if (!glow || !glowEnabled() || reducedMotion.matches) return;
+    const navRect = nav.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+    glow.style.setProperty('--glow-x', `${(rect.left - navRect.left).toFixed(1)}px`);
+    glow.style.setProperty('--glow-y', `${(rect.top - navRect.top).toFixed(1)}px`);
+    glow.style.setProperty('--glow-w', `${rect.width.toFixed(1)}px`);
+    glow.style.setProperty('--glow-h', `${rect.height.toFixed(1)}px`);
+    if (pointerXPos !== undefined) {
+      const ratio = (pointerXPos - rect.left) / Math.max(rect.width, 1);
+      glow.style.setProperty('--glow-cx', `${(Math.min(1, Math.max(0, ratio)) * 100).toFixed(1)}%`);
+    }
+    setGlowActive(true);
+  };
+
   const tick = (): void => {
+    if (reducedMotion.matches) {
+      frameId = 0;
+      return;
+    }
     let active = false;
-    for (const entry of entries) {
-      const goal = targetFor(entry.el);
+    // 先读取所有矩形再统一写样式，避免循环内读写交错触发布局抖动
+    const rects = entries.map((entry) => entry.el.getBoundingClientRect());
+    const navRect = hovered && glowEnabled() ? nav.getBoundingClientRect() : null;
+    const hoveredIndex = hovered ? entries.findIndex((entry) => entry.el === hovered) : -1;
+
+    if (navRect && hovered && hoveredIndex >= 0) {
+      const rect = rects[hoveredIndex];
+      if (glow) {
+        glow.style.setProperty('--glow-x', `${(rect.left - navRect.left).toFixed(1)}px`);
+        glow.style.setProperty('--glow-y', `${(rect.top - navRect.top).toFixed(1)}px`);
+        glow.style.setProperty('--glow-w', `${rect.width.toFixed(1)}px`);
+        glow.style.setProperty('--glow-h', `${rect.height.toFixed(1)}px`);
+        if (clientX !== null) {
+          const ratio = (clientX - rect.left) / Math.max(rect.width, 1);
+          glow.style.setProperty('--glow-cx', `${(Math.min(1, Math.max(0, ratio)) * 100).toFixed(1)}%`);
+        }
+        setGlowActive(true);
+      }
+    }
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const goal = targetFor(rects[i]);
       entry.value += (goal - entry.value) * EASE;
       if (Math.abs(goal - entry.value) < 0.002) entry.value = goal;
       if (entry.value > 0.002 || goal > 0) active = true;
@@ -56,29 +120,79 @@ export function initNavDock(): void {
   };
 
   const schedule = (): void => {
-    if (frameId === 0) frameId = window.requestAnimationFrame(tick);
+    if (frameId === 0 && !reducedMotion.matches) frameId = window.requestAnimationFrame(tick);
+  };
+
+  /** 找指针落点所在的入口：按钮之间只有 1–2px 的缝，所以命中判定要放宽一点。 */
+  const itemAt = (x: number, y: number): HTMLElement | null => {
+    for (const el of items) {
+      const rect = el.getBoundingClientRect();
+      if (y < rect.top - 6 || y > rect.bottom + 6) continue;
+      if (x < rect.left - HIT_SLOP || x > rect.right + HIT_SLOP) continue;
+      return el;
+    }
+    return null;
   };
 
   nav.addEventListener('pointermove', (event) => {
-    if (event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' || reducedMotion.matches) return;
     pointerX = event.clientX;
+    clientX = event.clientX;
     schedule();
+
+    if (!glowEnabled()) return;
+    const item = itemAt(event.clientX, event.clientY);
+    if (item) {
+      hovered = item;
+      aimGlow(item, event.clientX);
+    } else if (hovered) {
+      hovered = null;
+      setGlowActive(false);
+    }
+  });
+
+  document.addEventListener(GLOW_CHANGE, (event) => {
+    if ((event as CustomEvent<{ enabled: boolean }>).detail.enabled) return;
+    setGlowActive(false);
+  });
+
+  reducedMotion.addEventListener('change', () => {
+    if (!reducedMotion.matches) return;
+    if (frameId !== 0) {
+      window.cancelAnimationFrame(frameId);
+      frameId = 0;
+    }
+    pointerX = null;
+    clientX = null;
+    hovered = null;
+    setGlowActive(false);
+    for (const entry of entries) {
+      entry.value = 0;
+      entry.el.style.removeProperty('--dock-scale');
+      entry.el.style.removeProperty('--dock-lift');
+    }
   });
 
   nav.addEventListener('pointerleave', () => {
     pointerX = null;
+    clientX = null;
+    hovered = null;
+    setGlowActive(false);
     schedule();
   });
 
-  // 键盘 Tab 到某个入口时也轻微抬起，保证焦点可见且与鼠标体验一致
+  // 键盘 Tab 到某个入口时也轻微抬起、并把光移过去，保证焦点可见且与鼠标体验一致
   items.forEach((el) => {
     el.addEventListener('focus', () => {
+      if (reducedMotion.matches) return;
       el.style.setProperty('--dock-scale', '1.06');
       el.style.setProperty('--dock-lift', '-2px');
+      aimGlow(el);
     });
     el.addEventListener('blur', () => {
       el.style.removeProperty('--dock-scale');
       el.style.removeProperty('--dock-lift');
+      if (!hovered) setGlowActive(false);
     });
   });
 }

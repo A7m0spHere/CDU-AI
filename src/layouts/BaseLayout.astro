@@ -3,10 +3,15 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileDock from '../components/MobileDock.astro';
 import SearchDialog from '../components/SearchDialog.astro';
+import CursorGlow from '../components/CursorGlow.astro';
+import CursorTrail from '../components/CursorTrail.astro';
 import { site } from '../data/site';
 import { presetThemes } from '../data/themes';
 import { resolveThemeVars } from '../lib/theme-core';
 import '../styles/global.css';
+import '../styles/cursor-glow.css';
+import '../styles/cursor-trail.css';
+import '../styles/hover-glow.css';
 
 interface Props {
   title?: string;
@@ -71,6 +76,14 @@ const bootPresets = presetThemes.map((preset) => ({
     <script is:inline define:vars={{ bootPresets }}>
       (() => {
         const root = document.documentElement;
+        // 鼠标光效 / 光效拖尾默认关闭，仅在用户显式开启（存储值为 'on'）时首屏启用，避免刷新闪烁
+        try {
+          root.dataset.glow = localStorage.getItem('cdu-ai-glow') === 'on' ? 'on' : 'off';
+          root.dataset.trail = localStorage.getItem('cdu-ai-trail') === 'on' ? 'on' : 'off';
+        } catch {
+          root.dataset.glow = 'off';
+          root.dataset.trail = 'off';
+        }
         try {
           const saved = localStorage.getItem('cdu-ai-theme');
           let theme = null;
@@ -126,6 +139,8 @@ const bootPresets = presetThemes.map((preset) => ({
     </main>
     <Footer />
     <MobileDock />
+    <CursorGlow />
+    <CursorTrail />
     <script>
       import '../scripts/global';
       import '../scripts/motion';

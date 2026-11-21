@@ -1,0 +1,80 @@
+/**
+ * 全站指针光晕。
+ *
+ * 一个固定定位的圆形渐变，跟着指针移动（只改 transform，走合成层）。
+ * 浅色主题用 multiply：白底染上跟随当前主题强调色的柔光，文字与线条对比度不受影响；
+ * 深色主题用 screen：深色底叠加同色系光，白字仍是白的。
+ */
+
+:root {
+  --cursor-glow-rgb: var(--brand-rgb, 37, 99, 235);
+  --cursor-glow-size: 220px;
+}
+
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--cursor-glow-size);
+  height: var(--cursor-glow-size);
+  margin: calc(var(--cursor-glow-size) / -2) 0 0 calc(var(--cursor-glow-size) / -2);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 90;
+  opacity: 0;
+  transition: opacity 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* 浅色底上 multiply 会压暗颜色，所以整体压得很淡；多档停靠点近似高斯衰减，避免看出圆盘边界 */
+  background: radial-gradient(
+    circle,
+    rgba(var(--cursor-glow-rgb), 0.12) 0%,
+    rgba(var(--cursor-glow-rgb), 0.095) 22%,
+    rgba(var(--cursor-glow-rgb), 0.06) 45%,
+    rgba(var(--cursor-glow-rgb), 0.028) 68%,
+    rgba(var(--cursor-glow-rgb), 0.01) 85%,
+    rgba(var(--cursor-glow-rgb), 0) 100%
+  );
+  mix-blend-mode: multiply;
+  will-change: transform;
+}
+
+:root[data-theme='dark'] .cursor-glow {
+  /* 深色底上 multiply 会把光晕压成黑色，改用叠加发光 */
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle,
+    rgba(var(--cursor-glow-rgb), 0.24) 0%,
+    rgba(var(--cursor-glow-rgb), 0.2) 16%,
+    rgba(var(--cursor-glow-rgb), 0.15) 34%,
+    rgba(var(--cursor-glow-rgb), 0.07) 54%,
+    rgba(var(--cursor-glow-rgb), 0.025) 72%,
+    rgba(var(--cursor-glow-rgb), 0) 100%
+  );
+}
+
+.cursor-glow[data-active='true'] {
+  opacity: 1;
+}
+
+/* 指针进到顶部导航这一排时，光已经收进被指到的按钮里（见 vibe.css 的 .nav-glow），
+   这里撤掉跟随指针的那团光，避免同一处出现两层亮斑。 */
+:root[data-nav-light='true'] .cursor-glow,
+:root[data-hero-light='true'] .cursor-glow,
+:root[data-ui-light='true'] .cursor-glow {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .cursor-glow {
+    display: none;
+  }
+}
+
+@media print {
+  .cursor-glow {
+    display: none;
+  }
+}
+/* 「鼠标光效」总开关关闭时，跟随指针的这团光也退场（开关见 scripts/glow-pref.ts） */
+:root[data-glow='off'] .cursor-glow {
+  opacity: 0;
+}

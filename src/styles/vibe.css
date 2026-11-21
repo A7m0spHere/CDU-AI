@@ -56,10 +56,19 @@ body {
 }
 
 .desktop-nav {
+  position: relative;
   gap: 0.1rem;
+  isolation: isolate;
 }
 
+/* 指针进到导航这一排时，光会「收」到被指到的那一枚按钮上。
+   光的外观是与首页引导图节点共用的配方（styles/hover-glow.css 的 .hover-glow），
+   几何（左偏移 / 上偏移 / 宽 / 高 / 圆角 / 光心位置）由 scripts/nav-dock.ts 写入。
+   未开启光效时保持语义底色 var(--surface-muted)；光效激活时改为透明让底下的光透上来。 */
+
 .nav-link {
+  position: relative;
+  z-index: 1;
   min-height: 36px;
   padding: 0 0.7rem;
   border-radius: var(--radius-sm);
@@ -81,6 +90,8 @@ body {
 
 /* 导航末尾的「关于与共建」入口：配色、尺寸与 nav-link 完全一致 */
 .nav-cta {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   min-height: 36px;
@@ -97,6 +108,13 @@ body {
 .nav-cta:hover {
   background: var(--surface-muted);
   color: var(--ink);
+}
+
+/* 光效可用时按钮自己不画底色，亮度全部交给 .nav-glow；
+   否则胶囊底色会先画出一个硬边，光就只是在按钮里「填充」而不是「汇聚」。 */
+:root[data-nav-light='true'] .nav-link:hover,
+:root[data-nav-light='true'] .nav-cta:hover {
+  background: transparent;
 }
 
 .nav-cta:focus-visible {
