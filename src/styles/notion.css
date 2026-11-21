@@ -17,6 +17,7 @@
   --notion-code-block-bg: var(--code-bg);
   --notion-code-block-fg: var(--code-fg);
   --notion-table-head: var(--surface-muted);
+  --table-fade-bg: var(--surface);
 }
 
 .notion-page-head {
@@ -492,8 +493,8 @@
   }
 
   .notion-prose {
-    font-size: 0.96rem;
-    line-height: 1.75;
+    font-size: 0.98rem;
+    line-height: 1.68;
   }
 
   .notion-prose h2 {

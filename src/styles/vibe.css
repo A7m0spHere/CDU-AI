@@ -958,6 +958,10 @@ body.search-open {
 
 @media (max-width: 760px) {
 
+  .header-github {
+    display: none;
+  }
+
   .map-card {
     width: 100%;
   }

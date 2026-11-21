@@ -56,6 +56,10 @@ const banner = challengeConfig.homeBanner;
           <p class="home-hero__byline" data-enter style="--enter-index: 2">由成都大学计算机协会制作</p>
 
           <div class="home-hero__actions btn-row" data-enter style="--enter-index: 3">
+            <button class="home-mobile-search" type="button" data-dock-search>
+              <Icon name="search" size={16} />
+              <span>搜 AI 工具、术语或指南…</span>
+            </button>
             <a class="btn btn--primary" href="/guide/">
               开始学习
               <Icon name="arrow-right" size={18} />
@@ -90,6 +94,7 @@ const banner = challengeConfig.homeBanner;
               </div>
               <div class="home-explore__visual">
                 <CduLibraryLineArt />
+                <p class="home-library-hint" aria-hidden="true">左右滑动旋转图书馆</p>
               </div>
             </div>
             <HomeExploreMenu />

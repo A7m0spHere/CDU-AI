@@ -137,7 +137,7 @@ export const GET: APIRoute = async () => {
     {
       type: '章节',
       title: '赛程时间线与 Demo Day',
-      description: `${challengeConfig.dates.briefing}开赛，${challengeConfig.dates.submission}作品提交截止，${challengeConfig.dates.onlineReview}线上材料初评，${challengeConfig.dates.demoDay}现场展示、答辩及颁奖。`,
+      description: `${challengeConfig.dates.briefing}开赛，${challengeConfig.dates.submission}作品提交截止，${challengeConfig.dates.onlineReview}线上材料初评，${challengeConfig.dates.demoDay}举行 Demo Day、答辩和颁奖。`,
       href: '/events/#schedule',
       keywords: '赛程 11月24日 12月4日 12月5日 12月6日 开赛会 线上评审 Demo Day 答辩 颁奖',
     },

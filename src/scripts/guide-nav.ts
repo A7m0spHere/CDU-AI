@@ -98,3 +98,26 @@ export function initGuideNavMotion(): void {
     });
   });
 }
+
+export function initGuideBackToNav(): void {
+  if (typeof window === 'undefined') return;
+  const mobileNav = document.querySelector<HTMLDetailsElement>('[data-guide-mobile-nav]');
+  if (!mobileNav) return;
+
+  const summary = mobileNav.querySelector<HTMLElement>('summary');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-open-guide-nav]').forEach((trigger) => {
+    if (trigger.dataset.bound === 'true') return;
+    trigger.dataset.bound = 'true';
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      mobileNav.open = true;
+      mobileNav.scrollIntoView({
+        block: 'start',
+        behavior: reducedMotion.matches ? 'auto' : 'smooth',
+      });
+      summary?.focus({ preventScroll: true });
+    });
+  });
+}

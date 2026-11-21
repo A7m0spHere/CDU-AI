@@ -40,6 +40,13 @@ const links = [
   </nav>
 )}
 
+<div class="guide-pager-back">
+  <a class="guide-pager-back__link" href="#guide-mobile-nav" data-open-guide-nav>
+    <Icon name="book-open" size={15} />
+    <span>查看全部章节目录</span>
+  </a>
+</div>
+
 <style>
   .guide-pager {
     display: grid;
@@ -152,10 +159,76 @@ const links = [
     transform: translateX(2px);
   }
 
+  .guide-pager-back {
+    display: none;
+    width: 100%;
+    max-width: 48rem;
+    margin-top: 0.75rem;
+  }
+
+  .guide-pager-back__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    padding: 0.45rem 0.95rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 560;
+    text-decoration: none;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+
+  .guide-pager-back__link:is(:hover, :focus-visible) {
+    border-color: var(--brand);
+    background: var(--surface-muted);
+    color: var(--brand);
+  }
+
+  @media (max-width: 900px) {
+    .guide-pager-back {
+      display: flex;
+      justify-content: flex-start;
+    }
+  }
+
   @media (max-width: 480px) {
-    .guide-pager { gap: 0.5rem; }
-    .guide-pager__link { gap: 0.4rem; padding-inline: 0.7rem; border-radius: 1.15rem; }
-    .guide-pager__title { font-size: 0.76rem; }
+    .guide-pager {
+      grid-template-columns: 1fr;
+      gap: 0.55rem;
+    }
+
+    .guide-pager__link {
+      width: 100%;
+      justify-self: stretch;
+      gap: 0.65rem;
+      padding-inline: 0.9rem;
+      border-radius: 1.15rem;
+    }
+
+    .guide-pager__link--next {
+      grid-column: auto;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .guide-pager__title {
+      font-size: 0.82rem;
+    }
+
+    .guide-pager-back__link {
+      width: 100%;
+    }
+  }
+
+  @media print {
+    .guide-pager-back {
+      display: none !important;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

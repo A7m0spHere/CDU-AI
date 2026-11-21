@@ -348,21 +348,29 @@ hr {
   background: var(--line);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   :root {
-    --header-h: 66px;
-    --section-y: clamp(3.5rem, 9vw, 4.6rem);
+    --header-h: 54px;
+    --gutter: 1rem;
+    --section-y: clamp(2.1rem, 5.5vw, 2.75rem);
   }
 
   h1,
   h2,
   h3,
   h4 {
-    letter-spacing: -0.03em;
+    letter-spacing: -0.025em;
   }
 
   body {
-    line-height: 1.72;
+    padding-bottom: calc(4.9rem + env(safe-area-inset-bottom, 0px));
+    line-height: 1.66;
+  }
+}
+
+@media print {
+  body {
+    padding-bottom: 0;
   }
 }
 

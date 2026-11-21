@@ -1,5 +1,9 @@
 import { initNavDock } from './nav-dock';
+import { initMobileDock } from './mobile-dock';
 import { initImageLightbox } from './image-lightbox';
+import { initTableScroll } from './table-scroll';
+import { initCodeCopy } from './code-copy';
+import { initTocSheet } from './toc-sheet';
 import { copyText } from '../lib/clipboard';
 import './theme';
 import './search';
@@ -83,4 +87,8 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy-target]').forEach((butt
 });
 
 initNavDock();
+initMobileDock();
 initImageLightbox();
+initTableScroll();
+initCodeCopy();
+initTocSheet();

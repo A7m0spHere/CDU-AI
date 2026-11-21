@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MobileDock from '../components/MobileDock.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import { site } from '../data/site';
 import { presetThemes } from '../data/themes';
@@ -59,6 +60,8 @@ const bootPresets = presetThemes.map((preset) => ({
     <noscript>
       <style>
         .search-trigger,
+        .mobile-dock__search,
+        .home-mobile-search,
         .theme-picker {
           display: none !important;
         }
@@ -122,6 +125,7 @@ const bootPresets = presetThemes.map((preset) => ({
       <slot />
     </main>
     <Footer />
+    <MobileDock />
     <script>
       import '../scripts/global';
       import '../scripts/motion';

@@ -163,7 +163,7 @@ if (searchDialog) {
     void loadSearchIndex();
   };
 
-  document.querySelectorAll<HTMLElement>('[data-search-open]').forEach((trigger) => {
+  document.querySelectorAll<HTMLElement>('[data-search-open], [data-dock-search]').forEach((trigger) => {
     trigger.addEventListener('click', openSearch);
   });
 
