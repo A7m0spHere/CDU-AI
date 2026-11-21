@@ -3,44 +3,44 @@ import { existsSync } from 'node:fs';
 // 素材统一存放在 public/guide/first-agent/。已集成且文件存在时才渲染媒体。
 export const firstAgentMedia = {
   M01: {
-    kind: 'image', file: 'm01-workbuddy-workbench.webp', status: '待录制',
-    description: 'WorkBuddy 首次进入工作台，标注「新建任务」。',
+    file: 'm01-workbuddy-workbench.webp', status: '已集成',
+    description: 'WorkBuddy 工作台，左侧有「新建任务」入口。',
   },
   M02: {
-    kind: 'image', file: 'm02-zcode-workspace.webp', status: '待录制',
-    description: 'ZCode 首次启动与工作区界面，标注工作区选择和模型入口。',
+    file: 'm02-zcode-workspace.webp', status: '已集成',
+    description: 'ZCode 首页，输入框上方可选择项目，右下角可切换模型。',
   },
   'M03-W': {
-    kind: 'image', file: 'm03-w-workbuddy-directory.webp', status: '待录制',
+    file: 'm03-w-workbuddy-directory.webp', status: '已集成',
     description: 'WorkBuddy 选择 CDU-介绍网站 文件夹作为工作目录。',
   },
   'M03-Z': {
-    kind: 'image', file: 'm03-z-zcode-project.webp', status: '待录制',
+    file: 'm03-z-zcode-project.webp', status: '已集成',
     description: 'ZCode 打开 CDU-介绍网站 文件夹作为项目工作区。',
   },
-  M04: {
-    kind: 'image', file: 'm04-agent-development.webp', status: '待录制',
-    description: 'Agent 执行网页开发任务，突出文件创建和编辑过程。',
+  'M04-W': {
+    file: 'm04-w-workbuddy-development.webp', status: '已集成',
+    description: 'WorkBuddy 收到网页任务后，开始查找成都大学官网资料。',
+  },
+  'M04-Z': {
+    file: 'm04-z-zcode-development.webp', status: '已集成',
+    description: 'ZCode 收到网页任务后，界面显示「正在思考」和「工作中」。',
   },
   M05: {
-    kind: 'image', file: 'm05-cdu-html-file.webp', status: '待录制',
+    file: 'm05-cdu-html-file.webp', status: '待截图',
     description: '文件资源管理器中显示 CDU-介绍网站 文件夹内的 CDU.html。',
   },
   M06: {
-    kind: 'image', file: 'm06-cdu-browser.webp', status: '待录制',
+    file: 'm06-cdu-browser.webp', status: '待截图',
     description: '浏览器打开 CDU.html，展示实际生成的成都大学介绍网页。',
   },
   'M07-B': {
-    kind: 'image', file: 'm07-before.webp', status: '待录制',
+    file: 'm07-before.webp', status: '待截图',
     description: '第一次生成的网页。',
   },
   'M07-A': {
-    kind: 'image', file: 'm07-after.webp', status: '待录制',
+    file: 'm07-after.webp', status: '待截图',
     description: '修改后的网页，使用与修改前相同的视口和页面位置。',
-  },
-  V01: {
-    kind: 'video', file: 'v01-first-agent-flow.mp4', status: '待录制',
-    description: '完整任务流程录屏（可选），从发送任务到检查和修改网页。',
   },
 };
 

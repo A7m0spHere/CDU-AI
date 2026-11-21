@@ -10,19 +10,15 @@ function mediaFigure(id, mediaEntries) {
   const placeholder = element('div', {
     className: ['first-agent-media__placeholder'], hidden: ready, 'data-media-placeholder': '',
   }, [
-    element('span', { ariaHidden: 'true', className: ['first-agent-media__icon'] }, [text(media.kind === 'video' ? '▷' : '▧')]),
+    element('span', { ariaHidden: 'true', className: ['first-agent-media__icon'] }, [text('▧')]),
     element('span', {}, [text('素材待补充')]),
   ]);
   const content = [placeholder];
   if (ready) {
-    const properties = {
+    content.unshift(element('img', {
       src: `/guide/first-agent/${media.file}`, width: 1600, height: 900,
-      'data-media-content': '',
-    };
-    const node = media.kind === 'video'
-      ? element('video', { ...properties, controls: true, preload: 'metadata', ariaLabel: media.description })
-      : element('img', { ...properties, loading: 'lazy', alt: media.description });
-    content.unshift(node);
+      'data-media-content': '', loading: 'lazy', alt: media.description,
+    }));
   }
   return element('figure', {
     className: ['first-agent-media'], 'data-agent-media': id, 'data-media-state': ready ? 'ready' : 'pending',

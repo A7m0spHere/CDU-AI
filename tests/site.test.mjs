@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { load as loadYaml } from 'js-yaml';
+import { resolveFirstAgentMedia } from '../src/data/first-agent-media.mjs';
 import {
   loadContentContext,
   loadGuideNavSlugsFromSource,
@@ -1074,9 +1075,22 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
   assert.match(html, /成都大学官方网站 \(https:\/\/www\.cdu\.edu\.cn\/\)/);
   assert.equal((html.match(/data-copy-card=/g) ?? []).length, 4);
   const media = [...html.matchAll(/data-agent-media="([^"]+)"/g)].map(match => match[1]).sort();
-  assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04', 'M05', 'M06', 'M07-A', 'M07-B', 'V01'].sort());
-  const prose = html.match(/data-first-agent[\s\S]*?<\/article>/)?.[0] ?? '';
-  assert.doesNotMatch(prose, /<(?:img|video)\b/);
+  assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04-W', 'M04-Z', 'M05', 'M06', 'M07-A', 'M07-B'].sort());
+  const figures = new Map([...html.matchAll(/<figure\b[^>]*data-agent-media="([^"]+)"[^>]*>[\s\S]*?<\/figure>/g)]
+    .map(([figure, id]) => [id, figure]));
+  for (const [id, item] of Object.entries(resolveFirstAgentMedia())) {
+    const figure = figures.get(id);
+    assert.ok(figure, `缺少素材 ${id} 的展示区域`);
+    if (item.status === '已集成') {
+      assert.ok(item.available, `缺少已集成的素材文件 ${item.file}`);
+      assert.match(figure, /data-media-state="ready"/);
+      assert.ok(figure.includes(`src="/guide/first-agent/${item.file}"`));
+      assert.match(figure, /<img\b[^>]*alt="[^"]+"/);
+    } else {
+      assert.match(figure, /data-media-state="pending"/);
+      assert.doesNotMatch(figure, /<img\b/);
+    }
+  }
   const search = JSON.parse(await read('search-index.json'));
   assert.equal(search.filter(item => item.href.startsWith('/guide/first-agent/#')).length, 7);
   assert.equal(search.some(item => item.type === '指南' && item.href === '/guide/first-agent/'), true);
@@ -1086,7 +1100,7 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
 test('首次 Agent Markdown 扩展限定文件范围，已集成但缺失的素材继续显示占位', async () => {
   const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
   const { default: config } = await import('../astro.config.mjs');
-  const { firstAgentMedia, resolveFirstAgentMedia } = await import('../src/data/first-agent-media.mjs');
+  const { firstAgentMedia } = await import('../src/data/first-agent-media.mjs');
   const { default: rehypeFirstAgent } = await import('../src/lib/rehype-first-agent.mjs');
   const processor = await createMarkdownProcessor(config.markdown);
   const marker = '<!-- first-agent:selector -->\n\n> 普通文章引用。';
@@ -1094,7 +1108,9 @@ test('首次 Agent Markdown 扩展限定文件范围，已集成但缺失的素�
   assert.match(other.code, /<!-- first-agent:selector -->/);
   assert.match(other.code, /<blockquote>/);
   assert.doesNotMatch(other.code, /<fieldset/);
-  const missingMedia = resolveFirstAgentMedia({ M01: { ...firstAgentMedia.M01, status: '已集成' } });
+  const missingMedia = resolveFirstAgentMedia({
+    M01: { ...firstAgentMedia.M01, file: 'missing-test-image.webp', status: '已集成' },
+  });
   assert.equal(missingMedia.M01.available, false);
   const presentMedia = resolveFirstAgentMedia({ M01: { ...firstAgentMedia.M01, file: '.gitkeep', status: '已集成' } });
   assert.equal(presentMedia.M01.available, true);

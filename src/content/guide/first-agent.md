@@ -140,6 +140,7 @@ ZCode 则可以打开这个目录作为项目工作区。
 > 4. 网页应该可以直接通过浏览器打开，不需要安装额外软件或运行服务器。
 > 5. 涉及学校的具体信息，请尽量依据[成都大学官方网站](https://www.cdu.edu.cn/)核实；无法核实的内容不要编造。
 > 6. 仅在当前工作区内工作，不要修改其他文件。
+> 7. 一些实际美术资源优先使用网上能搜集到的图片，非必要不使用css和svg。
 >
 > 完成后，请告诉我如何打开这个网页。
 
@@ -147,8 +148,12 @@ ZCode 则可以打开这个目录作为项目工作区。
 
 如果出现文件写入或命令执行权限请求，请先查看具体操作内容，再决定是否批准。也可以开启自主模式（zcode）减少授权的操作。
 
-<!-- first-agent:media M04 -->
-<!-- first-agent:media V01 -->
+<!-- first-agent:choices -->
+<!-- first-agent:tool workbuddy -->
+<!-- first-agent:media M04-W -->
+<!-- first-agent:tool zcode -->
+<!-- first-agent:media M04-Z -->
+<!-- first-agent:endchoices -->
 
 ## 05. 打开你的第一个网页
 

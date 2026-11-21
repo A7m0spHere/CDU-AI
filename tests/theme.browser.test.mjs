@@ -136,21 +136,22 @@ test('指南入门路径在桌面和手机目录中衔接首次实践', async t 
   assert.equal(await page.locator('.guide-pager [rel="prev"]').getAttribute('href'), '/guide/chat-ai-to-agent/');
 });
 
-test('首次 Agent 工具选择联动两章并保持正文位置，键盘可切换', async t => {
+test('首次 Agent 工具选择联动三章并保持正文位置，键盘可切换', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   await page.goto(origin + '/guide/first-agent/');
   await page.locator('[data-agent-ready="true"]').waitFor();
   assert.equal(await page.locator('input[value="workbuddy"]').isChecked(), true);
-  for (const id of ['M01', 'M03-W']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
-  for (const id of ['M02', 'M03-Z']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
+  const workbuddyMedia = ['M01', 'M03-W', 'M04-W'];
+  const zcodeMedia = ['M02', 'M03-Z', 'M04-Z'];
+  for (const id of workbuddyMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
+  for (const id of zcodeMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
   const before = await page.locator('[data-first-agent] h2').last().evaluate(el => el.getBoundingClientRect().top + scrollY);
   await page.locator('input[value="workbuddy"]').focus();
   const scrollBefore = await page.evaluate(() => scrollY);
   await page.keyboard.press('ArrowRight');
   assert.equal(await page.locator('input[value="zcode"]').isChecked(), true);
-  assert.deepEqual(await page.locator('[data-agent-tool="zcode"]').evaluateAll(nodes => nodes.map(node => node.hidden)), [false, false]);
-  for (const id of ['M02', 'M03-Z']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
-  for (const id of ['M01', 'M03-W']) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
+  for (const id of zcodeMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
+  for (const id of workbuddyMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
   assert.equal(await page.locator('a[href="https://zcode.z.ai/cn/docs/configuration"]').isVisible(), true);
   assert.equal(await page.getByRole('heading', { name: 'WorkBuddy：适用于小白', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('heading', { name: 'ZCode：目前国产最好的Agent', exact: true }).isVisible(), true);
@@ -210,11 +211,10 @@ test('首次 Agent 复制回退准确处理成功和失败，失败后保留手�
   assert.equal(selected, (await card.locator('[data-agent-prompt]').textContent()).trim());
 });
 
-test('首次 Agent 占位适配浅深色和窄屏，无 JS 时仍可阅读全文', async t => {
+test('首次 Agent 截图和占位适配浅深色和窄屏，无 JS 时仍可阅读并加载截图', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   await page.goto(origin + '/guide/first-agent/');
   assert.equal(await page.locator('[data-agent-media]').count(), 10);
-  assert.equal(await page.locator('[data-first-agent] img, [data-first-agent] video').count(), 0);
   for (const theme of ['light', 'dark']) {
     await select(page, theme);
     for (const width of [1440, 768, 390, 320]) {
@@ -230,6 +230,10 @@ test('首次 Agent 占位适配浅深色和窄屏，无 JS 时仍可阅读全文
   const plain = await context.newPage();
   await plain.goto(origin + '/guide/first-agent/');
   assert.equal(await plain.locator('[data-agent-media]:visible').count(), 10);
+  for (const image of await plain.locator('[data-agent-media] img').all()) {
+    await image.scrollIntoViewIfNeeded();
+    await image.evaluate(img => img.decode());
+  }
   assert.equal(await plain.locator('[data-agent-picker]').isVisible(), false);
   assert.equal(await plain.locator('[data-copy-target]:visible').count(), 0);
   assert.equal(await plain.locator('[data-agent-prompt]').count(), 4);

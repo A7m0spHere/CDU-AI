@@ -12,14 +12,13 @@ if (tutorial) {
   updateTool();
   picker.hidden = false;
 
-  tutorial.querySelectorAll<HTMLImageElement | HTMLVideoElement>('[data-media-content]').forEach(media => {
-    media.addEventListener('error', () => {
-      media.hidden = true;
-      const figure = media.closest<HTMLElement>('[data-agent-media]')!;
+  tutorial.querySelectorAll<HTMLImageElement>('img[data-media-content]').forEach(image => {
+    image.addEventListener('error', () => {
+      image.hidden = true;
+      const figure = image.closest<HTMLElement>('[data-agent-media]')!;
       figure.dataset.mediaState = 'pending';
       figure.querySelector<HTMLElement>('[data-media-placeholder]')!.hidden = false;
     });
-    if (media instanceof HTMLImageElement && media.complete && media.naturalWidth === 0) media.dispatchEvent(new Event('error'));
-    if (media instanceof HTMLVideoElement && media.error) media.dispatchEvent(new Event('error'));
+    if (image.complete && image.naturalWidth === 0) image.dispatchEvent(new Event('error'));
   });
 }
