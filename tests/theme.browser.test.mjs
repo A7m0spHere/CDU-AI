@@ -242,7 +242,7 @@ test('首次 Agent 截图和占位适配浅深色和窄屏，无 JS 时仍可阅
   assert.equal(await plain.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 });
 
-test('首次 Agent 截图按原比例适配且无占位虚线框冲突，对比占位等高且支持灯箱与错误回退', async t => {
+test('首次 Agent 截图按原比例适配且无占位虚线框冲突，修改前后对比等高且支持灯箱与错误回退', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   await page.goto(origin + '/guide/first-agent/');
   await page.locator('[data-agent-ready="true"]').waitFor();
@@ -282,8 +282,10 @@ test('首次 Agent 截图按原比例适配且无占位虚线框冲突，对比�
         assert.equal(metrics.borderStyle, 'solid', `${viewport.width}px ${tool} ${id} 已插图不应显示虚线占位框`);
       }
 
-      const pendingStage = page.locator('[data-agent-media="M07-A"] .first-agent-media__stage');
-      assert.equal(await pendingStage.evaluate(el => getComputedStyle(el).borderTopStyle), 'dashed');
+      const after = page.locator('[data-agent-media="M07-A"]');
+      assert.equal(await after.getAttribute('data-media-state'), 'ready');
+      assert.equal(await after.locator('img[data-media-content]').getAttribute('src'), '/guide/first-agent/m07-after.webp');
+      assert.match(await after.locator('img[data-media-content]').getAttribute('alt'), /调整视觉风格/);
     }
 
     if (viewport.width === 1440) {

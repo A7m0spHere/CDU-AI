@@ -39,8 +39,8 @@ export const firstAgentMedia = {
     description: '第一次生成的网页。',
   },
   'M07-A': {
-    file: 'm07-after.webp', status: '待截图',
-    description: '修改后的网页，使用与修改前相同的视口和页面位置。',
+    file: 'm07-after.webp', status: '已集成',
+    description: '使用「调整视觉风格」提示词修改后的网页，保持与修改前相同的视口和页面位置。',
   },
 };
 
