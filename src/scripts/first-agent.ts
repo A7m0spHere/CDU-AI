@@ -15,6 +15,8 @@ if (tutorial) {
   tutorial.querySelectorAll<HTMLImageElement>('img[data-media-content]').forEach(image => {
     image.addEventListener('error', () => {
       image.hidden = true;
+      const zoom = image.closest<HTMLElement>('[data-image-zoom]');
+      if (zoom) zoom.hidden = true;
       const figure = image.closest<HTMLElement>('[data-agent-media]')!;
       figure.dataset.mediaState = 'pending';
       figure.querySelector<HTMLElement>('[data-media-placeholder]')!.hidden = false;

@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readSync } from 'node:fs';
 
 // 素材统一存放在 public/guide/first-agent/。已集成且文件存在时才渲染媒体。
 export const firstAgentMedia = {
@@ -44,11 +44,69 @@ export const firstAgentMedia = {
   },
 };
 
-// 将配置与文件存在状态一起交给 Astro，素材变化时使 Markdown 渲染缓存失效。
+/** 从 WebP/PNG 文件头读取图片像素宽高（仅读前 32 字节），不可解析时返回 null。 */
+export function readImageDimensions(fileUrl) {
+  let fd;
+  try {
+    fd = openSync(fileUrl, 'r');
+    const header = Buffer.allocUnsafe(32);
+    const bytesRead = readSync(fd, header, 0, header.length, 0);
+    const buf = header.subarray(0, bytesRead);
+
+    if (buf.length >= 16 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+      const chunk = buf.toString('ascii', 12, 16);
+      let width = 0;
+      let height = 0;
+      if (chunk === 'VP8 ' && buf.length >= 30 && buf[23] === 0x9d && buf[24] === 0x01 && buf[25] === 0x2a) {
+        width = buf.readUInt16LE(26) & 0x3fff;
+        height = buf.readUInt16LE(28) & 0x3fff;
+      } else if (chunk === 'VP8L' && buf.length >= 25 && buf[20] === 0x2f) {
+        const bits = buf.readUInt32LE(21);
+        width = (bits & 0x3fff) + 1;
+        height = ((bits >> 14) & 0x3fff) + 1;
+      } else if (chunk === 'VP8X' && buf.length >= 30) {
+        width = 1 + (buf[24] | (buf[25] << 8) | (buf[26] << 16));
+        height = 1 + (buf[27] | (buf[28] << 8) | (buf[29] << 16));
+      }
+      return width > 0 && height > 0 ? { width, height } : null;
+    }
+
+    if (
+      buf.length >= 24 &&
+      buf.readUInt32BE(0) === 0x89504e47 &&
+      buf.readUInt32BE(4) === 0x0d0a1a0a &&
+      buf.toString('ascii', 12, 16) === 'IHDR'
+    ) {
+      const width = buf.readUInt32BE(16);
+      const height = buf.readUInt32BE(20);
+      return width > 0 && height > 0 ? { width, height } : null;
+    }
+
+    return null;
+  } catch {
+    return null;
+  } finally {
+    if (fd !== undefined) {
+      try {
+        closeSync(fd);
+      } catch {
+        // 忽略关闭异常
+      }
+    }
+  }
+}
+
+// 将配置与文件存在状态及真实尺寸一起交给 Astro，素材变化时使 Markdown 渲染缓存失效。
 export function resolveFirstAgentMedia(media = firstAgentMedia) {
   const directory = new URL('../../public/guide/first-agent/', import.meta.url);
-  return Object.fromEntries(Object.entries(media).map(([id, item]) => [id, {
-    ...item,
-    available: existsSync(new URL(item.file, directory)),
-  }]));
+  return Object.fromEntries(Object.entries(media).map(([id, item]) => {
+    const fileUrl = new URL(item.file, directory);
+    const available = existsSync(fileUrl);
+    const dimensions = available ? readImageDimensions(fileUrl) : null;
+    return [id, {
+      ...item,
+      available,
+      ...(dimensions ?? {}),
+    }];
+  }));
 }

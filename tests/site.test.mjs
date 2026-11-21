@@ -1078,17 +1078,28 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
   assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04-W', 'M04-Z', 'M05', 'M06', 'M07-A', 'M07-B'].sort());
   const figures = new Map([...html.matchAll(/<figure\b[^>]*data-agent-media="([^"]+)"[^>]*>[\s\S]*?<\/figure>/g)]
     .map(([figure, id]) => [id, figure]));
-  for (const [id, item] of Object.entries(resolveFirstAgentMedia())) {
+  const resolvedMedia = resolveFirstAgentMedia();
+  for (const [id, item] of Object.entries(resolvedMedia)) {
     const figure = figures.get(id);
     assert.ok(figure, `缺少素材 ${id} 的展示区域`);
     if (item.status === '已集成') {
       assert.ok(item.available, `缺少已集成的素材文件 ${item.file}`);
+      assert.ok(item.width > 0 && item.height > 0, `未能读取已集成素材 ${id} 的真实宽高`);
       assert.match(figure, /data-media-state="ready"/);
       assert.ok(figure.includes(`src="/guide/first-agent/${item.file}"`));
+      assert.ok(figure.includes(`width="${item.width}"`) && figure.includes(`height="${item.height}"`), `素材 ${id} 未输出真实宽高`);
+      assert.ok(!figure.includes('width="1600" height="900"'), `素材 ${id} 不应再硬编码 1600x900`);
+      assert.ok(figure.includes(`--media-aspect: ${item.width} / ${item.height};`), `素材 ${id} 缺少真实比例变量`);
       assert.match(figure, /<img\b[^>]*alt="[^"]+"/);
     } else {
       assert.match(figure, /data-media-state="pending"/);
       assert.doesNotMatch(figure, /<img\b/);
+      if (id === 'M07-A' && resolvedMedia['M07-B']?.width && resolvedMedia['M07-B']?.height) {
+        assert.ok(
+          figure.includes(`--media-aspect: ${resolvedMedia['M07-B'].width} / ${resolvedMedia['M07-B'].height};`),
+          'M07-A 占位应与 M07-B 保持相同比例',
+        );
+      }
     }
   }
   const search = JSON.parse(await read('search-index.json'));
@@ -1114,6 +1125,8 @@ test('首次 Agent Markdown 扩展限定文件范围，已集成但缺失的素�
   assert.equal(missingMedia.M01.available, false);
   const presentMedia = resolveFirstAgentMedia({ M01: { ...firstAgentMedia.M01, file: '.gitkeep', status: '已集成' } });
   assert.equal(presentMedia.M01.available, true);
+  assert.equal(presentMedia.M01.width, undefined);
+  assert.equal(presentMedia.M01.height, undefined);
   assert.notEqual(JSON.stringify(missingMedia), JSON.stringify(presentMedia), '素材状态参与构建配置缓存键');
   const missingProcessor = await createMarkdownProcessor({ rehypePlugins: [[rehypeFirstAgent, { media: missingMedia }]] });
   const missing = await missingProcessor.render('<!-- first-agent:media M01 -->', { fileURL: new URL('../src/content/guide/first-agent.md', import.meta.url) });

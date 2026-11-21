@@ -242,6 +242,77 @@ test('首次 Agent 截图和占位适配浅深色和窄屏，无 JS 时仍可阅
   assert.equal(await plain.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 });
 
+test('首次 Agent 截图按原比例适配且无占位虚线框冲突，对比占位等高且支持灯箱与错误回退', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/first-agent/');
+  await page.locator('[data-agent-ready="true"]').waitFor();
+
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    for (const tool of ['workbuddy', 'zcode']) {
+      await page.locator(`input[value="${tool}"]`).check();
+      const readyFigures = page.locator('[data-agent-media][data-media-state="ready"]');
+      const count = await readyFigures.count();
+      for (let i = 0; i < count; i++) {
+        const figure = readyFigures.nth(i);
+        if (!await figure.isVisible()) continue;
+        const id = await figure.getAttribute('data-agent-media');
+        const img = figure.locator('img[data-media-content]');
+        await img.scrollIntoViewIfNeeded();
+        await img.evaluate(el => el.decode());
+        const metrics = await figure.evaluate(el => {
+          const stage = el.querySelector('.first-agent-media__stage');
+          const zoom = el.querySelector('[data-image-zoom]');
+          const pic = el.querySelector('img[data-media-content]');
+          const sr = stage.getBoundingClientRect();
+          const ir = pic.getBoundingClientRect();
+          const zr = zoom.getBoundingClientRect();
+          return {
+            naturalRatio: pic.naturalWidth / pic.naturalHeight,
+            renderedRatio: ir.width / ir.height,
+            widthDiff: Math.abs(sr.width - ir.width),
+            heightDiff: Math.abs(sr.height - ir.height),
+            zoomHeightDiff: Math.abs(zr.height - ir.height),
+            borderStyle: getComputedStyle(stage).borderTopStyle,
+          };
+        });
+        assert.ok(Math.abs(metrics.renderedRatio - metrics.naturalRatio) < 0.02, `${viewport.width}px ${tool} ${id} 图片比例失真`);
+        assert.ok(metrics.widthDiff <= 4 && metrics.heightDiff <= 4, `${viewport.width}px ${tool} ${id} 舞台与图片尺寸偏差过大 (${metrics.widthDiff}, ${metrics.heightDiff})`);
+        assert.ok(metrics.zoomHeightDiff <= 1, `${viewport.width}px ${tool} ${id} 灯箱触发器存在多余边距`);
+        assert.equal(metrics.borderStyle, 'solid', `${viewport.width}px ${tool} ${id} 已插图不应显示虚线占位框`);
+      }
+
+      const pendingStage = page.locator('[data-agent-media="M07-A"] .first-agent-media__stage');
+      assert.equal(await pendingStage.evaluate(el => getComputedStyle(el).borderTopStyle), 'dashed');
+    }
+
+    if (viewport.width === 1440) {
+      const comparisonDiff = await page.evaluate(() => {
+        const b = document.querySelector('[data-agent-media="M07-B"] .first-agent-media__stage').getBoundingClientRect();
+        const a = document.querySelector('[data-agent-media="M07-A"] .first-agent-media__stage').getBoundingClientRect();
+        return Math.abs(b.height - a.height);
+      });
+      assert.ok(comparisonDiff <= 2, `桌面端对比区 M07-A 与 M07-B 高度差应 <= 2px（实际 ${comparisonDiff}px）`);
+    }
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.locator('input[value="workbuddy"]').check();
+  const m01 = page.locator('[data-agent-media="M01"]');
+  const zoomBtn = m01.locator('[data-image-zoom]');
+  await zoomBtn.scrollIntoViewIfNeeded();
+  await zoomBtn.click();
+  await page.waitForFunction(() => document.querySelector('[data-image-lightbox]')?.open === true);
+  await page.locator('[data-lightbox-close]').click();
+  await page.waitForFunction(() => !document.querySelector('[data-image-lightbox]')?.open);
+
+  await m01.locator('img[data-media-content]').evaluate(img => img.dispatchEvent(new Event('error')));
+  assert.equal(await m01.getAttribute('data-media-state'), 'pending');
+  assert.equal(await zoomBtn.isVisible(), false, '图片加载失败后应隐藏灯箱按钮');
+  assert.equal(await m01.locator('[data-media-placeholder]').isVisible(), true, '图片加载失败后应恢复待补充占位');
+  assert.equal(await m01.locator('.first-agent-media__stage').evaluate(el => getComputedStyle(el).borderTopStyle), 'dashed');
+});
+
 test('全站搜索保护中文输入法，章节结果可用键盘打开并落到指南首页锚点', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   // 此例验证搜索和键盘导航；关闭无关的原生跨文档动效。

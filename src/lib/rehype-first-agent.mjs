@@ -3,10 +3,13 @@ import { resolveFirstAgentMedia } from '../data/first-agent-media.mjs';
 const element = (tagName, properties, children = []) => ({ type: 'element', tagName, properties, children });
 const text = value => ({ type: 'text', value });
 
-function mediaFigure(id, mediaEntries) {
+function mediaFigure(id, mediaEntries, fallbackMedia) {
   const media = mediaEntries[id];
   if (!media) throw new Error(`未知的首次 Agent 素材编号 ${id}`);
   const ready = media.status === '已集成' && media.available;
+  const dims = ready
+    ? (media.width && media.height ? { width: media.width, height: media.height } : null)
+    : (fallbackMedia?.width && fallbackMedia?.height ? { width: fallbackMedia.width, height: fallbackMedia.height } : null);
   const placeholder = element('div', {
     className: ['first-agent-media__placeholder'], hidden: ready, 'data-media-placeholder': '',
   }, [
@@ -16,14 +19,21 @@ function mediaFigure(id, mediaEntries) {
   const content = [placeholder];
   if (ready) {
     content.unshift(element('img', {
-      src: `/guide/first-agent/${media.file}`, width: 1600, height: 900,
+      src: `/guide/first-agent/${media.file}`,
+      ...(dims ? { width: dims.width, height: dims.height } : {}),
       'data-media-content': '', loading: 'lazy', alt: media.description,
     }));
   }
+  const stageProperties = {
+    className: ['first-agent-media__stage'],
+    ...(dims ? {
+      style: `--media-width: ${dims.width}px; --media-ratio: ${Number((dims.width / dims.height).toFixed(4))}; --media-aspect: ${dims.width} / ${dims.height};`,
+    } : {}),
+  };
   return element('figure', {
     className: ['first-agent-media'], 'data-agent-media': id, 'data-media-state': ready ? 'ready' : 'pending',
   }, [
-    element('div', { className: ['first-agent-media__stage'] }, content),
+    element('div', stageProperties, content),
     element('figcaption', {}, [element('span', { className: ['first-agent-media__id'] }, [text(id)]), text(` ${media.description}`)]),
   ]);
 }
@@ -138,7 +148,7 @@ export default function rehypeFirstAgent({ media = resolveFirstAgentMedia() } = 
           containers.pop();
           break;
         case 'comparison':
-          append(element('div', { className: ['first-agent-comparison'], 'data-agent-comparison': '', ariaLabel: '网页修改前后对比' }, [mediaFigure('M07-B', media), mediaFigure('M07-A', media)]));
+          append(element('div', { className: ['first-agent-comparison'], 'data-agent-comparison': '', ariaLabel: '网页修改前后对比' }, [mediaFigure('M07-B', media), mediaFigure('M07-A', media, media['M07-B'])]));
           break;
         default:
           throw new Error(`未知的首次 Agent 标记 ${command}`);
