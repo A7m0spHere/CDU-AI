@@ -27,15 +27,15 @@ export const firstAgentMedia = {
     description: 'ZCode 收到网页任务后，界面显示「正在思考」和「工作中」。',
   },
   M05: {
-    file: 'm05-cdu-html-file.webp', status: '待截图',
+    file: 'm05-cdu-html-file.webp', status: '已集成',
     description: '文件资源管理器中显示 CDU-介绍网站 文件夹内的 CDU.html。',
   },
   M06: {
-    file: 'm06-cdu-browser.webp', status: '待截图',
+    file: 'm06-cdu-browser.webp', status: '已集成',
     description: '浏览器打开 CDU.html，展示实际生成的成都大学介绍网页。',
   },
   'M07-B': {
-    file: 'm07-before.webp', status: '待截图',
+    file: 'm06-cdu-browser.webp', status: '已集成',
     description: '第一次生成的网页。',
   },
   'M07-A': {
