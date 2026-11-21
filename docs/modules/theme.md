@@ -12,9 +12,10 @@
 | --- | --- |
 | [`theme-core.ts`](../../src/lib/theme-core.ts) | `ThemeParams`、`StoredTheme`、参数归一化、颜色计算与 `resolveThemeVars`，不依赖 DOM |
 | [`themes.ts`](../../src/data/themes.ts) | 预设参数、稳定 ID 和菜单分组 |
-| [`BaseLayout.astro`](../../src/layouts/BaseLayout.astro) | 构建时解析预设变量，内联脚本在首屏前读取本地偏好 |
-| [`ThemePicker.astro`](../../src/components/ThemePicker.astro) | 色板菜单、错误提示与编辑器/导入对话框模板 |
+| [`BaseLayout.astro`](../../src/layouts/BaseLayout.astro) | 构建时解析预设变量，内联脚本在首屏前读取本地偏好（含光效开关默认关闭标记） |
+| [`ThemePicker.astro`](../../src/components/ThemePicker.astro) | 色板菜单、底部「鼠标光效 / 光效拖尾」开关、错误提示与编辑器/导入对话框模板 |
 | [`theme.ts`](../../src/scripts/theme.ts) | 读取存档、应用变量、菜单、持久化、字体加载与编辑器按需加载 |
+| [`glow-pref.ts`](../../src/scripts/glow-pref.ts) | 鼠标光效与光效拖尾偏好读写、默认关闭控制及状态广播 |
 | [`theme-editor.ts`](../../src/scripts/theme-editor.ts) | `ThemeEditorHost` 接口、草稿、预览、文件读取、导入导出 |
 | [`tokens.css`](../../src/styles/tokens.css)、[`theme-picker.css`](../../src/styles/theme-picker.css)、[`theme-editor.css`](../../src/styles/theme-editor.css) | 默认令牌、菜单及按需加载的编辑器样式 |
 | [`image-mode.css`](../../src/styles/image-mode.css)、[`techne.css`](../../src/styles/techne.css)、[`fonts.css`](../../src/styles/fonts.css) | 图片背景、特色场景和站内字体 |
@@ -58,6 +59,8 @@
 | --- | --- |
 | `cdu-ai-theme` | 当前主题 ID。未设置时跟随系统；写入失败被忽略，因此本次切换可能生效但刷新后无法恢复 |
 | `cdu-ai-custom-themes` | `StoredTheme[]`。读入失败回退空列表；保存、导入、删除只有在写入成功后才替换运行时列表，失败显示错误并保留原有列表 |
+| `cdu-ai-glow` | 「鼠标光效」开关状态（`'on'` / `'off'`）。默认 `'off'`，仅明确存储 `'on'` 时启用；写入失败仅影响本次会话 |
+| `cdu-ai-trail` | 「光效拖尾」开关状态（`'on'` / `'off'`）。默认 `'off'`，仅明确存储 `'on'` 时启用；写入失败仅影响本次会话 |
 
 这两个键不是事务。主题列表成功保存不等于当前 ID 一定成功写入；不要把列表写入失败的回滚保障扩大到所有存储操作。保存失败时编辑器仍可展示草稿预览，原存档不变，可继续修改、导出或取消。
 

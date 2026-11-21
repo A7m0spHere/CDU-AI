@@ -22,11 +22,11 @@ export const GLOW_CHANGE = 'cdu:glow-change';
 export const TRAIL_CHANGE = 'cdu:trail-change';
 
 export function glowEnabled(): boolean {
-  return document.documentElement.dataset.glow !== 'off';
+  return document.documentElement.dataset.glow === 'on';
 }
 
 export function trailEnabled(): boolean {
-  return document.documentElement.dataset.trail !== 'off';
+  return document.documentElement.dataset.trail === 'on';
 }
 
 function apply(enabled: boolean): void {
@@ -68,8 +68,8 @@ export function initGlowPref(): void {
     saved = null;
     savedTrail = null;
   }
-  apply(saved !== 'off');
-  applyTrail(savedTrail !== 'off');
+  apply(saved === 'on');
+  applyTrail(savedTrail === 'on');
 
   const glow = document.querySelector<HTMLButtonElement>('[data-glow-toggle]');
   if (glow) {

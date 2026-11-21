@@ -45,11 +45,10 @@ const AUTO_HOSTS = [
   '.tool-card',
   '.glossary-term',
   '.branch-row__label',
-  // 浮层与页头里后加的控件：图片灯箱的缩放/关闭键、图片上的「点击放大」、
+  // 浮层与页头里后加的控件：图片灯箱的缩放/关闭键、
   // 手机工具详情抽屉的关闭键、指南页头的「建议修改」、术语侧栏的分支开关。
-  // 这些是上游重构后新出现的入口，不接光会像「有的按钮亮、有的不亮」。
+  // （正文大图容器 .guide-image-zoom 不接按钮光晕，避免大图外缘泛出光边）
   '.image-lightbox__btn',
-  '.guide-image-zoom',
   '.tool-sheet__close',
   '.guide-heading__suggest',
   '.branch-row__toggle',
@@ -80,27 +79,13 @@ function decorateAll(root: ParentNode): void {
 }
 
 export function initUiGlow(): void {
-  decorateAll(document);
-
   const root = document.documentElement;
   const show = initInsetGlow({
-    items: Array.from(document.querySelectorAll<HTMLElement>(SELECTOR)),
+    items: [],
     onActive: (active) => {
       root.dataset.uiLight = active ? 'true' : 'false';
     },
   });
-
-  // 后加进来的按钮（主题面板重建、筛选结果、对话框内容）也要有光
-  const observer = new MutationObserver((records) => {
-    for (const record of records) {
-      for (const node of record.addedNodes) {
-        if (!(node instanceof HTMLElement)) continue;
-        if (node.matches(SELECTOR)) decorate(node);
-        decorateAll(node);
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
 
   const hostFrom = (target: EventTarget | null): HTMLElement | null => {
     if (!(target instanceof Element)) return null;
@@ -109,11 +94,12 @@ export function initUiGlow(): void {
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = window.matchMedia('(hover: none), (pointer: coarse)');
-  // CSS 在这种环境下本来就把 .hover-glow 藏了，这里同步跳过，省掉无意义的逐帧写入
+  // CSS 在这种环境下本来就把 .hover-glow 藏了，这里同步跳过，省掉无意义的 DOM 注入与逐帧写入
   const enabled = () => !reduced.matches && !coarse.matches && glowEnabled();
 
   let frame = 0;
   let pending: { host: HTMLElement | null; x: number; y: number } | null = null;
+  let observing = false;
 
   const flush = () => {
     frame = 0;
@@ -132,30 +118,69 @@ export function initUiGlow(): void {
     if (frame === 0) frame = window.requestAnimationFrame(flush);
   };
 
+  // 后加进来的按钮（主题面板重建、筛选结果、对话框内容）也要有光
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (!(node instanceof HTMLElement)) continue;
+        if (node.matches(SELECTOR)) decorate(node);
+        decorateAll(node);
+      }
+    }
+  });
+
+  const syncAutoWire = () => {
+    if (enabled()) {
+      decorateAll(document);
+      if (!observing) {
+        observer.observe(document.body, { childList: true, subtree: true });
+        observing = true;
+      }
+      return;
+    }
+    if (observing) {
+      observer.disconnect();
+      observing = false;
+    }
+    pending = null;
+    if (frame !== 0) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
+    show(null);
+  };
+
+  syncAutoWire();
+  document.addEventListener(GLOW_CHANGE, syncAutoWire);
+  reduced.addEventListener('change', syncAutoWire);
+  coarse.addEventListener('change', syncAutoWire);
+
   document.addEventListener(
     'pointermove',
     (event) => {
-      if (event.pointerType !== 'mouse') return;
+      if (event.pointerType !== 'mouse' || !enabled()) return;
       schedule(hostFrom(event.target), event.clientX, event.clientY);
     },
     { passive: true },
   );
 
   // 指针直接离开窗口时不会再有 pointermove，单独收一次尾
-  document.addEventListener('pointerleave', () => schedule(null, 0, 0));
+  document.addEventListener('pointerleave', () => {
+    if (!enabled()) return;
+    schedule(null, 0, 0);
+  });
 
   // 键盘 Tab 到控件上也要亮：没有指针位置，就让亮心落在控件中央
   document.addEventListener('focusin', (event) => {
+    if (!enabled()) return;
     const host = hostFrom(event.target);
     if (host === null) return;
     const rect = host.getBoundingClientRect();
     schedule(host, rect.left + rect.width / 2, rect.top + rect.height / 2);
   });
 
-  // 面板里关掉「鼠标光效」时，正在亮的那一枚要立刻收掉
-  document.addEventListener(GLOW_CHANGE, () => schedule(null, 0, 0));
-
   document.addEventListener('focusout', (event) => {
+    if (!enabled()) return;
     const host = hostFrom(event.target);
     if (host === null) return;
     const next = event.relatedTarget as Node | null;

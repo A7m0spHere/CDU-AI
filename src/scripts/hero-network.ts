@@ -6,6 +6,7 @@
  */
 
 import { initInsetGlow } from './hover-glow';
+import { GLOW_CHANGE } from './glow-pref';
 
 const network = document.querySelector<HTMLElement>('[data-hero-network]');
 if (network) {
@@ -123,6 +124,12 @@ if (network) {
       showGlow(null);
     } else {
       startTimer();
+    }
+  });
+
+  document.addEventListener(GLOW_CHANGE, (event) => {
+    if (!(event as CustomEvent<{ enabled: boolean }>).detail.enabled) {
+      showGlow(null);
     }
   });
 

@@ -2057,8 +2057,50 @@ test('手机端底部拇指栏、首页显性搜索、本页小节抽屉与代�
   assert.equal(planetMetrics.visible, true, '活动页手机端应展示 ASCII 星球');
   assert.ok(planetMetrics.width > 200 && planetMetrics.height > 150, '手机端 ASCII 星球画布应具备可见尺寸');
 });
+async function setGlowStorage(page, { glow = 'off', trail = 'off' } = {}) {
+  await page.evaluate(({ glow: g, trail: tr }) => {
+    localStorage.setItem('cdu-ai-glow', g);
+    localStorage.setItem('cdu-ai-trail', tr);
+  }, { glow, trail });
+  await page.reload();
+  await ready(page);
+}
+
+async function enableGlow(page) {
+  await setGlowStorage(page, { glow: 'on', trail: 'off' });
+}
+
+async function enableTrail(page) {
+  await setGlowStorage(page, { glow: 'off', trail: 'on' });
+}
+
+test('鼠标光效与光效拖尾默认关闭，不注入多余光层节点且交互可兜底', async t => {
+  const page = await setup(t);
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '默认应关闭鼠标光效');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'off', '默认应关闭光效拖尾');
+
+  await menu(page);
+  assert.equal(await page.locator('[data-glow-toggle]').getAttribute('aria-checked'), 'false', '鼠标光效开关默认应为 false');
+  assert.equal(await page.locator('[data-trail-toggle]').getAttribute('aria-checked'), 'false', '光效拖尾开关默认应为 false');
+  await page.keyboard.press('Escape');
+
+  assert.equal(await page.locator('[data-hero-pixels] .home-hero__pixels').first().evaluate(el => getComputedStyle(el).display), 'none', '默认关闭时 Hero 画布应隐藏');
+  assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'none', '默认关闭时拖尾画布应隐藏');
+
+  await page.mouse.move(320, 260, { steps: 4 });
+  await page.waitForTimeout(200);
+  assert.equal(await page.locator('[data-cursor-glow]').evaluate(el => getComputedStyle(el).opacity), '0', '默认关闭时全站指针光晕不应出现');
+
+  // 默认关闭时 ui-glow 不应往按钮/卡片注入多余的 .hover-glow 节点
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  assert.equal(await page.locator('.tool-card [data-glow]').count(), 0, '默认关闭时不应向工具卡注入光层');
+  assert.equal(await page.locator('.filter-chip [data-glow]').count(), 0, '默认关闭时不应向筛选片注入光层');
+});
+
 test('首页 Hero 像素卡片悬停后整片点亮，指针附近更亮更大，离开后熄灭', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   const card = page.locator('[data-hero-pixels]');
   const canvas = card.locator('.home-hero__pixels');
   await canvas.waitFor();
@@ -2130,6 +2172,7 @@ test('首页 Hero 像素卡片悬停后整片点亮，指针附近更亮更大�
 
 test('全站指针光晕跟随指针、离开后淡出，减少动效下不出现', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   const glow = page.locator('[data-cursor-glow]');
   await glow.waitFor({ state: 'attached' });
 
@@ -2166,6 +2209,7 @@ test('全站指针光晕跟随指针、离开后淡出，减少动效下不出�
   assert.equal((await state()).opacity, 0, '指针离开窗口后光晕应淡出');
 
   const glossary = await setup(t);
+  await enableGlow(glossary);
   await glossary.goto(`${origin}/glossary/`);
   await ready(glossary);
   await glossary.mouse.move(700, 400, { steps: 4 });
@@ -2181,6 +2225,7 @@ test('全站指针光晕跟随指针、离开后淡出，减少动效下不出�
 
 test('指针落到顶部导航上时光效收敛到那一枚按钮，并撤走全站光晕', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   const glow = page.locator('[data-nav-glow]');
   const links = page.locator('.desktop-nav .nav-link');
   await glow.waitFor({ state: 'attached' });
@@ -2237,6 +2282,7 @@ test('指针落到顶部导航上时光效收敛到那一枚按钮，并撤走�
 });
 test('首页引导图节点用与导航同一套光效：指针进到卡片里点亮，离开后熄灭', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   const node = page.locator('.hero-node--tools');
   const glow = page.locator('.hero-node--tools [data-glow]');
   await glow.waitFor({ state: 'attached' });
@@ -2246,15 +2292,21 @@ test('首页引导图节点用与导航同一套光效：指针进到卡片里�
     const nav = document.querySelector('[data-nav-glow]');
     const cursor = document.querySelector('[data-cursor-glow]');
     const rect = el.getBoundingClientRect();
+    const parseColor = (bg) => {
+      const m = bg.match(/rgba?\(([^)]+)\)/);
+      if (m) return m[1].split(',').slice(0, 3).map(Number).join(',');
+      const srgb = bg.match(/srgb,\s*([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)/);
+      if (srgb) return [Math.round(Number(srgb[1]) * 255), Math.round(Number(srgb[2]) * 255), Math.round(Number(srgb[3]) * 255)].join(',');
+      return bg;
+    };
     return {
       active: el.dataset.active,
       opacity: Number(getComputedStyle(el).opacity),
       width: rect.width,
       height: rect.height,
-      // 只看色标里的 RGB：两处渐变形状不同（卡片更扁），共用的是那一个浅蓝
-      tint: (getComputedStyle(el).backgroundImage.match(/rgba?\(([^)]+)\)/) || [])[1].split(',').slice(0, 3).map(Number).join(','),
-      navTint: nav ? (getComputedStyle(nav).backgroundImage.match(/rgba?\(([^)]+)\)/) || [])[1].split(',').slice(0, 3).map(Number).join(',') : '',
-      cursorTint: getComputedStyle(document.documentElement).getPropertyValue('--cursor-glow-blue').trim().replace(/\s+/g, ''),
+      tint: parseColor(getComputedStyle(el).backgroundImage),
+      navTint: nav ? parseColor(getComputedStyle(nav).backgroundImage) : '',
+      brandRgb: getComputedStyle(document.documentElement).getPropertyValue('--brand-rgb').trim().replace(/\s+/g, ''),
       heroFlag: document.documentElement.dataset.heroLight,
       cursorOpacity: Number(getComputedStyle(cursor).opacity),
     };
@@ -2271,9 +2323,8 @@ test('首页引导图节点用与导航同一套光效：指针进到卡片里�
   assert.ok(on.opacity > .9, '卡片里的光应淡入到可见');
   // 卡片有 1px 边框，inset:0 的光比外框小两圈，给 3px 容差
   assert.ok(Math.abs(on.width - nodeNow.width) <= 3 && Math.abs(on.height - nodeNow.height) <= 3, '光应正好铺满这张卡片');
-  assert.equal(on.tint, on.navTint, '卡片与导航共用同一个浅蓝');
-  const sum = (rgb) => String(rgb).split(',').map(Number).reduce((a, b) => a + b, 0);
-  assert.ok(sum(on.tint) > sum(on.cursorTint), '光效的蓝要比全站光晕浅一档');
+  assert.equal(on.tint, on.navTint, '卡片与导航共用同一个强调色衍生光色');
+  assert.ok(on.brandRgb.length > 0, '应存在 --brand-rgb 令牌');
   assert.equal(on.heroFlag, 'true', '卡片内光效生效时通知全站');
   assert.ok(on.cursorOpacity < .05, '全站光晕应撤走，避免同一处两层亮斑');
 
@@ -2294,6 +2345,7 @@ test('首页引导图节点用与导航同一套光效：指针进到卡片里�
 
 test('页头控件与主按钮也用同一套光效：悬停时点亮，并撤走全站光晕', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   await ready(page);
 
   const hostState = (selector) => page.evaluate((sel) => {
@@ -2362,6 +2414,7 @@ test('页头控件与主按钮也用同一套光效：悬停时点亮，并撤�
 
 test('站内同类按钮自动接上同一束光：正文按钮、筛选片、复制键', async t => {
   const page = await setup(t);
+  await enableGlow(page);
 
   const coverage = (selector) => page.evaluate((sel) => {
     const items = Array.from(document.querySelectorAll(sel));
@@ -2426,6 +2479,7 @@ test('站内同类按钮自动接上同一束光：正文按钮、筛选片、�
 
 test('侧栏搜索框与列表卡片接上同一束光', async t => {
   const page = await setup(t);
+  await enableGlow(page);
 
   const coverage = (selector) => page.evaluate((sel) => {
     const items = Array.from(document.querySelectorAll(sel));
@@ -2470,7 +2524,7 @@ test('侧栏搜索框与列表卡片接上同一束光', async t => {
   await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 4 });
   await page.waitForTimeout(450);
   assert.equal(await card.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到工具卡上应点亮');
-  // 卡片用的是点阵光（不是整面渐变），并且由宿主自己那一圈描边接力点亮
+  // 卡片使用跟随指针的圆形柔光晕，并由宿主点亮外圈描边
   const cardLit = await card.evaluate((host) => {
     const glow = host.querySelector('[data-glow]');
     const cs = getComputedStyle(glow);
@@ -2485,14 +2539,14 @@ test('侧栏搜索框与列表卡片接上同一束光', async t => {
   assert.ok(/132px/.test(cardLit.image), '光斑是固定 px 半径的圆，只亮指针那一片');
   assert.ok(cardLit.filter.includes('blur'), '光斑边缘要糊掉才读成光晕');
   assert.notEqual(cardLit.border, cardIdleBorder, '指着的那张卡，外圈描边要点亮');
-  assert.ok(parseFloat(cardLit.cy) > 0, '点阵的亮心要跟着指针上下移动');
+  assert.ok(parseFloat(cardLit.cy) > 0, '柔光晕的亮心要跟着指针上下移动');
   assert.equal(await page.locator('.tool-card [data-glow][data-active="true"]').count(), 1, '同时只应有一张卡片发光');
 
-  // 术语页：术语卡与侧栏分支行
+  // 术语页：术语行保持极简词典行排版（无四边投影框），与侧栏分支行接上光效
   await page.goto(origin + '/glossary/'); await ready(page);
   const terms = await coverage('.glossary-term');
-  assert.ok(terms.total >= 1, '术语页应至少有一张术语卡');
-  assert.equal(terms.covered, terms.total, '术语卡都应自动接上光效');
+  assert.ok(terms.total >= 1, '术语页应至少有一张术语行');
+  assert.equal(terms.covered, terms.total, '术语行都应自动接上光效');
   const rows = await coverage('.branch-row__label');
   assert.ok(rows.total >= 6, '术语侧栏应有分类分支行');
   assert.equal(rows.covered, rows.total, '侧栏分支行也应接上光效');
@@ -2501,7 +2555,13 @@ test('侧栏搜索框与列表卡片接上同一束光', async t => {
   const termBox = await term.boundingBox();
   await page.mouse.move(termBox.x + termBox.width / 2, termBox.y + termBox.height / 2, { steps: 4 });
   await page.waitForTimeout(450);
-  assert.equal(await term.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到术语卡上应点亮');
+  assert.equal(await term.locator('[data-glow]').getAttribute('data-active'), 'true', '指针落到术语行上应点亮');
+  const termStyles = await term.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { boxShadow: cs.boxShadow, borderTopWidth: cs.borderTopWidth, borderRadius: cs.borderRadius };
+  });
+  assert.equal(termStyles.boxShadow, 'none', '术语行悬停时不应套上卡片投影框');
+  assert.equal(termStyles.borderTopWidth, '0px', '术语行悬停时不应画出四边硬边框');
 
   const row = page.locator('.branch-row__label').first();
   const rowBox = await row.boundingBox();
@@ -2511,68 +2571,70 @@ test('侧栏搜索框与列表卡片接上同一束光', async t => {
   assert.equal(await page.locator('[data-glow][data-active="true"]').count(), 1, '同时只应有一处发光');
 });
 
-test('鼠标光效开关：关掉后四条光效链路一起停，刷新后仍记住', async t => {
+test('鼠标光效开关：打开后四条光效链路一起起效，关闭后停，刷新后仍记住', async t => {
   const page = await setup(t);
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '默认应该开着');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '默认应该关闭');
 
   await menu(page);
   const toggle = page.locator('[data-glow-toggle]');
   assert.match(await toggle.innerText(), /鼠标光效/, '开关就叫「鼠标光效」');
-  assert.equal(await toggle.getAttribute('aria-checked'), 'true', '默认是开着的');
+  assert.equal(await toggle.getAttribute('aria-checked'), 'false', '默认是关闭的');
 
   await toggle.click();
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '关掉后 html 上要有标记');
-  assert.equal(await toggle.getAttribute('aria-checked'), 'false', '开关要跟着状态走');
-  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-glow')), 'off', '偏好要存下来');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '打开后 html 上要有标记');
+  assert.equal(await toggle.getAttribute('aria-checked'), 'true', '开关要跟着状态走');
+  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-glow')), 'on', '偏好要存下来');
+  await page.keyboard.press('Escape');
+  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
 
-  // 首页：Hero 点阵光与全站指针光晕都退场
+  // 刷新后仍然是开着的
+  await page.reload();
+  await ready(page);
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '刷新后保持开启');
+
+  // 卡片：开启后亮起
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const card = page.locator('.tool-card').first();
+  await card.scrollIntoViewIfNeeded();
+  const cardBox = await card.boundingBox();
+  await page.mouse.move(cardBox.x + 24, cardBox.y + 24, { steps: 6 });
+  await page.waitForTimeout(550);
+  assert.ok(
+    parseFloat(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity)) > 0.9,
+    '打开后卡片应发光',
+  );
+
+  // 关掉开关：Hero / 指针光晕 / 导航 / 卡片四条链路一起停
+  await menu(page);
+  await page.locator('[data-glow-toggle]').click();
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '关掉后 html 上要有标记');
+  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-glow')), 'off', '关闭状态要存下来');
+  await page.keyboard.press('Escape');
+  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 6 });
+  await page.waitForTimeout(300);
+  assert.equal(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity), '0', '卡片上的光不应亮起');
+
+  await page.goto(origin + '/');
+  await ready(page);
   const canvas = page.locator('[data-hero-pixels] .home-hero__pixels').first();
   assert.equal(await canvas.evaluate(el => getComputedStyle(el).display), 'none', 'Hero 点阵画布也要收起');
   await page.mouse.move(320, 360, { steps: 6 });
   await page.waitForTimeout(200);
   assert.equal(await page.locator('.cursor-glow').evaluate(el => getComputedStyle(el).opacity), '0', '指针光晕不应亮起');
 
-  // 导航：光不汇聚
   const link = page.locator('.desktop-nav .nav-link').first();
   const linkBox = await link.boundingBox();
   await page.mouse.move(linkBox.x + linkBox.width / 2, linkBox.y + linkBox.height / 2, { steps: 6 });
   await page.waitForTimeout(400);
   assert.equal(await page.locator('.nav-glow').evaluate(el => getComputedStyle(el).opacity), '0', '导航这一束光不应出现');
-
-  // 卡片：亮层不亮
-  await page.goto(origin + '/tools/');
-  await ready(page);
-  const card = page.locator('.tool-card').first();
-  const cardBox = await card.boundingBox();
-  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 6 });
-  await page.waitForTimeout(400);
-  assert.equal(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity), '0', '卡片上的光不应亮起');
-
-  // 刷新后仍然是关着的
-  await page.reload();
-  await ready(page);
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '刷新后保持关闭');
-  await menu(page);
-  await page.locator('[data-glow-toggle]').click();
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '再点一次要能打开');
-  await page.keyboard.press('Escape');
-  // 面板要先收起再悬停卡片：不同环境下主题面板的高度不同，
-  // 没收起时卡片中心可能正落在面板下面，指针事件会打到面板上
-  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
-  await page.mouse.move(4, 4, { steps: 2 });
-  await card.scrollIntoViewIfNeeded();
-  const again = await card.boundingBox();
-  await page.mouse.move(again.x + 24, again.y + 24, { steps: 6 });
-  await page.waitForTimeout(650);
-  assert.ok(
-    parseFloat(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity)) > 0.9,
-    '打开后卡片应恢复发光',
-  );
 });
 
 
 test('学习指南侧栏的分组标题与条目也接上同一束光', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   await page.goto(origin + '/guide/');
   await ready(page);
 
@@ -2622,10 +2684,12 @@ test('学习指南侧栏的分组标题与条目也接上同一束光', async t 
 const trailState = (page) => page.evaluate(() => {
   const canvas = document.querySelector('[data-cursor-trail]');
   if (!canvas) return null;
-  const ctx = canvas.getContext('2d');
-  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   let lit = 0;
-  for (let i = 3; i < data.length; i += 28) if (data[i] > 4) lit += 1;
+  if (canvas.width > 0 && canvas.height > 0) {
+    const ctx = canvas.getContext('2d');
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    for (let i = 3; i < data.length; i += 28) if (data[i] > 4) lit += 1;
+  }
   return { active: canvas.dataset.active ?? null, display: getComputedStyle(canvas).display, opacity: getComputedStyle(canvas).opacity, lit };
 });
 
@@ -2639,12 +2703,13 @@ async function streak(page) {
   await page.waitForTimeout(90);
 }
 
-test('光效拖尾：指针划过留下流星尾迹，停下后自己淡完', async t => {
+test('光效拖尾：指针划过与闭合折返均留下流星尾迹，停下后自己淡完', async t => {
   const page = await setup(t);
+  await enableTrail(page);
   await page.goto(origin + '/guide/');
   await ready(page);
 
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on', '拖尾默认开着');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on', '开启后 html 应标为 on');
   const canvas = page.locator('[data-cursor-trail]');
   assert.equal(await canvas.count(), 1, '页面上要有一张拖尾画布');
 
@@ -2660,9 +2725,13 @@ test('光效拖尾：指针划过留下流星尾迹，停下后自己淡完', as
   assert.equal(faded.lit, 0, '指针停下后尾迹要淡完');
   assert.equal(faded.active, 'false', '淡完后画布收回 active');
 
-  // 尾迹会跟着指针走：换一处再划，仍在指针经过的位置出现
-  await page.mouse.move(1100, 300, { steps: 10 });
-  assert.ok((await trailState(page)).lit > 0, '换一处划过同样有尾迹');
+  // 画一圈闭合/折返轨迹（首尾点重合时沿路径淡出仍正常绘制）
+  await page.mouse.move(620, 420, { steps: 4 });
+  await page.mouse.move(740, 420, { steps: 5 });
+  await page.mouse.move(740, 540, { steps: 5 });
+  await page.mouse.move(620, 420, { steps: 5 });
+  await page.waitForTimeout(90);
+  assert.ok((await trailState(page)).lit > 0, '闭合折返轨迹同样有尾迹');
 });
 
 test('光效拖尾是单独开关：和鼠标光效互不牵连，刷新后仍记住', async t => {
@@ -2675,62 +2744,76 @@ test('光效拖尾是单独开关：和鼠标光效互不牵连，刷新后仍�
   const trailToggle = page.locator('[data-trail-toggle]');
   assert.equal(await trailToggle.count(), 1, '面板里要有「光效拖尾」开关');
   assert.match(await trailToggle.innerText(), /光效拖尾/, '开关就叫「光效拖尾」');
-  assert.equal(await trailToggle.getAttribute('aria-checked'), 'true', '默认是开着的');
+  assert.equal(await glowToggle.getAttribute('aria-checked'), 'false', '鼠标光效默认关闭');
+  assert.equal(await trailToggle.getAttribute('aria-checked'), 'false', '光效拖尾默认关闭');
   const glowBox = await glowToggle.boundingBox();
   const trailBox = await trailToggle.boundingBox();
   assert.ok(Math.abs(trailBox.x - glowBox.x) <= 1, '两个开关左对齐、排在一起');
   assert.ok(trailBox.y > glowBox.y && trailBox.y - glowBox.y < 70, '拖尾开关紧跟在鼠标光效下面');
 
+  // 先打开拖尾、鼠标光效保持关闭：拖尾独立工作
   await trailToggle.click();
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'off', '关掉后 html 上要有标记');
-  assert.equal(await trailToggle.getAttribute('aria-checked'), 'false', '开关要跟着状态走');
-  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-trail')), 'off', '偏好要存下来');
-  assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'none', '关掉后画布退场');
-  await page.keyboard.press('Escape');
-  await streak(page);
-  assert.equal((await trailState(page)).lit, 0, '关掉后不应再画尾迹');
-
-  // 只有拖尾关掉：光晕与卡片光效照旧
-  await page.keyboard.press('Escape');
-  await page.goto(origin + '/tools/');
-  await ready(page);
-  const card = page.locator('.tool-card').first();
-  const cardBox = await card.boundingBox();
-  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 6 });
-  await page.waitForTimeout(420);
-  assert.equal(await card.locator('[data-glow]').getAttribute('data-active'), 'true', '关掉拖尾不影响卡片光');
-
-  // 反过来：鼠标光效关掉，拖尾仍按自己的开关工作
-  await menu(page);
-  await page.locator('[data-glow-toggle]').click();
-  await page.locator('[data-trail-toggle]').click();
-  await page.keyboard.press('Escape');
   assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off');
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on', '打开后 html 上要有标记');
+  assert.equal(await trailToggle.getAttribute('aria-checked'), 'true', '开关要跟着状态走');
+  assert.equal(await page.evaluate(() => localStorage.getItem('cdu-ai-trail')), 'on', '偏好要存下来');
+  assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'block', '打开后画布显示');
+  await page.keyboard.press('Escape');
+  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
   await streak(page);
-  assert.ok((await trailState(page)).lit > 0, '关掉鼠标光效后拖尾仍然要画');
+  assert.ok((await trailState(page)).lit > 0, '只开拖尾时也要画尾迹');
 
-  // 刷新后两个偏好各自保持
+  // 刷新后保持「光效关、拖尾开」
   await page.reload();
   await ready(page);
   assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'off', '鼠标光效保持关闭');
   assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'on', '拖尾保持打开');
+
+  // 反过来：开鼠标光效、关拖尾
   await menu(page);
+  await page.locator('[data-glow-toggle]').click();
   await page.locator('[data-trail-toggle]').click();
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'off', '再点一次要能关掉拖尾');
+  await page.keyboard.press('Escape');
+  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on');
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.trail), 'off');
+  assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'none', '关掉后画布退场');
+  await streak(page);
+  assert.equal((await trailState(page)).lit, 0, '关掉后不应再画尾迹');
+
+  await page.goto(origin + '/tools/');
+  await ready(page);
+  const card = page.locator('.tool-card').first();
+  await card.scrollIntoViewIfNeeded();
+  const cardBox = await card.boundingBox();
+  await page.mouse.move(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2, { steps: 6 });
+  await page.waitForTimeout(420);
+  assert.equal(await card.locator('[data-glow]').getAttribute('data-active'), 'true', '关掉拖尾不影响卡片光');
 });
 
-test('减少动效与触屏下不出现光效拖尾', async t => {
+test('减少动效与触屏下不出现光效拖尾且开关隐藏', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
+  await setGlowStorage(page, { glow: 'on', trail: 'on' });
   await page.goto(origin + '/guide/');
   await ready(page);
   assert.equal(await page.locator('[data-cursor-trail]').evaluate(el => getComputedStyle(el).display), 'none', '减少动效下画布不显示');
   await streak(page);
   assert.equal((await trailState(page)).lit, 0, '减少动效下不画尾迹');
+  await menu(page);
+  assert.equal(await page.locator('.theme-panel__switches').evaluate(el => getComputedStyle(el).display), 'none', '减少动效下隐藏面板光效开关');
+  await page.keyboard.press('Escape');
+
+  // 模拟粗指针触屏环境：通过 touchscreen.tap 验证触屏指针（pointerType === 'touch'）不触发拖尾
+  const touch = await setup(t, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  await setGlowStorage(touch, { glow: 'on', trail: 'on' });
+  await touch.touchscreen.tap(195, 420);
+  await touch.waitForTimeout(90);
+  assert.equal((await trailState(touch)).lit, 0, '触屏点击不应绘制流星尾迹');
 });
 
-test('上游新增的浮层控件也接上同一束光：抽屉关闭键、建议修改、分支开关', async t => {
+test('上游新增的浮层控件也接上同一束光，正文大图容器不接光', async t => {
   const page = await setup(t);
+  await enableGlow(page);
   await page.goto(origin + '/guide/first-agent/');
   await ready(page);
 
@@ -2745,9 +2828,15 @@ test('上游新增的浮层控件也接上同一束光：抽屉关闭键、建�
   await page.waitForTimeout(420);
   assert.equal(await suggest.locator('[data-glow]').getAttribute('data-active'), 'true', '悬停「建议修改」要亮');
 
-  // 图片灯箱的缩放 / 关闭键与「点击放大」只在内文真实存在图片时才会生成，
-  // 当前内容还没有配图，所以这里不硬造元素；选择器已进 AUTO_HOSTS，
-  // 有图之后由 ui-glow 的 MutationObserver 自动接线（见「自动接线」那条测试）。
+  // 正文截图放大按钮（.guide-image-zoom）包裹大图，不按按钮自动接光
+  const imageZoom = page.locator('.guide-image-zoom').first();
+  if (await imageZoom.count() > 0) {
+    assert.equal(
+      await imageZoom.evaluate(el => el.hasAttribute('data-glow-host')),
+      false,
+      '正文大图放大容器不应被接入按钮光晕',
+    );
+  }
 
   // 术语页侧栏的分支展开 / 收起键
   await page.goto(origin + '/glossary/');
@@ -2769,5 +2858,56 @@ test('上游新增的浮层控件也接上同一束光：抽屉关闭键、建�
     await sheetClose.evaluate(el => el.hasAttribute('data-glow-host') && el.querySelectorAll(':scope > .hover-glow').length === 1),
     true,
     '工具详情抽屉的关闭键要接光',
+  );
+});
+
+test('光效颜色跟随当前主题强调色 --brand-rgb 变化', async t => {
+  const page = await setup(t);
+  await setGlowStorage(page, { glow: 'on', trail: 'on' });
+
+  // 切换到非蓝色的「樱粉」预设（accent: #db2777 -> 219, 39, 119）
+  await select(page, 'preset-sakura');
+  await page.keyboard.press('Escape');
+  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
+
+  const sakuraColors = await page.evaluate(() => {
+    const cs = getComputedStyle(document.documentElement);
+    return {
+      brandRgb: cs.getPropertyValue('--brand-rgb').trim(),
+      cursorRgb: cs.getPropertyValue('--cursor-glow-rgb').trim(),
+      navHoverBg: (() => {
+        const el = document.querySelector('.desktop-nav .nav-link');
+        return el ? getComputedStyle(el).backgroundColor : '';
+      })(),
+    };
+  });
+  assert.equal(sakuraColors.brandRgb, '219, 39, 119', '樱粉主题应派生对应 --brand-rgb');
+  assert.equal(sakuraColors.cursorRgb, '219, 39, 119', '全站光晕颜色应跟随当前主题');
+
+  // 拖尾像素在樱粉主题下应偏红粉而非固定品牌蓝（R > B）
+  await streak(page);
+  const trailPixelRatio = await page.evaluate(() => {
+    const canvas = document.querySelector('[data-cursor-trail]');
+    const ctx = canvas.getContext('2d');
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let redDominant = 0;
+    let total = 0;
+    for (let i = 0; i < data.length; i += 28) {
+      if (data[i + 3] > 8) {
+        total += 1;
+        if (data[i] > data[i + 2] + 30) redDominant += 1;
+      }
+    }
+    return { total, redDominant };
+  });
+  assert.ok(trailPixelRatio.total > 0, '樱粉主题下拖尾应正常绘制');
+  assert.ok(trailPixelRatio.redDominant / trailPixelRatio.total > 0.9, '拖尾颜色应跟随樱粉主题而非固定蓝色');
+
+  // 切换到「森林」预设（accent: #34d399 -> 52, 211, 153）
+  await select(page, 'preset-forest');
+  assert.equal(
+    await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--brand-rgb').trim()),
+    '52, 211, 153',
+    '森林主题应同步更新 --brand-rgb',
   );
 });

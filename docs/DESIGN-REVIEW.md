@@ -182,10 +182,6 @@
 
 ![Hero 卡片指针光效（浅色）](design/hero-pixel-hover-light.png)
 
-![全站指针光晕（浅色）](design/cursor-glow-light.png)
-
-![全站指针光晕（深色）](design/cursor-glow-dark.png)
-
 ### 2026-10-28 · 顶部导航光效汇聚
 
 - 维护者反馈：「当鼠标指着这一排按钮时，光效汇聚在按钮上，点亮指着的这个按钮」。
@@ -197,10 +193,6 @@
 - 实测（1440×760，Playwright + Edge，浅 / 深两套主题）：光斑矩形与按钮矩形误差 < 2px；离开导航后 opacity 归 0、`data-nav-light` 复位、全站光晕恢复；减少动效下光斑恒为 0。
 - 新增浏览器回归测试「指针落到顶部导航上时光效收敛到那一枚按钮，并撤走全站光晕」。
 
-![顶部导航光效汇聚（浅色）](design/nav-glow-light.png)
-
-![顶部导航光效汇聚（深色）](design/nav-glow-dark.png)
-
 ### 2026-10-28 · 光效调浅并扩展到首页引导图节点
 
 - 维护者反馈（附首页引导图截图，指「工具资源」卡片）：「换一个浅一点的的光效颜色，再给这几个按钮也加上同样的效果」——即导航那套「光效汇聚」换成更浅的蓝，并同样施加到看板娘周围六个入口。
@@ -210,15 +202,6 @@
 - 交互：`src/scripts/hover-glow.ts` 抽出 `initInsetGlow({ items, onActive })`；`hero-network.ts` 在 `pointermove`（仅鼠标且非减少动效）时写 `--glow-cx`，`pointerleave` / `blur` / 切页 / 离屏 / 减少动效切换都熄灭，并给 `<html>` 置 `data-hero-light="false"`；与导航一致，`cursor-glow.css` 依据该标记把全站光晕淡出，避免同一处两层亮斑。
 - 实测（1440×900，Playwright + Edge，双主题）：悬停「工具资源」卡片 → `data-hero-light='true'`、光斑不透明度 1、`cursor-glow` 为 0；光斑 134×50 对卡片 136×52（1px 边框造成的两圈差）；两处光斑取色完全一致（同一个 `--glow-tint`）。
 - 坑：写回归测试时最初把「离开卡片」的落点定在卡片下方 120px，正好落进下面那张「作品广场」，`data-hero-light` 仍为 `true`；改成往卡片左侧 160px（看板娘身上）后通过——断言「离开后熄灭」时落点必须确认没压在另一张卡上。
-- 截图重出：浅色 tint 版本替换 `nav-glow-light.png` / `nav-glow-dark.png`，新增 `hero-node-glow-light.png` / `hero-node-glow-dark.png`。
-
-![顶部导航光效汇聚（浅色）](design/nav-glow-light.png)
-
-![顶部导航光效汇聚（深色）](design/nav-glow-dark.png)
-
-![首页引导图节点光效汇聚（浅色）](design/hero-node-glow-light.png)
-
-![首页引导图节点光效汇聚（深色）](design/hero-node-glow-dark.png)
 
 ### 2026-10-28 · 页头控件与首屏主按钮接入同一束光
 
@@ -231,18 +214,6 @@
 - 测试：新增「页头控件与主按钮也用同一套光效」——主按钮 + 搜索框 + 主题键 + GitHub 键逐个悬停，断言点亮、透明度 >0.9、光宽 ≈ 控件宽、`data-ui-light` 为 true、全站光晕 <0.05，离开后熄灭并把光交还全站；减少动效下不点亮。原有两条 glow 测试的 `data-node-glow` 选择器随通用化改为 `data-glow`。
 - 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **25/25 通过**。
 
-![首屏主按钮的光效汇聚（浅色）](design/btn-glow-light.png)
-
-![首屏主按钮的光效汇聚（深色）](design/btn-glow-dark.png)
-
-![页头搜索框的光效汇聚（浅色）](design/header-glow-light.png)
-
-![页头搜索框的光效汇聚（深色）](design/header-glow-dark.png)
-
-![页头图标键的光效汇聚（浅色）](design/icon-glow-light.png)
-
-![页头图标键的光效汇聚（深色）](design/icon-glow-dark.png)
-
 ### 2026-10-28 · 站内同类按钮全部接上同一束光
 
 - 维护者反馈：「给所有的类似按钮都加上同样的效果」。
@@ -250,21 +221,9 @@
 - 实现方式改成「自动接线」，而不是再去十几个文件里补标记：`ui-glow.ts` 启动时按选择器给命中控件补 `.hover-glow-host`、`data-glow-host` 并插入一层 `.hover-glow--inset`（已有静态光层的不重复插入），再用 MutationObserver 补挂后渲染出来的按钮（主题面板重建、筛选结果）。以后新增按钮只要写自己的语义样式，光会自动跟上；要加一类新控件就往 `AUTO_HOSTS` 里加一个选择器。
 - 驱动器相应放宽：`hover-glow.ts` 原来只在初始化时给传入的 items 建映射表，现在「查不到就现查并缓存」，运行中才注入的宿主也能点亮；`ui-glow.ts` 的事件委托也从「必须在这个数组里」改成 `closest('[data-glow-host]')`。
 - 层叠与安全：`.hover-glow-host` 的 `isolation: isolate` 加光层 `z-index: -1`，光压在控件底色之上、文字与图标之下，所以筛选片、复制键这类小控件亮起时字始终清楚；同时只亮一枚，切换时旧的立刻熄灭。
-- 实测覆盖（工具页 62 个 `button` / 链接按钮）：40 个接上光效，剩余 22 个全是主题面板里的取色色块——即刻意排除项以外没有漏网。术语页复制键、关于页次级按钮、筛选片三处的截图见下。
+- 实测覆盖（工具页 62 个 `button` / 链接按钮）：40 个接上光效，剩余 22 个全是主题面板里的取色色块——即刻意排除项以外没有漏网。
 - 测试：新增「站内同类按钮自动接上同一束光」——关于页整排 `.btn` 全部带宿主类且只有一个光层、悬停次级按钮点亮且光宽 ≈ 按钮宽、宿主 `isolation` 为 `isolate`；工具页整列筛选片与「清除筛选」全覆盖、亮起时通知全站、同时只有一枚 `data-active`；术语页复制键点亮。
 - 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **26/26 通过**。
-
-![次级按钮（浅色）](design/btn-soft-glow-light.png)
-
-![次级按钮（深色）](design/btn-soft-glow-dark.png)
-
-![筛选片（浅色）](design/chip-glow-light.png)
-
-![筛选片（深色）](design/chip-glow-dark.png)
-
-![术语页复制键（浅色）](design/term-copy-glow-light.png)
-
-![主题面板里的按钮（深色）](design/theme-panel-glow-dark.png)
 
 ### 2026-10-28 · 侧栏搜索框与列表卡片也接上光效
 
@@ -275,18 +234,6 @@
 - 同时只亮一处这条规则在卡片上带来一个副作用：卡片内部还有「打开官网」「代码仓库」链接与「展开细节」，指针从卡面移到这些内层控件时，光会从整张卡切到那枚小节上——因为全局只有一个 `active`。目检后保留这个行为：内层控件本来就该比整卡更亮，且切换是同一帧内的交接，看不出闪烁。
 - 测试：新增「侧栏搜索框与列表卡片接上同一束光」——工具页搜索框只有一个光层、悬停后点亮、`z-index` 为 `1`、光宽 ≈ 输入框宽、亮心 `--glow-cx` 随指针偏到右半边、并通知全站光晕让位；工具卡整片全覆盖、悬停点亮且同时只有一张卡 `data-active`；术语页术语卡与侧栏分支行全覆盖、分别悬停可点亮、同时只有一处发光。
 - 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **27/27 通过**。
-
-![侧栏搜索框的光效（浅色）](design/sidebar-search-glow-light.png)
-
-![侧栏搜索框的光效（深色）](design/sidebar-search-glow-dark.png)
-
-![工具卡的光晕与点亮的外圈（浅色）](design/tool-card-halo-light.png)
-
-![工具卡的光晕与点亮的外圈（深色）](design/tool-card-halo-dark.png)
-
-![术语卡的光晕与点亮的外圈（浅色）](design/term-card-halo-light.png)
-
-![术语卡的光晕与点亮的外圈（深色）](design/term-card-halo-dark.png)
 
 ### 2026-10-28 · 鼠标光效做成主题面板里可关的开关
 
@@ -299,12 +246,6 @@
 - 测试：新增「鼠标光效开关：关掉后四条光效链路一起停，刷新后仍记住」——默认开、点一下后 `<html data-glow>` 为 `off`、`aria-checked` 跟手、`localStorage` 存下 `off`；Hero 画布 `display: none`、指针光晕 `opacity` 为 0、导航光斑 `opacity` 为 0、工具卡光层 `opacity` 为 0；刷新后仍是关着，再点一次能打开且卡片恢复发光。
 - 全量验证：`npm run verify` 44 项测试全过、构建 10 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **28/28 通过**。
 
-![主题面板里的「鼠标光效」开关（浅色，开）](design/glow-toggle-light.png)
-
-![同一开关关闭后（浅色）](design/glow-toggle-off-light.png)
-
-![主题面板里的「鼠标光效」开关（深色，开）](design/glow-toggle-dark.png)
-
 ### 2026-10-28 · 学习指南侧栏也接上同一束光
 
 - 反馈：「这里也加光效」，附图为学习指南左侧目录（六个分组标题 + 条目 + 「规划中」标记）。
@@ -312,9 +253,6 @@
 - 没有接光的两类：`.guide-nav__planned`（不可点击的「规划中」占位，加光会被读成按钮）、`.guide-nav__note`（说明段落，不是入口）。
 - 层叠：分组标题与条目都有自身底色，但光层在宿主的 `isolation: isolate` 里位于 `z-index: -1`，绘制顺序在「元素底色之上、子内容之下」，因此不用像搜索框那样抬到 `z-index: 1`，文字仍然是压在最上面的一层。
 - 实测：分组标题与条目各有且只有一层 `.hover-glow`，悬停后 `data-active="true"`、光宽与宿主宽差 ≤3px、`--glow-cx` 跟着指针偏到 62%、`html[data-ui-light="true"]`、同时只有一处发光。
-- 截图：`design/guide-nav-glow-light.png` / `design/guide-nav-glow-dark.png`（悬停「02 开始学习」）、`design/guide-nav-item-glow-light.png` / `design/guide-nav-item-glow-dark.png`（悬停「指南首页」）。
-
-- 截图：`design/guide-nav-glow-light.png` / `design/guide-nav-glow-dark.png`（悬停「02 开始学习」）、`design/guide-nav-item-glow-light.png` / `design/guide-nav-item-glow-dark.png`（悬停「指南首页」）。
 
 ### 2026-11-20 · 同步上游 38 个提交后重新接光
 
@@ -334,5 +272,13 @@
 - 独立开关：`glow-pref.ts` 扩成两个偏好（`cdu-ai-glow` / `cdu-ai-trail`）与两个事件（`cdu:glow-change` / `cdu:trail-change`）；`BaseLayout` 的首屏脚本同时写 `<html data-glow>` / `data-trail`；面板里两个 `role="switch"` 排进同一个 `.theme-panel__switches` 组（上面「鼠标光效 · 跟随指针的柔光」，下面「光效拖尾 · 指针划过的流星尾迹」）。两个开关互不牵连：关掉光晕仍可只留尾迹。
 - 踩坑：第一版在 `draw()` 里写「少于 2 个点就清空」，而 Playwright 的 `mouse.move({ steps })` 一步一帧，快扫时每帧只有 1 个新点，于是每帧都把仅有的点清掉，尾迹永远起不来——手动画弧线却能看到，只靠肉眼很容易误判成「脚本没加载」。改成「只剩一个点也画头部亮核，只有点过期才清空」后正常。
 - 测试：新增 4 条 browser 测试——拖尾画出且停下后淡完、两个开关互不牵连并各自记住、减少动效下不出现、上游新控件接光。全量 `npm run verify` 49 项 node 测试全过、构建 94 页、内链通过；`PLAYWRIGHT_CHANNEL=msedge npm run test:browser` **59/59 通过**。
-- 截图：`design/cursor-trail-light.png` / `design/cursor-trail-dark.png`（划过正文的那道流星）、`design/glow-trail-toggle-light.png` / `design/glow-trail-toggle-dark.png`（面板里并排的两个开关）。
 
+### 2026-11-21 · PR #48 审核修订：默认关闭、跟随主题色与性能清理
+
+- **默认状态改为克制关闭**：`BaseLayout.astro`、`glow-pref.ts` 与 `ThemePicker.astro` 将「鼠标光效」和「光效拖尾」全部调整为**默认关闭**（`cdu-ai-glow` / `cdu-ai-trail` 仅在显式存储 `'on'` 时启用）；`ui-glow.ts`、`pixel-card.ts` 与 `cursor-trail.ts` 在关闭、触屏或减少动效环境下延迟注入与按需分配画布，零首屏开销；触屏与减少动效下隐藏主题面板底部两个光效开关，并在视口较矮时为面板增加纵向滚动保护。
+- **光效跟随主题强调色**：`tokens.css` 与 `theme-core.ts` 新增 `--brand-rgb` 令牌；`cursor-glow.css`、`hover-glow.css`（`--glow-color` 基于 `--brand` 用 `color-mix` 派生）、`home-v2.css`、`pixel-card.ts` 与 `cursor-trail.ts` 全部改为跟随当前主题强调色，解决樱粉/森林/落日等非蓝色预设及自定义主题串色；`vibe.css` 中顶栏导航普通悬停与兜底态恢复语义令牌 `var(--surface-muted)`。
+- **排版适配与已知缺陷修复**：
+  - 术语行 `.glossary-term` 保持 PR #40 极简词典行风格，移除四边外框与卡片投影，仅轻柔点亮左侧 3px 边框与内部柔光；从 `AUTO_HOSTS` 移除正文大图放大容器 `.guide-image-zoom`，避免悬停大图泛出光晕。
+  - `cursor-trail.ts` 移除每帧全屏 `ctx.filter: blur(18px / 2.6px)` 滤镜与首尾线性渐变，改用纯 2D 分段多层梯形柔光带绘制，修复画圈/折返时透明度错乱并消除低配设备模糊开销；颜色读取缓存并由 `MutationObserver` 响应主题变化更新。
+  - 修复 `hover-glow.ts`（`Map` → `WeakMap`、`:scope > [data-glow]` 限定）、`nav-dock.ts`（关闭态跳过布局测量、拆分读写消除循环抖动、响应 `reducedMotion` 变化）、`hero-network.ts`（监听 `GLOW_CHANGE` 复位 `data-hero-light`）、`pixel-card.ts`（关闭时立即停止帧循环与清空像素）及 `cursor-glow.css`（补齐 `prefers-reduced-motion` CSS 隐藏）。
+- **清理过程截图**：移除 PR #48 随附的 35 张中间过程验证 PNG 截图，恢复原有的 2 张 Hero 像素参考图，避免仓库历史膨胀。

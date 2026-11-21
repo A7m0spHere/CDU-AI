@@ -27,9 +27,9 @@ export type ShowGlow = (item: HTMLElement | null, pointerX?: number, pointerY?: 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
 export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
-  const glows = new Map<HTMLElement, HTMLElement>();
+  const glows = new WeakMap<HTMLElement, HTMLElement>();
   for (const item of items) {
-    const glow = item.querySelector<HTMLElement>('[data-glow]');
+    const glow = item.querySelector<HTMLElement>(':scope > [data-glow]');
     if (glow) glows.set(item, glow);
   }
 
@@ -38,7 +38,7 @@ export function initInsetGlow({ items, onActive }: InsetGlowOptions): ShowGlow {
   const glowOf = (item: HTMLElement): HTMLElement | null => {
     const cached = glows.get(item);
     if (cached) return cached;
-    const glow = item.querySelector<HTMLElement>('[data-glow]');
+    const glow = item.querySelector<HTMLElement>(':scope > [data-glow]');
     if (glow) glows.set(item, glow);
     return glow;
   };

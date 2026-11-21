@@ -2,19 +2,20 @@
  * 「光效汇聚」的共用配方：指针落到某个入口上，一团柔光收进那一枚按钮。
  *
  * 用在两处：顶部导航的 .nav-glow（悬浮在导航条上，几何由 scripts/nav-dock.ts 写入）
- * 与首页引导图节点的 .hero-node__glow（--inset 变体，填在卡片内部）。
+ * 与首页引导图节点 / 站内控件的 .hover-glow--inset（填在控件内部）。
  * 这里只负责画：两层径向渐变 + 一点模糊，不描边、不画实心底，
  * 否则会先看到一个硬边胶囊，光就变成「填充」而不是「汇聚」。
  *
- * 颜色比全站指针光晕（--cursor-glow-blue，81,111,227）浅一档：
- * 光斑面积小、亮度集中，用同一个蓝会显脏，浅一档才像一层薄光。
+ * 颜色从当前主题的 --brand 动态调浅一档：
+ * 光斑面积小、亮度集中，直接使用饱和原色会显脏，掺白调柔后才像一层薄光，
+ * 同时兼容浅色、深色、预设和自定义主题。
  */
 :root {
-  --glow-tint: 124, 164, 255; /* 淡一档的品牌蓝，浅色主题用 */
+  --glow-color: color-mix(in srgb, var(--brand) 62%, #ffffff);
 }
 
 :root[data-theme='dark'] {
-  --glow-tint: 150, 190, 255;
+  --glow-color: color-mix(in srgb, var(--brand) 78%, #ffffff);
 }
 
 .hover-glow {
@@ -37,16 +38,16 @@
   background:
     radial-gradient(
       58% 104% at var(--glow-cx, 50%) 50%,
-      rgba(var(--glow-tint), 0.66) 0%,
-      rgba(var(--glow-tint), 0.38) 40%,
-      rgba(var(--glow-tint), 0.1) 74%,
-      rgba(var(--glow-tint), 0) 100%
+      color-mix(in srgb, var(--glow-color) 66%, transparent) 0%,
+      color-mix(in srgb, var(--glow-color) 38%, transparent) 40%,
+      color-mix(in srgb, var(--glow-color) 10%, transparent) 74%,
+      transparent 100%
     ),
     radial-gradient(
       128% 200% at var(--glow-cx, 50%) 50%,
-      rgba(var(--glow-tint), 0.2) 0%,
-      rgba(var(--glow-tint), 0.09) 55%,
-      rgba(var(--glow-tint), 0) 100%
+      color-mix(in srgb, var(--glow-color) 20%, transparent) 0%,
+      color-mix(in srgb, var(--glow-color) 9%, transparent) 55%,
+      transparent 100%
     );
   filter: blur(4px);
   will-change: transform, opacity;
@@ -61,8 +62,8 @@
   border-radius: calc(var(--glow-r, var(--radius-sm)) + 12px);
   background: radial-gradient(
     55% 90% at var(--glow-cx, 50%) 50%,
-    rgba(var(--glow-tint), 0.34),
-    rgba(var(--glow-tint), 0) 72%
+    color-mix(in srgb, var(--glow-color) 34%, transparent),
+    transparent 72%
   );
   filter: blur(12px);
 }
@@ -90,10 +91,10 @@
      这里把亮斑收小、衰减提前，让边缘回到卡面本色，读起来才是一束光 */
   background: radial-gradient(
     38% 96% at var(--glow-cx, 50%) 50%,
-    rgba(var(--glow-tint), 0.6) 0%,
-    rgba(var(--glow-tint), 0.24) 34%,
-    rgba(var(--glow-tint), 0.06) 62%,
-    rgba(var(--glow-tint), 0) 80%
+    color-mix(in srgb, var(--glow-color) 60%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color) 24%, transparent) 34%,
+    color-mix(in srgb, var(--glow-color) 6%, transparent) 62%,
+    transparent 80%
   );
 }
 
@@ -101,24 +102,28 @@
   background:
     radial-gradient(
       70% 130% at var(--glow-cx, 50%) 118%,
-      rgba(var(--glow-tint), 0.5) 0%,
-      rgba(var(--glow-tint), 0.2) 48%,
-      rgba(var(--glow-tint), 0) 100%
+      color-mix(in srgb, var(--glow-color) 50%, transparent) 0%,
+      color-mix(in srgb, var(--glow-color) 20%, transparent) 48%,
+      transparent 100%
     ),
-    linear-gradient(180deg, rgba(var(--glow-tint), 0.18), rgba(var(--glow-tint), 0.08));
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--glow-color) 18%, transparent),
+      color-mix(in srgb, var(--glow-color) 8%, transparent)
+    );
   box-shadow:
-    inset 0 0 0 1px rgba(var(--glow-tint), 0.32),
-    0 14px 30px -18px rgba(var(--glow-tint), 0.85);
+    inset 0 0 0 1px color-mix(in srgb, var(--glow-color) 32%, transparent),
+    0 14px 30px -18px color-mix(in srgb, var(--glow-color) 85%, transparent);
 }
 
 :root[data-theme='dark'] .hover-glow--inset {
   background: radial-gradient(
     55% 130% at var(--glow-cx, 50%) 104%,
-    rgba(var(--glow-tint), 0.42) 0%,
-    rgba(var(--glow-tint), 0.14) 38%,
-    rgba(var(--glow-tint), 0) 76%
+    color-mix(in srgb, var(--glow-color) 42%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color) 14%, transparent) 38%,
+    transparent 76%
   );
-  box-shadow: inset 0 0 0 1px rgba(var(--glow-tint), 0.28);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--glow-color) 28%, transparent);
 }
 
 /* 小控件（主按钮、搜索框、图标键）：光只在自己那一圈圆角里亮。
@@ -143,7 +148,7 @@
 
 /* 品牌色实心底上的光要掺一点白才亮得出来：
    同一束淡蓝铺在深蓝底上只会变成「稍微深一点」，掺白才像一道掠过按钮的光。
-   圆角内层仍用 inset 变体，外面那圈 ::before 柔光继续用 --glow-tint。 */
+   圆角内层仍用 inset 变体，外面那圈 ::before 柔光继续用 --glow-color。 */
 .btn--primary > .hover-glow {
   background: radial-gradient(
     46% 118% at var(--glow-cx, 50%) 50%,
@@ -168,33 +173,33 @@
 
 /* 侧栏搜索框：input 自己有底色，光层压在它下面会被整个挡住，
    所以这一层抬到 input 之上，只留薄薄一层浓度——读起来像光从输入框里透出来。
-   文案仍在光的下方，所以亮斑只收在指针周围，别把整条输入框染成蓝色。 */
+   文案仍在光的下方，所以亮斑只收在指针周围，别把整条输入框染成深色色块。 */
 .search-field > .hover-glow {
   z-index: 1;
   filter: blur(5px);
   background: radial-gradient(
     34% 150% at var(--glow-cx, 50%) 50%,
-    rgba(var(--glow-tint), 0.36) 0%,
-    rgba(var(--glow-tint), 0.14) 44%,
-    rgba(var(--glow-tint), 0.03) 72%,
-    rgba(var(--glow-tint), 0) 90%
+    color-mix(in srgb, var(--glow-color) 36%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color) 14%, transparent) 44%,
+    color-mix(in srgb, var(--glow-color) 3%, transparent) 72%,
+    transparent 90%
   );
 }
 
 :root[data-theme='dark'] .search-field > .hover-glow {
   background: radial-gradient(
     34% 150% at var(--glow-cx, 50%) 50%,
-    rgba(var(--glow-tint), 0.42) 0%,
-    rgba(var(--glow-tint), 0.16) 44%,
-    rgba(var(--glow-tint), 0.04) 72%,
-    rgba(var(--glow-tint), 0) 90%
+    color-mix(in srgb, var(--glow-color) 42%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color) 16%, transparent) 44%,
+    color-mix(in srgb, var(--glow-color) 4%, transparent) 72%,
+    transparent 90%
   );
   box-shadow: none;
 }
 
 /* 列表卡片：不用点阵、也不铺满整面的渐变，改成一团跟着指针走的柔光（光晕）。
    光斑用 px 半径而不是百分比：卡片宽高差很大，百分比会在宽屏上拉成一条横带；
-   固成 150px 的圆，读起来就是「只有指着的那一片亮」。
+   固成 132px 的圆，读起来就是「只有指着的那一片亮」。
    再叠 blur，边界糊掉才像光，不然会看到一圈硬边的圆盘。 */
 .tool-card > .hover-glow,
 .glossary-term > .hover-glow {
@@ -202,10 +207,10 @@
   filter: blur(8px);
   background: radial-gradient(
     circle 132px at var(--glow-cx, 50%) var(--glow-cy, 50%),
-    rgba(var(--glow-tint), 0.78) 0%,
-    rgba(var(--glow-tint), 0.4) 38%,
-    rgba(var(--glow-tint), 0.11) 70%,
-    rgba(var(--glow-tint), 0) 100%
+    color-mix(in srgb, var(--glow-color) 78%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color) 40%, transparent) 38%,
+    color-mix(in srgb, var(--glow-color) 11%, transparent) 70%,
+    transparent 100%
   );
 }
 
@@ -220,30 +225,33 @@
 :root[data-theme='dark'] .glossary-term > .hover-glow {
   background: radial-gradient(
     circle 132px at var(--glow-cx, 50%) var(--glow-cy, 50%),
-    rgba(var(--glow-tint), 0.62) 0%,
-    rgba(var(--glow-tint), 0.3) 38%,
-    rgba(var(--glow-tint), 0.08) 70%,
-    rgba(var(--glow-tint), 0) 100%
+    color-mix(in srgb, var(--glow-color) 62%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color) 30%, transparent) 38%,
+    color-mix(in srgb, var(--glow-color) 8%, transparent) 70%,
+    transparent 100%
   );
   box-shadow: none;
 }
-/* 指着的这张卡，外圈一圈描边点亮：光斑在卡面里点，边界由这圈读出来。
-   卡片自己的 :hover 只把描边换成 line-strong，这里接力成品牌蓝并带一点外发光。 */
-.tool-card[data-glow-on='true'],
-.glossary-term[data-glow-on='true'] {
-  border-color: rgba(var(--glow-tint), 0.72);
+
+/* 指着的这张工具卡，外圈一圈描边点亮：光斑在卡面里点，边界由这圈读出来。 */
+.tool-card[data-glow-on='true'] {
+  border-color: color-mix(in srgb, var(--glow-color) 72%, transparent);
   box-shadow:
-    0 0 0 1px rgba(var(--glow-tint), 0.45),
-    0 18px 38px -26px rgba(var(--glow-tint), 0.85);
+    0 0 0 1px color-mix(in srgb, var(--glow-color) 45%, transparent),
+    0 18px 38px -26px color-mix(in srgb, var(--glow-color) 85%, transparent);
 }
 
-:root[data-theme='dark'] .tool-card[data-glow-on='true'],
-:root[data-theme='dark'] .glossary-term[data-glow-on='true'] {
-  border-color: rgba(var(--glow-tint), 0.8);
+:root[data-theme='dark'] .tool-card[data-glow-on='true'] {
+  border-color: color-mix(in srgb, var(--glow-color) 80%, transparent);
   box-shadow:
-    0 0 0 1px rgba(var(--glow-tint), 0.5),
-    0 0 24px -6px rgba(var(--glow-tint), 0.55),
-    0 18px 38px -24px rgba(var(--glow-tint), 0.8);
+    0 0 0 1px color-mix(in srgb, var(--glow-color) 50%, transparent),
+    0 0 24px -6px color-mix(in srgb, var(--glow-color) 55%, transparent),
+    0 18px 38px -24px color-mix(in srgb, var(--glow-color) 80%, transparent);
+}
+
+/* 术语行保持极简词典排版（无四边外框与卡片阴影），只轻柔点亮左边框 */
+.glossary-term[data-glow-on='true'] {
+  border-left-color: color-mix(in srgb, var(--brand) 72%, transparent);
 }
 
 /* 减少动效、触屏与无 JS 时不启用：导航回落到半透明蓝底，卡片回落到描边 + 阴影 */

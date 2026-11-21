@@ -244,6 +244,22 @@
   .theme-swatch__badge--del {
     right: 0;
   }
+
+  .theme-panel__switches {
+    display: none;
+  }
+}
+
+@media (max-height: 740px) {
+  .theme-panel {
+    max-height: calc(100dvh - var(--header-h) - 1.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .theme-panel::before {
+    display: none;
+  }
 }
 
 @media (max-width: 560px) {
@@ -355,6 +371,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .theme-panel__switches {
+    display: none;
+  }
+
   .theme-panel__toggle,
   .theme-panel__switch,
   .theme-panel__switch::after {

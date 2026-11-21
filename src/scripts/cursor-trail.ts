@@ -6,8 +6,9 @@
  *   - 拖尾是刚过去的轨迹，回答「指针刚往哪走」，只在该动的时候出现。
  * 两者都只是装饰：不拦截事件、不改光标、不参与布局，减少动效与触屏下都不出现。
  *
- * 画法：一张固定在最上层的 canvas，按帧取最近 420ms 的采样点，
- * 由旧到新画一串渐细渐亮的线段，头部再叠一颗亮核；
+ * 画法：一张固定在最上层的 canvas，按帧取最近 780ms 的采样点，
+ * 用纯 2D 分段多层梯形柔光带（外晕 / 中柔光 / 核心亮带，不使用全屏 ctx.filter blur）
+ * 沿路径渐细渐亮绘制，头部再叠一颗 28px 径向亮核；
  * 指针停下后尾迹自然淡完，帧循环随之停下，空闲时不占 CPU。
  */
 
@@ -22,6 +23,13 @@ const MAX_POINTS = 160;
 /** 小于这个距离的移动只更新头部时间，不新增采样点 */
 const MIN_STEP = 1.2;
 
+/** 分段多层柔光带配置：宽度倍率与峰值透明度，避免每帧全屏 Gaussian Blur 的开销与兼容性问题 */
+const BAND_LAYERS = [
+  { widthScale: 2.8, alphaScale: 0.085 },
+  { widthScale: 1.55, alphaScale: 0.22 },
+  { widthScale: 0.9, alphaScale: 0.44 },
+] as const;
+
 const canvas = document.querySelector<HTMLCanvasElement>('[data-cursor-trail]');
 if (canvas) {
   const ctx = canvas.getContext('2d');
@@ -32,29 +40,69 @@ if (canvas) {
   let width = 0;
   let height = 0;
   let dpr = 1;
+  let sized = false;
   let points: Point[] = [];
   let frame = 0;
   const enabled = (): boolean => !reduced.matches && !coarse.matches && trailEnabled();
 
-  /** 深浅主题各取一档蓝：浅色底上用深一点的品牌蓝才看得出来 */
-  const tint = (): string => (root.dataset.theme === 'dark' ? '150, 190, 255' : '81, 111, 227');
+  const readTint = (): string => {
+    const raw = window.getComputedStyle(root).getPropertyValue('--brand-rgb').trim();
+    if (/^\d+\s*,\s*\d+\s*,\s*\d+$/.test(raw)) return raw;
+    return root.dataset.theme === 'dark' ? '96, 165, 250' : '37, 99, 235';
+  };
+  let cachedTint = readTint();
 
   const clear = (): void => {
-    if (ctx) ctx.clearRect(0, 0, width, height);
+    if (ctx && width > 0 && height > 0) ctx.clearRect(0, 0, width, height);
     canvas.dataset.active = 'false';
+    if (frame !== 0) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
   };
 
-  const resize = (): void => {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = window.innerWidth;
-    height = window.innerHeight;
+  const ensureSized = (): void => {
+    const nextDpr = Math.min(window.devicePixelRatio || 1, 2);
+    const nextW = window.innerWidth;
+    const nextH = window.innerHeight;
+    if (sized && nextW === width && nextH === height && nextDpr === dpr) return;
+    dpr = nextDpr;
+    width = nextW;
+    height = nextH;
     canvas.width = Math.max(1, Math.round(width * dpr));
     canvas.height = Math.max(1, Math.round(height * dpr));
     canvas.style.width = width + 'px';
     canvas.style.height = height + 'px';
     ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sized = true;
+  };
+
+  const releaseCanvas = (): void => {
     points = [];
     clear();
+    if (sized) {
+      canvas.width = 0;
+      canvas.height = 0;
+      width = 0;
+      height = 0;
+      sized = false;
+    }
+  };
+
+  const resize = (): void => {
+    if (!enabled()) {
+      releaseCanvas();
+      return;
+    }
+    ensureSized();
+    points = [];
+    clear();
+  };
+
+  /** 沿路径进度 0..1 映射透明度曲线，无论直线还是画圈折返都沿路径方向平滑淡出 */
+  const pathAlpha = (lifeVal: number): number => {
+    if (lifeVal <= 0.12) return 0;
+    return Math.pow(lifeVal, 2.1);
   };
 
   const draw = (now: number): void => {
@@ -71,78 +119,66 @@ if (canvas) {
       return;
     }
 
+    ensureSized();
+    if (width === 0 || height === 0) return;
     ctx.clearRect(0, 0, width, height);
-    const rgb = tint();
+    const rgb = cachedTint;
+    const strength = root.dataset.theme === 'dark' ? 1.25 : 1;
 
-    // 尾迹画成一条「渐变宽度的带」，而不是逐段描线：
-    // 逐段 stroke 时相邻线段的圆头会互相叠加，尾巴上会出现一串珠子；
-    // 一次 fill 出来的带子才是连续、平滑、越靠近头越粗的流星。
-    const life = (index: number): number => {
-      const point = points[index];
-      return Math.max(0, 1 - (now - point.t) / AGE);
-    };
-    const halfWidth = (index: number): number => (1 + 10.6 * Math.pow(life(index), 1.6)) / 2;
+    const lifeAt = (index: number): number => Math.max(0, 1 - (now - points[index].t) / AGE);
+    const halfWidthAt = (lifeVal: number): number => (1 + 10.6 * Math.pow(lifeVal, 1.6)) / 2;
 
     if (points.length > 1) {
-      const left: Point[] = [];
-      const right: Point[] = [];
-      for (let i = 0; i < points.length; i++) {
+      const n = points.length;
+      const lifes = new Array<number>(n);
+      const normalsX = new Array<number>(n);
+      const normalsY = new Array<number>(n);
+      const baseHalves = new Array<number>(n);
+
+      for (let i = 0; i < n; i++) {
+        const l = lifeAt(i);
+        lifes[i] = l;
+        baseHalves[i] = halfWidthAt(l);
         const prev = points[Math.max(0, i - 1)];
-        const next = points[Math.min(points.length - 1, i + 1)];
+        const next = points[Math.min(n - 1, i + 1)];
         const dx = next.x - prev.x;
         const dy = next.y - prev.y;
-        const length = Math.hypot(dx, dy) || 1;
-        // 法线方向：把宽度摊在轨迹两侧
-        const nx = (-dy / length) * halfWidth(i);
-        const ny = (dx / length) * halfWidth(i);
-        left.push({ x: points[i].x + nx, y: points[i].y + ny, t: points[i].t });
-        right.push({ x: points[i].x - nx, y: points[i].y - ny, t: points[i].t });
+        const len = Math.hypot(dx, dy) || 1;
+        normalsX[i] = -dy / len;
+        normalsY[i] = dx / len;
       }
 
-      const tail = points[0];
-      const head = points[points.length - 1];
-      const ribbon = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
-      // 尾巴彻底透明、越靠头越实：远看只有后半截亮着，才像一颗掠过的流星。
-      // 深色底上 screen 混合看起来会淡一档，浓度乘 1.3 补回来。
-      const strength = root.dataset.theme === 'dark' ? 1.3 : 1;
-      const stop = (at: number, alpha: number): void => {
-        ribbon.addColorStop(at, 'rgba(' + rgb + ', ' + (alpha * strength).toFixed(3) + ')');
-      };
-      stop(0, 0);
-      stop(0.45, 0.045);
-      stop(0.7, 0.2);
-      stop(0.88, 0.4);
-      stop(1, 0.55);
+      // 分层分段绘制：每层用不同半宽倍率叠出柔和外晕，且每段按自身 life 着色，画圈折返不失真
+      for (const layer of BAND_LAYERS) {
+        for (let i = 0; i < n - 1; i++) {
+          const midLife = (lifes[i] + lifes[i + 1]) * 0.5;
+          const alpha = Math.min(1, pathAlpha(midLife) * layer.alphaScale * strength);
+          if (alpha < 0.004) continue;
 
-      ctx.beginPath();
-      ctx.moveTo(left[0].x, left[0].y);
-      for (let i = 1; i < left.length; i++) ctx.lineTo(left[i].x, left[i].y);
-      for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i].x, right[i].y);
-      ctx.closePath();
+          const hw0 = baseHalves[i] * layer.widthScale;
+          const hw1 = baseHalves[i + 1] * layer.widthScale;
+          const p0 = points[i];
+          const p1 = points[i + 1];
 
-      // 两层叠出柔光：先铺一层大范围模糊当外晕，再叠一层只糊一点边的本体。
-      // 只画实心带子会读成「画上去的一条线」；本体也带一点点模糊，边缘才不会留硬边。
-      ctx.save();
-      ctx.filter = 'blur(18px)';
-      ctx.globalAlpha = 0.9;
-      ctx.fillStyle = ribbon;
-      ctx.fill();
-      ctx.restore();
-
-      ctx.save();
-      ctx.filter = 'blur(2.6px)';
-      ctx.fillStyle = ribbon;
-      ctx.fill();
-      ctx.restore();
+          ctx.fillStyle = `rgba(${rgb}, ${alpha.toFixed(3)})`;
+          ctx.beginPath();
+          ctx.moveTo(p0.x + normalsX[i] * hw0, p0.y + normalsY[i] * hw0);
+          ctx.lineTo(p1.x + normalsX[i + 1] * hw1, p1.y + normalsY[i + 1] * hw1);
+          ctx.lineTo(p1.x - normalsX[i + 1] * hw1, p1.y - normalsY[i + 1] * hw1);
+          ctx.lineTo(p0.x - normalsX[i] * hw0, p0.y - normalsY[i] * hw0);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
     }
 
     // 头部亮核：一小团径向光，让尾迹有个「星」的头
     const head = points[points.length - 1];
     const headLife = Math.max(0, 1 - (now - head.t) / AGE);
     const core = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 28);
-    core.addColorStop(0, 'rgba(' + rgb + ', ' + (0.66 * headLife).toFixed(3) + ')');
-    core.addColorStop(0.38, 'rgba(' + rgb + ', ' + (0.24 * headLife).toFixed(3) + ')');
-    core.addColorStop(1, 'rgba(' + rgb + ', 0)');
+    core.addColorStop(0, `rgba(${rgb}, ${(0.66 * headLife).toFixed(3)})`);
+    core.addColorStop(0.38, `rgba(${rgb}, ${(0.24 * headLife).toFixed(3)})`);
+    core.addColorStop(1, `rgba(${rgb}, 0)`);
     ctx.fillStyle = core;
     ctx.beginPath();
     ctx.arc(head.x, head.y, 28, 0, Math.PI * 2);
@@ -157,8 +193,12 @@ if (canvas) {
     if (frame === 0) frame = window.requestAnimationFrame(draw);
   };
 
-  resize();
+  if (enabled()) ensureSized();
   window.addEventListener('resize', resize, { passive: true });
+
+  new MutationObserver(() => {
+    cachedTint = readTint();
+  }).observe(root, { attributes: true, attributeFilter: ['data-theme', 'style'] });
 
   document.addEventListener(
     'pointermove',
@@ -207,16 +247,16 @@ if (canvas) {
     }
   });
 
-  // 面板里关掉「光效拖尾」：正在画的尾迹立刻擦掉
+  // 面板里切换「光效拖尾」：关闭时释放画布；开启时按需分配
   document.addEventListener(TRAIL_CHANGE, () => {
-    if (!trailEnabled()) {
-      points = [];
-      clear();
+    if (!enabled()) {
+      releaseCanvas();
+    } else {
+      ensureSized();
     }
   });
 
   reduced.addEventListener('change', () => {
-    points = [];
-    clear();
+    if (!enabled()) releaseCanvas();
   });
 }

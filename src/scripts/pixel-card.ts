@@ -4,10 +4,10 @@
  * 两层叠加：
  * 1. 底层（最初的行为）：指针进入卡片后，整片像素从卡片中心向外依次出现并持续闪烁，
  *    离开时逐个缩小熄灭；
- * 2. 指针层：指针附近的点被额外放大、提亮并向品牌蓝的中心色靠拢，同时铺一层很淡的光晕。
+ * 2. 指针层：指针附近的点被额外放大、提亮并向当前主题强调色靠拢，同时铺一层很淡的光晕。
  *
  * 纯 Canvas 2D + TS，不引入三方库。
- * 降级：prefers-reduced-motion: reduce 完全不启用；触屏按下亮一瞬后整片熄灭；键盘 focus 在中心亮起。
+ * 降级：prefers-reduced-motion: reduce 或光效总开关关闭时完全不启用；触屏按下亮一瞬后整片熄灭；键盘 focus 在中心亮起。
  */
 
 import { GLOW_CHANGE, glowEnabled } from './glow-pref';
@@ -27,20 +27,6 @@ const DEFAULTS = {
   pulse: 720,
 };
 
-/** 底层点阵的底色（保持最初的"多色随机"质感，收敛到品牌蓝的同族色） */
-const BASE: Record<'light' | 'dark', readonly string[]> = {
-  light: ['#a3b0e9', '#8b9ce1', '#c9d2f6', '#b3bfec'],
-  dark: ['#6d84e0', '#8ea3f0', '#5468bf', '#7b87ad'],
-};
-
-/** 指针附近的中心色：由边缘蓝过渡到中心亮蓝 */
-const PALETTE: Record<'light' | 'dark', { core: Rgb; mid: Rgb; edge: Rgb }> = {
-  // 统一用 #516fe3（维护者从参考图取的蓝）；浅色卡片上中心加深一档以免发灰
-  light: { core: [63, 86, 214], mid: [81, 111, 227], edge: [129, 155, 242] },
-  // 深色卡片中心提亮到浅蓝，边缘回落到同一个蓝
-  dark: { core: [163, 183, 255], mid: [81, 111, 227], edge: [61, 84, 190] },
-};
-
 const rgba = ([r, g, b]: Rgb, alpha: number) => `rgba(${r}, ${g}, ${b}, ${alpha})`;
 
 const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
@@ -48,6 +34,55 @@ const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
   Math.round(from[1] + (to[1] - from[1]) * t),
   Math.round(from[2] + (to[2] - from[2]) * t),
 ];
+
+/** 从根元素 --brand-rgb 读取当前主题强调色；缺失时按深浅模式回退默认令牌。 */
+function readBrandRgb(): Rgb {
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const raw = window.getComputedStyle(document.documentElement).getPropertyValue('--brand-rgb').trim();
+  const parts = raw.split(',').map((item) => Number(item.trim()));
+  if (parts.length === 3 && parts.every((n) => Number.isFinite(n) && n >= 0 && n <= 255)) {
+    return [parts[0], parts[1], parts[2]];
+  }
+  return dark ? [96, 165, 250] : [37, 99, 235];
+}
+
+/** 结合当前深浅模式与 --brand-rgb 派生点阵底色与指针中心色 */
+function buildColors(): { base: readonly string[]; tones: { core: Rgb; mid: Rgb; edge: Rgb } } {
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const brand = readBrandRgb();
+  const white: Rgb = [255, 255, 255];
+  const black: Rgb = [12, 16, 28];
+
+  if (dark) {
+    return {
+      base: [
+        rgba(mix(brand, white, 0.12), 0.9),
+        rgba(mix(brand, white, 0.34), 0.9),
+        rgba(mix(brand, black, 0.25), 0.9),
+        rgba(mix(brand, white, 0.22), 0.72),
+      ],
+      tones: {
+        core: mix(brand, white, 0.45),
+        mid: brand,
+        edge: mix(brand, black, 0.22),
+      },
+    };
+  }
+
+  return {
+    base: [
+      rgba(mix(brand, white, 0.56), 0.92),
+      rgba(mix(brand, white, 0.44), 0.92),
+      rgba(mix(brand, white, 0.72), 0.92),
+      rgba(mix(brand, white, 0.62), 0.85),
+    ],
+    tones: {
+      core: mix(brand, black, 0.14),
+      mid: brand,
+      edge: mix(brand, white, 0.36),
+    },
+  };
+}
 
 /** 边缘 → 中间 → 中心，两段插值，避免中心直接跳到纯白显得脏 */
 const shade = (palette: { core: Rgb; mid: Rgb; edge: Rgb }, t: number): Rgb =>
@@ -134,11 +169,15 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   let frame = 0;
   let lastFrame = 0;
   let pulseTimer: ReturnType<typeof setTimeout> | undefined;
-
-  const palette = () => (document.documentElement.dataset.theme === 'dark' ? PALETTE.dark : PALETTE.light);
-  const baseColors = () => (document.documentElement.dataset.theme === 'dark' ? BASE.dark : BASE.light);
+  let currentPalette = buildColors();
+  const activeEnv = () => !reduced.matches && glowEnabled();
 
   const layout = () => {
+    if (!activeEnv()) {
+      pixels = [];
+      ctx.clearRect(0, 0, width, height);
+      return;
+    }
     const rect = host.getBoundingClientRect();
     width = Math.max(1, Math.round(rect.width));
     height = Math.max(1, Math.round(rect.height));
@@ -148,7 +187,8 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
     canvas.height = Math.round(height * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-    const colors = baseColors();
+    currentPalette = buildColors();
+    const colors = currentPalette.base;
     const next: Pixel[] = [];
     for (let x = 0; x < width; x += DEFAULTS.gap) {
       for (let y = 0; y < height; y += DEFAULTS.gap) {
@@ -165,10 +205,10 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
 
   const draw = () => {
     ctx.clearRect(0, 0, width, height);
-    if (pixels.length === 0) return;
+    if (pixels.length === 0) return false;
 
     const appearing = mode === 'appear';
-    const tones = palette();
+    const tones = currentPalette.tones;
     const radius = DEFAULTS.radius;
     const radiusSq = radius * radius;
     const pointerOn = intensity > 0.004;
@@ -235,9 +275,21 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   };
 
   const wake = () => {
-    if (frame || reduced.matches || document.hidden) return;
+    if (frame || !activeEnv() || document.hidden) return;
     lastFrame = 0;
     frame = requestAnimationFrame(tick);
+  };
+
+  const resetCanvas = () => {
+    clearTimeout(pulseTimer);
+    cancelAnimationFrame(frame);
+    frame = 0;
+    lastFrame = 0;
+    intensity = 0;
+    goal = 0;
+    mode = 'disappear';
+    pixels = [];
+    ctx.clearRect(0, 0, width, height);
   };
 
   const pointTo = (clientX: number, clientY: number, snap = false) => {
@@ -251,6 +303,8 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   };
 
   const reveal = (clientX?: number, clientY?: number) => {
+    if (!activeEnv()) return;
+    if (pixels.length === 0) layout();
     mode = 'appear';
     goal = 1;
     if (typeof clientX === 'number' && typeof clientY === 'number') pointTo(clientX, clientY, true);
@@ -264,13 +318,13 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   };
 
   host.addEventListener('pointerenter', (event) => {
-    if (reduced.matches || event.pointerType === 'touch' || !glowEnabled()) return;
+    if (!activeEnv() || event.pointerType === 'touch') return;
     // 从边缘进来时直接落到指针处，否则光晕会从上次的位置飞过来
     reveal(event.clientX, event.clientY);
   });
 
   host.addEventListener('pointermove', (event) => {
-    if (reduced.matches || event.pointerType === 'touch' || !glowEnabled()) return;
+    if (!activeEnv() || event.pointerType === 'touch') return;
     pointTo(event.clientX, event.clientY);
     if (mode !== 'appear') reveal();
     else wake();
@@ -280,7 +334,7 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
 
   // 触屏：按下处亮一下再整片熄灭，不做跟随
   host.addEventListener('pointerdown', (event) => {
-    if (reduced.matches || event.pointerType !== 'touch' || !glowEnabled()) return;
+    if (!activeEnv() || event.pointerType !== 'touch') return;
     reveal(event.clientX, event.clientY);
     clearTimeout(pulseTimer);
     pulseTimer = setTimeout(hide, DEFAULTS.pulse);
@@ -288,7 +342,8 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
 
   // 键盘：聚焦到卡片（例如「开始学习」按钮）时在中心亮起
   host.addEventListener('focusin', () => {
-    if (reduced.matches || !glowEnabled()) return;
+    if (!activeEnv()) return;
+    if (pixels.length === 0) layout();
     target.x = pointer.x = width / 2;
     target.y = pointer.y = height / 2;
     mode = 'appear';
@@ -302,6 +357,10 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   });
 
   new ResizeObserver(() => {
+    if (!activeEnv()) {
+      resetCanvas();
+      return;
+    }
     layout();
     if (!frame) {
       mode = 'disappear';
@@ -310,31 +369,32 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
   }).observe(host);
 
   new MutationObserver(() => {
-    // 主题切换后底色与中心色都变了，重建点阵并重画一帧
+    // 主题或强调色切换后底色与中心色都变了，按需重建点阵
+    currentPalette = buildColors();
+    if (!activeEnv()) {
+      resetCanvas();
+      return;
+    }
     layout();
     if (!frame) {
       mode = 'disappear';
       draw();
     }
-  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'style'] });
 
   const onMotionChange = () => {
-    if (!reduced.matches) return;
-    clearTimeout(pulseTimer);
-    cancelAnimationFrame(frame);
-    frame = 0;
-    intensity = 0;
-    goal = 0;
-    mode = 'disappear';
-    pixels = [];
-    layout();
-    ctx.clearRect(0, 0, width, height);
+    if (reduced.matches) resetCanvas();
+    else if (activeEnv()) layout();
   };
   reduced.addEventListener('change', onMotionChange);
 
   document.addEventListener(GLOW_CHANGE, (event) => {
-    if ((event as CustomEvent<{ enabled: boolean }>).detail.enabled) return;
-    hide();
+    if ((event as CustomEvent<{ enabled: boolean }>).detail.enabled) {
+      if (activeEnv()) layout();
+    } else {
+      // 画布在 data-glow="off" 下已 display: none，直接停掉帧循环与清空像素
+      resetCanvas();
+    }
   });
 
   document.addEventListener('visibilitychange', () => {
@@ -344,5 +404,5 @@ for (const host of document.querySelectorAll<HTMLElement>('[data-hero-pixels]'))
     lastFrame = 0;
   });
 
-  layout();
+  if (activeEnv()) layout();
 }

@@ -64,7 +64,7 @@ body {
 /* 指针进到导航这一排时，光会「收」到被指到的那一枚按钮上。
    光的外观是与首页引导图节点共用的配方（styles/hover-glow.css 的 .hover-glow），
    几何（左偏移 / 上偏移 / 宽 / 高 / 圆角 / 光心位置）由 scripts/nav-dock.ts 写入。
-   按钮自身的 hover 底色改成半透明蓝，光才能从底下透上来。 */
+   未开启光效时保持语义底色 var(--surface-muted)；光效激活时改为透明让底下的光透上来。 */
 
 .nav-link {
   position: relative;
@@ -78,14 +78,8 @@ body {
 }
 
 .nav-link:hover {
-  background: rgba(var(--cursor-glow-blue), 0.12);
+  background: var(--surface-muted);
   color: var(--ink);
-  text-shadow: 0 0 12px rgba(var(--cursor-glow-blue), 0.35);
-}
-
-:root[data-theme='dark'] .nav-link:hover {
-  background: rgba(var(--cursor-glow-blue), 0.2);
-  text-shadow: 0 0 14px rgba(var(--cursor-glow-blue), 0.55);
 }
 
 .nav-link[aria-current='page'] {
@@ -112,19 +106,12 @@ body {
 }
 
 .nav-cta:hover {
-  background: rgba(var(--cursor-glow-blue), 0.12);
+  background: var(--surface-muted);
   color: var(--ink);
-  text-shadow: 0 0 12px rgba(var(--cursor-glow-blue), 0.35);
-}
-
-:root[data-theme='dark'] .nav-cta:hover {
-  background: rgba(var(--cursor-glow-blue), 0.2);
-  text-shadow: 0 0 14px rgba(var(--cursor-glow-blue), 0.55);
 }
 
 /* 光效可用时按钮自己不画底色，亮度全部交给 .nav-glow；
-   否则胶囊底色会先画出一个硬边，光就只是在按钮里「填充」而不是「汇聚」。
-   放在这里是为了压过上面深色主题的 hover 规则。 */
+   否则胶囊底色会先画出一个硬边，光就只是在按钮里「填充」而不是「汇聚」。 */
 :root[data-nav-light='true'] .nav-link:hover,
 :root[data-nav-light='true'] .nav-cta:hover {
   background: transparent;

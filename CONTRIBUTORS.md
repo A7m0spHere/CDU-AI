@@ -11,7 +11,7 @@
 | 贡献者 | 参与方向 | 对应记录 |
 | --- | --- | --- |
 | [@A7m0spHere](https://github.com/A7m0spHere) | 项目发起、维护与内容审校 | [维护记录](#项目发起与维护)、[阶段维护成果](#阶段维护成果) |
-| [@FJHin](https://github.com/FJHin) | 内容与结构 | [PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1) |
+| [@FJHin](https://github.com/FJHin) | 内容、结构与交互 | [PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1)、[PR #48](https://github.com/A7m0spHere/CDU-AI/pull/48) |
 | [@kdjdhe](https://github.com/kdjdhe) | 内容初稿、代码与交互 | [PR #26](https://github.com/A7m0spHere/CDU-AI/pull/26)、[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35) |
 | [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)、[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32) |
 | [@litangking114](https://github.com/litangking114) | 赛事内容与报名入口 | [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)、[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44) |
@@ -60,6 +60,8 @@
 **[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35)**（2026-10-30）：新增 63 条术语初稿（含场景拆解、选择题与 Agent 提示词）及 [术语选题清单](docs/GLOSSARY-TERMS.md)，使目录连同原有「AI 幻觉」示范达到 12 个分类、64 条词条。新增词条合并时标注为初稿，原有示范的审核记录保留；后续按[审校规范](docs/CONTENT-REVIEW.md)开展的复核与修订另记于 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37)，不改变本条的初稿贡献归属。
 
 ## 代码与交互
+
+**[@FJHin](https://github.com/FJHin)**（git 署名 `FJHin` / `Scenic`）— **[PR #48](https://github.com/A7m0spHere/CDU-AI/pull/48)**（2026-11-21）：贡献全站指针光晕、顶部导航与站内控件的光效汇聚、首页 Hero 点阵与节点光效，以及可独立开关的流星拖尾交互，并在主题面板集成「鼠标光效」「光效拖尾」双开关与对应浏览器回归测试；合并前经维护审核调整为默认关闭、跟随当前主题强调色 `--brand` / `--brand-rgb`、修复性能与排版细节并清理过程截图。
 
 **[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #26](https://github.com/A7m0spHere/CDU-AI/pull/26)**（2026-10-23）：首页 ASCII「AI」的指针交互从整块视差改为逐字符局部驱散（半径与最大位移按字符格换算、移开后带阻尼回位），并让 `prefers-reduced-motion` 下完全不响应指针，同时修掉指针状态可能残留的问题。
 

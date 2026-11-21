@@ -464,6 +464,7 @@ export function resolveThemeVars(params: ThemeParams): Record<string, string> {
 
   /* brand / accent */
   vars['--brand'] = accent;
+  vars['--brand-rgb'] = toRgbString(parseColor(accent) ?? [37, 99, 235]);
   vars['--brand-strong'] = mixColor(accent, isDarkColor(onBrand) ? '#ffffff' : '#000000', 0.16);
   vars['--brand-soft'] = mixColor(bg, accent, darkBg ? 0.16 : 0.08);
   vars['--brand-tint'] = mixColor(bg, accent, 0.04);

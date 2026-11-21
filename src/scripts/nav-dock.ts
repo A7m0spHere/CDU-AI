@@ -48,32 +48,12 @@ export function initNavDock(): void {
   let hovered: HTMLElement | null = null;
 
   /** 指针到元素中心的距离，映射成 0–1 的放大强度（近处为 1，超出半径为 0）。 */
-  const targetFor = (el: HTMLElement): number => {
+  const targetFor = (rect: DOMRect): number => {
     if (pointerX === null) return 0;
-    const rect = el.getBoundingClientRect();
     const distance = Math.abs(pointerX - (rect.left + rect.width / 2));
     if (distance >= RANGE) return 0;
     const falloff = 1 - distance / RANGE;
     return falloff * falloff; // 平方衰减，靠近时更明显、远处更平缓
-  };
-
-  const tick = (): void => {
-    let active = false;
-    // 按钮被放大时真实尺寸在变，光要逐帧贴住，否则会明显比按钮小一圈
-    if (hovered) aimGlow(hovered, clientX ?? undefined);
-    for (const entry of entries) {
-      const goal = targetFor(entry.el);
-      entry.value += (goal - entry.value) * EASE;
-      if (Math.abs(goal - entry.value) < 0.002) entry.value = goal;
-      if (entry.value > 0.002 || goal > 0) active = true;
-      entry.el.style.setProperty('--dock-scale', (1 + entry.value * AMPLITUDE).toFixed(3));
-      entry.el.style.setProperty('--dock-lift', `${(-entry.value * LIFT).toFixed(2)}px`);
-    }
-    frameId = active ? window.requestAnimationFrame(tick) : 0;
-  };
-
-  const schedule = (): void => {
-    if (frameId === 0) frameId = window.requestAnimationFrame(tick);
   };
 
   const setGlowActive = (active: boolean): void => {
@@ -86,20 +66,61 @@ export function initNavDock(): void {
   };
 
   /** 把光挪到某个入口上；pointerX 有值时顺便让光心贴住指针。 */
-  const aimGlow = (el: HTMLElement, pointerX?: number): void => {
-    if (!glow) return;
+  const aimGlow = (el: HTMLElement, pointerXPos?: number): void => {
+    if (!glow || !glowEnabled() || reducedMotion.matches) return;
     const navRect = nav.getBoundingClientRect();
     const rect = el.getBoundingClientRect();
     glow.style.setProperty('--glow-x', `${(rect.left - navRect.left).toFixed(1)}px`);
     glow.style.setProperty('--glow-y', `${(rect.top - navRect.top).toFixed(1)}px`);
     glow.style.setProperty('--glow-w', `${rect.width.toFixed(1)}px`);
     glow.style.setProperty('--glow-h', `${rect.height.toFixed(1)}px`);
-    glow.style.setProperty('--glow-r', window.getComputedStyle(el).borderRadius);
-    if (pointerX !== undefined) {
-      const ratio = (pointerX - rect.left) / Math.max(rect.width, 1);
+    if (pointerXPos !== undefined) {
+      const ratio = (pointerXPos - rect.left) / Math.max(rect.width, 1);
       glow.style.setProperty('--glow-cx', `${(Math.min(1, Math.max(0, ratio)) * 100).toFixed(1)}%`);
     }
     setGlowActive(true);
+  };
+
+  const tick = (): void => {
+    if (reducedMotion.matches) {
+      frameId = 0;
+      return;
+    }
+    let active = false;
+    // 先读取所有矩形再统一写样式，避免循环内读写交错触发布局抖动
+    const rects = entries.map((entry) => entry.el.getBoundingClientRect());
+    const navRect = hovered && glowEnabled() ? nav.getBoundingClientRect() : null;
+    const hoveredIndex = hovered ? entries.findIndex((entry) => entry.el === hovered) : -1;
+
+    if (navRect && hovered && hoveredIndex >= 0) {
+      const rect = rects[hoveredIndex];
+      if (glow) {
+        glow.style.setProperty('--glow-x', `${(rect.left - navRect.left).toFixed(1)}px`);
+        glow.style.setProperty('--glow-y', `${(rect.top - navRect.top).toFixed(1)}px`);
+        glow.style.setProperty('--glow-w', `${rect.width.toFixed(1)}px`);
+        glow.style.setProperty('--glow-h', `${rect.height.toFixed(1)}px`);
+        if (clientX !== null) {
+          const ratio = (clientX - rect.left) / Math.max(rect.width, 1);
+          glow.style.setProperty('--glow-cx', `${(Math.min(1, Math.max(0, ratio)) * 100).toFixed(1)}%`);
+        }
+        setGlowActive(true);
+      }
+    }
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const goal = targetFor(rects[i]);
+      entry.value += (goal - entry.value) * EASE;
+      if (Math.abs(goal - entry.value) < 0.002) entry.value = goal;
+      if (entry.value > 0.002 || goal > 0) active = true;
+      entry.el.style.setProperty('--dock-scale', (1 + entry.value * AMPLITUDE).toFixed(3));
+      entry.el.style.setProperty('--dock-lift', `${(-entry.value * LIFT).toFixed(2)}px`);
+    }
+    frameId = active ? window.requestAnimationFrame(tick) : 0;
+  };
+
+  const schedule = (): void => {
+    if (frameId === 0 && !reducedMotion.matches) frameId = window.requestAnimationFrame(tick);
   };
 
   /** 找指针落点所在的入口：按钮之间只有 1–2px 的缝，所以命中判定要放宽一点。 */
@@ -114,11 +135,12 @@ export function initNavDock(): void {
   };
 
   nav.addEventListener('pointermove', (event) => {
-    if (event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' || reducedMotion.matches) return;
     pointerX = event.clientX;
     clientX = event.clientX;
     schedule();
 
+    if (!glowEnabled()) return;
     const item = itemAt(event.clientX, event.clientY);
     if (item) {
       hovered = item;
@@ -134,6 +156,23 @@ export function initNavDock(): void {
     setGlowActive(false);
   });
 
+  reducedMotion.addEventListener('change', () => {
+    if (!reducedMotion.matches) return;
+    if (frameId !== 0) {
+      window.cancelAnimationFrame(frameId);
+      frameId = 0;
+    }
+    pointerX = null;
+    clientX = null;
+    hovered = null;
+    setGlowActive(false);
+    for (const entry of entries) {
+      entry.value = 0;
+      entry.el.style.removeProperty('--dock-scale');
+      entry.el.style.removeProperty('--dock-lift');
+    }
+  });
+
   nav.addEventListener('pointerleave', () => {
     pointerX = null;
     clientX = null;
@@ -145,6 +184,7 @@ export function initNavDock(): void {
   // 键盘 Tab 到某个入口时也轻微抬起、并把光移过去，保证焦点可见且与鼠标体验一致
   items.forEach((el) => {
     el.addEventListener('focus', () => {
+      if (reducedMotion.matches) return;
       el.style.setProperty('--dock-scale', '1.06');
       el.style.setProperty('--dock-lift', '-2px');
       aimGlow(el);
