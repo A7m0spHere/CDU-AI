@@ -22,6 +22,7 @@ sources:
     url: "https://code.claude.com/docs/en/skills"
 basis: "desk-research"
 aiUsage: "drafted"
+contributors: ["A7m0spHere"]
 reviewNote: "整理开放 Agent Skills 规范核心概念，待负责人复审。"
 ---
 

@@ -21,6 +21,7 @@ sources:
     url: "https://code.claude.com/docs/en/sandboxing"
 basis: "desk-research"
 aiUsage: "drafted"
+contributors: ["A7m0spHere"]
 reviewNote: "配合指南《权限与结果检查》补充基础安全术语，待负责人复审。"
 ---
 

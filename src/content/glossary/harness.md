@@ -22,6 +22,7 @@ sources:
     url: "https://openai.com/index/harness-engineering/"
 basis: "desk-research"
 aiUsage: "drafted"
+contributors: ["A7m0spHere"]
 reviewNote: "整理工程实践中的 Harness 概念，说明尚无统一中文译名与单一标准定义，待负责人复审。"
 ---
 

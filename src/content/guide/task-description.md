@@ -6,7 +6,7 @@ order: 5
 level: "零基础"
 outcome: "能写出一份包含目标、范围边界、验收标准和确认节点的 Agent 提示词。"
 forWho: "已经跑通第一次 Agent 实践，准备把日常文件整理、资料汇总或小工具任务交给它的同学。"
-# author: "你的署名"
+author: "A7m0spHere"
 updated: "2026-11-21"
 tools: []
 tags: ["入门", "Agent", "提示词", "任务描述"]

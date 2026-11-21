@@ -23,6 +23,7 @@ sources:
     url: "https://cloud.google.com/use-cases/generative-ai"
 basis: "desk-research"
 aiUsage: "drafted"
+contributors: ["A7m0spHere"]
 reviewNote: "配合指南首页与工具目录概念补充生成式 AI 词条，待负责人复审。"
 ---
 
