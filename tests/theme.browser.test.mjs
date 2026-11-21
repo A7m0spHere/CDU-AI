@@ -2556,9 +2556,14 @@ test('鼠标光效开关：关掉后四条光效链路一起停，刷新后仍�
   await page.locator('[data-glow-toggle]').click();
   assert.equal(await page.evaluate(() => document.documentElement.dataset.glow), 'on', '再点一次要能打开');
   await page.keyboard.press('Escape');
+  // 面板要先收起再悬停卡片：不同环境下主题面板的高度不同，
+  // 没收起时卡片中心可能正落在面板下面，指针事件会打到面板上
+  await page.locator('[data-theme-panel]').waitFor({ state: 'hidden' });
+  await page.mouse.move(4, 4, { steps: 2 });
+  await card.scrollIntoViewIfNeeded();
   const again = await card.boundingBox();
-  await page.mouse.move(again.x + again.width / 2, again.y + again.height / 2, { steps: 6 });
-  await page.waitForTimeout(400);
+  await page.mouse.move(again.x + 24, again.y + 24, { steps: 6 });
+  await page.waitForTimeout(650);
   assert.ok(
     parseFloat(await card.evaluate(host => getComputedStyle(host.querySelector('[data-glow]')).opacity)) > 0.9,
     '打开后卡片应恢复发光',
