@@ -431,7 +431,7 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.match(events, /2026年11月24日 – 2026年12月4日/, '活动页应展示赛期');
   assert.match(events, /11 月 21 日 10:00 至 11 月 23 日 20:00/, '活动页应展示线上报名时间');
   assert.match(events, /data-closes-at="2026-11-23T20:00:00\+08:00"/, '报名状态应使用新截止时间');
-  assert.match(events, /将结果发送至你的 QQ 邮箱/, '报名审核结果应通过 QQ 邮箱通知');
+  assert.match(events, /组委审核加入比赛 QQ 群/, '报名流程应说明组委审核后加入比赛 QQ 群');
   assert.doesNotMatch(events, /待开放|短信/, '活动页应移除旧状态标签和短信通知');
   assert.match(events, /12 月 4–5 日线上材料初评/, '活动页应展示线上材料初评日期');
   assert.match(events, /12 月 6 日（具体时间以群通知为准）/, '活动页应保留 12 月 6 日并注明具体时间以群通知为准');

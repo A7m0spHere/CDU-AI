@@ -93,7 +93,7 @@ export const challengeConfig = {
     platform: '腾讯文档',
     url: 'https://docs.qq.com/form/page/DYXhGYXJYQ2V0bnZD',
     qrImage: '/images/events/tencent-docs-registration-qr.png',
-    contact: '请先填写腾讯文档报名问卷。报名截止后，组委会统一审核，并将结果发送至你的 QQ 邮箱。通过审核的同学会在邮件中收到选手群入口。',
+    contact: '请先填写腾讯文档报名问卷。然后组委审核加入比赛 QQ 群。',
     privacyNotice: '报名信息用于资格核验、赛事通知与组队对接。联系方式与作品公开展示资料分开管理。',
   },
 };
@@ -166,7 +166,7 @@ export const timelinePhases: TimelinePhase[] = [
     dateLabel: '周一至周二',
     time: '晚间至次日上午',
     stage: '报名审核与组别确认',
-    summary: '组委会核验资格、补正信息并确认组别，审核结果通过 QQ 邮箱发送。',
+    summary: '组委会核验资格、补正信息并确认组别，审核通过后加入比赛 QQ 群。',
   },
   {
     day: '11/24',
