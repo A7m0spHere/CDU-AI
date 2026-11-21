@@ -123,9 +123,9 @@ export const GET: APIRoute = async () => {
     {
       type: '章节',
       title: '腾讯文档报名入口',
-      description: `线上报名时间为 ${challengeConfig.dates.registration}。通过腾讯文档填写问卷，审核结果通过 QQ 邮箱通知。`,
+      description: `线上报名时间为 ${challengeConfig.dates.registration}。通过腾讯文档填写问卷，审核通过后加入比赛 QQ 群。`,
       href: '/events/#register',
-      keywords: '报名 腾讯文档 审核 QQ 邮箱 选手群 二维码',
+      keywords: '报名 腾讯文档 审核 QQ 群 选手群 二维码',
     },
     {
       type: '章节',
