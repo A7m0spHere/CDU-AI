@@ -44,7 +44,7 @@
 
 新增一篇文章的完整流程：
 
-1. 在 `guide-nav.ts` 找到目标栏目，确认已有占位条目（如 `{ label: '权限与结果检查', slug: 'permissions-and-review' }`）；没有就加一条；
+1. 在 `guide-nav.ts` 找到目标栏目，确认已有占位条目（如 `{ label: '资料检索', slug: 'research-and-sources' }`）；没有就加一条；
 2. 用同一个 `slug` 建文件 `src/content/guide/<slug>.md`（可先复制 `_TEMPLATE.md`）；
 3. 填 frontmatter（`stage` 决定阶段归属、`order` 用于集合排序）与正文；原占位 URL 自动展示正文，不需修改页面组件；
 4. 跑 `npm run verify`：侧边栏移除「待补充」标注，标题取文章 `title`，目录正文计数同步。

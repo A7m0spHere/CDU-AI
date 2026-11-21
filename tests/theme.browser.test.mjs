@@ -1056,7 +1056,7 @@ test('正文目录只在符合指针和宽度条件的桌面端显示', async t 
   assert.equal(await touch.locator('.wiki-toc').isVisible(), false);
 
   await page.setViewportSize({ width: 1440, height: 1000 });
-  for (const route of ['/guide/', '/guide/permissions-and-review/', '/glossary/', '/works/']) {
+  for (const route of ['/guide/', '/guide/research-and-sources/', '/glossary/', '/works/']) {
     await page.goto(origin + route);
     assert.equal(await toc.count(), 0, route + ' 不应渲染空目录');
   }
