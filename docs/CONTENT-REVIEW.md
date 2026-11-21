@@ -220,3 +220,10 @@ reviewNote: "正文步骤已调整，等待重新审核"
 | [AI 使用常见问题](../src/content/guide/ai-faq.md) | 本文 2026-11-14 的录入记录 | 保留为可选读的问答与案例引用 |
 | [从 Chat AI 到 Agent](../src/content/guide/chat-ai-to-agent.md) | 本文 2026-11-14 的录入记录及后续正文提交 | 保留为概念入门 |
 | [第一次使用 Agent](../src/content/guide/first-agent.md) | [正文录入与素材清单](first-agent-media-checklist.md) | 补齐真实操作记录与产品信息核对 |
+
+### 2026-11-21 指南与核心术语增补（PR #47）
+
+- 本批通过 [PR #47](https://github.com/A7m0spHere/CDU-AI/pull/47) 新增两篇指南与 5 条核心术语，涉及外部权威来源（OpenAI / Anthropic / Google Gemini / Prompt Engineering Guide / OWASP LLM06:2025 / GitHub Docs）及社区自述案例；正文与元数据均保留为未审核初稿状态（不填写 `reviewed` / `reviewedBy`），待负责人核对后补签。
+- **新增指南**：[提示词撰写思路](../src/content/guide/task-description.md)（`/guide/task-description/`）、[权限与结果检查](../src/content/guide/permissions-and-review.md)（`/guide/permissions-and-review/`），字段均标注 `basis: "teaching-example"`、`aiUsage: "drafted"`。
+- **新增术语**：[沙盒](../src/content/glossary/sandbox.md)（`sandbox`）、[过度授权](../src/content/glossary/excessive-agency.md)（`excessive-agency`）、[Harness](../src/content/glossary/harness.md)（`harness`）、[Skill](../src/content/glossary/skill.md)（`skill`）与[生成式 AI](../src/content/glossary/generative-ai.md)（`generative-ai`），均保留为初稿状态。
+- **同日配图更新**：[第一次使用 Agent](../src/content/guide/first-agent.md) 的全部 10 处实操与修改前后对比截图已于同日补齐并按原比例自适应渲染（见[素材清单](first-agent-media-checklist.md)）；该篇先前的原文审阅记录范围不含本次新增截图。

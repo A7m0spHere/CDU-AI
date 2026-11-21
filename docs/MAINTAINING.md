@@ -25,7 +25,7 @@ npm run verify
 
 ### 浏览器回归
 
-主题、搜索、首页交互、术语表、工具目录、正文阅读、图片灯箱与赛事弹窗/抽屉共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
+主题、搜索、首页交互、术语表、工具目录、正文阅读、图片灯箱、手机端导航/抽屉、可选光效开关与赛事弹窗/抽屉共用 `tests/theme.browser.test.mjs`。需要运行浏览器回归时，先完成当前源码的 `npm run verify`，再运行：
 
 ```bash
 npx playwright install chromium
@@ -36,7 +36,7 @@ npm run test:browser
 
 仅验证「本页目录」时，可在构建后运行 `node --test --test-name-pattern='桌面正文目录|正文目录只在' tests/theme.browser.test.mjs`。该检查覆盖指南和术语的标题顺序、键盘跳转、无 JavaScript、滚动定位与桌面显示条件。作品集合为空时，可在隔离副本中用 [`01-sample-work.md`](../tests/fixtures/content/valid/works/01-sample-work.md) 构建作品详情，核对目录是否在「作品档案」上方。
 
-已有 Chrome 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 使用系统浏览器；自动查找不到时，用 `$env:PLAYWRIGHT_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'` 指定实际安装路径。测试后移除本次设置的环境变量以恢复默认。手机视口模拟不等同于真实设备验收。
+已有 Chrome 或 Edge 时，Windows PowerShell 也可通过 `$env:PLAYWRIGHT_CHANNEL = 'chrome'` 或 `$env:PLAYWRIGHT_CHANNEL = 'msedge'` 使用系统浏览器；自动查找不到时，用 `$env:PLAYWRIGHT_EXECUTABLE_PATH = 'C:\Program Files\Google\Chrome\Application\chrome.exe'` 指定实际安装路径。测试后移除本次设置的环境变量以恢复默认。手机视口模拟不等同于真实设备验收。
 
 ### 文档检查范围
 

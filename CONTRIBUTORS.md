@@ -14,7 +14,7 @@
 | [@FJHin](https://github.com/FJHin) | 内容、结构与交互 | [PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1)、[PR #48](https://github.com/A7m0spHere/CDU-AI/pull/48) |
 | [@kdjdhe](https://github.com/kdjdhe) | 内容初稿、代码与交互 | [PR #26](https://github.com/A7m0spHere/CDU-AI/pull/26)、[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35) |
 | [@QiLiMiao](https://github.com/QiLiMiao) | 主题系统与交互 | [PR #31](https://github.com/A7m0spHere/CDU-AI/pull/31)、[PR #32](https://github.com/A7m0spHere/CDU-AI/pull/32) |
-| [@litangking114](https://github.com/litangking114) | 赛事内容与报名入口 | [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)、[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44) |
+| [@litangking114](https://github.com/litangking114) | 赛事内容与报名入口 | [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)、[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44)、[PR #46](https://github.com/A7m0spHere/CDU-AI/pull/46) |
 
 ## 项目发起与维护
 
@@ -33,6 +33,9 @@
 
 #### 2026-11-01—2026-11-21
 
+- **全站指针光效 PR 审核与收口（2026-11-21）**：审核并合入 `@FJHin` 贡献的 [PR #48](https://github.com/A7m0spHere/CDU-AI/pull/48)（原创实现见「代码与交互」独立署名），合并前将「鼠标光效 / 光效拖尾」双开关调整为默认关闭、引入 `--brand-rgb` 使全链路光效跟随主题强调色、优化拖尾 2D 分段渲染性能、适配术语词典行与正文大图容器并清理过程验证截图。
+- **学习指南与核心术语增补及教程配图补齐（2026-11-21）**：新增《提示词撰写思路》《权限与结果检查》两篇入门指南（保持初稿/待审核状态）与 5 条核心术语（沙盒、过度授权、Harness、Skill、生成式 AI），并为《第一次使用 Agent》补齐全部 10 处实操与修改前后对比截图（按原比例自适应渲染）。见 [PR #47](https://github.com/A7m0spHere/CDU-AI/pull/47)、[`bda3779`](https://github.com/A7m0spHere/CDU-AI/commit/bda3779)、[`4859efd`](https://github.com/A7m0spHere/CDU-AI/commit/4859efd)、[`7cebf8b`](https://github.com/A7m0spHere/CDU-AI/commit/7cebf8b)、[`39d6c63`](https://github.com/A7m0spHere/CDU-AI/commit/39d6c63)。
+- **手机端浏览与阅读体验升级（2026-11-21）**：新增手机端底部拇指快捷栏（`MobileDock`）、首页显性搜索按钮、文章页「本页小节」抽屉、代码块一键复制与窄屏表格横滑包装，隐藏手机端首页看板娘与状态条、适配活动页手机端 ASCII 星球背景，并同步更新 12/6 Demo Day 安排。见 [PR #45](https://github.com/A7m0spHere/CDU-AI/pull/45)。
 - **第八届 AI 创作挑战赛页面融合与上线（2026-11-21）**：在保留 [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43) 上游赛制内容与原始提交署名的基础上，重构活动页线性赛程、桌面看板娘与 ASCII 星球背景、像素字体子集标题、赛事速览弹窗与赛道抽屉、移动端左拉抽拉片及 `/events/rules/` 完整细则页，并修复跳转焦点回落与浏览器回归时序。见 [PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44)、[`ca9d8eb`](https://github.com/A7m0spHere/CDU-AI/commit/ca9d8eb)。
 - **移动端交互与大图灯箱（2026-11-20）**：优化手机术语表分支切换与单行横滑分类胶囊，为指南详情页加入全屏图片灯箱（双击缩放、防横滑误触与桌面拖动画布），精简工具页手机端筛选（移除独立能力筛选、能力标签并入关键词搜索），并修复主题编辑器、搜索与底部抽屉手势问题。见 [PR #42](https://github.com/A7m0spHere/CDU-AI/pull/42)。
 - **学习指南正文与交互（2026-11-01—2026-11-18）**：统一指南简约阅读排版，完善欢迎页与文档编辑 Issue 联动，补充《这份指南适合谁》《AI 使用常见问题》《从 Chat AI 到 Agent》（含流程图）与《第一次使用 Agent》（含工具切换、提示词复制与素材占位），调整 Agent 入门路径，记录嵌入式官方教程 NO-GO 决策与维护者上传正文审阅规则。见 [`2cbbe83`](https://github.com/A7m0spHere/CDU-AI/commit/2cbbe83)、[`7030f07`](https://github.com/A7m0spHere/CDU-AI/commit/7030f07)、[`2564ff4`](https://github.com/A7m0spHere/CDU-AI/commit/2564ff4)、[`8809e2b`](https://github.com/A7m0spHere/CDU-AI/commit/8809e2b)、[`4cbd91c`](https://github.com/A7m0spHere/CDU-AI/commit/4cbd91c) 及 [素材清单](docs/first-agent-media-checklist.md)。
@@ -53,7 +56,7 @@
 
 ## 内容与结构贡献
 
-**[@litangking114](https://github.com/litangking114)** — **[PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)**（2026-11-21）：整理第八届网络创新大赛 AI 创作挑战赛的赛程、分组、评审与奖项，提供腾讯文档报名入口和二维码。[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44) 吸收了这些赛事内容。
+**[@litangking114](https://github.com/litangking114)** — **[PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43)**（2026-11-21）：整理第八届网络创新大赛 AI 创作挑战赛的赛程、分组、评审与奖项，提供腾讯文档报名入口和二维码，[PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44) 吸收了这些赛事内容；并在 **[PR #46](https://github.com/A7m0spHere/CDU-AI/pull/46)**（2026-11-21）将报名审核通知统一修正为“组委审核后加入比赛 QQ 群”，同步搜索索引、测试与架构文档。
 
 **[@FJHin](https://github.com/FJHin)**（git 署名 `Scenic`）— **[PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1)**（2026-10-18）：把术语表从 `src/data/glossary.ts` 的数组迁移为 Markdown 内容集合，新增 `/glossary/[id]/` 详情页（一句话说清 / 打个比方 / 它是怎么运作的 / 你会碰到它的场景 / 常见误解），改造搜索索引与分类筛选，并补上内容层测试（49 个文件，+2255 / −411）。这批词条正文在 2026-10-20 的内容重建（#13）中清空重写，但内容集合、详情页与字段校验的结构沿用至今。
 

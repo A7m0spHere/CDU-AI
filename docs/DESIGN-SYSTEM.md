@@ -200,20 +200,27 @@ M0 的硬性验收：
 
 ```text
 src/styles/
-├── global.css      全局样式入口与导入顺序
-├── tokens.css      设计令牌与主题
-├── base.css        reset、排版、布局基础、减少动效
-├── components.css  页头/页脚、按钮、卡片基础、Prose、筛选
-├── pages.css       跨页面区块与响应式骨架
-├── vibe.css        全站导航、紧凑排版与搜索
-├── pages-v2.css    共享 PageHeader、元信息、空状态与过渡
-├── routes/         首页、工具、作品、活动、关于、社区与错误页的专属规则
-├── reading.css     共享阅读布局、指南导航和桌面页内目录
-├── theme-picker.css 色板菜单
-├── theme-editor.css 首次编辑或导入主题时加载的对话框与表单
-├── home-v2.css     首页 Hero、应用场景叠卡与轻量探索入口
-├── notion.css      指南正文与文档画布
-└── glossary.css    术语分支树、详情模块与交互区块
+├── global.css        全局样式入口与导入顺序
+├── tokens.css        设计令牌与主题（含 --brand-rgb）
+├── base.css          reset、排版、布局基础、减少动效
+├── components.css    页头/页脚、按钮、卡片基础、Prose、筛选、代码复制与底部拇指栏
+├── pages.css         跨页面区块与响应式骨架
+├── vibe.css          全站导航、紧凑排版与搜索
+├── pages-v2.css      共享 PageHeader、元信息、空状态与过渡
+├── routes/           首页、工具、作品、活动、关于、社区与错误页的专属规则
+├── reading.css       共享阅读布局、指南导航、桌面页内目录与手机小节抽屉
+├── theme-picker.css  色板菜单与可选光效开关
+├── theme-editor.css  首次编辑或导入主题时加载的对话框与表单
+├── image-mode.css    背景图片主题与磨砂适配
+├── techne.css        特色场景浮层样式
+├── fonts.css         站内内置像素字体声明
+├── cursor-glow.css   全站指针光晕样式（默认关闭）
+├── cursor-trail.css  全站指针流星拖尾画布样式（默认关闭）
+├── hover-glow.css    控件光效汇聚配方（跟随 --glow-color）
+├── home-v2.css       首页 Hero、应用场景叠卡与轻量探索入口
+├── notion.css        指南正文与图片灯箱样式
+├── first-agent.css   《第一次使用 Agent》工具切换与截图对比样式
+└── glossary.css      术语分支树、详情模块与交互区块
 ```
 
 约定：
@@ -235,7 +242,10 @@ src/styles/
 | `PageHeader` | 内容列表页的编号、状态 chips 与可选说明区 |
 | `EmptyContent` | 空集合的内容准备状态与参与入口 |
 | `GuideNav` | 桌面和移动端共用指南导航，处理分组、当前页、「待补充」和「可选读」 |
-| `ArticleToc` | 指南、术语和作品详情的页内目录，根据正文标题生成锚点链接 |
+| `ArticleToc` | 指南、术语和作品详情的页内目录，根据正文标题生成锚点链接（桌面端右侧目录 + 手机端「本页小节」抽屉） |
+| `MobileDock` | 手机端底部拇指快捷导航栏与搜索触发入口 |
+| `FirstAgentTutorial` | 《第一次使用 Agent》工具切换、提示词复制卡片与实操截图对比组件 |
+| `CursorGlow` / `CursorTrail` | 默认关闭的可选指针光晕与流星拖尾，在主题面板开关，颜色跟随当前 `--brand-rgb` |
 | `ContentStatus` | 根据 frontmatter 推导审校状态；不自动生成审核结论或负责人署名 |
 
 首页样板与阶段二第一批共享组件均已有实现；后续调整以当前代码和维护需求为起点。历史备选方向、当时的确认项与修订经过见 [DESIGN-REVIEW.md](DESIGN-REVIEW.md)。
