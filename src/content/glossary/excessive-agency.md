@@ -16,8 +16,8 @@ related:
   - "tool-use"
 updated: "2026-11-21"
 sources:
-  - title: "LLM06: Excessive Agency · OWASP"
-    url: "https://genai.owasp.org/llmrisk/llm06-excessive-agency/"
+  - title: "LLM06:2025 Excessive Agency · OWASP"
+    url: "https://genai.owasp.org/llmrisk/llm062025-excessive-agency/"
 basis: "desk-research"
 aiUsage: "drafted"
 reviewNote: "配合指南《权限与结果检查》补充 OWASP 安全术语，待负责人复审。"
