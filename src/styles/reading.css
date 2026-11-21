@@ -818,6 +818,10 @@
     -webkit-backdrop-filter: blur(3px);
   }
 
+  html:has(.toc-sheet[open]) {
+    overflow: hidden;
+  }
+
   .toc-sheet__inner {
     display: flex;
     flex-direction: column;

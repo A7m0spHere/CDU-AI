@@ -33,6 +33,7 @@ export function initTocSheet(): void {
         if (window.location.hash !== `#${encodeURIComponent(targetId)}`) {
           history.replaceState(null, '', `#${encodeURIComponent(targetId)}`);
         }
+        trigger.focus({ preventScroll: true });
         return;
       }
     }

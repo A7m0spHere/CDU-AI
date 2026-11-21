@@ -1948,11 +1948,13 @@ test('手机端底部拇指栏、首页显性搜索、本页小节抽屉与代�
   await tocFab.click();
   const tocSheet = page.locator('[data-toc-sheet]');
   await page.waitForFunction(() => document.querySelector('[data-toc-sheet]')?.open === true);
+  assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), 'hidden', '打开本页小节抽屉时应锁定背景页滚动');
   const firstTocLink = tocSheet.locator('[data-toc-link]').nth(1);
   const targetId = decodeURIComponent((await firstTocLink.getAttribute('href')).slice(1));
   await firstTocLink.click();
   await page.waitForFunction(() => !document.querySelector('[data-toc-sheet]')?.open);
   assert.equal(decodeURIComponent(new URL(page.url()).hash.slice(1)), targetId);
+  assert.equal(await tocFab.evaluate(el => el === document.activeElement), true, '跳转并关闭小节抽屉后焦点应回到触发按钮');
 
   const copyBtn = page.locator('[data-code-block] .code-copy-btn').first();
   assert.equal(await copyBtn.isVisible(), true);
