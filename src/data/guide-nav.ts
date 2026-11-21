@@ -67,7 +67,7 @@ export const guideNavGroups: GuideNavGroup[] = [
     items: [
       { label: '从 Chat AI 到 Agent', slug: 'chat-ai-to-agent' },
       { label: '第一次使用 Agent', slug: 'first-agent' },
-      { label: '任务描述', slug: 'task-description' },
+      { label: '提示词撰写思路', slug: 'task-description' },
       { label: '权限与结果检查', slug: 'permissions-and-review' },
     ],
   },
