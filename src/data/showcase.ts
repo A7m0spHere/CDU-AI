@@ -260,6 +260,37 @@ export const starterTemplates: StarterTemplate[] = [
     ],
     sourceNote: templateSourceNote,
   },
+  {
+    slug: 'campus-info',
+    title: '校园信息站 · 办事导航',
+    summary: '6 个分类、18 条示例信息的校园信息导航：分类筛选、关键词搜索、收藏与最近浏览，支持 JSON 导入导出；默认数据为虚构示例。',
+    cover: '/images/templates/campus-info.png',
+    coverAlt: '校园信息站办事导航模板截图',
+    format: '单文件网页',
+    level: '零基础',
+    onboarding: '10–15 分钟',
+    ceiling: '中高',
+    version: 'v1.0',
+    tags: ['信息导航', '筛选搜索', 'JSON 数据'],
+    updated: '2026-11-22',
+    demoPath: '/templates/campus-info/index.html',
+    downloadPath: '/downloads/templates/campus-info-kit.zip',
+    fitFor: '想练「信息整理 + 筛选搜索 + JSON 数据」的同学',
+    discoveryLead: '先别急着加栏目。想想新生或同学最常问你的三件事是什么、现在他们去哪里查。',
+    discoveryQuestions: [
+      '你最常被问到的校园信息是什么？现在查这些信息最麻烦的是哪一步？',
+      '你希望信息站帮同学快速判断什么，比如地点、开放时间或是否需要预约？',
+    ],
+    features: [
+      '6 个分类、18 条虚构示例信息：餐饮、学习空间、办事流程、生活服务、运动健康、社团活动',
+      '分类筛选、关键词搜索，推荐 / 名称 / 最近更新三种排序',
+      '卡片收藏与最近浏览，只保存在本机浏览器',
+      '详情弹窗展示位置、开放时间、联系方式和具体说明',
+      '数据管理：编辑 JSON、导入文件、复制 / 下载 JSON、一键恢复示例',
+      '深色 / 浅色主题、手机单列布局，无第三方库、无网络请求、无需登录',
+    ],
+    sourceNote: templateSourceNote,
+  },
 ];
 
 /** 作品提交截止后，经审核与授权再逐条加入。保持为空时页面显示空状态。 */

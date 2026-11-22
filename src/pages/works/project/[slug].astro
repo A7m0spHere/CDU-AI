@@ -6,12 +6,10 @@ import '../../../styles/routes/showcase.css';
 import PageHero from '../../../components/PageHero.astro';
 import Icon from '../../../components/Icon.astro';
 import { challengeWorks, safeWorkUrl, starterTemplates, type ChallengeWork } from '../../../data/showcase';
-import { previewWorks } from '../../../data/showcase-preview';
 import { challengeConfig } from '../../../data/challenge';
 
 export const getStaticPaths = (() => {
-  const allWorks = import.meta.env.DEV ? [...previewWorks, ...challengeWorks] : challengeWorks;
-  return allWorks
+  return challengeWorks
     .filter((work) => work.consent && safeWorkUrl(work.siteUrl))
     .map((work) => ({
       params: { slug: work.slug },

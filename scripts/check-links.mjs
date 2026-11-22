@@ -64,7 +64,9 @@ for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
   const currentUrl = toUrlPath(file);
   const baseDir = path.posix.dirname(currentUrl);
-  const hrefs = [...html.matchAll(/\bhref="([^"]+)"/g)].map((match) => match[1]);
+  // 模板演示页会在脚本里用字符串拼接生成 href，不是真实链接，先剔除 script 内容。
+  const markup = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+  const hrefs = [...markup.matchAll(/\bhref="([^"]+)"/g)].map((match) => match[1]);
 
   for (const raw of hrefs) {
     if (!raw || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('javascript:') || raw.startsWith('data:') || raw.startsWith('blob:')) continue;

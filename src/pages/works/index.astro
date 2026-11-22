@@ -11,7 +11,6 @@ import EmptyContent from '../../components/EmptyContent.astro';
 import { repository } from '../../data/site';
 import { challengeConfig } from '../../data/challenge';
 import { starterTemplates, challengeWorks, safeWorkUrl, allTemplatesDownloadPath } from '../../data/showcase';
-import { previewWorks } from '../../data/showcase-preview';
 
 const works = (await getCollection('works')).sort((a, b) => a.data.order - b.data.order);
 const isEmpty = works.length === 0;
@@ -24,8 +23,6 @@ const contributeLinks = [
 ];
 
 const publishedWorks = challengeWorks.filter((work) => work.consent && safeWorkUrl(work.siteUrl));
-const previewEntries = import.meta.env.DEV ? previewWorks : [];
-const visibleWorks = [...previewEntries, ...publishedWorks];
 const templateNames = new Map(starterTemplates.map((template) => [template.slug, template.title]));
 ---
 
@@ -112,16 +109,7 @@ const templateNames = new Map(starterTemplates.map((template) => [template.slug,
           <span class="pill">{publishedWorks.length > 0 ? `${publishedWorks.length} 件作品` : '提交后开放'}</span>
         </div>
 
-        {import.meta.env.DEV && previewEntries.length > 0 && (
-          <div class="notice notice--warm">
-            <Icon name="alert-triangle" size={17} />
-            <p>
-              <strong>本地布局预览：</strong>下面 {previewEntries.length} 条是开发占位，用于检查卡片布局，不会进入生产构建。
-            </p>
-          </div>
-        )}
-
-        {visibleWorks.length === 0 ? (
+        {publishedWorks.length === 0 ? (
           <EmptyContent
             icon="sprout"
             status="作品提交后开放"
@@ -134,14 +122,14 @@ const templateNames = new Map(starterTemplates.map((template) => [template.slug,
           />
         ) : (
           <div class="showcase-grid">
-            {visibleWorks.map((work) => (
+            {publishedWorks.map((work) => (
               <ShowcaseCard
                 title={work.title}
                 summary={work.summary}
                 cover={work.cover}
                 coverAlt={work.coverAlt}
-                badge={work.slug.startsWith('preview-') ? '布局预览' : work.group}
-                badgeTone={work.slug.startsWith('preview-') ? 'example' : 'sky'}
+                badge={work.group}
+                badgeTone="sky"
                 meta={[
                   work.group,
                   `作者：${work.author}`,
