@@ -857,22 +857,30 @@ test('学习指南目录：六个分组、待补充章节可访问、站内链�
   );
 });
 
-test('指南主路径跳过可选读，章节导航包含首页与占位页', async () => {
+test('指南主路径跳过可选读和占位章节，已发布正文保持连续阅读', async () => {
   const hrefs = ['/guide/', ...registeredGuideSlugs.map((slug) => `/guide/${slug}/`)];
+  const published = new Set(['/guide/', ...guideSlugs.map((slug) => `/guide/${slug}/`)]);
   const optional = new Set(['/guide/ai-faq/']);
+  const available = (href) => published.has(href) && !optional.has(href);
   for (const [index, href] of hrefs.entries()) {
     const html = await read(href.slice(1) + 'index.html');
     const pager = html.match(/<nav\b[^>]*class="guide-pager"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
-    assert.ok(pager, href + ' 缺少章节导航');
-    const links = [...pager.matchAll(/<a\b([^>]*)>/g)].map((match) => ({
+    if (!published.has(href)) {
+      assert.equal(pager, undefined, href + ' 是占位页，不应出现前后章跳转');
+      continue;
+    }
+    const previous = hrefs.slice(0, index).reverse().find(available);
+    const next = hrefs.slice(index + 1).find(available);
+    const expected = [
+      ...(previous ? [{ rel: 'prev', href: previous }] : []),
+      ...(next ? [{ rel: 'next', href: next }] : []),
+    ];
+    const links = [...(pager ?? '').matchAll(/<a\b([^>]*)>/g)].map((match) => ({
       href: match[1].match(/href="([^"]+)"/)?.[1],
       rel: match[1].match(/rel="([^"]+)"/)?.[1],
       label: match[1].match(/aria-label="([^"]+)"/)?.[1],
     }));
-    assert.deepEqual(links.map(({ rel, href }) => ({ rel, href })), [
-      ...([...hrefs.slice(0, index)].reverse().find((item) => !optional.has(item)) ? [{ rel: 'prev', href: [...hrefs.slice(0, index)].reverse().find((item) => !optional.has(item)) }] : []),
-      ...(hrefs.slice(index + 1).find((item) => !optional.has(item)) ? [{ rel: 'next', href: hrefs.slice(index + 1).find((item) => !optional.has(item)) }] : []),
-    ], href + ' 上下章链接与目录不一致');
+    assert.deepEqual(links.map(({ rel, href }) => ({ rel, href })), expected, href + ' 上下章链接与已发布目录不一致');
     for (const link of links) {
       const label = href === '/guide/' ? '继续阅读' : link.href === '/guide/' ? '返回' : link.rel === 'prev' ? '上一章' : '下一章';
       assert.ok(link.label?.startsWith(label + '：'), href + ' 导航缺少可访问名称');
