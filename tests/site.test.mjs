@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,6 +40,10 @@ const guideNavSource = await readFile(path.join(root, 'src/data/guide-nav.ts'), 
 const registeredGuideSlugs = loadGuideNavSlugsFromSource(guideNavSource);
 const workSlugs = workFiles.map((file) => file.replace(/\.md$/, ''));
 const glossarySlugs = glossaryFiles.map((file) => file.replace(/\.md$/, ''));
+const templateSlugs = (await readdir(path.join(root, 'public/templates'), { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .sort();
 
 // 工具目录当前仍是 TypeScript 数据。解析与字段校验复用内容检查器的同一份实现，
 // 避免「页面渲染用一套规则、检查脚本用另一套」而静默失效（见 #8 迁移计划）。
@@ -61,10 +65,13 @@ const expectedRoutes = [
   'community/index.html',
   'events/index.html',
   'events/rules/index.html',
+  'events/archive/index.html',
+  'events/archive/2026-ai-challenge/index.html',
   'guide/index.html',
   'glossary/index.html',
   'tools/index.html',
   'works/index.html',
+  ...templateSlugs.map((slug) => 'works/template/' + slug + '/index.html'),
   ...registeredGuideSlugs.map((slug) => 'guide/' + slug + '/index.html'),
   ...workSlugs.map((slug) => 'works/' + slug + '/index.html'),
   ...glossarySlugs.map((slug) => 'glossary/' + slug + '/index.html'),
@@ -112,8 +119,10 @@ test('生产构建包含 M0 全部页面', async () => {
 
 test('所有页面具备基本文档结构与唯一 h1', async () => {
   const files = (await walk(dist)).filter((file) => file.endsWith('.html'));
-  assert.equal(files.length, expectedRoutes.length, '页面数量与预期不符');
-  for (const file of files) {
+  // public/templates 下是独立运行的模板演示页，不套站点页头页脚，单独校验。
+  const siteFiles = files.filter((file) => !path.relative(dist, file).startsWith('templates' + path.sep));
+  assert.equal(siteFiles.length, expectedRoutes.length, '页面数量与预期不符');
+  for (const file of siteFiles) {
     const html = await readFile(file, 'utf8');
     const display = path.relative(dist, file);
     assert.match(html, /<html lang="zh-CN">/, display + ' 缺少中文 lang');
@@ -137,6 +146,61 @@ test('所有页面具备基本文档结构与唯一 h1', async () => {
       );
     }
   }
+});
+
+test('新手模板演示页与详情页随构建发布，卡片先进入详情', async () => {
+  assert.ok(templateSlugs.length >= 4, '至少应随站发布 4 个新手模板');
+  for (const slug of workSlugs) {
+    assert.ok(!['template', 'project'].includes(slug), '策划示例 slug 不能占用保留路径：' + slug);
+  }
+
+  const showcase = await read('works/index.html');
+  for (const slug of templateSlugs) {
+    const demo = await read(`templates/${slug}/index.html`);
+    assert.match(demo, /<html lang="zh-CN"/, slug + ' 模板缺少中文 lang');
+    assert.match(demo, /<title>[^<]+<\/title>/, slug + ' 模板缺少 title');
+    assert.equal((demo.match(/<h1[ >]/g) || []).length, 1, slug + ' 模板应只有一个 h1');
+    assert.doesNotMatch(demo, /<script[^>]+src="https?:/i, slug + ' 模板不应加载外部脚本');
+
+    const detail = await read(`works/template/${slug}/index.html`);
+    assert.match(detail, /本次活动模板/, slug + ' 模板详情页缺少本次活动标识');
+    assert.match(detail, /先想清楚这次要改什么/, slug + ' 模板详情页缺少问题澄清');
+    assert.match(detail, /复制启动提示词/, slug + ' 模板详情页缺少提示词复制入口');
+    assert.match(detail, /最多问我 3 个问题/, slug + ' 启动提示词应限制提问数量');
+    assert.match(detail, /快速模式/, slug + ' 启动提示词应说明快速模式');
+    assert.match(detail, /4[–-]5 小时/, slug + ' 启动提示词应给出 4–5 小时时间盒');
+    assert.match(detail, /不要直接给我一串功能建议/, slug + ' 启动提示词应禁止直接给功能清单');
+    assert.match(detail, /data-copy-target="#template-start-prompt"/, slug + ' 缺少提示词复制按钮');
+    assert.match(detail, /id="template-start-prompt"/, slug + ' 缺少提示词文本容器');
+    assert.doesNotMatch(detail, /可以怎么改/, slug + ' 模板详情页不应再提供改造任务列表');
+    assert.ok(
+      detail.includes(`href="/templates/${slug}/index.html"`),
+      slug + ' 模板详情页缺少在线体验入口',
+    );
+    assert.ok(
+      showcase.includes(`href="/works/template/${slug}/"`),
+      '活动广场卡片应先进入模板详情：' + slug,
+    );
+    assert.ok(
+      existsSync(path.join(dist, 'images/templates', slug + '.png')),
+      '活动广场缺少模板封面：' + slug,
+    );
+    assert.ok(
+      detail.includes(`href="/downloads/templates/${slug}-kit.zip"`),
+      slug + ' 模板详情页缺少模板包下载',
+    );
+    const zipPath = path.join(dist, 'downloads/templates', `${slug}-kit.zip`);
+    assert.ok(existsSync(zipPath), slug + ' 模板包未随构建发布');
+    assert.ok(statSync(zipPath).size > 1000, slug + ' 模板包内容为空');
+  }
+
+  assert.ok(
+    showcase.includes('href="/downloads/templates/starter-templates-kit.zip"'),
+    '活动广场缺少全部模板包下载',
+  );
+  const allZip = path.join(dist, 'downloads/templates/starter-templates-kit.zip');
+  assert.ok(existsSync(allZip), '全部模板包未随构建发布');
+  assert.ok(statSync(allZip).size > 1000, '全部模板包内容为空');
 });
 
 test('指南内容清单驱动导航与搜索覆盖', async () => {
@@ -478,6 +542,25 @@ test('M0 的示例、社区与活动状态都有明确标注', async () => {
   assert.doesNotMatch(rules, /WorkBuddy/i, '赛事细则不应提及 WorkBuddy');
   assert.doesNotMatch(rules, /GitHub\s*托管/, '赛事细则不应提及 GitHub 托管');
   assert.doesNotMatch(rules, /href="\/events\/ideas\/"/, '赛事细则不应再链接已移除的选题灵感页面');
+});
+
+test('赛事要求按届次归档，当前规则与归档版本分开', async () => {
+  const archiveIndex = await read('events/archive/index.html');
+  assert.match(archiveIndex, /活动归档/);
+  assert.match(archiveIndex, /2026-ai-challenge/);
+  assert.match(archiveIndex, /规则更新 2026-11-21/);
+
+  const archivedRules = await read('events/archive/2026-ai-challenge/index.html');
+  assert.match(archivedRules, /赛事要求归档/);
+  assert.match(archivedRules, /归档说明/);
+  assert.match(archivedRules, /id="scoring-starter">新手组评分表/);
+  assert.match(archivedRules, /反抄袭/);
+
+  const currentRules = await read('events/rules/index.html');
+  assert.match(currentRules, /href="\/events\/archive\/2026-ai-challenge\/"/, '当前规则页应提供归档版本入口');
+
+  const events = await read('events/index.html');
+  assert.match(events, /href="\/events\/archive\/"/, '活动页应提供活动要求归档入口');
 });
 
 test('全站透明说明与内容边界存在', async () => {

@@ -55,6 +55,7 @@ Issue 表单用于向维护者反馈、建议具体修改或分享经验：
 | 指南阶段与排序 | frontmatter 的 `stage` 决定阶段归属，`order` 用于集合排序；章节翻页按 `guide-nav.ts` 的目录顺序 |
 | 指南目录条目与占位章节 | [`src/data/guide-nav.ts`](src/data/guide-nav.ts) 中各分组的 `items`；新增指南必须登记对应 slug |
 | 作品示例 | [`src/content/works/`](src/content/works/) |
+| 活动模板与参赛作品 | [`src/data/showcase.ts`](src/data/showcase.ts)；模板演示在 `public/templates/`，模板包在 `public/downloads/templates/` |
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
 | 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |
 | 工具目录 | [`src/data/tools.ts`](src/data/tools.ts)；社区通过工具建议 Issue 提供线索，由维护者核对后入库，暂不迁移 Markdown |

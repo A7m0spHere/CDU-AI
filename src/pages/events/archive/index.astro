@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/routes/events.css';
+import PageHero from '../../../components/PageHero.astro';
+import Icon from '../../../components/Icon.astro';
+import { archivedChallenges } from '../../../data/challenge-archive';
+---
+
+<BaseLayout
+  title="活动归档"
+  description="赛事要求归档：按版本保留组队、作品提交、评分与奖项规则。当前赛事仍以活动主页为准。"
+>
+  <PageHero
+    eyebrow="活动 · 归档"
+    title="活动归档"
+    description="赛事要求按版本长期保留；当前赛事仍以活动主页为准。"
+    crumbs={[
+      { label: '活动', href: '/events/' },
+      { label: '活动归档' },
+    ]}
+    tone="warm"
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--soft btn--sm" href="/events/">
+        <Icon name="arrow-left" size={15} />
+        返回当前活动
+      </a>
+    </Fragment>
+
+    <Fragment slot="aside">
+      <div class="aside-card aside-card--brand">
+        <div class="aside-card__head"><Icon name="info" size={17} />归档说明</div>
+        <h2>规则按届次冻结。</h2>
+        <p>归档页保留发布时的赛事要求，不随当前赛事更新。新一届开始时，旧规则会继续留在这里。</p>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--flush-top">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-head__copy">
+          <p class="eyebrow">已登记版本</p>
+          <h2>规则版本归档</h2>
+          <p class="section-head__desc">{archivedChallenges.length} 个规则版本；当前赛事进行中时，归档快照与活动主页可能同时存在。</p>
+        </div>
+        <span class="pill">{archivedChallenges.length} 个版本</span>
+      </div>
+
+      <div class="challenge-archive-grid">
+        {archivedChallenges.map((entry) => (
+          <article class="challenge-archive-card card">
+            <p class="eyebrow eyebrow--plain">ARCHIVE · {entry.period}</p>
+            <h3>{entry.title}</h3>
+            <p>{entry.summary}</p>
+            <div class="challenge-archive-card__foot">
+              <span class="badge badge--sky">规则更新 {entry.updated}</span>
+              <a class="link-arrow" href={`/events/archive/${entry.slug}/`}>
+                查看赛事要求
+                <Icon name="arrow-right" size={15} />
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

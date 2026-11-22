@@ -255,6 +255,43 @@
   margin-top: 1rem;
 }
 
+.challenge-showcase-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.challenge-showcase-entry h3 {
+  margin-top: 0.25rem;
+  font-size: 1.05rem;
+}
+
+.challenge-showcase-entry p:last-child {
+  max-width: 58ch;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.challenge-showcase-entry .btn {
+  flex: none;
+}
+
+@media (max-width: 760px) {
+  .challenge-showcase-entry {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+}
+
 .challenge-summary-list {
   margin: 0;
   padding: 0;
@@ -1648,5 +1685,51 @@
   .challenge-rule-table th,
   .challenge-rule-table td {
     padding: 0.55rem 0.5rem;
+  }
+}
+
+/* 赛事规则归档 */
+.challenge-archive-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.challenge-archive-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.2rem;
+}
+
+.challenge-archive-card h3 {
+  font-size: 1.15rem;
+  line-height: 1.45;
+}
+
+.challenge-archive-card > p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.challenge-archive-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: auto;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--line);
+}
+
+.challenge-archive-card__foot .link-arrow {
+  font-size: 0.78rem;
+}
+
+@media (max-width: 760px) {
+  .challenge-archive-grid {
+    grid-template-columns: 1fr;
   }
 }

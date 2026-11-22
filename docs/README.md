@@ -34,6 +34,7 @@
 | 指南配图 | [`src/assets/guide/`](../src/assets/guide/) | 正文用相对路径引用，alt 必填；示意图优先 SVG，位图用 WebP |
 | 术语 | [`src/content/glossary/`](../src/content/glossary/) | 分类取自 [`glossary.ts`](../src/data/glossary.ts)，审核结论按实际情况标注 |
 | 作品示例 | [`src/content/works/`](../src/content/works/) | M0 保留 `status: example`，不虚构真实投稿 |
+| 活动模板与参赛作品 | [`src/data/showcase.ts`](../src/data/showcase.ts)；模板演示在 [`public/templates/`](../public/templates/)，模板包在 [`public/downloads/templates/`](../public/downloads/templates/) | 模板随站托管并可在线体验；参赛作品只收作者外链、介绍与授权状态 |
 | 工具目录 | [`src/data/tools.ts`](../src/data/tools.ts) | 官网和仓库入口分别维护，图标来源同步记录 |
 | 赛事赛程、报名与细则 | [`src/data/challenge.ts`](../src/data/challenge.ts) | 核对组委会通知，同步正文、报名状态、首页横幅和搜索摘要 |
 | 项目路线 | [`src/data/events.ts`](../src/data/events.ts) | 阶段路线与当前赛事安排分开维护 |

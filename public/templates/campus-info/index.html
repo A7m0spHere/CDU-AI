@@ -1,0 +1,1775 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="一个可本地运行的校园信息站模板：分类、搜索、收藏、最近浏览、详情弹窗与 JSON 数据管理。">
+  <meta name="theme-color" content="#f3efe5" id="themeColor">
+  <title>校园信息站 · 办事导航</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23272117'/%3E%3Crect x='13' y='13' width='16' height='16' rx='3' fill='%232a9d8f'/%3E%3Crect x='35' y='13' width='16' height='16' rx='3' fill='%23f2b134'/%3E%3Crect x='13' y='35' width='16' height='16' rx='3' fill='%23e4572e'/%3E%3Crect x='35' y='35' width='16' height='16' rx='3' fill='%23f7f1e5'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('cdu-campus-info-v1');
+        var saved = raw ? JSON.parse(raw) : null;
+        document.documentElement.dataset.theme = saved && saved.theme === 'dark' ? 'dark' : 'light';
+      } catch (error) {}
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3efe5;
+      --bg-dot: rgba(53, 43, 31, .10);
+      --glow: rgba(42, 157, 143, .10);
+      --panel: #fffdf7;
+      --panel-soft: #f8f3e8;
+      --ink: #272117;
+      --ink-soft: #4b4032;
+      --muted: #796c5b;
+      --faint: #a29583;
+      --line: #ded3c1;
+      --border: #2b241a;
+      --accent: #2a7f62;
+      --accent-ink: #fffdf7;
+      --accent-soft: #e3f2ec;
+      --gold: #b7791f;
+      --gold-soft: #fbf1d8;
+      --danger: #b33a2b;
+      --shadow-color: rgba(43, 36, 26, .16);
+      --shadow: 5px 5px 0 var(--shadow-color);
+      --shadow-sm: 3px 3px 0 var(--shadow-color);
+      --radius: 16px;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #141210;
+      --bg-dot: rgba(244, 236, 224, .07);
+      --glow: rgba(78, 205, 196, .10);
+      --panel: #1d1916;
+      --panel-soft: #26211b;
+      --ink: #f4ecdf;
+      --ink-soft: #d9cfc0;
+      --muted: #ac9e8c;
+      --faint: #7d7160;
+      --line: #3b342b;
+      --border: #4a4034;
+      --accent: #4ecdc4;
+      --accent-ink: #10201d;
+      --accent-soft: rgba(78, 205, 196, .13);
+      --gold: #f2b134;
+      --gold-soft: rgba(242, 177, 52, .13);
+      --danger: #ff7b72;
+      --shadow-color: rgba(0, 0, 0, .5);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image: radial-gradient(var(--bg-dot) 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(880px 500px at 10% -8%, var(--glow), transparent 65%),
+        radial-gradient(640px 420px at 100% 0%, rgba(228, 87, 46, .06), transparent 60%);
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .45; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    ::selection { background: var(--accent-soft); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .icon {
+      width: 18px;
+      height: 18px;
+      flex: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    kbd {
+      display: inline-block;
+      padding: 2px 5px;
+      border: 1px solid var(--line);
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1380px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 22px 0 26px;
+    }
+
+    /* topbar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1.5px dashed var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .brand__mark {
+      display: grid;
+      grid-template-columns: repeat(3, 9px);
+      grid-template-rows: repeat(3, 9px);
+      gap: 3px;
+      padding: 9px;
+      border: 2px solid var(--border);
+      border-radius: 13px;
+      background: var(--panel);
+      box-shadow: var(--shadow-sm);
+      flex: none;
+    }
+    .brand__mark i { border-radius: 2px; background: var(--c, var(--ink)); }
+    .brand h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+    }
+    .brand h1 span { color: var(--accent); }
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 10.5px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .topbar__actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+    .save-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .save-badge__dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 38px;
+      padding: 8px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 650;
+      line-height: 1.2;
+      text-decoration: none;
+      transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+    .btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--shadow-color); }
+    .btn--primary { background: var(--accent); color: var(--accent-ink); }
+    .btn--soft { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+    .btn--ghost { background: transparent; box-shadow: none; }
+    .btn--ghost:hover { box-shadow: none; background: var(--panel-soft); transform: none; }
+    .btn--sm { min-height: 30px; padding: 5px 9px; font-size: 11.5px; box-shadow: 2px 2px 0 var(--shadow-color); }
+    .icon-button {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+      transition: transform .14s ease, background .14s ease;
+    }
+    .icon-button:hover { transform: translateY(-1px); background: var(--panel-soft); }
+    .icon--sun { display: none; }
+    [data-theme="dark"] .icon--sun { display: block; }
+    [data-theme="dark"] .icon--moon { display: none; }
+
+    /* layout */
+    .layout {
+      display: grid;
+      grid-template-columns: 262px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      padding-top: 18px;
+    }
+    .layout, .sidebar, .main, .side-block, .hero, .toolbar, .grid { min-width: 0; }
+    .sidebar { display: grid; gap: 14px; position: sticky; top: 16px; }
+    .main { display: grid; gap: 15px; min-width: 0; }
+    .panel {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .side-block { padding: 15px 15px 14px; }
+    .eyebrow {
+      margin: 0 0 5px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .side-block h2 {
+      margin: 0 0 11px;
+      font-size: 16px;
+      letter-spacing: -.01em;
+    }
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--panel-soft);
+    }
+    .segmented button {
+      display: grid;
+      gap: 1px;
+      padding: 7px 4px;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 650;
+      line-height: 1.2;
+    }
+    .segmented button[aria-pressed="true"] {
+      border-color: var(--border);
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: 2px 2px 0 var(--shadow-color);
+    }
+    .segmented b { font-size: 14px; color: var(--accent); font-family: var(--mono); }
+
+    .cat-list { display: grid; gap: 4px; }
+    .cat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 8px 8px;
+      border: 1.5px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--ink-soft);
+      font-size: 12.5px;
+      text-align: left;
+    }
+    .cat:hover { background: var(--panel-soft); }
+    .cat[aria-pressed="true"] {
+      border-color: var(--border);
+      background: var(--accent-soft);
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .cat__dot { width: 9px; height: 9px; border-radius: 3px; background: var(--c, var(--accent)); flex: none; }
+    .cat__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cat__count { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+
+    .stats { padding: 14px 15px; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .stat {
+      padding: 8px 6px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel-soft);
+      text-align: center;
+    }
+    .stat b { display: block; font-family: var(--mono); font-size: 19px; line-height: 1.1; color: var(--ink); }
+    .stat span { display: block; margin-top: 3px; color: var(--muted); font-size: 9.5px; }
+    .side-tip {
+      display: flex;
+      gap: 7px;
+      margin: 11px 0 0;
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.6;
+    }
+    .side-tip .icon { width: 14px; height: 14px; margin-top: 1px; color: var(--gold); }
+
+    /* hero */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 18px;
+      padding: 20px 22px;
+      border-left: 7px solid var(--cat, var(--accent));
+    }
+    .hero__glow {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      right: 160px;
+      top: -120px;
+      border-radius: 50%;
+      background: var(--cat, var(--accent));
+      opacity: .10;
+      filter: blur(38px);
+      pointer-events: none;
+    }
+    .hero__badges { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    .badge--cat { background: var(--cat-soft, var(--accent-soft)); border-color: transparent; color: var(--ink-soft); }
+    .badge--sample { background: var(--gold-soft); border-color: transparent; color: var(--gold); }
+    .hero h2 {
+      margin: 9px 0 6px;
+      font-size: clamp(24px, 2.4vw, 34px);
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+    .hero__summary {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+    .hero__meta { display: flex; flex-wrap: wrap; gap: 7px 14px; margin-top: 12px; }
+    .meta-line { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 11.5px; min-width: 0; }
+    .meta-line .icon { width: 14px; height: 14px; color: var(--accent); }
+    .meta-line span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46ch; }
+    .hero__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+    .tag {
+      padding: 3px 8px;
+      border: 1px dashed var(--line);
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+    .hero__side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: right;
+    }
+    .hero__label { color: var(--faint); font-family: var(--mono); font-size: 9px; letter-spacing: .12em; }
+    .hero__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .hero__note { margin: 0; color: var(--faint); font-size: 10px; line-height: 1.5; }
+
+    /* toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      flex-wrap: wrap;
+    }
+    .search {
+      position: relative;
+      flex: 1 1 280px;
+      min-width: 220px;
+    }
+    .search .icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .search input {
+      width: 100%;
+      height: 40px;
+      padding: 8px 68px 8px 35px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      font-size: 13px;
+    }
+    .search input::placeholder { color: var(--faint); }
+    .search input:focus { border-color: var(--accent); background: var(--panel); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .search__clear {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+    }
+    .search__clear:hover { background: var(--accent-soft); color: var(--ink); }
+    .search kbd { position: absolute; right: 38px; top: 50%; transform: translateY(-50%); }
+    .toolbar__right { display: flex; align-items: center; gap: 9px; margin-left: auto; }
+    .select {
+      height: 40px;
+      padding: 6px 28px 6px 10px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      font-size: 12px;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position: calc(100% - 14px) 17px, calc(100% - 9px) 17px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+    .result-count { color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+    .result-count b { color: var(--ink); font-family: var(--mono); }
+
+    /* grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 196px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow-sm);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 5px;
+      background: var(--cat, var(--accent));
+    }
+    .card:hover { transform: translate(-1px, -2px); box-shadow: 5px 5px 0 var(--shadow-color); }
+    .card__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 11px 11px 0 15px;
+    }
+    .card__cat { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 650; }
+    .card__cat i { width: 7px; height: 7px; border-radius: 2px; background: var(--cat, var(--accent)); }
+    .star {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--faint);
+      flex: none;
+    }
+    .star:hover { border-color: var(--line); background: var(--panel-soft); color: var(--gold); }
+    .star[aria-pressed="true"] { color: var(--gold); background: var(--gold-soft); border-color: color-mix(in srgb, var(--gold) 35%, var(--line)); }
+    .star .icon { width: 16px; height: 16px; }
+    .star .icon--filled { display: none; }
+    .star[aria-pressed="true"] .icon--filled { display: block; }
+    .star[aria-pressed="true"] .icon--outline { display: none; }
+    .btn--star .icon--filled { display: none; }
+    .btn--star[aria-pressed="true"] .icon--filled { display: block; }
+    .btn--star[aria-pressed="true"] .icon--outline { display: none; }
+    .btn--star[aria-pressed="true"] { color: var(--gold); }
+    .card__body {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      gap: 7px;
+      width: 100%;
+      height: auto;
+      padding: 7px 13px 12px 15px;
+      border: 0;
+      background: transparent;
+      text-align: left;
+    }
+    .card__body:hover h3 { color: var(--accent); }
+    .card h3 {
+      margin: 0;
+      font-size: 15.5px;
+      line-height: 1.3;
+      letter-spacing: -.015em;
+      transition: color .14s ease;
+    }
+    .card__summary {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.6;
+      min-height: 37px;
+    }
+    .card__meta { display: grid; gap: 3px; margin-top: auto; }
+    .card__meta .meta-line { font-size: 10.5px; }
+    .card__meta .icon { width: 12px; height: 12px; }
+    .card__tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+    .card__tags .tag { font-size: 9.5px; padding: 2px 6px; }
+
+    /* empty */
+    .empty {
+      display: grid;
+      place-items: center;
+      gap: 7px;
+      padding: 34px 20px;
+      border: 1.5px dashed var(--line);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--panel) 70%, transparent);
+      text-align: center;
+    }
+    .empty .icon { width: 26px; height: 26px; color: var(--faint); }
+    .empty h3 { margin: 0; font-size: 15px; }
+    .empty p { max-width: 46ch; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .empty__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 4px; }
+
+    /* footer */
+    .foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding-top: 13px;
+      border-top: 1.5px dashed var(--line);
+      color: var(--faint);
+      font-size: 10.5px;
+    }
+    .foot__mark { font-family: var(--mono); letter-spacing: .04em; }
+
+    /* dialog */
+    .dialog {
+      width: min(680px, calc(100% - 28px));
+      max-height: min(88vh, 860px);
+      padding: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: 10px 10px 0 rgba(20, 16, 12, .28);
+      overflow: hidden;
+    }
+    .dialog::backdrop { background: rgba(28, 22, 16, .48); backdrop-filter: blur(2px); }
+    .dialog__panel { display: flex; flex-direction: column; max-height: inherit; }
+    .dialog__head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px 0;
+    }
+    .dialog__head h2 { margin: 0; font-size: 22px; letter-spacing: -.025em; }
+    .dialog__body { overflow: auto; padding: 12px 20px 20px; }
+    .dialog__foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 13px 20px;
+      border-top: 1.5px dashed var(--line);
+      background: var(--panel-soft);
+    }
+    .dialog__foot .grow { flex: 1; }
+    .dialog__meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 13px 0; }
+    .meta-box {
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel-soft);
+      min-width: 0;
+    }
+    .meta-box span { display: block; color: var(--faint); font-size: 9.5px; letter-spacing: .06em; }
+    .meta-box strong { display: block; margin-top: 3px; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+    .dialog h3 { margin: 15px 0 7px; font-size: 13px; }
+    .detail-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .detail-list li {
+      position: relative;
+      padding-left: 16px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .detail-list li::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: .62em;
+      width: 5px;
+      height: 5px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .dialog__note {
+      display: flex;
+      gap: 7px;
+      margin-top: 14px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      background: var(--gold-soft);
+      color: var(--gold);
+      font-size: 10.5px;
+      line-height: 1.6;
+    }
+    .dialog__note .icon { width: 14px; height: 14px; margin-top: 1px; flex: none; }
+    .dialog__summary { margin: 6px 0 0; color: var(--ink-soft); font-size: 13px; line-height: 1.7; }
+
+    .data-grid { display: grid; gap: 10px; }
+    .data-grid label { display: grid; gap: 5px; color: var(--muted); font-size: 11px; }
+    .data-grid textarea {
+      width: 100%;
+      min-height: 250px;
+      padding: 10px 11px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.55;
+      resize: vertical;
+      tab-size: 2;
+    }
+    .data-grid textarea:focus { border-color: var(--accent); background: var(--panel); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+    .data-status { min-height: 18px; margin: 0; color: var(--muted); font-size: 11px; }
+    .data-status[data-tone="ok"] { color: var(--accent); }
+    .data-status[data-tone="error"] { color: var(--danger); }
+    .inline-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    /* toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 30;
+      transform: translate(-50%, 12px);
+      max-width: min(92vw, 520px);
+      padding: 9px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--ink);
+      color: var(--panel);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, .18);
+    }
+    .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 1180px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { grid-template-columns: minmax(0, 1fr) 220px; }
+    }
+    @media (max-width: 940px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .sidebar .stats { grid-column: 1 / -1; }
+      .side-tip { margin-top: 8px; }
+    }
+    @media (max-width: 720px) {
+      .app { width: min(100% - 24px, 1380px); padding-top: 14px; }
+      .topbar { align-items: center; gap: 10px; }
+      .brand h1 { font-size: 21px; }
+      .brand p { display: none; }
+      .save-badge { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 17px 16px; gap: 13px; }
+      .hero__side { align-items: flex-start; text-align: left; }
+      .hero__actions { justify-content: flex-start; }
+      .hero__label { order: 3; }
+      .hero__note { display: none; }
+      .sidebar { grid-template-columns: 1fr; }
+      .sidebar .stats { display: none; }
+      .side-block { padding: 12px; }
+      .cat-list {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 2px 0 4px;
+        scrollbar-width: thin;
+      }
+      .cat {
+        width: auto;
+        flex: none;
+        padding: 7px 10px;
+        white-space: nowrap;
+      }
+      .cat__name { flex: none; }
+      .grid { grid-template-columns: 1fr; }
+      .card { min-height: 0; }
+      .toolbar { align-items: stretch; }
+      .toolbar__right { margin-left: 0; width: 100%; justify-content: space-between; }
+      .search kbd { display: none; }
+      .search input { padding-right: 38px; }
+      .dialog__meta { grid-template-columns: 1fr; }
+      .foot { flex-direction: column; align-items: flex-start; gap: 4px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M4 12.4V5a1 1 0 0 1 1-1h7.4a2 2 0 0 1 1.4.6l6 6a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0l-6-6a2 2 0 0 1-.6-1.4Z"/><circle cx="8.5" cy="8.5" r="1.4"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></symbol>
+    <symbol id="i-star-filled" viewBox="0 0 24 24"><path fill="currentColor" d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 7.6v.1"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 13.5A8 8 0 1 1 10.5 4 6.5 6.5 0 0 0 20 13.5Z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v10"/><path d="m7 9 5 5 5-5"/><path d="M5 20h14"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 20V10"/><path d="m7 15 5-5 5 5"/><path d="M5 4h14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.7-4.4L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.7 4.4L20 16"/><path d="M20 20v-4h-4"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24"><path d="M4 11h16"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M4 20h16"/><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></symbol>
+    <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M6 4h12v5H6z"/><path d="M5 13h14v7H5z"/><path d="M9 13V9h6v4"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l1 12H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-run" viewBox="0 0 24 24"><circle cx="15.5" cy="4.5" r="1.7"/><path d="m13 8-3 4 3 2-1 6"/><path d="m10 12-4 1"/><path d="m13 8 4 2 2 4"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 5h12l-2.5 4L17 13H5"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1"/></symbol>
+  </svg>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">
+          <i style="--c:#2a9d8f"></i><i style="--c:#f2b134"></i><i style="--c:#e4572e"></i>
+          <i style="--c:#e4572e"></i><i style="--c:#2a9d8f"></i><i style="--c:#f2b134"></i>
+          <i style="--c:#f2b134"></i><i style="--c:#e4572e"></i><i style="--c:#2a9d8f"></i>
+        </span>
+        <div>
+          <h1>校园信息站<span aria-hidden="true">.</span></h1>
+          <p>CAMPUS INFO HUB · 办事导航 · v1.0</p>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <span class="save-badge" id="dataState"><span class="save-badge__dot" aria-hidden="true"></span><span id="dataStateText">示例数据</span></span>
+        <button class="icon-button" id="themeButton" type="button" aria-label="切换为深色主题" title="切换主题">
+          <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"></use></svg>
+          <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"></use></svg>
+        </button>
+        <button class="btn" id="openDataButton" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#i-data"></use></svg>
+          数据管理
+        </button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar" aria-label="筛选与概览">
+        <section class="panel side-block" aria-labelledby="viewTitle">
+          <p class="eyebrow">VIEW / 01</p>
+          <h2 id="viewTitle">浏览</h2>
+          <div class="segmented" id="viewTabs" role="group" aria-labelledby="viewTitle">
+            <button type="button" data-view="all" aria-pressed="true">全部<b data-count="all">18</b></button>
+            <button type="button" data-view="favorites" aria-pressed="false">收藏<b data-count="favorites">0</b></button>
+            <button type="button" data-view="recent" aria-pressed="false">最近<b data-count="recent">0</b></button>
+          </div>
+        </section>
+
+        <section class="panel side-block" aria-labelledby="catTitle">
+          <p class="eyebrow">CATEGORY / 02</p>
+          <h2 id="catTitle">分类</h2>
+          <div class="cat-list" id="catList"></div>
+        </section>
+
+        <section class="panel stats" aria-label="数据概览">
+          <div class="stat-row">
+            <div class="stat"><b id="statTotal">18</b><span>条信息</span></div>
+            <div class="stat"><b id="statCats">6</b><span>个分类</span></div>
+            <div class="stat"><b id="statFav">0</b><span>条收藏</span></div>
+          </div>
+          <p class="side-tip">
+            <svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg>
+            <span>默认内容全部是虚构示例，发布前请替换为你核实过的信息；数据只保存在本机浏览器。</span>
+          </p>
+        </section>
+      </aside>
+
+      <section class="main" aria-label="信息浏览">
+        <section class="panel hero" id="hero" aria-labelledby="heroTitle"></section>
+
+        <div class="panel toolbar">
+          <div class="search">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+            <label class="sr-only" for="searchInput">搜索信息</label>
+            <input id="searchInput" type="search" placeholder="搜索地点、办事、社团……（按 / 聚焦）" autocomplete="off">
+            <kbd aria-hidden="true">/</kbd>
+            <button class="search__clear" id="clearSearch" type="button" aria-label="清除搜索" hidden>
+              <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+            </button>
+          </div>
+          <div class="toolbar__right">
+            <label class="sr-only" for="sortSelect">排序方式</label>
+            <select class="select" id="sortSelect">
+              <option value="recommended">推荐排序</option>
+              <option value="title">按名称</option>
+              <option value="updated">最近更新</option>
+            </select>
+            <span class="result-count" id="resultCount" aria-live="polite">共 <b>18</b> 条</span>
+          </div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>所有内容只保存在本机浏览器 · 不上传、不联网 · 示例数据请勿直接当作真实信息发布</span>
+      <span class="foot__mark">成都大学 · AI 创作挑战赛 新手模板</span>
+    </footer>
+  </div>
+
+  <dialog class="dialog" id="detailDialog" aria-labelledby="detailDialogTitle">
+    <div class="dialog__panel">
+      <div class="dialog__body" id="detailBody"></div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="dataDialog" aria-labelledby="dataDialogTitle">
+    <div class="dialog__panel">
+      <div class="dialog__head">
+        <div>
+          <p class="eyebrow">DATA / JSON</p>
+          <h2 id="dataDialogTitle">数据管理</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-data aria-label="关闭数据管理">
+          <svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="dialog__body">
+        <p class="dialog__summary">模板数据是一个 <code>categories + items</code> 的 JSON。你可以直接改代码里的 <code>SAMPLE_DATA</code>，也可以在这里导入自己的数据；导入后只保存在本机浏览器。</p>
+        <div class="data-grid" style="margin-top:12px">
+          <label for="dataJson">
+            当前数据（可直接编辑）
+            <textarea id="dataJson" spellcheck="false" aria-describedby="dataStatus"></textarea>
+          </label>
+          <p class="data-status" id="dataStatus" role="status"></p>
+          <div class="inline-actions">
+            <button class="btn btn--primary btn--sm" type="button" id="importTextButton">
+              <svg class="icon" aria-hidden="true"><use href="#i-upload"></use></svg>
+              导入文本
+            </button>
+            <button class="btn btn--soft btn--sm" type="button" id="chooseFileButton">
+              <svg class="icon" aria-hidden="true"><use href="#i-upload"></use></svg>
+              选择 JSON 文件
+            </button>
+            <button class="btn btn--soft btn--sm" type="button" id="copyJsonButton">
+              <svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>
+              复制 JSON
+            </button>
+            <button class="btn btn--soft btn--sm" type="button" id="downloadJsonButton">
+              <svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg>
+              下载 JSON
+            </button>
+            <button class="btn btn--ghost btn--sm" type="button" id="resetDataButton">
+              <svg class="icon" aria-hidden="true"><use href="#i-refresh"></use></svg>
+              恢复示例
+            </button>
+          </div>
+          <input type="file" id="fileInput" accept=".json,application/json" hidden>
+        </div>
+      </div>
+      <div class="dialog__foot">
+        <span class="grow"></span>
+        <button class="btn btn--ghost btn--sm" type="button" data-close-data>关闭</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var STORAGE_KEY = 'cdu-campus-info-v1';
+
+      var SAMPLE_DATA = {
+        meta: {
+          title: '校园信息站',
+          campus: '成都大学（示例）',
+          updated: '2026-11-22',
+          notice: '以下内容为虚构示例，仅用于演示模板结构；发布前请替换为你核实过的信息。'
+        },
+        categories: [
+          { id: 'food', name: '餐饮', icon: 'food', color: '#e4572e' },
+          { id: 'study', name: '学习空间', icon: 'book', color: '#2a9d8f' },
+          { id: 'service', name: '办事流程', icon: 'stamp', color: '#3b6fe0' },
+          { id: 'life', name: '生活服务', icon: 'bag', color: '#b7791f' },
+          { id: 'sport', name: '运动健康', icon: 'run', color: '#7c5cff' },
+          { id: 'club', name: '社团活动', icon: 'flag', color: '#d946ef' }
+        ],
+        items: [
+          {
+            id: 'food-1', cat: 'food', title: '第一食堂 · 二楼面食窗口', featured: true,
+            location: '第一食堂二楼东侧', hours: '07:00–09:00 / 11:00–13:00 / 17:00–19:00',
+            tags: ['早餐', '面食', '人均 12 元'],
+            summary: '早上有现煮面条和抄手，午晚高峰排队约 10 分钟；适合赶课间快速吃一顿。',
+            details: ['招牌：牛肉面、红油抄手、酸辣粉（示例菜单）', '支持校园卡与移动支付；高峰期建议 12:30 后错峰', '二楼靠窗有 4 人座，适合小组一起吃饭'],
+            contact: '以食堂现场公示为准', updated: '2026-11-18'
+          },
+          {
+            id: 'food-2', cat: 'food', title: '第三食堂 · 轻食窗口',
+            location: '第三食堂一楼北侧', hours: '10:30–13:30 / 16:30–19:00',
+            tags: ['轻食', '沙拉', '低辣'],
+            summary: '沙拉、鸡胸肉和杂粮饭，适合想控制饮食或不吃辣的同学。',
+            details: ['可自选 3 种配菜，酱料分开装', '分量偏小，男生建议加一份主食', '窗口只收校园卡（示例）'],
+            contact: '以食堂现场公示为准', updated: '2026-11-16'
+          },
+          {
+            id: 'food-3', cat: 'food', title: '校园咖啡角 · 图书馆店',
+            location: '图书馆一楼大厅西侧', hours: '08:30–20:30',
+            tags: ['咖啡', '自习', '插座'],
+            summary: '图书馆里的咖啡角，有少量靠墙座位和插座，适合短时间自习。',
+            details: ['美式 / 拿铁为主，价格 10–18 元（示例）', '座位不多，考试周建议早到', '不提供正餐，可以自带面包'],
+            contact: '以门店公示为准', updated: '2026-11-15'
+          },
+          {
+            id: 'study-1', cat: 'study', title: '图书馆三楼 · 自习区',
+            location: '图书馆三楼东侧', hours: '08:00–22:00（节假日以通知为准）',
+            tags: ['安静', '插座', '空调'],
+            summary: '长桌和单人隔间都有，插座覆盖率较高；考试周座位紧张。',
+            details: ['单人隔间需要现场选座，不能提前预约（示例）', '三楼东侧相对安静，适合写代码和看长文', '闭馆前 15 分钟会广播提醒'],
+            contact: '图书馆服务台', updated: '2026-11-20'
+          },
+          {
+            id: 'study-2', cat: 'study', title: '第十教学楼 · 空教室自习',
+            location: '第十教学楼 2–4 楼', hours: '08:00–22:00（以当日课表为准）',
+            tags: ['空教室', '小组讨论', '白板'],
+            summary: '没课的教室可以自习，部分教室有白板，适合 2–4 人小组讨论。',
+            details: ['先看门口课表，确认本节没课再进', '离开时把椅子归位、擦掉白板', '考试周可能被借用为考场，以楼栋通知为准'],
+            contact: '楼栋管理员', updated: '2026-11-19'
+          },
+          {
+            id: 'study-3', cat: 'study', title: '学生活动中心 · 学习共享空间',
+            location: '学生活动中心二楼', hours: '09:00–22:30',
+            tags: ['小组作业', '讨论', '投影'],
+            summary: '可以小声讨论的学习空间，有投影和白板，适合做小组作业和答辩排练。',
+            details: ['需要在一楼前台登记使用（示例）', '投影遥控器在前台借，押校园卡', '晚上 21:30 后停止借用讨论间'],
+            contact: '学生活动中心前台', updated: '2026-11-17'
+          },
+          {
+            id: 'service-1', cat: 'service', title: '校园卡补办',
+            location: '学生事务大厅 3 号窗口', hours: '工作日 09:00–12:00 / 13:30–17:00',
+            tags: ['校园卡', '补办', '带身份证'],
+            summary: '校园卡丢失后先线上挂失，再带身份证到窗口补办；补办期间可以用手机临时码吃饭。',
+            details: ['先在校园卡小程序挂失，冻结余额', '带身份证原件；补办工本费以窗口公示为准', '新卡一般当场领取，旧卡余额转到新卡'],
+            contact: '学生事务大厅（示例）', updated: '2026-11-18'
+          },
+          {
+            id: 'service-2', cat: 'service', title: '在读证明 / 成绩单打印',
+            location: '教务处自助打印机（行政楼一楼）', hours: '工作日 08:30–17:30',
+            tags: ['证明', '成绩单', '自助'],
+            summary: '自助打印机可以打印在读证明和中英文成绩单，打印前先确认用途和份数。',
+            details: ['带校园卡或身份证登录自助机', '中英文成绩单可选，打印后检查姓名和学号', '盖章窗口在工作时间开放，先打印再盖章'],
+            contact: '教务处（示例）', updated: '2026-11-14'
+          },
+          {
+            id: 'service-3', cat: 'service', title: '教室借用申请',
+            location: '教务处 / 学院办公室', hours: '工作日 09:00–17:00',
+            tags: ['借教室', '活动', '提前申请'],
+            summary: '社团活动或小组答辩需要借教室时，提前 3–5 个工作日提交申请，写明时间、人数和设备需求。',
+            details: ['先找指导老师或社团负责人签字（示例）', '借用期间保持教室整洁，结束后关灯关空调', '临时变更时间要提前联系审批老师'],
+            contact: '教务处 / 学院办公室', updated: '2026-11-13'
+          },
+          {
+            id: 'life-1', cat: 'life', title: '快递服务站',
+            location: '北门快递站 / 菜鸟驿站（示例）', hours: '09:00–20:00',
+            tags: ['取快递', '寄件', '取件码'],
+            summary: '凭取件码取件，大件在南侧货架；寄件可以先在手机上填单，再到柜台称重。',
+            details: ['高峰期 12:00–13:00、18:00–19:00 排队较长', '超过 3 天未取可能被退回，注意短信', '寄件带好身份证，违禁品不要寄'],
+            contact: '快递服务站（示例）', updated: '2026-11-16'
+          },
+          {
+            id: 'life-2', cat: 'life', title: '打印店 · 图书馆负一楼',
+            location: '图书馆负一楼', hours: '08:30–21:00',
+            tags: ['打印', '装订', '论文'],
+            summary: '打印、复印、胶装都能做，论文装订建议提前一天送印。',
+            details: ['黑白 0.1 元/页、彩色 0.8 元/页（示例价）', '自带 U 盘或发文件到店里邮箱（示例）', '考试周排队久，急件先问清楚取件时间'],
+            contact: '打印店（示例）', updated: '2026-11-12'
+          },
+          {
+            id: 'life-3', cat: 'life', title: '失物招领',
+            location: '保卫处一楼服务台', hours: '工作日 08:30–17:30',
+            tags: ['失物', '招领', '证件'],
+            summary: '捡到或丢失物品可以到保卫处登记；校园卡、身份证等证件建议同时线上挂失。',
+            details: ['登记时写清物品特征、丢失地点和时间', '领取时需出示学生证或身份证', '贵重物品建议先报警备案（示例）'],
+            contact: '保卫处（示例）', updated: '2026-11-11'
+          },
+          {
+            id: 'sport-1', cat: 'sport', title: '田径场 · 夜跑',
+            location: '东区田径场', hours: '06:00–22:00',
+            tags: ['跑步', '夜跑', '免费'],
+            summary: '晚上 19:00–21:00 人最多；跑道内圈适合慢跑，外圈适合快走。',
+            details: ['雨天场地可能关闭，以门口通知为准', '夜跑穿浅色或带反光条的衣服', '包和手机不要放在看台上无人看管'],
+            contact: '田径场管理室', updated: '2026-11-10'
+          },
+          {
+            id: 'sport-2', cat: 'sport', title: '体育馆 · 羽毛球场',
+            location: '体育馆二楼', hours: '10:00–21:30（需预约）',
+            tags: ['羽毛球', '预约', '收费'],
+            summary: '需要提前在体育馆小程序预约场地，周末和晚上时段比较紧张。',
+            details: ['按小时计费，价格以场馆公示为准（示例）', '自带球拍和羽毛球，场馆可租拍', '开场前 10 分钟到场，迟到 15 分钟可能释放场地'],
+            contact: '体育馆前台', updated: '2026-11-09'
+          },
+          {
+            id: 'sport-3', cat: 'sport', title: '校园步道 · 环校路线',
+            location: '图书馆 → 东门 → 湖边 → 图书馆', hours: '全天开放',
+            tags: ['散步', '骑行', '拍照'],
+            summary: '约 3 公里的环校路线，晚上路灯较亮，适合散步和慢跑；湖边风大，注意保暖。',
+            details: ['全程约 40 分钟步行，骑行约 12 分钟', '湖边路段不要并排骑行', '日落前后拍照好看，注意来往车辆'],
+            contact: '无（开放区域）', updated: '2026-11-08'
+          },
+          {
+            id: 'club-1', cat: 'club', title: '计算机协会 · 每周分享',
+            location: '十教 / 学生活动中心（每周不同）', hours: '每周四 19:00–20:30（示例）',
+            tags: ['技术', '分享', '招新'],
+            summary: '每周一次的技术分享，主题从 AI 工具到 Web 开发都有；零基础也可以来听。',
+            details: ['活动地点每周在群里通知', '分享后有 20 分钟自由提问', '想上台分享可以联系协会负责人'],
+            contact: '计算机协会（示例）', updated: '2026-11-21'
+          },
+          {
+            id: 'club-2', cat: 'club', title: '摄影社 · 校园约拍',
+            location: '校园内（集合点群内通知）', hours: '周末下午（视天气）',
+            tags: ['摄影', '约拍', '周末'],
+            summary: '周末组织校园约拍，手机和相机都欢迎；成片会在社团公众号展示。',
+            details: ['提前在群里报名，说明想拍的主题', '尊重被拍摄者意愿，不拍不愿意入镜的人', '雨天顺延，以群通知为准'],
+            contact: '摄影社（示例）', updated: '2026-11-07'
+          },
+          {
+            id: 'club-3', cat: 'club', title: '志愿服务队 · 周末招募',
+            location: '学生活动中心一楼', hours: '周末 09:00–17:00（按活动）',
+            tags: ['志愿', '服务', '志愿时长'],
+            summary: '周末有图书馆整理、社区服务等志愿活动，可以累计志愿时长。',
+            details: ['在志愿平台报名，名额先到先得', '服务当天提前 10 分钟签到', '志愿时长以平台记录为准'],
+            contact: '志愿服务队（示例）', updated: '2026-11-06'
+          }
+        ]
+      };
+
+      var state = {
+        data: SAMPLE_DATA,
+        favorites: [],
+        recent: [],
+        theme: 'light',
+        view: 'all',
+        category: 'all',
+        query: '',
+        sort: 'recommended'
+      };
+
+      var els = {
+        hero: document.getElementById('hero'),
+        grid: document.getElementById('grid'),
+        catList: document.getElementById('catList'),
+        viewTabs: document.getElementById('viewTabs'),
+        search: document.getElementById('searchInput'),
+        clearSearch: document.getElementById('clearSearch'),
+        sort: document.getElementById('sortSelect'),
+        resultCount: document.getElementById('resultCount'),
+        statTotal: document.getElementById('statTotal'),
+        statCats: document.getElementById('statCats'),
+        statFav: document.getElementById('statFav'),
+        dataStateText: document.getElementById('dataStateText'),
+        themeButton: document.getElementById('themeButton'),
+        detailDialog: document.getElementById('detailDialog'),
+        detailBody: document.getElementById('detailBody'),
+        dataDialog: document.getElementById('dataDialog'),
+        dataJson: document.getElementById('dataJson'),
+        dataStatus: document.getElementById('dataStatus'),
+        fileInput: document.getElementById('fileInput'),
+        toast: document.getElementById('toast')
+      };
+
+      var toastTimer = 0;
+
+      function $(selector, root) { return (root || document).querySelector(selector); }
+      function $$(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
+
+      function esc(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+        });
+      }
+
+      function safeColor(value) {
+        return /^#[0-9a-f]{3,8}$/i.test(String(value || '')) ? String(value) : '#2a9d8f';
+      }
+
+      function norm(value) {
+        return String(value == null ? '' : value)
+          .toLowerCase()
+          .replace(/[\s·・,，。.!！?？、；;：:（）()【】\[\]《》<>"'“”‘’\-—_/\\|]/g, '');
+      }
+
+      function catById(id) {
+        for (var i = 0; i < state.data.categories.length; i++) {
+          if (state.data.categories[i].id === id) return state.data.categories[i];
+        }
+        return { id: 'other', name: '未分类', icon: 'tag', color: '#8a7f70' };
+      }
+
+      function itemById(id) {
+        for (var i = 0; i < state.data.items.length; i++) {
+          if (state.data.items[i].id === id) return state.data.items[i];
+        }
+        return null;
+      }
+
+      function favoriteSet() {
+        var set = {};
+        state.favorites.forEach(function (id) { set[id] = true; });
+        return set;
+      }
+
+      function list(value) {
+        return Array.isArray(value) ? value : [];
+      }
+
+      function itemHaystack(item) {
+        var cat = catById(item.cat);
+        return norm([
+          item.title, item.summary, item.location, item.hours, cat.name,
+          list(item.tags).join(' '), list(item.details).join(' '), item.contact
+        ].join(' '));
+      }
+
+      function visibleItems() {
+        var items = state.data.items.slice();
+        var favs = favoriteSet();
+        if (state.view === 'favorites') {
+          items = items.filter(function (item) { return !!favs[item.id]; });
+        } else if (state.view === 'recent') {
+          items = state.recent.map(itemById).filter(Boolean);
+        }
+        if (state.category !== 'all') {
+          items = items.filter(function (item) { return item.cat === state.category; });
+        }
+        var query = norm(state.query);
+        if (query) {
+          items = items.filter(function (item) { return itemHaystack(item).indexOf(query) !== -1; });
+        }
+        if (state.sort === 'title') {
+          items.sort(function (a, b) { return String(a.title).localeCompare(String(b.title), 'zh-Hans-CN'); });
+        } else if (state.sort === 'updated') {
+          items.sort(function (a, b) { return String(b.updated || '').localeCompare(String(a.updated || '')); });
+        } else {
+          var catOrder = {};
+          state.data.categories.forEach(function (cat, index) { catOrder[cat.id] = index; });
+          items.sort(function (a, b) {
+            if (!!b.featured !== !!a.featured) return !!b.featured ? 1 : -1;
+            var oa = catOrder[a.cat] == null ? 999 : catOrder[a.cat];
+            var ob = catOrder[b.cat] == null ? 999 : catOrder[b.cat];
+            if (oa !== ob) return oa - ob;
+            return String(a.title).localeCompare(String(b.title), 'zh-Hans-CN');
+          });
+        }
+        return items;
+      }
+
+      function validData(data) {
+        if (!data || typeof data !== 'object') return 'JSON 必须是一个对象。';
+        if (!Array.isArray(data.categories) || !Array.isArray(data.items)) return 'JSON 必须包含 categories 和 items 两个数组。';
+        if (!data.categories.length) return 'categories 不能为空。';
+        var catIds = {};
+        for (var i = 0; i < data.categories.length; i++) {
+          var cat = data.categories[i];
+          if (!cat || !cat.id || !cat.name) return '每个分类至少要有 id 和 name。';
+          if (catIds[cat.id]) return '分类 id 重复：' + cat.id;
+          catIds[cat.id] = true;
+        }
+        if (!data.items.length) return 'items 不能为空。';
+        var ids = {};
+        for (var j = 0; j < data.items.length; j++) {
+          var item = data.items[j];
+          if (!item || typeof item !== 'object') return '每条信息必须是对象。';
+          if (!item.id || !item.cat || !item.title) return '每条信息至少要有 id、cat、title。';
+          if (ids[item.id]) return '信息 id 重复：' + item.id;
+          if (!catIds[item.cat]) return '信息「' + item.title + '」的 cat「' + item.cat + '」不在 categories 里。';
+          if (item.tags != null && !Array.isArray(item.tags)) return '信息「' + item.title + '」的 tags 必须是数组。';
+          if (item.details != null && !Array.isArray(item.details)) return '信息「' + item.title + '」的 details 必须是数组。';
+          ids[item.id] = true;
+        }
+        return '';
+      }
+
+      function readSaved() {
+        var saved = null;
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          saved = raw ? JSON.parse(raw) : null;
+        } catch (error) {
+          saved = null;
+        }
+        if (!saved || typeof saved !== 'object') return;
+        if (saved.data) {
+          var error = validData(saved.data);
+          if (!error) state.data = saved.data;
+        }
+        if (Array.isArray(saved.favorites)) {
+          state.favorites = saved.favorites.filter(function (id) { return !!itemById(id); });
+        }
+        if (Array.isArray(saved.recent)) {
+          state.recent = saved.recent.filter(function (id) { return !!itemById(id); }).slice(0, 6);
+        }
+        state.theme = saved.theme === 'dark' ? 'dark' : 'light';
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            data: state.data === SAMPLE_DATA ? null : state.data,
+            favorites: state.favorites,
+            recent: state.recent,
+            theme: state.theme
+          }));
+        } catch (error) {
+          showToast('浏览器存储不可用，刷新后数据会丢失。');
+        }
+      }
+
+      function applyTheme(theme) {
+        state.theme = theme === 'dark' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = state.theme;
+        var meta = document.getElementById('themeColor');
+        if (meta) meta.setAttribute('content', state.theme === 'dark' ? '#141210' : '#f3efe5');
+        els.themeButton.setAttribute('aria-label', state.theme === 'dark' ? '切换为浅色主题' : '切换为深色主题');
+        els.themeButton.setAttribute('title', state.theme === 'dark' ? '切换为浅色主题' : '切换为深色主题');
+      }
+
+      function showToast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add('is-visible');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+          els.toast.classList.remove('is-visible');
+        }, 2600);
+      }
+
+      function starHtml(item) {
+        var active = favoriteSet()[item.id] ? 'true' : 'false';
+        return '<button class="star" type="button" data-star="' + esc(item.id) + '" aria-pressed="' + active + '" aria-label="' + (active === 'true' ? '取消收藏' : '收藏') + ' ' + esc(item.title) + '" title="' + (active === 'true' ? '取消收藏' : '收藏') + '">'
+          + '<svg class="icon icon--outline" aria-hidden="true"><use href="#i-star"></use></svg>'
+          + '<svg class="icon icon--filled" aria-hidden="true"><use href="#i-star-filled"></use></svg>'
+          + '</button>';
+      }
+
+      function heroStarHtml(item) {
+        var active = favoriteSet()[item.id];
+        return '<button class="btn btn--soft btn--star" type="button" data-star="' + esc(item.id) + '" aria-pressed="' + (active ? 'true' : 'false') + '" aria-label="' + (active ? '取消收藏' : '收藏') + ' ' + esc(item.title) + '">'
+          + '<svg class="icon icon--outline" aria-hidden="true"><use href="#i-star"></use></svg>'
+          + '<svg class="icon icon--filled" aria-hidden="true"><use href="#i-star-filled"></use></svg>'
+          + (active ? '已收藏' : '收藏')
+          + '</button>';
+      }
+
+      function metaLine(icon, text) {
+        return '<span class="meta-line"><svg class="icon" aria-hidden="true"><use href="#i-' + icon + '"></use></svg><span>' + esc(text) + '</span></span>';
+      }
+
+      function renderHero() {
+        var item = state.data.items.filter(function (entry) { return entry.featured; })[0] || state.data.items[0];
+        if (!item) {
+          els.hero.innerHTML = '<div class="empty"><h3>还没有信息</h3><p>打开「数据管理」导入 JSON，或恢复示例数据。</p><div class="empty__actions"><button class="btn btn--primary btn--sm" type="button" data-open-data>数据管理</button></div></div>';
+          return;
+        }
+        var cat = catById(item.cat);
+        var color = safeColor(cat.color);
+        els.hero.style.setProperty('--cat', color);
+        els.hero.innerHTML = [
+          '<div class="hero__glow" aria-hidden="true"></div>',
+          '<div class="hero__main">',
+            '<div class="hero__badges">',
+              '<span class="badge badge--cat" style="background:var(--panel-soft);background:color-mix(in srgb, ' + color + ' 16%, var(--panel))"><svg class="icon" style="width:13px;height:13px;color:' + color + '" aria-hidden="true"><use href="#i-' + esc(cat.icon || 'tag') + '"></use></svg>' + esc(cat.name) + '</span>',
+              '<span class="badge badge--sample">示例数据</span>',
+              '<span class="badge">更新 ' + esc(item.updated || '—') + '</span>',
+            '</div>',
+            '<h2 id="heroTitle">' + esc(item.title) + '</h2>',
+            '<p class="hero__summary">' + esc(item.summary || '') + '</p>',
+            '<div class="hero__meta">' + metaLine('pin', item.location || '位置待补充') + metaLine('clock', item.hours || '时间待补充') + '</div>',
+            '<div class="hero__tags">' + list(item.tags).map(function (tag) { return '<span class="tag">' + esc(tag) + '</span>'; }).join('') + '</div>',
+          '</div>',
+          '<div class="hero__side">',
+            '<span class="hero__label">FEATURED / 今日推荐</span>',
+            '<div class="hero__actions">',
+              '<button class="btn btn--primary" type="button" data-open="' + esc(item.id) + '">查看详情 <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg></button>',
+              heroStarHtml(item),
+            '</div>',
+            '<p class="hero__note">默认示例 · 发布前请替换为核实过的信息</p>',
+          '</div>'
+        ].join('');
+      }
+
+      function renderCats() {
+        var counts = {};
+        state.data.items.forEach(function (item) { counts[item.cat] = (counts[item.cat] || 0) + 1; });
+        var html = '<button class="cat" type="button" data-cat="all" aria-pressed="' + (state.category === 'all') + '"><i class="cat__dot" style="--c:var(--accent)"></i><span class="cat__name">全部分类</span><span class="cat__count">' + state.data.items.length + '</span></button>';
+        state.data.categories.forEach(function (cat) {
+          html += '<button class="cat" type="button" data-cat="' + esc(cat.id) + '" aria-pressed="' + (state.category === cat.id) + '"><i class="cat__dot" style="--c:' + safeColor(cat.color) + '"></i><span class="cat__name">' + esc(cat.name) + '</span><span class="cat__count">' + (counts[cat.id] || 0) + '</span></button>';
+        });
+        els.catList.innerHTML = html;
+      }
+
+      function renderViewTabs() {
+        var counts = {
+          all: state.data.items.length,
+          favorites: state.favorites.filter(function (id) { return !!itemById(id); }).length,
+          recent: state.recent.filter(function (id) { return !!itemById(id); }).length
+        };
+        $$('[data-view]', els.viewTabs).forEach(function (button) {
+          var view = button.getAttribute('data-view');
+          button.setAttribute('aria-pressed', String(state.view === view));
+          var counter = $('[data-count]', button);
+          if (counter) counter.textContent = counts[view] || 0;
+        });
+      }
+
+      function emptyState() {
+        if (state.view === 'favorites' && !state.favorites.length) {
+          return '<div class="empty"><svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg><h3>还没有收藏</h3><p>点卡片右上角的星星，把常用信息收进来；收藏只保存在本机浏览器。</p><div class="empty__actions"><button class="btn btn--soft btn--sm" type="button" data-view-jump="all">去浏览全部</button></div></div>';
+        }
+        if (state.view === 'recent' && !state.recent.length) {
+          return '<div class="empty"><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg><h3>还没有浏览记录</h3><p>打开任意一条信息的详情后，这里会自动记录最近看过的 6 条。</p><div class="empty__actions"><button class="btn btn--soft btn--sm" type="button" data-view-jump="all">去浏览全部</button></div></div>';
+        }
+        var message = state.query ? '没有找到「' + esc(state.query) + '」。' : '当前筛选下没有信息。';
+        return '<div class="empty"><svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg><h3>没有匹配结果</h3><p>' + message + '试试换一个关键词，或清除分类筛选。</p><div class="empty__actions"><button class="btn btn--soft btn--sm" type="button" data-clear-filters>清除筛选</button></div></div>';
+      }
+
+      function renderGrid(items) {
+        if (!items.length) {
+          els.grid.innerHTML = emptyState();
+          return;
+        }
+        els.grid.innerHTML = items.map(function (item) {
+          var cat = catById(item.cat);
+          var color = safeColor(cat.color);
+          var tags = list(item.tags).slice(0, 3).map(function (tag) { return '<span class="tag">' + esc(tag) + '</span>'; }).join('');
+          return [
+            '<article class="card" style="--cat:' + color + '">',
+              '<div class="card__head">',
+                '<span class="card__cat"><i></i>' + esc(cat.name) + '</span>',
+                starHtml(item),
+              '</div>',
+              '<button class="card__body" type="button" data-open="' + esc(item.id) + '">',
+                '<h3>' + esc(item.title) + '</h3>',
+                '<p class="card__summary">' + esc(item.summary || '') + '</p>',
+                '<div class="card__meta">' + metaLine('pin', item.location || '位置待补充') + metaLine('clock', item.hours || '时间待补充') + '</div>',
+                '<div class="card__tags">' + tags + '</div>',
+              '</button>',
+            '</article>'
+          ].join('');
+        }).join('');
+      }
+
+      function renderStats() {
+        els.statTotal.textContent = state.data.items.length;
+        els.statCats.textContent = state.data.categories.length;
+        els.statFav.textContent = state.favorites.filter(function (id) { return !!itemById(id); }).length;
+        els.dataStateText.textContent = state.data === SAMPLE_DATA ? '示例数据' : '已导入数据';
+      }
+
+      function renderToolbar(shown, total) {
+        els.sort.value = state.sort;
+        els.clearSearch.hidden = !state.query;
+        var label = state.view === 'favorites' ? '收藏' : state.view === 'recent' ? '最近' : '全部';
+        if (state.query) {
+          els.resultCount.innerHTML = '搜索到 <b>' + shown + '</b> 条';
+        } else if (state.category !== 'all' || state.view !== 'all') {
+          els.resultCount.innerHTML = label + ' · <b>' + shown + '</b> 条';
+        } else {
+          els.resultCount.innerHTML = '共 <b>' + total + '</b> 条';
+        }
+      }
+
+      function render() {
+        var items = visibleItems();
+        renderHero();
+        renderCats();
+        renderViewTabs();
+        renderGrid(items);
+        renderStats();
+        renderToolbar(items.length, state.data.items.length);
+      }
+
+      function toggleFavorite(id) {
+        var item = itemById(id);
+        if (!item) return;
+        var index = state.favorites.indexOf(id);
+        if (index === -1) {
+          state.favorites.unshift(id);
+          showToast('已收藏：' + item.title);
+        } else {
+          state.favorites.splice(index, 1);
+          showToast('已取消收藏：' + item.title);
+        }
+        persist();
+        var dialogOpen = els.detailDialog.open;
+        render();
+        if (dialogOpen) {
+          renderDetail(item);
+          var button = document.querySelector('#detailBody [data-star]');
+          if (button) button.focus();
+        }
+      }
+
+      function addRecent(id) {
+        state.recent = [id].concat(state.recent.filter(function (entry) { return entry !== id; })).slice(0, 6);
+        persist();
+      }
+
+      function renderDetail(item) {
+        var cat = catById(item.cat);
+        var color = safeColor(cat.color);
+        var active = favoriteSet()[item.id];
+        els.detailBody.innerHTML = [
+          '<div class="dialog__head">',
+            '<div>',
+              '<div class="hero__badges"><span class="badge badge--cat"><i class="cat__dot" style="--c:' + color + '"></i>' + esc(cat.name) + '</span><span class="badge badge--sample">示例数据</span></div>',
+              '<h2 id="detailDialogTitle" style="margin-top:8px">' + esc(item.title) + '</h2>',
+            '</div>',
+            '<button class="icon-button" type="button" data-close-detail aria-label="关闭详情"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>',
+          '</div>',
+          '<p class="dialog__summary">' + esc(item.summary || '') + '</p>',
+          '<div class="dialog__meta">',
+            '<div class="meta-box"><span>位置</span><strong>' + esc(item.location || '待补充') + '</strong></div>',
+            '<div class="meta-box"><span>开放时间</span><strong>' + esc(item.hours || '待补充') + '</strong></div>',
+            '<div class="meta-box"><span>联系方式</span><strong>' + esc(item.contact || '以现场公示为准') + '</strong></div>',
+            '<div class="meta-box"><span>更新时间</span><strong>' + esc(item.updated || '—') + '</strong></div>',
+          '</div>',
+          '<h3>具体信息</h3>',
+          '<ul class="detail-list">' + list(item.details).map(function (line) { return '<li>' + esc(line) + '</li>'; }).join('') + '</ul>',
+          '<div class="hero__tags" style="margin-top:12px">' + list(item.tags).map(function (tag) { return '<span class="tag">' + esc(tag) + '</span>'; }).join('') + '</div>',
+          '<div class="dialog__note"><svg class="icon" aria-hidden="true"><use href="#i-info"></use></svg><span>这是模板示例数据，不是学校官方信息。发布前请替换为你核实过的内容，并注明信息来源。</span></div>',
+          '<div class="inline-actions" style="margin-top:15px">',
+            '<button class="btn btn--primary btn--sm" type="button" data-star="' + esc(item.id) + '" aria-pressed="' + (active ? 'true' : 'false') + '">' + (active ? '已收藏' : '收藏这条') + '</button>',
+            '<button class="btn btn--soft btn--sm" type="button" data-copy="' + esc(item.id) + '"><svg class="icon" aria-hidden="true"><use href="#i-copy"></use></svg>复制位置</button>',
+            '<button class="btn btn--ghost btn--sm" type="button" data-close-detail>关闭</button>',
+          '</div>'
+        ].join('');
+      }
+
+      function openDetail(id) {
+        var item = itemById(id);
+        if (!item) return;
+        addRecent(id);
+        renderDetail(item);
+        if (!els.detailDialog.open) els.detailDialog.showModal();
+        renderViewTabs();
+        renderStats();
+      }
+
+      function closeDetail() {
+        if (els.detailDialog.open) els.detailDialog.close();
+      }
+
+      function copyText(text, okMessage) {
+        var done = function () { showToast(okMessage || '已复制'); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+        } else {
+          fallbackCopy(text, done);
+        }
+      }
+
+      function fallbackCopy(text, done) {
+        var area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        try { document.execCommand('copy'); done(); } catch (error) { showToast('复制失败，请手动选择文本。'); }
+        document.body.removeChild(area);
+      }
+
+      function setQuery(value) {
+        state.query = value;
+        render();
+      }
+
+      function clearFilters() {
+        state.query = '';
+        state.category = 'all';
+        state.view = 'all';
+        els.search.value = '';
+        render();
+      }
+
+      function openDataDialog() {
+        els.dataJson.value = JSON.stringify(state.data, null, 2);
+        els.dataStatus.textContent = '';
+        els.dataStatus.removeAttribute('data-tone');
+        if (!els.dataDialog.open) els.dataDialog.showModal();
+      }
+
+      function closeDataDialog() {
+        if (els.dataDialog.open) els.dataDialog.close();
+      }
+
+      function applyData(data) {
+        var error = validData(data);
+        if (error) {
+          els.dataStatus.textContent = error;
+          els.dataStatus.setAttribute('data-tone', 'error');
+          return false;
+        }
+        state.data = data;
+        state.favorites = state.favorites.filter(function (id) { return !!itemById(id); });
+        state.recent = state.recent.filter(function (id) { return !!itemById(id); });
+        if (state.category !== 'all' && !state.data.categories.some(function (cat) { return cat.id === state.category; })) {
+          state.category = 'all';
+        }
+        persist();
+        render();
+        els.dataJson.value = JSON.stringify(state.data, null, 2);
+        els.dataStatus.textContent = '导入成功：' + state.data.items.length + ' 条信息 / ' + state.data.categories.length + ' 个分类。';
+        els.dataStatus.setAttribute('data-tone', 'ok');
+        showToast('数据已导入，只保存在本机浏览器。');
+        return true;
+      }
+
+      function importFromText() {
+        var raw = els.dataJson.value.replace(/^\uFEFF/, '').trim();
+        if (!raw) {
+          els.dataStatus.textContent = '请先粘贴 JSON。';
+          els.dataStatus.setAttribute('data-tone', 'error');
+          return;
+        }
+        var data;
+        try {
+          data = JSON.parse(raw);
+        } catch (error) {
+          els.dataStatus.textContent = 'JSON 解析失败：' + error.message;
+          els.dataStatus.setAttribute('data-tone', 'error');
+          return;
+        }
+        applyData(data);
+      }
+
+      function downloadJson() {
+        var blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'campus-info-data.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+        showToast('已下载 campus-info-data.json');
+      }
+
+      function resetData() {
+        if (!window.confirm('恢复示例数据会替换当前数据（收藏和最近浏览会保留仍然存在的条目）。继续？')) return;
+        state.data = SAMPLE_DATA;
+        state.favorites = state.favorites.filter(function (id) { return !!itemById(id); });
+        state.recent = state.recent.filter(function (id) { return !!itemById(id); });
+        state.category = 'all';
+        persist();
+        render();
+        els.dataJson.value = JSON.stringify(state.data, null, 2);
+        els.dataStatus.textContent = '已恢复示例数据。';
+        els.dataStatus.setAttribute('data-tone', 'ok');
+        showToast('已恢复示例数据。');
+      }
+
+      function readFile(file) {
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          els.dataJson.value = String(reader.result || '').replace(/^\uFEFF/, '');
+          importFromText();
+        };
+        reader.onerror = function () {
+          els.dataStatus.textContent = '文件读取失败，请重试。';
+          els.dataStatus.setAttribute('data-tone', 'error');
+        };
+        reader.readAsText(file, 'utf-8');
+      }
+
+      function bindEvents() {
+        els.viewTabs.addEventListener('click', function (event) {
+          var button = event.target.closest('[data-view]');
+          if (!button) return;
+          state.view = button.getAttribute('data-view');
+          render();
+        });
+
+        els.catList.addEventListener('click', function (event) {
+          var button = event.target.closest('[data-cat]');
+          if (!button) return;
+          state.category = button.getAttribute('data-cat');
+          render();
+        });
+
+        els.search.addEventListener('input', function () { setQuery(els.search.value); });
+        els.clearSearch.addEventListener('click', function () {
+          els.search.value = '';
+          setQuery('');
+          els.search.focus();
+        });
+        els.sort.addEventListener('change', function () {
+          state.sort = els.sort.value;
+          render();
+        });
+
+        els.themeButton.addEventListener('click', function () {
+          applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+          persist();
+        });
+
+        document.getElementById('openDataButton').addEventListener('click', openDataDialog);
+        document.getElementById('importTextButton').addEventListener('click', importFromText);
+        document.getElementById('chooseFileButton').addEventListener('click', function () { els.fileInput.click(); });
+        document.getElementById('copyJsonButton').addEventListener('click', function () {
+          copyText(els.dataJson.value, '已复制当前 JSON。');
+        });
+        document.getElementById('downloadJsonButton').addEventListener('click', downloadJson);
+        document.getElementById('resetDataButton').addEventListener('click', resetData);
+        els.fileInput.addEventListener('change', function () {
+          readFile(els.fileInput.files && els.fileInput.files[0]);
+          els.fileInput.value = '';
+        });
+
+        document.addEventListener('click', function (event) {
+          var open = event.target.closest('[data-open]');
+          if (open) { openDetail(open.getAttribute('data-open')); return; }
+          var star = event.target.closest('[data-star]');
+          if (star) {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleFavorite(star.getAttribute('data-star'));
+            return;
+          }
+          var copy = event.target.closest('[data-copy]');
+          if (copy) {
+            var item = itemById(copy.getAttribute('data-copy'));
+            if (item) copyText(item.location || item.title, '已复制位置：' + (item.location || item.title));
+            return;
+          }
+          if (event.target.closest('[data-open-data]')) { openDataDialog(); return; }
+          if (event.target.closest('[data-close-detail]')) { closeDetail(); return; }
+          if (event.target.closest('[data-close-data]')) { closeDataDialog(); return; }
+          var jump = event.target.closest('[data-view-jump]');
+          if (jump) {
+            state.view = jump.getAttribute('data-view-jump');
+            render();
+            return;
+          }
+          if (event.target.closest('[data-clear-filters]')) { clearFilters(); }
+        });
+
+        els.detailDialog.addEventListener('click', function (event) {
+          if (event.target === els.detailDialog) closeDetail();
+        });
+        els.detailDialog.addEventListener('close', function () {
+          if (state.view === 'recent') renderGrid(visibleItems());
+        });
+        els.dataDialog.addEventListener('click', function (event) {
+          if (event.target === els.dataDialog) closeDataDialog();
+        });
+
+        document.addEventListener('keydown', function (event) {
+          var tag = (event.target && event.target.tagName || '').toLowerCase();
+          var typing = tag === 'input' || tag === 'textarea' || tag === 'select' || (event.target && event.target.isContentEditable);
+          if (event.key === '/' && !typing && !els.detailDialog.open && !els.dataDialog.open) {
+            event.preventDefault();
+            els.search.focus();
+            els.search.select();
+          }
+        });
+      }
+
+      readSaved();
+      applyTheme(state.theme);
+      bindEvents();
+      render();
+    })();
+  </script>
+</body>
+</html>

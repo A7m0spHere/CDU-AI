@@ -1,0 +1,201 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/routes/works.css';
+import '../../../styles/routes/showcase.css';
+import PageHero from '../../../components/PageHero.astro';
+import Icon from '../../../components/Icon.astro';
+import { starterTemplates } from '../../../data/showcase';
+import { challengeConfig } from '../../../data/challenge';
+import { buildTemplateStartPrompt } from '../../../lib/template-start-prompt';
+
+export const getStaticPaths = (() =>
+  starterTemplates.map((template) => ({
+    params: { slug: template.slug },
+    props: { template },
+  }))) satisfies GetStaticPaths;
+
+type Props = { template: (typeof starterTemplates)[number] };
+const { template } = Astro.props;
+
+const startPrompt = buildTemplateStartPrompt(template, Astro.site);
+---
+
+<BaseLayout
+  title={`${template.title} · 本次活动模板`}
+  description={`${template.summary} ${challengeConfig.shortTitle}新手模板，可在线体验。`}
+>
+  <PageHero
+    eyebrow="本次活动模板"
+    title={template.title}
+    description={template.summary}
+    crumbs={[
+      { label: '作品广场', href: '/works/' },
+      { label: '本次活动模板', href: '/works/#event-templates' },
+      { label: template.title },
+    ]}
+    tone="warm"
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--primary" href={template.demoPath} target="_blank" rel="noopener">
+        在线体验
+        <Icon name="arrow-up-right" size={16} />
+      </a>
+      <a class="btn btn--soft" href={template.downloadPath} download>
+        <Icon name="download" size={15} />
+        下载模板包
+      </a>
+      <a class="btn btn--ghost" href="/works/#event-templates">
+        <Icon name="arrow-left" size={15} />
+        返回活动广场
+      </a>
+    </Fragment>
+
+    <Fragment slot="aside">
+      <div class="aside-card aside-card--brand">
+        <div class="aside-card__head"><Icon name="info" size={17} />本次活动模板</div>
+        <h2>仅限本届参赛者使用。</h2>
+        <p>这是{challengeConfig.shortTitle}的新手组起点模板；先跑通，再做至少一项功能或交互改动。</p>
+        <dl class="meta-rows">
+          <div><dt>形式</dt><dd>{template.format}</dd></div>
+          <div><dt>上手</dt><dd>{template.onboarding}</dd></div>
+          <div><dt>改造上限</dt><dd>{template.ceiling}</dd></div>
+          <div><dt>版本</dt><dd>{template.version}</dd></div>
+          <div><dt>更新</dt><dd>{template.updated}</dd></div>
+        </dl>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--flush-top">
+    <div class="container">
+      <div class="work-detail">
+        <div class="work-detail__main">
+          <div class="work-detail__cover showcase-detail__cover">
+            <img src={template.cover} alt={template.coverAlt} loading="eager" decoding="async" />
+            <span class="badge badge--brand work-detail__status">本次活动模板</span>
+          </div>
+
+          <div class="work-facts" aria-label="模板信息">
+            <div><span>形式</span><strong>{template.format}</strong></div>
+            <div><span>上手</span><strong>{template.onboarding}</strong></div>
+            <div><span>改造上限</span><strong>{template.ceiling}</strong></div>
+            <div><span>版本</span><strong>{template.version}</strong></div>
+          </div>
+          <p class="showcase-note">适合：{template.fitFor}</p>
+
+          <div class="showcase-detail-card card">
+            <div class="showcase-detail-card__head">
+              <p class="eyebrow eyebrow--plain">模板内容</p>
+              <h2>模板包含什么</h2>
+            </div>
+            <ul class="showcase-feature-list">
+              {template.features.map((feature) => (
+                <li>
+                  <Icon name="check" size={16} />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="showcase-detail-card card">
+            <div class="showcase-detail-card__head">
+              <p class="eyebrow eyebrow--plain">开始之前</p>
+              <h2>先想清楚这次要改什么</h2>
+            </div>
+            <p class="showcase-discovery-lead">{template.discoveryLead}</p>
+            <ol class="showcase-discovery-list">
+              {template.discoveryQuestions.map((question) => <li>{question}</li>)}
+              <li><strong>你这次大概有多少时间？</strong>4–5 小时走快速模式；2–3 天走完整模式；再花 4–5 天打磨细节（比如 UI）和功能。</li>
+            </ol>
+            <p class="showcase-note">如果还没想好，可以再说说你想帮谁、在什么场景；AI 会继续问你。</p>
+            <ul class="showcase-start-list">
+              <li><strong>用 Agent：</strong>让它读取模板文件，按下面的提示词带你走。</li>
+              <li><strong>先手动：</strong><a href={template.downloadPath} download>下载模板包</a>，解压后双击 <code>index.html</code> 确认能运行；也可以先 <a href={template.demoPath} target="_blank" rel="noopener">在线体验</a>。</li>
+            </ul>
+          </div>
+
+          <div class="showcase-prompt-card card" data-copy-card>
+            <div class="showcase-prompt-card__head">
+              <div>
+                <p class="eyebrow eyebrow--plain">启动提示词</p>
+                <h2>把这段话交给你的 AI</h2>
+                <p class="showcase-prompt-card__lead">提示词不包含功能清单；AI 会先判断你的时间预算，最多问 3 个问题，再一起决定改什么。</p>
+              </div>
+              <button class="copy-button" type="button" data-copy-target="#template-start-prompt" aria-label="复制启动提示词">
+                <Icon name="copy" size={15} />
+                <span data-copy-label>复制</span>
+              </button>
+            </div>
+            <details class="showcase-prompt-card__details">
+              <summary>展开完整提示词</summary>
+              <pre id="template-start-prompt" class="showcase-prompt-card__body">{startPrompt}</pre>
+            </details>
+            <p data-copy-status class="showcase-prompt-card__status" aria-live="polite"></p>
+          </div>
+
+          <div class="notice notice--warm">
+            <Icon name="alert-triangle" size={17} />
+            <p>
+              <strong>起点披露：</strong>使用本模板参赛时，需要在作品说明中写清模板原有功能与赛期新增 / 改进；只改配色、文字或主题不算有意义的改造。
+            </p>
+          </div>
+
+          <div class="showcase-detail-cta card">
+            <div>
+              <p class="eyebrow">在线体验</p>
+              <h2>先打开模板，跑通再改</h2>
+              <p>{template.sourceNote}</p>
+            </div>
+            <div class="btn-row">
+              <a class="btn btn--primary" href={template.demoPath} target="_blank" rel="noopener">
+                在线体验
+                <Icon name="arrow-up-right" size={16} />
+              </a>
+              <a class="btn btn--soft" href={template.downloadPath} download>
+                下载模板包
+                <Icon name="download" size={16} />
+              </a>
+            </div>
+          </div>
+
+          <div class="page-meta">
+            <span><Icon name="clock" size={14} />最后更新：{template.updated}</span>
+            <a href="/events/rules/#work-requirements"><Icon name="book-open" size={14} />查看作品要求</a>
+          </div>
+
+          <nav class="work-detail__nav" aria-label="模板页导航">
+            <a class="link-arrow" href="/works/#event-templates"><Icon name="arrow-left" size={15} />返回活动广场</a>
+            <a class="link-arrow" href="/events/rules/#work-requirements">查看作品要求<Icon name="arrow-right" size={15} /></a>
+          </nav>
+        </div>
+
+        <aside class="work-detail__aside">
+          <div class="aside-card">
+            <div class="aside-card__head"><Icon name="layers" size={16} />模板档案</div>
+            <dl class="meta-rows">
+              <div><dt>活动</dt><dd>{challengeConfig.shortTitle}</dd></div>
+              <div><dt>形式</dt><dd>{template.format}</dd></div>
+              <div><dt>上手</dt><dd>{template.onboarding}</dd></div>
+              <div><dt>改造上限</dt><dd>{template.ceiling}</dd></div>
+              <div><dt>版本</dt><dd>{template.version}</dd></div>
+            </dl>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-card__head"><Icon name="spark" size={16} />标签</div>
+            <ul class="tag-list">{template.tags.map((tag) => <li class="tag">{tag}</li>)}</ul>
+          </div>
+
+          <div class="aside-card aside-card--brand">
+            <div class="aside-card__head"><Icon name="shield-check" size={16} />使用说明</div>
+            <p>模板包可在本页下载，内含 README、启动提示词、AI 使用记录和过程记录模板；仅供本届参赛者学习与改造。</p>
+            <a class="text-link" href={template.downloadPath} download>下载模板包 →</a>
+            <a class="text-link" href="/events/">查看活动与报名 →</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

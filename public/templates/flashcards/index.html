@@ -1,0 +1,2714 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="一个可本地运行的单词闪卡模板，支持卡组、翻卡、错题本、学习进度、CSV 导入导出和浏览器语音朗读。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2326241f'/%3E%3Ctext x='50' y='67' font-size='44' font-family='Georgia,serif' fill='%23fffdf7' text-anchor='middle'%3EAa%3C/text%3E%3C/svg%3E">
+  <title>单词闪卡 · 听写</title>
+  <script>
+    try {
+      const saved = JSON.parse(localStorage.getItem('cdu-flashcards-v1') || '{}');
+      if (saved.theme === 'dark') document.documentElement.dataset.theme = 'dark';
+    } catch (error) {}
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1e8;
+      --surface: #fffdf7;
+      --surface-soft: #f8f4ea;
+      --surface-strong: #efe8d9;
+      --ink: #26241f;
+      --muted: #716a5d;
+      --faint: #a49b8b;
+      --line: #e6ddcd;
+      --line-strong: #d7cbb7;
+      --accent: #335d7a;
+      --accent-strong: #264a63;
+      --accent-soft: #e5eef5;
+      --green: #487458;
+      --green-soft: #e5efe6;
+      --red: #ab483a;
+      --red-soft: #f7e6e2;
+      --amber: #a3752c;
+      --amber-soft: #f5ecd8;
+      --shadow-lg: 0 28px 70px rgba(63, 48, 29, .12);
+      --shadow-md: 0 14px 34px rgba(63, 48, 29, .08);
+      --shadow-sm: 0 4px 14px rgba(63, 48, 29, .06);
+      --radius-lg: 24px;
+      --radius: 16px;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Songti SC", "STSong", serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #15171a;
+      --surface: #1e2226;
+      --surface-soft: #242a2f;
+      --surface-strong: #2b3238;
+      --ink: #ece6da;
+      --muted: #a9a294;
+      --faint: #746e63;
+      --line: #333a40;
+      --line-strong: #454e55;
+      --accent: #8bb4d4;
+      --accent-strong: #a9cbe5;
+      --accent-soft: #22323d;
+      --green: #8cbc9b;
+      --green-soft: #23332a;
+      --red: #e09286;
+      --red-soft: #3a2724;
+      --amber: #d4ac6a;
+      --amber-soft: #352d20;
+      --shadow-lg: 0 28px 70px rgba(0, 0, 0, .45);
+      --shadow-md: 0 14px 34px rgba(0, 0, 0, .3);
+      --shadow-sm: 0 4px 14px rgba(0, 0, 0, .2);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 700px at 6% -10%, rgba(51, 93, 122, .13), transparent 55%),
+        radial-gradient(900px 600px at 102% 4%, rgba(163, 117, 44, .1), transparent 55%),
+        var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    body:has(dialog[open]) { overflow: hidden; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .app {
+      width: min(1220px, calc(100% - 40px));
+      margin: 0 auto;
+      padding-bottom: 44px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 26px 0 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      flex: none;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: var(--ink);
+      color: var(--surface);
+      font-family: var(--serif);
+      font-size: 22px;
+      position: relative;
+      box-shadow: var(--shadow-md);
+    }
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(255, 255, 255, .24);
+      border-radius: 11px;
+    }
+    .brand-text { min-width: 0; }
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.25;
+      letter-spacing: .01em;
+    }
+    .brand-sub {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .tabs {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+    }
+    .tab {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background .2s, color .2s;
+    }
+    .tab:hover { color: var(--ink); }
+    .tab.is-active { background: var(--ink); color: var(--surface); }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface);
+      color: var(--muted);
+      box-shadow: var(--shadow-sm);
+      transition: color .2s, border-color .2s, transform .15s;
+    }
+    .icon-btn:hover { color: var(--ink); border-color: var(--line-strong); }
+    .icon-btn:active { transform: translateY(1px); }
+    .icon-btn svg { width: 19px; height: 19px; }
+    .theme-icon-sun { display: none; }
+    [data-theme="dark"] .theme-icon-sun { display: block; }
+    [data-theme="dark"] .theme-icon-moon { display: none; }
+
+    .view { margin-top: 2px; }
+    .study-grid {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+      margin-top: 4px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px 16px;
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+    }
+    .side-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .side-head h2 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .mini-btn {
+      border: 1px dashed var(--line-strong);
+      background: transparent;
+      color: var(--muted);
+      border-radius: 9px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: color .2s, border-color .2s;
+    }
+    .mini-btn:hover { color: var(--ink); border-color: var(--ink); }
+    .deck-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: min(58vh, 540px);
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .deck-item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 14px;
+      padding: 11px 12px;
+      transition: background .2s, box-shadow .2s;
+    }
+    .deck-item:hover { background: var(--surface-soft); }
+    .deck-item.is-active {
+      background: var(--accent-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+    .deck-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .deck-name {
+      display: block;
+      font-size: 14.5px;
+      font-weight: 650;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .deck-wrong {
+      flex: none;
+      font-size: 11px;
+      line-height: 1.3;
+      color: var(--red);
+      background: var(--red-soft);
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .mini-progress {
+      display: block;
+      height: 5px;
+      margin-top: 8px;
+      border-radius: 99px;
+      background: var(--surface-strong);
+      overflow: hidden;
+    }
+    .mini-progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width .35s ease;
+    }
+    .deck-foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+      color: var(--faint);
+      font-size: 11.5px;
+      font-variant-numeric: tabular-nums;
+    }
+    .side-foot {
+      border-top: 1px solid var(--line);
+      margin: 14px 0 0;
+      padding-top: 12px;
+      color: var(--faint);
+      font-size: 11.5px;
+      line-height: 1.6;
+    }
+    .side-empty { color: var(--faint); font-size: 12.5px; margin: 8px 2px; }
+
+    .study-panel {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 26px clamp(18px, 3vw, 34px) 28px;
+    }
+    .deck-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    .deck-title { min-width: 0; }
+    .deck-title h2 {
+      margin: 0;
+      font-size: clamp(22px, 2.4vw, 28px);
+      line-height: 1.3;
+      letter-spacing: -.01em;
+    }
+    .deck-desc {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+    .deck-meta {
+      margin: 7px 0 0;
+      color: var(--faint);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .deck-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      flex: none;
+    }
+    .ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 11px;
+      padding: 8px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: color .2s, border-color .2s, background .2s, transform .15s;
+    }
+    .ghost-btn:hover { color: var(--ink); border-color: var(--line-strong); background: var(--surface-soft); }
+    .ghost-btn:active { transform: translateY(1px); }
+
+    .session-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+    }
+    .session-count {
+      color: var(--muted);
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .progress-track {
+      flex: 1;
+      min-width: 110px;
+      height: 8px;
+      border-radius: 99px;
+      background: var(--surface-strong);
+      overflow: hidden;
+    }
+    .progress-track span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      transition: width .35s ease;
+    }
+    .session-tally {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: 1px;
+    }
+    .dot.known { background: var(--green); }
+    .dot.unknown { background: var(--red); }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+    .toggle .dot { margin: 0; background: var(--faint); transition: background .2s, box-shadow .2s; }
+    .toggle[aria-pressed="true"] {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .toggle[aria-pressed="true"] .dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(51, 93, 122, .16);
+    }
+
+    .stage { position: relative; margin: 2px 0 20px; perspective: 1600px; }
+    .stage-actions {
+      position: absolute;
+      top: 17px;
+      right: 17px;
+      z-index: 4;
+      display: flex;
+      gap: 8px;
+    }
+    .speak-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .speak-btn.is-speaking {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .flashcard {
+      position: relative;
+      width: 100%;
+      height: clamp(340px, 46vh, 420px);
+      border-radius: var(--radius-lg);
+      transform-style: preserve-3d;
+      transition: transform .55s cubic-bezier(.2, .7, .2, 1);
+      cursor: pointer;
+      outline-offset: 4px;
+    }
+    .flashcard.is-flipped { transform: rotateY(180deg); }
+    .face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 52px 40px 60px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+      overflow: auto;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .face::after {
+      content: "";
+      position: absolute;
+      inset: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      opacity: .55;
+      pointer-events: none;
+    }
+    .face.back {
+      transform: rotateY(180deg);
+      background: linear-gradient(155deg, var(--surface), var(--surface-soft));
+    }
+    .tag-badge {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      z-index: 2;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--amber-soft);
+      color: var(--amber);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    .word {
+      font-family: var(--serif);
+      font-size: clamp(44px, 6.4vw, 74px);
+      line-height: 1.06;
+      letter-spacing: -.01em;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .word.is-long { font-size: clamp(32px, 4.4vw, 54px); }
+    .word.word-small {
+      font-size: clamp(28px, 3.4vw, 40px);
+      color: var(--muted);
+    }
+    .phonetic {
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 14.5px;
+      letter-spacing: .01em;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .meaning {
+      max-width: 640px;
+      margin-top: 10px;
+      font-size: clamp(21px, 2.4vw, 28px);
+      font-weight: 650;
+      line-height: 1.45;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .example {
+      max-width: 560px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-family: var(--serif);
+      font-size: 16.5px;
+      font-style: italic;
+      line-height: 1.65;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .card-source {
+      position: absolute;
+      left: 24px;
+      bottom: 20px;
+      color: var(--faint);
+      font-size: 11.5px;
+      max-width: 40%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .flip-hint {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 20px;
+      text-align: center;
+      color: var(--faint);
+      font-size: 12px;
+      letter-spacing: .04em;
+      pointer-events: none;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(9px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stage.card-in { animation: card-in .32s ease; }
+
+    .study-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 52px;
+      padding: 12px 18px;
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 650;
+      box-shadow: var(--shadow-sm);
+      transition: background .2s, border-color .2s, color .2s, transform .15s, opacity .2s;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--ink); }
+    .btn:active:not(:disabled) { transform: translateY(1px) scale(.995); }
+    .btn:disabled { opacity: .42; cursor: not-allowed; box-shadow: none; }
+    .btn.rate.unknown:not(:disabled) {
+      border-color: var(--red);
+      background: var(--red-soft);
+      color: var(--red);
+    }
+    .btn.rate.known:not(:disabled) {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+    .btn.flip {
+      min-width: 180px;
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--surface);
+    }
+    .btn.primary {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--surface);
+    }
+    .key {
+      padding: 1px 5px;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      opacity: .5;
+    }
+    .keyboard-hint {
+      margin: 14px 0 0;
+      color: var(--faint);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    kbd {
+      padding: 2px 6px;
+      border: 1px solid var(--line-strong);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10.5px;
+    }
+
+    .finish-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 52px 16px 34px;
+      text-align: center;
+    }
+    .finish-mark {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--green);
+      border-radius: 50%;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+    .finish-mark svg { width: 30px; height: 30px; }
+    .finish-panel h3 { margin: 8px 0 0; font-size: 24px; }
+    .finish-panel p {
+      max-width: 480px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .finish-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .finish-actions .btn { min-height: 46px; font-size: 14px; }
+    .empty-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 54px 18px 40px;
+      text-align: center;
+    }
+    .empty-card h3 { margin: 6px 0 0; font-size: 21px; }
+    .empty-card p {
+      max-width: 440px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+    .empty-card .btn { margin-top: 14px; min-height: 46px; font-size: 14px; }
+
+    .view-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin: 22px 2px 16px;
+    }
+    .view-head h2 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3vw, 32px);
+      letter-spacing: -.01em;
+    }
+    .view-head p {
+      max-width: 680px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+    .view-head .btn { min-height: 46px; font-size: 14px; }
+    .wrong-summary {
+      margin: -4px 2px 12px;
+      color: var(--faint);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .wrong-list { display: flex; flex-direction: column; gap: 10px; }
+    .wrong-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .speak-small {
+      width: 38px;
+      height: 38px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      transition: color .2s, border-color .2s;
+    }
+    .speak-small:hover { color: var(--ink); border-color: var(--line-strong); }
+    .speak-small svg { width: 17px; height: 17px; }
+    .wrong-main { flex: 1; min-width: 0; }
+    .wrong-word {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      flex-wrap: wrap;
+      font-family: var(--serif);
+      font-size: 23px;
+      line-height: 1.3;
+    }
+    .wrong-word .phonetic { font-size: 12.5px; }
+    .tag-inline {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--amber-soft);
+      color: var(--amber);
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .wrong-meaning {
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+    .wrong-meta {
+      margin-top: 5px;
+      color: var(--faint);
+      font-size: 11.5px;
+      font-variant-numeric: tabular-nums;
+    }
+    .wrong-item .ghost-btn { flex: none; }
+    .wrong-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 60px 20px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      text-align: center;
+    }
+    .wrong-empty-mark {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--green);
+      border-radius: 50%;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+    .wrong-empty-mark svg { width: 26px; height: 26px; }
+    .wrong-empty h3 { margin: 6px 0 0; font-size: 20px; }
+    .wrong-empty p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .wrong-empty .btn { margin-top: 12px; min-height: 44px; font-size: 13.5px; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .stat {
+      padding: 17px 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-label { display: block; color: var(--muted); font-size: 12px; }
+    .stat strong {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 33px;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat em {
+      margin-left: 5px;
+      color: var(--faint);
+      font-size: 11.5px;
+      font-style: normal;
+    }
+    .stat.is-wrong strong { color: var(--red); }
+    .panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .panel {
+      min-width: 0;
+      padding: 20px 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .panel h3 { margin: 0 0 4px; font-size: 15px; }
+    .panel-sub { margin: 0 0 14px; color: var(--faint); font-size: 12px; line-height: 1.6; }
+    .week-chart {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+      height: 200px;
+    }
+    .day { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+    .day-count {
+      height: 16px;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+    .day-track {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .day-bar {
+      width: min(42px, 80%);
+      min-height: 4px;
+      border-radius: 8px 8px 3px 3px;
+      background: var(--accent-soft);
+      transition: height .35s ease;
+    }
+    .day.is-today .day-bar { background: var(--accent); }
+    .day.is-zero .day-bar { background: var(--surface-strong); }
+    .day-label {
+      margin-top: 8px;
+      color: var(--faint);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .day.is-today .day-label { color: var(--accent); font-weight: 600; }
+    .deck-progress { display: flex; flex-direction: column; gap: 3px; }
+    .deck-progress-item {
+      width: 100%;
+      display: block;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      text-align: left;
+      transition: background .2s;
+    }
+    .deck-progress-item:hover { background: var(--surface-soft); }
+    .deck-progress-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .deck-progress-name { font-weight: 600; overflow-wrap: anywhere; }
+    .deck-progress-num {
+      flex: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .panel-empty { padding: 22px 4px; color: var(--faint); font-size: 12.5px; line-height: 1.7; }
+    .panel-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
+    .danger-link {
+      padding: 4px;
+      border: 0;
+      background: none;
+      color: var(--faint);
+      font-size: 12px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .danger-link:hover { color: var(--red); }
+
+    .empty-page {
+      margin-top: 4px;
+      padding: 68px 24px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+    .empty-mark {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--accent);
+      border-radius: 20px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-family: var(--serif);
+      font-size: 30px;
+    }
+    .empty-page h2 { margin: 0 0 8px; font-size: 26px; }
+    .empty-page p {
+      max-width: 520px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+    .empty-page-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .empty-page-actions .btn { min-height: 46px; font-size: 14px; }
+
+    .app-foot {
+      margin-top: 28px;
+      color: var(--faint);
+      font-size: 11.5px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    dialog {
+      width: min(520px, calc(100vw - 28px));
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--shadow-lg);
+    }
+    dialog.wide { width: min(640px, calc(100vw - 28px)); }
+    dialog::backdrop {
+      background: rgba(24, 22, 18, .5);
+      backdrop-filter: blur(2px);
+    }
+    .dialog-body { padding: 26px 26px 22px; }
+    .dialog-body h3 { margin: 0 0 6px; font-size: 22px; }
+    .dialog-note {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .dialog-note code {
+      padding: 1px 5px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--surface-soft);
+      font-family: var(--mono);
+      font-size: 11.5px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .field textarea {
+      resize: vertical;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    .field input::placeholder, .field textarea::placeholder { color: var(--faint); }
+    .field input:focus, .field textarea:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: transparent;
+    }
+    .form-error { margin: 0 0 12px; color: var(--red); font-size: 12.5px; }
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .ghost, .primary {
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .ghost {
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--muted);
+    }
+    .ghost:hover { color: var(--ink); }
+    .primary {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--surface);
+    }
+    .primary:disabled { opacity: .42; cursor: not-allowed; }
+    .dialog-danger { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+
+    .import-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .file-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 11px;
+      background: var(--surface-soft);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .file-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .file-btn input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .file-name { color: var(--faint); font-size: 12px; overflow-wrap: anywhere; }
+    .import-preview {
+      min-height: 54px;
+      padding: 12px 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.65;
+    }
+    .import-preview p { margin: 0; }
+    .import-preview strong { color: var(--ink); }
+    .preview-sample { margin-top: 4px !important; color: var(--faint); }
+    .preview-error { color: var(--red) !important; }
+    .issue-list { margin: 7px 0 0; padding-left: 18px; }
+    .issue-list li { margin: 2px 0; }
+    .target-group {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin: 16px 0 0;
+      padding: 0;
+      border: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .target-group legend { margin-bottom: 8px; padding: 0; font-size: 13px; }
+    .target-group label { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .target-group input[type="radio"] { accent-color: var(--accent); }
+    .inline-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 100;
+      max-width: calc(100vw - 32px);
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--surface);
+      box-shadow: var(--shadow-md);
+      font-size: 13px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 16px);
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 980px) {
+      .app { width: calc(100% - 28px); }
+      .study-grid { grid-template-columns: 1fr; }
+      .sidebar { position: static; padding: 16px; }
+      .deck-list {
+        flex-direction: row;
+        max-height: none;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+      }
+      .deck-item { flex: 0 0 auto; width: 232px; min-width: 232px; }
+      .side-foot { margin-top: 10px; }
+      .panel-grid { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .face { padding: 48px 26px 56px; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar { gap: 12px; padding: 18px 0 16px; }
+      .brand-mark { width: 44px; height: 44px; border-radius: 13px; font-size: 19px; }
+      h1 { font-size: 16.5px; }
+      .brand-sub { display: none; }
+      .tabs { order: 3; width: 100%; margin-left: 0; justify-content: space-between; }
+      .tab { flex: 1; padding: 8px 10px; }
+      .topbar > .icon-btn { margin-left: auto; }
+      .study-panel { padding: 20px 16px 22px; border-radius: 20px; }
+      .deck-head { flex-direction: column; gap: 12px; }
+      .deck-actions { width: 100%; justify-content: flex-start; }
+      .flashcard { height: 360px; }
+      .study-controls { grid-template-columns: 1fr 1fr; }
+      .study-controls .btn.flip { grid-column: 1 / -1; grid-row: 1; min-height: 48px; }
+      .word { font-size: clamp(38px, 12vw, 64px); }
+      .word.is-long { font-size: clamp(27px, 8.6vw, 44px); }
+      .face { padding: 46px 20px 56px; }
+      .tag-badge { top: 16px; left: 18px; }
+      .stage-actions { top: 14px; right: 14px; }
+      .card-source { left: 18px; bottom: 18px; }
+      .wrong-item { flex-wrap: wrap; }
+      .wrong-item .ghost-btn { margin-left: auto; }
+      .wrong-word { font-size: 21px; }
+      .view-head { align-items: flex-start; margin-top: 14px; }
+      .view-head .btn { width: 100%; }
+      .stat strong { font-size: 29px; }
+      .panel { padding: 18px 16px; }
+      .week-chart { height: 180px; }
+      .dialog-body { padding: 22px 18px 18px; }
+    }
+
+    @media (max-width: 480px) {
+      .app { width: calc(100% - 22px); }
+      .session-top { gap: 10px; }
+      .session-tally { font-size: 11.5px; }
+      .meaning { font-size: 21px; }
+      .example { font-size: 15px; }
+      .stat-grid { gap: 8px; }
+      .stat { padding: 14px 15px; border-radius: 15px; }
+      .stat strong { font-size: 26px; }
+      .week-chart { height: 165px; gap: 5px; }
+      .day-bar { width: min(30px, 82%); }
+      .day-label { font-size: 10px; }
+      .wrong-item { padding: 13px 14px; }
+      .empty-page { padding: 48px 18px; }
+      .finish-panel { padding: 40px 8px 26px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">Aa</div>
+        <div class="brand-text">
+          <h1>单词闪卡 · 听写</h1>
+          <p class="brand-sub">翻卡记忆、错题复习、语音朗读与进度统计；数据只存本机浏览器</p>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="主导航">
+        <button class="tab is-active" type="button" data-view="study" aria-current="page">学习</button>
+        <button class="tab" type="button" data-view="wrong">错题本</button>
+        <button class="tab" type="button" data-view="progress">进度</button>
+      </nav>
+      <button class="icon-btn" type="button" id="themeBtn" aria-label="切换深色模式">
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"></path></svg>
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </header>
+
+    <main>
+      <section class="view" id="view-study" role="tabpanel" aria-label="学习">
+        <div class="empty-page" id="studyNoDecks" hidden>
+          <div class="empty-mark" aria-hidden="true">Aa</div>
+          <h2>还没有卡组</h2>
+          <p>先新建一个空卡组，再用 CSV 导入单词；也可以恢复模板自带的示例卡组，直接体验翻卡、错题本和进度统计。</p>
+          <div class="empty-page-actions">
+            <button class="btn primary" type="button" id="emptyNewDeck">新建卡组</button>
+            <button class="btn" type="button" id="restoreSamples">恢复示例卡组</button>
+          </div>
+        </div>
+
+        <div class="study-grid" id="studyGrid">
+          <aside class="sidebar">
+            <div class="side-head">
+              <h2>卡组</h2>
+              <button class="mini-btn" type="button" id="newDeckBtn">+ 新建</button>
+            </div>
+            <div class="deck-list" id="deckList"></div>
+            <p class="side-foot" id="sideFoot"></p>
+          </aside>
+
+          <section class="study-panel" id="studyPanel">
+            <header class="deck-head">
+              <div class="deck-title">
+                <h2 id="deckTitle">卡组</h2>
+                <p class="deck-desc" id="deckDesc"></p>
+                <p class="deck-meta" id="deckMeta"></p>
+              </div>
+              <div class="deck-actions" id="deckActions"></div>
+            </header>
+
+            <div class="session-top" id="sessionTop">
+              <span class="session-count" id="sessionCount">第 1 / 1 张</span>
+              <div class="progress-track" aria-hidden="true"><span id="sessionProgress"></span></div>
+              <div class="session-tally">
+                <span><i class="dot known"></i>认识 <span id="tallyKnown">0</span></span>
+                <span><i class="dot unknown"></i>不认识 <span id="tallyUnknown">0</span></span>
+              </div>
+              <button class="toggle" type="button" id="autoSpeakBtn" aria-pressed="false" title="每张新卡片出现时自动朗读单词">
+                <i class="dot" aria-hidden="true"></i>自动朗读
+              </button>
+            </div>
+
+            <div class="stage" id="stage">
+              <div class="stage-actions">
+                <button class="icon-btn speak-btn" type="button" id="speakBtn" aria-label="朗读单词">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 6a8 8 0 0 1 0 12"></path></svg>
+                </button>
+              </div>
+              <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="单词闪卡，点击翻面查看释义">
+                <div class="face front" id="cardFront"></div>
+                <div class="face back" id="cardBack" aria-hidden="true"></div>
+              </div>
+            </div>
+
+            <div class="study-controls" id="studyControls">
+              <button class="btn rate unknown" type="button" data-rate="unknown" disabled>
+                <span class="key">←</span> 不认识
+              </button>
+              <button class="btn flip" type="button" id="flipBtn">显示答案 <span class="key">空格</span></button>
+              <button class="btn rate known" type="button" data-rate="known" disabled>
+                认识 <span class="key">→</span>
+              </button>
+            </div>
+            <p class="keyboard-hint" id="keyboardHint">
+              <kbd>空格</kbd> 翻面 · <kbd>←</kbd> 不认识 · <kbd>→</kbd> 认识 · <kbd>S</kbd> 朗读
+            </p>
+
+            <div class="finish-panel" id="finishPanel" hidden></div>
+            <div class="empty-card" id="emptyDeck" hidden>
+              <h3>这个卡组还没有卡片</h3>
+              <p>用 CSV 导入一组单词，至少包含 <strong>word</strong> 和 <strong>meaning</strong> 两列；也可以先用示例卡组练习。</p>
+              <button class="btn primary" type="button" data-action="import">导入 CSV</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-wrong" role="tabpanel" aria-label="错题本" hidden>
+        <header class="view-head">
+          <div>
+            <h2>错题本</h2>
+            <p>学习时标记「不认识」的卡片会自动集中到这里。复习时标记「认识」，或手动点「标记已掌握」，它就会移出。</p>
+          </div>
+          <button class="btn" type="button" id="reviewWrongBtn">复习全部错题</button>
+        </header>
+        <p class="wrong-summary" id="wrongMeta"></p>
+        <div class="wrong-list" id="wrongList"></div>
+      </section>
+
+      <section class="view" id="view-progress" role="tabpanel" aria-label="进度" hidden>
+        <header class="view-head">
+          <div>
+            <h2>学习进度</h2>
+            <p>只统计这台电脑、这个浏览器里的学习记录。换设备或清空浏览器数据后，进度不会自动同步。</p>
+          </div>
+        </header>
+        <div class="stat-grid">
+          <div class="stat">
+            <span class="stat-label">今日学习</span>
+            <strong id="statToday">0</strong><em>张次</em>
+          </div>
+          <div class="stat">
+            <span class="stat-label">已掌握</span>
+            <strong id="statMastered">0</strong><em id="statTotal">/ 0 张</em>
+          </div>
+          <div class="stat is-wrong">
+            <span class="stat-label">错题待复习</span>
+            <strong id="statWrong">0</strong><em>张</em>
+          </div>
+          <div class="stat">
+            <span class="stat-label">累计学习</span>
+            <strong id="statReviewed">0</strong><em>张次</em>
+          </div>
+        </div>
+        <div class="panel-grid">
+          <section class="panel">
+            <h3>近 7 天学习</h3>
+            <p class="panel-sub">按评分次数统计；一张卡评一次记 1 张次。</p>
+            <div class="week-chart" id="weekChart"></div>
+          </section>
+          <section class="panel">
+            <h3>卡组进度</h3>
+            <p class="panel-sub">点一个卡组即可回到学习页。</p>
+            <div class="deck-progress" id="deckProgress"></div>
+          </section>
+        </div>
+        <div class="panel-foot">
+          <button class="danger-link" type="button" id="resetProgressBtn">清空全部学习记录</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-foot">
+      成都大学第八届网络创新大赛 · AI 创作挑战赛 新手模板 · 数据只保存在本机浏览器
+    </footer>
+  </div>
+
+  <dialog id="deckDialog">
+    <div class="dialog-body">
+      <h3 id="deckDialogTitle">新建卡组</h3>
+      <label class="field">卡组名称
+        <input id="deckNameInput" maxlength="24" autocomplete="off" placeholder="例如：期末复习词汇">
+      </label>
+      <label class="field">一句话说明（可选）
+        <input id="deckDescInput" maxlength="60" autocomplete="off" placeholder="这组卡片用来做什么">
+      </label>
+      <p class="form-error" id="deckError" hidden></p>
+      <div class="dialog-actions">
+        <button class="ghost" type="button" data-close>取消</button>
+        <button class="primary" type="button" id="deckSaveBtn">创建</button>
+      </div>
+      <div class="dialog-danger" id="deckDeleteRow" hidden>
+        <button class="danger-link" type="button" id="deckDeleteBtn">删除这个卡组</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="importDialog" class="wide">
+    <div class="dialog-body">
+      <h3>导入 CSV</h3>
+      <p class="dialog-note">
+        至少包含 <code>word</code> 和 <code>meaning</code> 两列；也支持中文表头：单词 / 音标 / 释义 / 例句 / 标签。
+        文件请保存为 UTF-8 或 GBK 编码的 CSV。
+      </p>
+      <div class="import-row">
+        <label class="file-btn">选择 CSV 文件
+          <input type="file" id="csvFile" accept=".csv,text/csv">
+        </label>
+        <span class="file-name" id="csvFileName">未选择文件</span>
+      </div>
+      <label class="field">或直接粘贴 CSV 内容
+        <textarea id="csvText" rows="6" spellcheck="false" placeholder="word,phonetic,meaning,example,tag&#10;apple,/ˈæpl/,n. 苹果,An apple a day keeps the doctor away.,名词"></textarea>
+      </label>
+      <div class="import-preview" id="importPreview" aria-live="polite">选择文件或粘贴内容后，这里会显示识别结果。</div>
+      <fieldset class="target-group">
+        <legend>导入到</legend>
+        <label><input type="radio" name="importTarget" value="current" checked> 当前卡组：<span id="importTargetName"></span></label>
+        <label><input type="radio" name="importTarget" value="new"> 新建卡组</label>
+        <input class="inline-input" id="newDeckName" maxlength="24" autocomplete="off" placeholder="新卡组名称" hidden>
+      </fieldset>
+      <div class="dialog-actions">
+        <button class="ghost" type="button" data-close>取消</button>
+        <button class="primary" type="button" id="importConfirm" disabled>导入</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="confirmDialog">
+    <div class="dialog-body">
+      <h3>请确认</h3>
+      <p class="dialog-note" id="confirmText"></p>
+      <div class="dialog-actions">
+        <button class="ghost" type="button" id="confirmCancel">取消</button>
+        <button class="primary" type="button" id="confirmOk">确认</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'cdu-flashcards-v1';
+      const CSV_COLUMNS = ['word', 'phonetic', 'meaning', 'example', 'tag'];
+      const SPEECH_LANG = 'en-US';
+      const SPEECH_RATE = 0.95;
+      const HISTORY_LIMIT = 90;
+
+      const SAMPLE_DATA = [
+        {
+          id: 'deck-cet4',
+          name: '四级核心词汇',
+          desc: '高频动词与名词，先拿这一组练手。',
+          cards: [
+            { id: 'cet4-01', word: 'abandon', phonetic: '/əˈbændən/', meaning: 'v. 放弃；抛弃', example: 'He had to abandon the plan because of the storm.', tag: '动词' },
+            { id: 'cet4-02', word: 'accurate', phonetic: '/ˈækjərət/', meaning: 'adj. 准确的；精确的', example: 'The report gives an accurate picture of the problem.', tag: '形容词' },
+            { id: 'cet4-03', word: 'benefit', phonetic: '/ˈbenɪfɪt/', meaning: 'n. 好处；益处 v. 使受益', example: 'Reading regularly has many benefits.', tag: '名词' },
+            { id: 'cet4-04', word: 'cautious', phonetic: '/ˈkɔːʃəs/', meaning: 'adj. 谨慎的', example: 'Be cautious when you share personal information online.', tag: '形容词' },
+            { id: 'cet4-05', word: 'emphasize', phonetic: '/ˈemfəsaɪz/', meaning: 'v. 强调', example: 'The teacher emphasized the importance of practice.', tag: '动词' },
+            { id: 'cet4-06', word: 'frequently', phonetic: '/ˈfriːkwəntli/', meaning: 'adv. 频繁地', example: 'She frequently studies in the library after class.', tag: '副词' },
+            { id: 'cet4-07', word: 'genuine', phonetic: '/ˈdʒenjuɪn/', meaning: 'adj. 真正的；真诚的', example: 'He showed genuine interest in the project.', tag: '形容词' },
+            { id: 'cet4-08', word: 'impact', phonetic: '/ˈɪmpækt/', meaning: 'n. 影响 v. 产生影响', example: 'Small habits can have a big impact on your grades.', tag: '名词' },
+            { id: 'cet4-09', word: 'maintain', phonetic: '/meɪnˈteɪn/', meaning: 'v. 维持；保养', example: 'It is hard to maintain focus for three hours.', tag: '动词' },
+            { id: 'cet4-10', word: 'opportunity', phonetic: '/ˌɒpəˈtjuːnəti/', meaning: 'n. 机会', example: 'The contest is a good opportunity to try new tools.', tag: '名词' },
+            { id: 'cet4-11', word: 'reluctant', phonetic: '/rɪˈlʌktənt/', meaning: 'adj. 不情愿的', example: 'He was reluctant to ask for help at first.', tag: '形容词' },
+            { id: 'cet4-12', word: 'significant', phonetic: '/sɪɡˈnɪfɪkənt/', meaning: 'adj. 重大的；显著的', example: 'There is a significant difference between the two results.', tag: '形容词' }
+          ]
+        },
+        {
+          id: 'deck-cs',
+          name: '计算机英语',
+          desc: '读文档、看报错时最常见的词。',
+          cards: [
+            { id: 'cs-01', word: 'algorithm', phonetic: '/ˈælɡərɪðəm/', meaning: 'n. 算法', example: 'This algorithm finds the shortest route.', tag: '名词' },
+            { id: 'cs-02', word: 'bug', phonetic: '/bʌɡ/', meaning: 'n. 程序错误；漏洞', example: 'We fixed a bug in the login page.', tag: '名词' },
+            { id: 'cs-03', word: 'deploy', phonetic: '/dɪˈplɔɪ/', meaning: 'v. 部署', example: 'The team will deploy the new version tonight.', tag: '动词' },
+            { id: 'cs-04', word: 'feature', phonetic: '/ˈfiːtʃə(r)/', meaning: 'n. 功能；特性', example: 'Dark mode is my favorite feature.', tag: '名词' },
+            { id: 'cs-05', word: 'input', phonetic: '/ˈɪnpʊt/', meaning: 'n. 输入', example: 'Check the input before running the program.', tag: '名词' },
+            { id: 'cs-06', word: 'library', phonetic: '/ˈlaɪbrəri/', meaning: 'n. 库；代码库', example: 'The chart is drawn with a small JavaScript library.', tag: '名词' },
+            { id: 'cs-07', word: 'render', phonetic: '/ˈrendə(r)/', meaning: 'v. 渲染', example: 'The page needs to render on small screens.', tag: '动词' },
+            { id: 'cs-08', word: 'syntax', phonetic: '/ˈsɪntæks/', meaning: 'n. 语法', example: 'One missing comma can break the syntax.', tag: '名词' },
+            { id: 'cs-09', word: 'variable', phonetic: '/ˈveəriəbl/', meaning: 'n. 变量', example: 'Store the score in a variable.', tag: '名词' },
+            { id: 'cs-10', word: 'version', phonetic: '/ˈvɜːʃn/', meaning: 'n. 版本', example: 'Keep a copy of the old version.', tag: '名词' }
+          ]
+        },
+        {
+          id: 'deck-daily',
+          name: '日常口语',
+          desc: '宿舍、课堂、食堂都能用上的短语。',
+          cards: [
+            { id: 'daily-01', word: 'grab a bite', phonetic: '/ɡræb ə baɪt/', meaning: '随便吃点东西', example: 'Let’s grab a bite before the meeting.', tag: '短语' },
+            { id: 'daily-02', word: 'hang out', phonetic: '/hæŋ aʊt/', meaning: '一起玩；闲逛', example: 'We usually hang out near the lake on weekends.', tag: '短语' },
+            { id: 'daily-03', word: 'run out of', phonetic: '/rʌn aʊt əv/', meaning: '用完；耗尽', example: 'I ran out of time on the last question.', tag: '短语' },
+            { id: 'daily-04', word: 'catch up', phonetic: '/kætʃ ʌp/', meaning: '赶上；叙旧', example: 'Let’s meet tomorrow and catch up.', tag: '短语' },
+            { id: 'daily-05', word: 'figure out', phonetic: '/ˈfɪɡə(r) aʊt/', meaning: '弄明白', example: 'I finally figured out why the page was blank.', tag: '短语' },
+            { id: 'daily-06', word: 'give it a shot', phonetic: '/ɡɪv ɪt ə ʃɒt/', meaning: '试一试', example: 'Give it a shot before you say no.', tag: '短语' },
+            { id: 'daily-07', word: 'on the way', phonetic: '/ɒn ðə weɪ/', meaning: '在路上', example: 'I’m on the way to the library.', tag: '短语' },
+            { id: 'daily-08', word: 'take a break', phonetic: '/teɪk ə breɪk/', meaning: '休息一下', example: 'Take a break every 25 minutes.', tag: '短语' },
+            { id: 'daily-09', word: 'show up', phonetic: '/ʃəʊ ʌp/', meaning: '出现；到场', example: 'Only half of the team showed up.', tag: '短语' },
+            { id: 'daily-10', word: 'in charge of', phonetic: '/ɪn tʃɑːdʒ əv/', meaning: '负责', example: 'She is in charge of the schedule.', tag: '短语' }
+          ]
+        }
+      ];
+
+      const $ = (selector, root) => (root || document).querySelector(selector);
+      const $$ = (selector, root) => Array.from((root || document).querySelectorAll(selector));
+
+      let idCounter = 0;
+      function uid(prefix) {
+        idCounter += 1;
+        return `${prefix}-${Date.now().toString(36)}-${idCounter.toString(36)}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, (ch) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+      }
+
+      function dayKey(date) {
+        const d = date || new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+
+      function lastNDays(n) {
+        const today = new Date();
+        const list = [];
+        for (let i = n - 1; i >= 0; i -= 1) {
+          const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+          list.push({ key: dayKey(d), date: d });
+        }
+        return list;
+      }
+
+      function formatShortDate(timestamp) {
+        if (!timestamp) return '—';
+        const d = new Date(timestamp);
+        if (Number.isNaN(d.getTime())) return '—';
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      }
+
+      function shuffle(list) {
+        const arr = list.slice();
+        for (let i = arr.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = temp;
+        }
+        return arr;
+      }
+
+      function clip(value, max) {
+        return String(value == null ? '' : value).trim().slice(0, max);
+      }
+
+      function createSampleDecks() {
+        return JSON.parse(JSON.stringify(SAMPLE_DATA));
+      }
+
+      function defaultState() {
+        const decks = createSampleDecks();
+        return {
+          version: 1,
+          theme: 'light',
+          decks,
+          currentDeckId: decks[0].id,
+          records: {},
+          history: {},
+          settings: { autoSpeak: false }
+        };
+      }
+
+      function loadState() {
+        let raw;
+        try {
+          raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        } catch (error) {
+          return null;
+        }
+        if (!raw || typeof raw !== 'object' || !Array.isArray(raw.decks)) return null;
+
+        const decks = [];
+        raw.decks.forEach((deck) => {
+          if (!deck || typeof deck !== 'object' || typeof deck.name !== 'string' || !Array.isArray(deck.cards)) return;
+          const cards = [];
+          deck.cards.forEach((card) => {
+            if (!card || typeof card.word !== 'string' || typeof card.meaning !== 'string') return;
+            if (!card.word.trim()) return;
+            cards.push({
+              id: typeof card.id === 'string' && card.id ? card.id : uid('card'),
+              word: card.word.trim().slice(0, 80),
+              phonetic: clip(card.phonetic, 80),
+              meaning: card.meaning.trim().slice(0, 200),
+              example: clip(card.example, 300),
+              tag: clip(card.tag, 20)
+            });
+          });
+          decks.push({
+            id: typeof deck.id === 'string' && deck.id ? deck.id : uid('deck'),
+            name: deck.name.trim().slice(0, 24) || '未命名卡组',
+            desc: clip(deck.desc, 60),
+            cards
+          });
+        });
+
+        const records = raw.records && typeof raw.records === 'object' ? raw.records : {};
+        const history = {};
+        if (raw.history && typeof raw.history === 'object') {
+          Object.entries(raw.history).forEach(([key, value]) => {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || !value || typeof value !== 'object') return;
+            history[key] = {
+              reviewed: Number(value.reviewed) || 0,
+              known: Number(value.known) || 0,
+              unknown: Number(value.unknown) || 0
+            };
+          });
+        }
+
+        let currentDeckId = typeof raw.currentDeckId === 'string' ? raw.currentDeckId : '';
+        if (!decks.some((deck) => deck.id === currentDeckId)) currentDeckId = decks[0] ? decks[0].id : null;
+
+        return {
+          version: 1,
+          theme: raw.theme === 'dark' ? 'dark' : 'light',
+          decks,
+          currentDeckId,
+          records,
+          history,
+          settings: { autoSpeak: Boolean(raw.settings && raw.settings.autoSpeak) }
+        };
+      }
+
+      const loadedState = loadState();
+      let state = loadedState || defaultState();
+      let session = null;
+      let editingDeckId = null;
+      let pendingConfirm = null;
+      let importParsed = null;
+      let toastTimer = null;
+      let storageWarned = false;
+
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+          if (!storageWarned) {
+            storageWarned = true;
+            toast('无法写入本地存储，刷新后数据可能丢失');
+          }
+        }
+      }
+
+      if (!loadedState) save();
+
+      function getDeck(deckId) {
+        return state.decks.find((deck) => deck.id === deckId) || null;
+      }
+
+      function findEntry(cardId) {
+        for (const deck of state.decks) {
+          const card = deck.cards.find((item) => item.id === cardId);
+          if (card) return { deck, card };
+        }
+        return null;
+      }
+
+      function deckStats(deck) {
+        let mastered = 0;
+        let wrong = 0;
+        deck.cards.forEach((card) => {
+          const record = state.records[card.id];
+          if (!record) return;
+          if (record.last === 'known') mastered += 1;
+          else if (record.last === 'unknown') wrong += 1;
+        });
+        return { total: deck.cards.length, mastered, wrong };
+      }
+
+      function wrongEntries() {
+        const list = [];
+        state.decks.forEach((deck) => {
+          deck.cards.forEach((card) => {
+            const record = state.records[card.id];
+            if (record && record.last === 'unknown') {
+              list.push({ deck, card, record });
+            }
+          });
+        });
+        return list.sort((a, b) => (b.record.lastAt || 0) - (a.record.lastAt || 0));
+      }
+
+      function summarize() {
+        let total = 0;
+        let mastered = 0;
+        let wrong = 0;
+        state.decks.forEach((deck) => {
+          const stats = deckStats(deck);
+          total += stats.total;
+          mastered += stats.mastered;
+          wrong += stats.wrong;
+        });
+        const today = state.history[dayKey()] ? state.history[dayKey()].reviewed : 0;
+        const reviewed = Object.values(state.history).reduce((sum, item) => sum + (Number(item.reviewed) || 0), 0);
+        return { total, mastered, wrong, today, reviewed };
+      }
+
+      function currentEntry() {
+        if (!session || session.finished) return null;
+        const cardId = session.queue[session.index];
+        return cardId ? findEntry(cardId) : null;
+      }
+
+      function pruneHistory() {
+        const keys = Object.keys(state.history).sort();
+        while (keys.length > HISTORY_LIMIT) {
+          delete state.history[keys.shift()];
+        }
+      }
+
+      function toast(message) {
+        const el = $('#toast');
+        el.textContent = message;
+        el.classList.add('is-show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('is-show'), 2200);
+      }
+
+      function applyTheme() {
+        document.documentElement.dataset.theme = state.theme;
+        const btn = $('#themeBtn');
+        btn.setAttribute('aria-label', state.theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+      }
+
+      function syncAutoSpeak() {
+        const btn = $('#autoSpeakBtn');
+        const on = Boolean(state.settings.autoSpeak);
+        btn.setAttribute('aria-pressed', String(on));
+        btn.title = on ? '已开启：每张新卡片自动朗读' : '每张新卡片出现时自动朗读单词';
+      }
+
+      function startDeckSession(deckId) {
+        const deck = getDeck(deckId);
+        const ids = deck ? deck.cards.map((card) => card.id) : [];
+        session = {
+          mode: 'deck',
+          deckId,
+          queue: shuffle(ids),
+          index: 0,
+          flipped: false,
+          known: 0,
+          unknown: 0,
+          finished: ids.length === 0
+        };
+      }
+
+      function startWrongSession() {
+        const entries = wrongEntries();
+        if (!entries.length) {
+          toast('错题本是空的');
+          return;
+        }
+        session = {
+          mode: 'wrong',
+          deckId: state.currentDeckId,
+          queue: entries.map((entry) => entry.card.id),
+          index: 0,
+          flipped: false,
+          known: 0,
+          unknown: 0,
+          finished: false
+        };
+        switchView('study');
+      }
+
+      function restartSession() {
+        if (!session) return;
+        if (session.mode === 'wrong') {
+          startWrongSession();
+          return;
+        }
+        session = null;
+        renderAll();
+      }
+
+      function exitWrongSession() {
+        session = null;
+        switchView('study');
+      }
+
+      function selectDeck(deckId) {
+        if (!getDeck(deckId)) return;
+        state.currentDeckId = deckId;
+        session = null;
+        save();
+        switchView('study');
+      }
+
+      function switchView(view) {
+        state.view = view;
+        renderAll();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderTabs() {
+        $$('.tab').forEach((tab) => {
+          const active = tab.dataset.view === state.view;
+          tab.classList.toggle('is-active', active);
+          if (active) tab.setAttribute('aria-current', 'page');
+          else tab.removeAttribute('aria-current');
+        });
+        $('#view-study').hidden = state.view !== 'study';
+        $('#view-wrong').hidden = state.view !== 'wrong';
+        $('#view-progress').hidden = state.view !== 'progress';
+      }
+
+      function renderDeckList() {
+        const list = $('#deckList');
+        if (!state.decks.length) {
+          list.innerHTML = '<p class="side-empty">还没有卡组。</p>';
+          $('#sideFoot').textContent = '';
+          return;
+        }
+        list.innerHTML = state.decks.map((deck) => {
+          const stats = deckStats(deck);
+          const percent = stats.total ? Math.round((stats.mastered / stats.total) * 100) : 0;
+          const active = deck.id === state.currentDeckId ? ' is-active' : '';
+          return `<button class="deck-item${active}" type="button" data-deck-id="${escapeHtml(deck.id)}">
+            <span class="deck-top">
+              <span class="deck-name">${escapeHtml(deck.name)}</span>
+              ${stats.wrong ? `<span class="deck-wrong">错题 ${stats.wrong}</span>` : ''}
+            </span>
+            <span class="mini-progress" aria-hidden="true"><span style="width:${percent}%"></span></span>
+            <span class="deck-foot"><span>已掌握 ${stats.mastered} / ${stats.total}</span><span>${percent}%</span></span>
+          </button>`;
+        }).join('');
+        const totalCards = state.decks.reduce((sum, deck) => sum + deck.cards.length, 0);
+        $('#sideFoot').textContent = `共 ${state.decks.length} 个卡组 · ${totalCards} 张卡片`;
+      }
+
+      function renderCard(entry) {
+        const card = entry.card;
+        const deck = entry.deck;
+        const longClass = card.word.length > 14 ? ' is-long' : '';
+        const source = session.mode === 'wrong' ? `<div class="card-source">${escapeHtml(deck.name)}</div>` : '';
+        $('#cardFront').innerHTML = `
+          ${card.tag ? `<span class="tag-badge">${escapeHtml(card.tag)}</span>` : ''}
+          <div class="word${longClass}">${escapeHtml(card.word)}</div>
+          ${card.phonetic ? `<div class="phonetic">${escapeHtml(card.phonetic)}</div>` : ''}
+          ${source}
+          <div class="flip-hint">点击卡片或按空格翻面</div>`;
+        $('#cardBack').innerHTML = `
+          ${card.tag ? `<span class="tag-badge">${escapeHtml(card.tag)}</span>` : ''}
+          <div class="word word-small">${escapeHtml(card.word)}</div>
+          ${card.phonetic ? `<div class="phonetic">${escapeHtml(card.phonetic)}</div>` : ''}
+          <div class="meaning">${escapeHtml(card.meaning)}</div>
+          ${card.example ? `<p class="example">${escapeHtml(card.example)}</p>` : ''}
+          ${source}
+          <div class="flip-hint">按 ← 不认识 · 按 → 认识</div>`;
+        $('#flashcard').setAttribute('aria-label', `${card.word}，点击翻面查看释义`);
+        const speakBtn = $('#speakBtn');
+        speakBtn.setAttribute('aria-label', `朗读 ${card.word}`);
+        setFlipped(Boolean(session.flipped));
+      }
+
+      function setFlipped(flipped) {
+        if (!session) return;
+        session.flipped = flipped;
+        const cardEl = $('#flashcard');
+        cardEl.classList.toggle('is-flipped', flipped);
+        cardEl.setAttribute('aria-pressed', String(flipped));
+        $('#cardFront').setAttribute('aria-hidden', String(flipped));
+        $('#cardBack').setAttribute('aria-hidden', String(!flipped));
+        $$('[data-rate]').forEach((btn) => { btn.disabled = !flipped; });
+        $('#flipBtn').innerHTML = flipped ? '翻回正面 <span class="key">空格</span>' : '显示答案 <span class="key">空格</span>';
+      }
+
+      function toggleFlip() {
+        if (!session || session.finished || $('#stage').hidden) return;
+        if (!currentEntry()) return;
+        setFlipped(!session.flipped);
+      }
+
+      function renderFinishPanel() {
+        const wrongMode = session.mode === 'wrong';
+        const wrongCount = wrongEntries().length;
+        const canRetryWrong = wrongMode && wrongCount > 0;
+        const primary = wrongMode
+          ? (canRetryWrong ? '<button class="btn primary" type="button" data-action="restart">再复习错题</button>' : '')
+          : '<button class="btn primary" type="button" data-action="restart">再学一轮</button>';
+        let secondary = '';
+        if (wrongMode) {
+          secondary = '<button class="btn" type="button" data-action="exit-wrong">回到卡组</button>';
+        } else if (wrongCount) {
+          secondary = `<button class="btn" type="button" data-action="go-wrong">查看错题（${wrongCount}）</button>`;
+        } else {
+          secondary = '<button class="btn" type="button" data-action="go-progress">查看进度</button>';
+        }
+        $('#finishPanel').innerHTML = `
+          <div class="finish-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg></div>
+          <h3>${wrongMode ? '错题复习完成' : '本轮完成'}</h3>
+          <p>本轮 ${session.queue.length} 张：认识 ${session.known} 张，不认识 ${session.unknown} 张。${wrongMode && wrongCount ? '还有错题没掌握，可以再复习一轮。' : ''}</p>
+          <div class="finish-actions">${primary}${secondary}</div>`;
+      }
+
+      function renderStudy() {
+        const hasDecks = state.decks.length > 0;
+        $('#studyNoDecks').hidden = hasDecks;
+        $('#studyGrid').hidden = !hasDecks;
+        if (!hasDecks) {
+          session = null;
+          return;
+        }
+
+        if (!getDeck(state.currentDeckId)) state.currentDeckId = state.decks[0].id;
+        if (!session) {
+          startDeckSession(state.currentDeckId);
+        } else if (session.mode === 'deck' && !getDeck(session.deckId)) {
+          startDeckSession(state.currentDeckId);
+        }
+
+        const wrongMode = session.mode === 'wrong';
+        const deck = getDeck(state.currentDeckId);
+        const stats = deckStats(deck);
+        const wrongCount = wrongEntries().length;
+
+        $('#deckTitle').textContent = wrongMode ? '错题复习' : deck.name;
+        $('#deckDesc').textContent = wrongMode
+          ? '从错题本抽出的混合卡组；标记「认识」后会移出错题本。'
+          : (deck.desc || '还没有填写卡组说明。');
+        if (wrongMode) {
+          const sourceDecks = new Set(session.queue.map((id) => {
+            const entry = findEntry(id);
+            return entry ? entry.deck.id : null;
+          }).filter(Boolean)).size;
+          $('#deckMeta').textContent = `来自 ${sourceDecks} 个卡组 · 共 ${session.queue.length} 张错题`;
+        } else {
+          $('#deckMeta').textContent = `共 ${deck.cards.length} 张 · 已掌握 ${stats.mastered} · 错题 ${stats.wrong}`;
+        }
+
+        $('#deckActions').innerHTML = wrongMode
+          ? '<button class="ghost-btn" type="button" data-action="exit-wrong">回到卡组</button>'
+          : `<button class="ghost-btn" type="button" data-action="import">导入 CSV</button>
+             <button class="ghost-btn" type="button" data-action="export">导出 CSV</button>
+             <button class="ghost-btn" type="button" data-action="edit">卡组设置</button>`;
+
+        const deckEmpty = !wrongMode && deck.cards.length === 0;
+        const finished = session.finished;
+        const showCard = !deckEmpty && !finished;
+
+        $('#sessionTop').hidden = deckEmpty;
+        $('#stage').hidden = !showCard;
+        $('#studyControls').hidden = !showCard;
+        $('#keyboardHint').hidden = !showCard;
+        $('#finishPanel').hidden = deckEmpty || !finished;
+        $('#emptyDeck').hidden = !deckEmpty;
+
+        if (!deckEmpty) {
+          const total = session.queue.length;
+          const done = Math.min(session.index, total);
+          $('#sessionCount').textContent = finished ? `本轮 ${total} 张` : `第 ${session.index + 1} / ${total} 张`;
+          $('#sessionProgress').style.width = `${total ? Math.round((done / total) * 100) : 0}%`;
+          $('#tallyKnown').textContent = String(session.known);
+          $('#tallyUnknown').textContent = String(session.unknown);
+        }
+
+        if (finished && !deckEmpty) renderFinishPanel();
+
+        if (showCard) {
+          const entry = currentEntry();
+          if (entry) renderCard(entry);
+        }
+        syncAutoSpeak();
+      }
+
+      function renderWrong() {
+        const entries = wrongEntries();
+        $('#reviewWrongBtn').disabled = entries.length === 0;
+        if (!entries.length) {
+          $('#wrongMeta').textContent = '';
+          $('#wrongList').innerHTML = `
+            <div class="wrong-empty">
+              <div class="wrong-empty-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg></div>
+              <h3>错题本是空的</h3>
+              <p>学习时点「不认识」的卡片会自动来到这里；复习时标记「认识」即可移出。</p>
+              <button class="btn" type="button" data-go="study">去学习</button>
+            </div>`;
+          return;
+        }
+        const sourceDecks = new Set(entries.map((entry) => entry.deck.id)).size;
+        $('#wrongMeta').textContent = `共 ${entries.length} 张 · 覆盖 ${sourceDecks} 个卡组`;
+        $('#wrongList').innerHTML = entries.map((entry) => {
+          const card = entry.card;
+          const record = entry.record;
+          return `<article class="wrong-item">
+            <button class="speak-small" type="button" data-speak-id="${escapeHtml(card.id)}" aria-label="朗读 ${escapeHtml(card.word)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"></path><path d="M16.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 6a8 8 0 0 1 0 12"></path></svg>
+            </button>
+            <div class="wrong-main">
+              <div class="wrong-word">${escapeHtml(card.word)}
+                ${card.phonetic ? `<span class="phonetic">${escapeHtml(card.phonetic)}</span>` : ''}
+                ${card.tag ? `<span class="tag-inline">${escapeHtml(card.tag)}</span>` : ''}
+              </div>
+              <div class="wrong-meaning">${escapeHtml(card.meaning)}</div>
+              <div class="wrong-meta">${escapeHtml(entry.deck.name)} · 错了 ${record.unknown || 1} 次 · 最近 ${formatShortDate(record.lastAt)}</div>
+            </div>
+            <button class="ghost-btn" type="button" data-master-id="${escapeHtml(card.id)}">标记已掌握</button>
+          </article>`;
+        }).join('');
+      }
+
+      function renderProgress() {
+        const summary = summarize();
+        $('#statToday').textContent = String(summary.today);
+        $('#statMastered').textContent = String(summary.mastered);
+        $('#statTotal').textContent = `/ ${summary.total} 张`;
+        $('#statWrong').textContent = String(summary.wrong);
+        $('#statReviewed').textContent = String(summary.reviewed);
+
+        const days = lastNDays(7);
+        const values = days.map((day) => {
+          const item = state.history[day.key];
+          return item ? item.reviewed : 0;
+        });
+        const max = Math.max(1, ...values);
+        $('#weekChart').innerHTML = days.map((day, index) => {
+          const value = values[index];
+          const percent = value ? Math.max(6, Math.round((value / max) * 100)) : 0;
+          const today = index === days.length - 1;
+          const label = today ? '今天' : ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][day.date.getDay()];
+          return `<div class="day${today ? ' is-today' : ''}${value ? '' : ' is-zero'}" title="${day.key}：${value} 张次">
+            <span class="day-count">${value}</span>
+            <div class="day-track"><div class="day-bar" style="height:${percent}%"></div></div>
+            <span class="day-label">${label}</span>
+          </div>`;
+        }).join('');
+
+        if (!state.decks.length) {
+          $('#deckProgress').innerHTML = '<p class="panel-empty">还没有卡组。新建一个卡组后，这里会显示每个卡组的掌握情况。</p>';
+          return;
+        }
+        $('#deckProgress').innerHTML = state.decks.map((deck) => {
+          const stats = deckStats(deck);
+          const percent = stats.total ? Math.round((stats.mastered / stats.total) * 100) : 0;
+          return `<button class="deck-progress-item" type="button" data-deck-id="${escapeHtml(deck.id)}">
+            <span class="deck-progress-top">
+              <span class="deck-progress-name">${escapeHtml(deck.name)}</span>
+              <span class="deck-progress-num">${stats.mastered} / ${stats.total} · ${percent}%</span>
+            </span>
+            <span class="mini-progress" aria-hidden="true"><span style="width:${percent}%"></span></span>
+          </button>`;
+        }).join('');
+      }
+
+      function renderAll() {
+        applyTheme();
+        renderTabs();
+        renderDeckList();
+        renderStudy();
+        renderWrong();
+        renderProgress();
+      }
+
+      function rateCard(result) {
+        if (!session || session.finished || !session.flipped) return;
+        const entry = currentEntry();
+        if (!entry) return;
+        const card = entry.card;
+        const now = Date.now();
+        const record = Object.assign({ seen: 0, known: 0, unknown: 0, last: '', lastAt: 0 }, state.records[card.id] || {});
+        record.seen = (Number(record.seen) || 0) + 1;
+        record[result] = (Number(record[result]) || 0) + 1;
+        record.last = result;
+        record.lastAt = now;
+        state.records[card.id] = record;
+
+        const key = dayKey();
+        const day = Object.assign({ reviewed: 0, known: 0, unknown: 0 }, state.history[key] || {});
+        day.reviewed = (Number(day.reviewed) || 0) + 1;
+        day[result] = (Number(day[result]) || 0) + 1;
+        state.history[key] = day;
+        pruneHistory();
+
+        session[result] = (Number(session[result]) || 0) + 1;
+        session.index += 1;
+        session.flipped = false;
+        if (session.index >= session.queue.length) session.finished = true;
+
+        save();
+        renderAll();
+
+        if (!session.finished) {
+          const stage = $('#stage');
+          stage.classList.remove('card-in');
+          void stage.offsetWidth;
+          stage.classList.add('card-in');
+          $('#flashcard').focus({ preventScroll: true });
+          if (state.settings.autoSpeak) speakCurrent();
+        }
+      }
+
+      function markMastered(cardId) {
+        const entry = findEntry(cardId);
+        if (!entry) return;
+        const record = Object.assign({ seen: 0, known: 0, unknown: 0, last: '', lastAt: 0 }, state.records[cardId] || {});
+        record.seen = (Number(record.seen) || 0) + 1;
+        record.known = (Number(record.known) || 0) + 1;
+        record.last = 'known';
+        record.lastAt = Date.now();
+        state.records[cardId] = record;
+
+        if (session && session.mode === 'wrong') {
+          const pos = session.queue.indexOf(cardId);
+          if (pos !== -1) {
+            session.queue.splice(pos, 1);
+            if (pos < session.index) session.index -= 1;
+            if (!session.queue.length) {
+              session = null;
+            } else if (session.index >= session.queue.length) {
+              session.finished = true;
+              session.index = session.queue.length;
+            }
+          }
+        }
+
+        save();
+        renderAll();
+        toast('已标记为掌握，并移出错题本');
+      }
+
+      function speakText(text, button) {
+        if (!('speechSynthesis' in window)) {
+          toast('当前浏览器不支持语音朗读');
+          return;
+        }
+        const synth = window.speechSynthesis;
+        synth.cancel();
+        const utterance = new SpeechSynthesisUtterance(String(text));
+        utterance.lang = SPEECH_LANG;
+        utterance.rate = SPEECH_RATE;
+        const voices = synth.getVoices ? synth.getVoices() : [];
+        const english = voices.find((voice) => /^en[-_]US/i.test(voice.lang) && /natural|aria|jenny|samantha|google/i.test(voice.name))
+          || voices.find((voice) => /^en/i.test(voice.lang));
+        if (english) utterance.voice = english;
+        if (button) {
+          button.classList.add('is-speaking');
+          const stop = () => button.classList.remove('is-speaking');
+          utterance.onend = stop;
+          utterance.onerror = stop;
+        }
+        synth.speak(utterance);
+      }
+
+      function speakCurrent() {
+        const entry = currentEntry();
+        if (!entry) return;
+        speakText(entry.card.word, $('#speakBtn'));
+      }
+
+      function parseCsvRows(text) {
+        const source = String(text || '').replace(/^\uFEFF/, '');
+        const rows = [];
+        let row = [];
+        let field = '';
+        let inQuotes = false;
+        for (let i = 0; i < source.length; i += 1) {
+          const ch = source[i];
+          if (inQuotes) {
+            if (ch === '"') {
+              if (source[i + 1] === '"') {
+                field += '"';
+                i += 1;
+              } else {
+                inQuotes = false;
+              }
+            } else {
+              field += ch;
+            }
+          } else if (ch === '"') {
+            inQuotes = true;
+          } else if (ch === ',') {
+            row.push(field);
+            field = '';
+          } else if (ch === '\n') {
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = '';
+          } else if (ch === '\r') {
+            if (source[i + 1] !== '\n') {
+              row.push(field);
+              rows.push(row);
+              row = [];
+              field = '';
+            }
+          } else {
+            field += ch;
+          }
+        }
+        if (field !== '' || row.length) {
+          row.push(field);
+          rows.push(row);
+        }
+        return rows.filter((cells) => cells.some((cell) => cell.trim() !== ''));
+      }
+
+      const HEADER_ALIASES = {
+        word: ['word', '单词', '词', '英文', '英文单词'],
+        phonetic: ['phonetic', '音标', '发音'],
+        meaning: ['meaning', '释义', '中文', '意思', '翻译', '中文释义'],
+        example: ['example', '例句', '句子'],
+        tag: ['tag', '标签', '分类', '类别']
+      };
+
+      function normalizeHeader(value) {
+        return String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+      }
+
+      function buildColumnMap(headerRow) {
+        const map = {};
+        headerRow.forEach((cell, index) => {
+          const key = normalizeHeader(cell);
+          Object.keys(HEADER_ALIASES).forEach((field) => {
+            if (map[field] == null && HEADER_ALIASES[field].includes(key)) map[field] = index;
+          });
+        });
+        return map;
+      }
+
+      function parseCsvCards(text) {
+        const rows = parseCsvRows(text);
+        if (!rows.length) return { error: '没有读到内容。' };
+        const columns = buildColumnMap(rows[0]);
+        if (columns.word == null || columns.meaning == null) {
+          return { error: '第一行需要包含 word 和 meaning 列（也支持「单词」「释义」等中文表头）。' };
+        }
+        const cards = [];
+        const issues = [];
+        const seen = new Set();
+        let duplicateInFile = 0;
+        for (let i = 1; i < rows.length; i += 1) {
+          const cells = rows[i];
+          const word = String(cells[columns.word] == null ? '' : cells[columns.word]).trim();
+          const meaning = String(cells[columns.meaning] == null ? '' : cells[columns.meaning]).trim();
+          if (!word && !meaning) continue;
+          if (!word) {
+            issues.push(`第 ${i + 1} 行缺少单词，已跳过`);
+            continue;
+          }
+          if (!meaning) {
+            issues.push(`第 ${i + 1} 行「${word}」缺少释义，已跳过`);
+            continue;
+          }
+          if (word.length > 80) {
+            issues.push(`第 ${i + 1} 行单词过长，已跳过`);
+            continue;
+          }
+          if (meaning.length > 200) {
+            issues.push(`第 ${i + 1} 行释义过长，已跳过`);
+            continue;
+          }
+          const key = word.toLowerCase();
+          if (seen.has(key)) {
+            duplicateInFile += 1;
+            continue;
+          }
+          seen.add(key);
+          cards.push({
+            word,
+            phonetic: clip(cells[columns.phonetic], 80),
+            meaning,
+            example: clip(cells[columns.example], 300),
+            tag: clip(cells[columns.tag], 20)
+          });
+        }
+        if (!cards.length) {
+          return { error: '没有解析到可导入的卡片，请检查表头和数据行。' };
+        }
+        return { cards, issues, duplicateInFile };
+      }
+
+      function filterDuplicates(cards, deck) {
+        const existing = new Set(deck.cards.map((card) => card.word.trim().toLowerCase()));
+        return cards.filter((card) => !existing.has(card.word.toLowerCase()));
+      }
+
+      function updateImportPreview() {
+        const box = $('#importPreview');
+        const confirm = $('#importConfirm');
+        const target = $('input[name="importTarget"]:checked');
+        const text = $('#csvText').value;
+        importParsed = null;
+        confirm.disabled = true;
+        if (!text.trim()) {
+          box.textContent = '选择文件或粘贴内容后，这里会显示识别结果。';
+          return;
+        }
+        const result = parseCsvCards(text);
+        if (result.error) {
+          box.innerHTML = `<p class="preview-error">${escapeHtml(result.error)}</p>`;
+          return;
+        }
+        const targetValue = target ? target.value : 'current';
+        let fresh = result.cards;
+        let duplicateInDeck = 0;
+        if (targetValue === 'current') {
+          const deck = getDeck(state.currentDeckId);
+          if (deck) {
+            fresh = filterDuplicates(result.cards, deck);
+            duplicateInDeck = result.cards.length - fresh.length;
+          }
+        }
+        importParsed = { cards: fresh, target: targetValue };
+        const dupParts = [];
+        if (result.duplicateInFile) dupParts.push(`文件内重复 ${result.duplicateInFile} 张`);
+        if (duplicateInDeck) dupParts.push(`与当前卡组重复 ${duplicateInDeck} 张`);
+        const issueHtml = result.issues.length
+          ? `<ul class="issue-list">${result.issues.slice(0, 3).map((issue) => `<li>${escapeHtml(issue)}</li>`).join('')}${result.issues.length > 3 ? `<li>…还有 ${result.issues.length - 3} 行未显示</li>` : ''}</ul>`
+          : '';
+        box.innerHTML = `<p><strong>${fresh.length}</strong> 张可导入${dupParts.length ? `（已跳过${dupParts.join('、')}）` : ''}${result.issues.length ? `，${result.issues.length} 行有问题` : ''}。</p>
+          ${fresh.length ? `<p class="preview-sample">预览：${fresh.slice(0, 3).map((card) => escapeHtml(card.word)).join(' · ')}</p>` : ''}
+          ${issueHtml}`;
+        confirm.disabled = fresh.length === 0;
+      }
+
+      function openImportDialog() {
+        const deck = getDeck(state.currentDeckId);
+        if (!deck) return;
+        $('#importTargetName').textContent = deck.name;
+        $('#csvFileName').textContent = '未选择文件';
+        $('#csvText').value = '';
+        $('#newDeckName').value = '';
+        $('#newDeckName').hidden = true;
+        $('#csvFile').value = '';
+        const currentRadio = $('input[name="importTarget"][value="current"]');
+        if (currentRadio) currentRadio.checked = true;
+        updateImportPreview();
+        $('#importDialog').showModal();
+      }
+
+      async function handleCsvFile(file) {
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+          toast('文件超过 2 MB，建议拆分后再导入');
+          $('#csvFile').value = '';
+          return;
+        }
+        const buffer = await file.arrayBuffer();
+        let text;
+        try {
+          text = new TextDecoder('utf-8', { fatal: true }).decode(buffer);
+        } catch (error) {
+          try {
+            text = new TextDecoder('gbk').decode(buffer);
+          } catch (error2) {
+            text = new TextDecoder().decode(buffer);
+          }
+        }
+        text = text.replace(/^\uFEFF/, '');
+        $('#csvText').value = text;
+        $('#csvFileName').textContent = file.name;
+        if (!$('#newDeckName').value) {
+          $('#newDeckName').value = file.name.replace(/\.csv$/i, '').slice(0, 24);
+        }
+        updateImportPreview();
+      }
+
+      function confirmImport() {
+        if (!importParsed || !importParsed.cards.length) return;
+        const target = $('input[name="importTarget"]:checked');
+        const targetValue = target ? target.value : 'current';
+        let deck;
+        if (targetValue === 'new') {
+          const name = $('#newDeckName').value.trim();
+          if (!name) {
+            toast('请填写新卡组名称');
+            $('#newDeckName').focus();
+            return;
+          }
+          if (state.decks.some((item) => item.name.trim().toLowerCase() === name.toLowerCase())) {
+            toast('已有同名卡组，请换一个名字');
+            return;
+          }
+          deck = { id: uid('deck'), name, desc: '', cards: [] };
+          state.decks.push(deck);
+        } else {
+          deck = getDeck(state.currentDeckId);
+          if (!deck) {
+            toast('当前没有卡组');
+            return;
+          }
+        }
+        const fresh = filterDuplicates(importParsed.cards, deck);
+        if (!fresh.length) {
+          toast('没有可导入的新卡片');
+          return;
+        }
+        deck.cards.push(...fresh.map((card) => ({
+          id: uid('card'),
+          word: card.word,
+          phonetic: card.phonetic,
+          meaning: card.meaning,
+          example: card.example,
+          tag: card.tag
+        })));
+        state.currentDeckId = deck.id;
+        session = null;
+        save();
+        $('#importDialog').close();
+        switchView('study');
+        toast(`已导入 ${fresh.length} 张卡片`);
+      }
+
+      function exportCurrentDeck() {
+        const deck = getDeck(state.currentDeckId);
+        if (!deck) return;
+        if (!deck.cards.length) {
+          toast('这个卡组还没有卡片');
+          return;
+        }
+        const csvCell = (value) => {
+          const text = String(value == null ? '' : value);
+          return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+        };
+        const lines = [CSV_COLUMNS.join(',')];
+        deck.cards.forEach((card) => {
+          lines.push(CSV_COLUMNS.map((key) => csvCell(card[key])).join(','));
+        });
+        const blob = new Blob([`\uFEFF${lines.join('\r\n')}\r\n`], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${(deck.name || '单词卡组').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        toast(`已导出 ${deck.cards.length} 张卡片`);
+      }
+
+      function openDeckDialog(mode) {
+        const deck = mode === 'edit' ? getDeck(state.currentDeckId) : null;
+        if (mode === 'edit' && !deck) return;
+        editingDeckId = mode === 'edit' ? deck.id : null;
+        $('#deckDialogTitle').textContent = mode === 'edit' ? '卡组设置' : '新建卡组';
+        $('#deckSaveBtn').textContent = mode === 'edit' ? '保存' : '创建';
+        $('#deckNameInput').value = deck ? deck.name : '';
+        $('#deckDescInput').value = deck ? deck.desc : '';
+        $('#deckError').hidden = true;
+        $('#deckDeleteRow').hidden = mode !== 'edit';
+        $('#deckDialog').showModal();
+        setTimeout(() => $('#deckNameInput').focus(), 30);
+      }
+
+      function saveDeckFromDialog() {
+        const name = $('#deckNameInput').value.trim();
+        const desc = $('#deckDescInput').value.trim();
+        const error = $('#deckError');
+        if (!name) {
+          error.textContent = '请填写卡组名称。';
+          error.hidden = false;
+          return;
+        }
+        const duplicated = state.decks.some((deck) => deck.id !== editingDeckId && deck.name.trim().toLowerCase() === name.toLowerCase());
+        if (duplicated) {
+          error.textContent = '已有同名卡组，请换一个名字。';
+          error.hidden = false;
+          return;
+        }
+        error.hidden = true;
+        if (editingDeckId) {
+          const deck = getDeck(editingDeckId);
+          if (!deck) return;
+          deck.name = name.slice(0, 24);
+          deck.desc = desc.slice(0, 60);
+          save();
+          $('#deckDialog').close();
+          renderAll();
+          toast('卡组已更新');
+        } else {
+          const deck = { id: uid('deck'), name: name.slice(0, 24), desc: desc.slice(0, 60), cards: [] };
+          state.decks.push(deck);
+          state.currentDeckId = deck.id;
+          session = null;
+          save();
+          $('#deckDialog').close();
+          renderAll();
+          toast('已新建卡组，先导入 CSV 添加卡片');
+        }
+      }
+
+      function deleteDeck(deckId) {
+        const deck = getDeck(deckId);
+        if (!deck) return;
+        deck.cards.forEach((card) => { delete state.records[card.id]; });
+        state.decks = state.decks.filter((item) => item.id !== deckId);
+        if (state.currentDeckId === deckId) {
+          state.currentDeckId = state.decks[0] ? state.decks[0].id : null;
+        }
+        session = null;
+        save();
+        renderAll();
+        toast(`已删除卡组「${deck.name}」`);
+      }
+
+      function askConfirm(message, onConfirm) {
+        $('#confirmText').textContent = message;
+        pendingConfirm = onConfirm;
+        $('#confirmDialog').showModal();
+      }
+
+      function resetProgress() {
+        state.records = {};
+        state.history = {};
+        session = null;
+        save();
+        renderAll();
+        toast('学习记录已清空，卡组保留');
+      }
+
+      function restoreSampleDecks() {
+        const decks = createSampleDecks();
+        state.decks = decks;
+        state.currentDeckId = decks[0].id;
+        session = null;
+        save();
+        renderAll();
+        toast('已恢复示例卡组');
+      }
+
+      function bindEvents() {
+        $$('.tab').forEach((tab) => {
+          tab.addEventListener('click', () => switchView(tab.dataset.view));
+        });
+
+        $('#themeBtn').addEventListener('click', () => {
+          state.theme = state.theme === 'dark' ? 'light' : 'dark';
+          save();
+          applyTheme();
+        });
+
+        $('#newDeckBtn').addEventListener('click', () => openDeckDialog('create'));
+        $('#emptyNewDeck').addEventListener('click', () => openDeckDialog('create'));
+        $('#restoreSamples').addEventListener('click', restoreSampleDecks);
+
+        $('#deckList').addEventListener('click', (event) => {
+          const item = event.target.closest('[data-deck-id]');
+          if (item) selectDeck(item.dataset.deckId);
+        });
+
+        $('#deckProgress').addEventListener('click', (event) => {
+          const item = event.target.closest('[data-deck-id]');
+          if (item) selectDeck(item.dataset.deckId);
+        });
+
+        $('#studyPanel').addEventListener('click', (event) => {
+          const actionEl = event.target.closest('[data-action]');
+          if (!actionEl) return;
+          const action = actionEl.dataset.action;
+          if (action === 'import') openImportDialog();
+          else if (action === 'export') exportCurrentDeck();
+          else if (action === 'edit') openDeckDialog('edit');
+          else if (action === 'exit-wrong') exitWrongSession();
+          else if (action === 'restart') restartSession();
+          else if (action === 'go-wrong') switchView('wrong');
+          else if (action === 'go-progress') switchView('progress');
+        });
+
+        $('#flashcard').addEventListener('click', toggleFlip);
+        $('#flashcard').addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            toggleFlip();
+          }
+        });
+        $('#flipBtn').addEventListener('click', toggleFlip);
+        $('#speakBtn').addEventListener('click', speakCurrent);
+        $('#autoSpeakBtn').addEventListener('click', () => {
+          state.settings.autoSpeak = !state.settings.autoSpeak;
+          save();
+          syncAutoSpeak();
+          if (state.settings.autoSpeak) speakCurrent();
+        });
+        $$('[data-rate]').forEach((button) => {
+          button.addEventListener('click', () => rateCard(button.dataset.rate));
+        });
+
+        $('#reviewWrongBtn').addEventListener('click', startWrongSession);
+        $('#wrongList').addEventListener('click', (event) => {
+          const speakBtn = event.target.closest('[data-speak-id]');
+          if (speakBtn) {
+            const entry = findEntry(speakBtn.dataset.speakId);
+            if (entry) speakText(entry.card.word, speakBtn);
+            return;
+          }
+          const masterBtn = event.target.closest('[data-master-id]');
+          if (masterBtn) {
+            markMastered(masterBtn.dataset.masterId);
+            return;
+          }
+          const goBtn = event.target.closest('[data-go]');
+          if (goBtn) switchView(goBtn.dataset.go);
+        });
+
+        $('#resetProgressBtn').addEventListener('click', () => {
+          askConfirm('清空全部学习记录？卡组和卡片会保留，但掌握状态、错题本和每日统计都会归零。', resetProgress);
+        });
+
+        $('#deckSaveBtn').addEventListener('click', saveDeckFromDialog);
+        $('#deckNameInput').addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            saveDeckFromDialog();
+          }
+        });
+        $('#deckDeleteBtn').addEventListener('click', () => {
+          const deck = editingDeckId ? getDeck(editingDeckId) : null;
+          if (!deck) return;
+          $('#deckDialog').close();
+          askConfirm(`删除卡组「${deck.name}」？其中 ${deck.cards.length} 张卡片和学习记录会一并删除，无法恢复。`, () => deleteDeck(deck.id));
+        });
+
+        $('#csvText').addEventListener('input', updateImportPreview);
+        $('#csvFile').addEventListener('change', (event) => {
+          const file = event.target.files && event.target.files[0];
+          handleCsvFile(file);
+        });
+        $$('input[name="importTarget"]').forEach((radio) => {
+          radio.addEventListener('change', () => {
+            $('#newDeckName').hidden = $('input[name="importTarget"]:checked').value !== 'new';
+            updateImportPreview();
+          });
+        });
+        $('#importConfirm').addEventListener('click', confirmImport);
+
+        $('#confirmOk').addEventListener('click', () => {
+          const action = pendingConfirm;
+          pendingConfirm = null;
+          $('#confirmDialog').close();
+          if (action) action();
+        });
+        $('#confirmCancel').addEventListener('click', () => {
+          pendingConfirm = null;
+          $('#confirmDialog').close();
+        });
+        $('#confirmDialog').addEventListener('close', () => { pendingConfirm = null; });
+
+        $$('[data-close]').forEach((button) => {
+          button.addEventListener('click', () => {
+            const dialog = button.closest('dialog');
+            if (dialog) dialog.close();
+          });
+        });
+        $$('dialog').forEach((dialog) => {
+          dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) dialog.close();
+          });
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if ($('dialog[open]')) return;
+          if (state.view !== 'study' || $('#stage').hidden) return;
+          const tag = (event.target.tagName || '').toLowerCase();
+          if (['input', 'textarea', 'select'].includes(tag) || event.target.isContentEditable) return;
+          if (event.code === 'Space') {
+            if (['button', 'a', 'summary'].includes(tag)) return;
+            event.preventDefault();
+            toggleFlip();
+          } else if (event.key === 'ArrowLeft' && session && session.flipped) {
+            event.preventDefault();
+            rateCard('unknown');
+          } else if (event.key === 'ArrowRight' && session && session.flipped) {
+            event.preventDefault();
+            rateCard('known');
+          } else if ((event.key === 's' || event.key === 'S') && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            event.preventDefault();
+            speakCurrent();
+          }
+        });
+      }
+
+      state.view = 'study';
+      bindEvents();
+      applyTheme();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>

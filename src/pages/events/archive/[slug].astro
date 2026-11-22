@@ -1,0 +1,111 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/routes/events.css';
+import PageHero from '../../../components/PageHero.astro';
+import ArticleToc from '../../../components/ArticleToc.astro';
+import ChallengeRuleSections from '../../../components/ChallengeRuleSections.astro';
+import Icon from '../../../components/Icon.astro';
+import { archivedChallenges, type ArchivedChallenge } from '../../../data/challenge-archive';
+
+export const getStaticPaths = (() =>
+  archivedChallenges.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }))) satisfies GetStaticPaths;
+
+type Props = { entry: ArchivedChallenge };
+const { entry } = Astro.props;
+
+const tocHeadings = entry.ruleSections.flatMap((section) => [
+  { depth: 2, slug: section.id, text: section.title },
+  ...(section.id === 'judging-and-awards'
+    ? entry.scoringGroups.map((group) => ({ depth: 3, slug: `scoring-${group.id}`, text: group.label }))
+    : []),
+]);
+---
+
+<BaseLayout
+  title={`赛事要求归档 · ${entry.title}`}
+  description={`${entry.title}（${entry.period}）的赛事要求归档：组队、作品提交、真实性核验、评分与奖项。`}
+>
+  <PageHero
+    eyebrow="活动 · 归档"
+    title="赛事要求归档"
+    description={`${entry.title} · ${entry.period}`}
+    crumbs={[
+      { label: '活动', href: '/events/' },
+      { label: '活动归档', href: '/events/archive/' },
+      { label: '赛事要求归档' },
+    ]}
+    tone="warm"
+  >
+    <Fragment slot="actions">
+      <a class="btn btn--soft btn--sm" href="/events/archive/">
+        <Icon name="arrow-left" size={15} />
+        返回活动归档
+      </a>
+      <a class="btn btn--soft btn--sm" href="/events/rules/">
+        查看当前赛事规则
+      </a>
+    </Fragment>
+
+    <Fragment slot="aside">
+      <div class="aside-card aside-card--brand">
+        <div class="aside-card__head"><Icon name="info" size={17} />已归档版本</div>
+        <h2>这是规则快照。</h2>
+        <p>本页保留 {entry.period} 的规则版本，不随当前赛事更新。报名、赛程与当前评审安排以活动主页为准。</p>
+        <dl class="meta-rows">
+          <div><dt>归档标识</dt><dd>{entry.slug}</dd></div>
+          <div><dt>规则更新</dt><dd>{entry.updated}</dd></div>
+        </dl>
+      </div>
+    </Fragment>
+  </PageHero>
+
+  <section class="section section--flush-top">
+    <div class="container">
+      <div class="challenge-doc-layout">
+        <div class="challenge-doc-main">
+          <div class="notice notice--warm">
+            <Icon name="info" size={17} />
+            <p><strong>归档说明：</strong>本页是 {entry.period} 的规则快照，仅用于查阅该版本要求；当前报名、赛程与评审安排请回到活动主页。</p>
+          </div>
+
+          <ChallengeRuleSections
+            sections={entry.ruleSections}
+            scoringGroups={entry.scoringGroups}
+            awards={entry.awardRows}
+            awardNotes={entry.awardNotes}
+          />
+
+          <nav class="challenge-doc-nav" aria-label="赛事文档导航">
+            <a class="link-arrow" href="/events/archive/">
+              <Icon name="arrow-left" size={15} />
+              返回活动归档
+            </a>
+            <a class="link-arrow" href="/events/rules/">
+              查看当前赛事规则
+              <Icon name="arrow-right" size={15} />
+            </a>
+          </nav>
+        </div>
+
+        <aside class="challenge-doc-aside article-toc-aside">
+          <ArticleToc headings={tocHeadings} />
+          <div class="aside-card aside-card--brand">
+            <div class="aside-card__head">
+              <Icon name="external-link" size={16} />
+              相关入口
+            </div>
+            <ul class="challenge-aside-links">
+              <li><a href="/events/">当前活动主页 →</a></li>
+              <li><a href="/events/rules/">当前赛事规则 →</a></li>
+              <li><a href="/events/archive/">活动归档 →</a></li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
