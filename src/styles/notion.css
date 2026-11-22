@@ -483,6 +483,10 @@
   max-width: 720px;
 }
 
+.notion-page .page-sources {
+  margin-top: 1.5rem;
+}
+
 @media (max-width: 760px) {
   .notion-page-head h1 {
     font-size: 1.95rem;

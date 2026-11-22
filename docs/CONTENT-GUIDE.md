@@ -111,7 +111,7 @@ tags: ["AI 素养", "安全"]
 | M07-B | `m06-cdu-browser.webp` | 06 | 第一次生成的网页（复用 M06） | 与 M06 一致 | 已集成 |
 | M07-A | `m07-after.webp` | 06 | 使用「调整视觉风格」提示词修改后的网页（同视口） | 1877×1063 | 已集成 |
 
-补充或替换截图时：将图片放入 `public/guide/first-agent/`，更新 [`first-agent-media.mjs`](../src/data/first-agent-media.mjs) 的 `file`、`description` 和 `status`（“待截图 / 已截图 / 已集成”）。设为“已集成”且文件存在时，构建期 `resolveFirstAgentMedia()` 会读取图片真实宽高按原比例渲染；缺失或加载失败时显示虚线占位。修改或增删素材后需重新构建（`npm run dev` 下需重启开发服务器刷新缓存），再运行 `npm run verify`。
+补充或替换截图时：将图片放入 `public/guide/first-agent/`，更新 [`first-agent-media.mjs`](../src/data/first-agent-media.mjs) 的 `file`、`label`、`description` 和 `status`（“待截图 / 已截图 / 已集成”）。设为“已集成”且文件存在时，构建期 `resolveFirstAgentMedia()` 会读取图片真实宽高按原比例渲染；缺失或加载失败时显示虚线占位。修改或增删素材后需重新构建（`npm run dev` 下需重启开发服务器刷新缓存），再运行 `npm run verify`。
 
 正文由 [`rehype-first-agent.mjs`](../src/lib/rehype-first-agent.mjs) 将专用的 `first-agent:*` 注释转为交互教学组件（无 JS 时仍完整展示两个工具的说明及提示词）：
 
@@ -193,7 +193,7 @@ frontmatter：
 - `order`：同分类内排序，从 1 连续；
 - `related`：相关词条 id；
 - `updated`：最后核对日期。
-- `sources`：正文事实的官方文档或原始论文，包含 `title` 与 `url`，详情页自动渲染参考来源。
+- `sources`：正文事实的官方文档或原始论文，包含 `title` 与 `url`，详情页自动渲染参考来源（超过 2 条时默认折叠为下拉框）。
 - `reviewed` / `reviewedBy`：审核负责人确认结论的日期与署名（可笔名），必须同时填写；开发者可使用 AI 初审与辅助审核，具体方式记录在 GitHub。
 - `needsUpdate` / `reviewNote`：发现过期或问题时标记待更新，并写明原因（≤200 字）。
 - `basis`：`first-hand`（亲自实测）/ `desk-research`（资料整理）/ `teaching-example`（默认，教学示例）；`first-hand` 必须同时填写 `testedOn` 与 `testedEnvironment`。

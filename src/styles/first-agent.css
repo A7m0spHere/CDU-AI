@@ -13,10 +13,9 @@
 .first-agent-tutorial .first-agent-drawer-trigger:hover { background: color-mix(in srgb, var(--brand) 14%, var(--surface)); }
 .first-agent-tutorial .first-agent-permission-bar__link { font-size: .88rem; color: var(--muted); text-underline-offset: .2em; }
 .first-agent-tutorial .first-agent-permission-bar__link:hover { color: var(--brand); }
-.first-agent-tutorial[data-agent-ready] .first-agent-choices { display: grid; }
-.first-agent-tutorial[data-agent-ready] .first-agent-choices > [data-agent-tool] { grid-area: 1 / 1; min-width: 0; }
-/* 两种指导共用同一网格行，保留最大高度，切换时保持后续正文的位置。 */
-.first-agent-tutorial[data-agent-ready] .first-agent-choices > [data-agent-tool][hidden] { display: block !important; visibility: hidden; pointer-events: none; }
+.first-agent-tutorial .first-agent-choices > [data-agent-tool] { min-width: 0; }
+:where(.first-agent-tutorial .first-agent-choices > [data-agent-tool]) > * + * { margin-top: 0.72em; }
+.first-agent-tutorial .first-agent-choices > [data-agent-tool]:not([hidden]) + [data-agent-tool]:not([hidden]) { margin-top: 1.4rem; }
 .first-agent-tutorial .first-agent-card { margin: 1rem 0; padding: 1.15rem; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
 .first-agent-tutorial .first-agent-card__title { display: flex; gap: .5rem; align-items: center; margin: 0 0 .6rem; color: var(--ink); }
 .first-agent-card__icon { color: var(--brand); font-size: 1.3rem; }
@@ -30,8 +29,20 @@
 .first-agent-tutorial .first-agent-revisions .first-agent-card { margin: 0; display: flex; flex-direction: column; }
 .first-agent-revisions .first-agent-prompt { flex: 1; }
 .first-agent-revisions [data-copy-target] { align-self: start; }
-.first-agent-tutorial .first-agent-media { --media-max-h: min(30rem, 70dvh); margin: 1.2rem 0; min-width: 0; }
-.first-agent-media__stage { display: grid; width: min(100%, var(--media-width, 100%), calc(var(--media-max-h) * var(--media-ratio, 1.7778))); border: 1px dashed var(--line-strong); border-radius: var(--radius-md); overflow: hidden; background: var(--surface-muted); }
+.first-agent-tutorial .first-agent-media {
+  --media-max-h: min(30rem, 70dvh);
+  --media-frame-w: min(100%, var(--media-width, 100%), calc(var(--media-max-h) * var(--media-ratio, 1.7778)));
+  margin: 1rem 0 1.1rem;
+  min-width: 0;
+}
+.first-agent-media__stage {
+  display: grid;
+  width: var(--media-frame-w);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-muted);
+}
 .first-agent-media[data-media-state='pending'] .first-agent-media__stage { aspect-ratio: var(--media-aspect, 16 / 9); border-style: dashed; border-color: var(--line-strong); background: var(--surface-muted); }
 .first-agent-media[data-media-state='ready'] .first-agent-media__stage { display: block; border-style: solid; border-color: var(--line); background: var(--surface); transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
 .first-agent-media[data-media-state='ready'] .first-agent-media__stage:has(.guide-image-zoom:is(:hover, :focus-visible)) { border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
@@ -41,9 +52,42 @@
 .first-agent-tutorial .first-agent-media__stage .guide-image-zoom { display: block; width: 100%; margin: 0; padding: 0; border-radius: 0; }
 .first-agent-tutorial .first-agent-media__stage .guide-image-zoom:focus-visible { outline-offset: -2px; }
 .first-agent-tutorial .first-agent-media .first-agent-media__stage :is(img, .guide-image-zoom img, .guide-image-zoom:is(:hover, :focus-visible) img) { display: block; width: 100%; height: auto; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
-.first-agent-media figcaption { margin-top: .55rem; color: var(--muted); font-size: .82rem; line-height: 1.6; }
-.first-agent-media__id { font-family: var(--font-mono); color: var(--ink-soft); }
-.first-agent-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.first-agent-media figcaption {
+  max-width: max(var(--media-frame-w), min(100%, 24rem));
+  margin-top: 0.6rem;
+  padding-left: 0.65rem;
+  border-left: 2px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+.first-agent-media__label {
+  display: inline-block;
+  margin-right: 0.45rem;
+  padding: 0.05rem 0.46rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
+  background: var(--surface-muted);
+  color: var(--ink);
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.5;
+  vertical-align: 0.04em;
+}
+.first-agent-media[data-agent-media='M07-A'] .first-agent-media__label {
+  border-color: color-mix(in srgb, var(--brand) 30%, var(--line));
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+.first-agent-tutorial .first-agent-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.1rem 0;
+}
+.first-agent-tutorial .first-agent-comparison .first-agent-media {
+  margin: 0;
+}
 
 /* ZCode 权限说明右侧抽屉弹窗（原生 <dialog> Top Layer） */
 .first-agent-drawer {
@@ -323,10 +367,11 @@
   .first-agent-revisions .first-agent-prompt { font-size: .85rem; line-height: 1.8; }
 }
 @media (max-width: 600px) {
-  .first-agent-picker__options, .first-agent-comparison { grid-template-columns: minmax(0, 1fr); }
+  .first-agent-picker__options { grid-template-columns: minmax(0, 1fr); }
+  .first-agent-tutorial .first-agent-comparison { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
 }
 @media print {
-  .first-agent-tutorial[data-agent-ready] .first-agent-choices { display: block; }
-  .first-agent-tutorial[data-agent-ready] .first-agent-choices > [data-agent-tool][hidden] { visibility: visible; }
+  .first-agent-tutorial[data-agent-ready] .first-agent-choices > [data-agent-tool][hidden] { display: block !important; }
+  .first-agent-tutorial[data-agent-ready] .first-agent-choices > [data-agent-tool] + [data-agent-tool] { margin-top: 1.4rem; }
   .first-agent-picker, .first-agent-tutorial [data-copy-target], .first-agent-copy-status, .first-agent-drawer-trigger, .first-agent-drawer { display: none !important; }
 }

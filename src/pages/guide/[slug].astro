@@ -2,7 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Icon from '../../components/Icon.astro';
+import PageSources from '../../components/PageSources.astro';
 import ArticleToc from '../../components/ArticleToc.astro';
 import GuideHeading from '../../components/GuideHeading.astro';
 import GuideSidebar from '../../components/GuideSidebar.astro';
@@ -56,21 +56,7 @@ const sources = entry?.data.sources ?? [];
                 <p class="guide-placeholder" data-guide-placeholder>正文待补充。</p>
               )}
 
-              {sources.length > 0 && (
-                <div class="page-sources">
-                  <p>参考来源</p>
-                  <ul>
-                    {sources.map((source) => (
-                      <li>
-                        <a href={source.url} target="_blank" rel="noopener noreferrer">
-                          {source.title}
-                          <Icon name="arrow-up-right" size={13} />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <PageSources sources={sources} heading="参考来源" />
             </div>
           </article>
           <GuidePager currentId={slug} />

@@ -136,27 +136,47 @@ test('指南入门路径在桌面和手机目录中衔接首次实践', async t 
   assert.equal(await page.locator('.guide-pager [rel="prev"]').getAttribute('href'), '/guide/chat-ai-to-agent/');
 });
 
-test('首次 Agent 工具选择联动三章并保持正文位置，键盘可切换', async t => {
+test('首次 Agent 工具选择联动三章且不产生多余占位留白，键盘可切换', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   await page.goto(origin + '/guide/first-agent/');
   await page.locator('[data-agent-ready="true"]').waitFor();
   assert.equal(await page.locator('input[value="workbuddy"]').isChecked(), true);
   const workbuddyMedia = ['M01', 'M03-W', 'M04-W'];
   const zcodeMedia = ['M02', 'M03-Z', 'M04-Z'];
+  const assertChoicesCollapsed = async activeTool => {
+    const stats = await page.evaluate(expected => {
+      return [...document.querySelectorAll('.first-agent-choices')].map(group => {
+        const visible = group.querySelector(`[data-agent-tool="${expected}"]:not([hidden])`);
+        const hidden = group.querySelector('[data-agent-tool][hidden]');
+        return {
+          groupHeight: group.getBoundingClientRect().height,
+          visibleHeight: visible?.getBoundingClientRect().height ?? -1,
+          hiddenDisplay: hidden ? getComputedStyle(hidden).display : 'missing',
+        };
+      });
+    }, activeTool);
+    assert.equal(stats.length, 3);
+    for (const item of stats) {
+      assert.equal(item.hiddenDisplay, 'none', `${activeTool} 下未选中的工具分组应折叠隐藏`);
+      assert.ok(Math.abs(item.groupHeight - item.visibleHeight) <= 2, `${activeTool} 下分组高度应贴合当前工具内容 (${item.groupHeight} vs ${item.visibleHeight})`);
+    }
+  };
   for (const id of workbuddyMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
   for (const id of zcodeMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
-  const before = await page.locator('[data-first-agent] h2').last().evaluate(el => el.getBoundingClientRect().top + scrollY);
+  await assertChoicesCollapsed('workbuddy');
+  const pickerBefore = await page.locator('[data-agent-picker]').evaluate(el => el.getBoundingClientRect().top + scrollY);
   await page.locator('input[value="workbuddy"]').focus();
   const scrollBefore = await page.evaluate(() => scrollY);
   await page.keyboard.press('ArrowRight');
   assert.equal(await page.locator('input[value="zcode"]').isChecked(), true);
   for (const id of zcodeMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'visible' });
   for (const id of workbuddyMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
+  await assertChoicesCollapsed('zcode');
   assert.equal(await page.locator('a[href="https://zcode.z.ai/cn/docs/configuration"]').isVisible(), true);
   assert.equal(await page.getByRole('heading', { name: 'WorkBuddy：适用于小白', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('heading', { name: 'ZCode：侧重项目与开发任务的国产 Agent', exact: true }).isVisible(), true);
-  const after = await page.locator('[data-first-agent] h2').last().evaluate(el => el.getBoundingClientRect().top + scrollY);
-  assert.ok(Math.abs(after - before) < 1, '两种指导切换应保留后续正文位置');
+  const pickerAfter = await page.locator('[data-agent-picker]').evaluate(el => el.getBoundingClientRect().top + scrollY);
+  assert.ok(Math.abs(pickerAfter - pickerBefore) < 1, '切换工具时选择控件本身的位置应保持稳定');
   assert.ok(Math.abs(await page.evaluate(() => scrollY) - scrollBefore) < 2, '切换不应改变页面滚动位置');
   await page.keyboard.press('ArrowLeft');
   assert.equal(await page.locator('input[value="workbuddy"]').isChecked(), true);
@@ -286,6 +306,29 @@ test('首次 Agent 截图按原比例适配且无占位虚线框冲突，修改�
       assert.equal(await after.getAttribute('data-media-state'), 'ready');
       assert.equal(await after.locator('img[data-media-content]').getAttribute('src'), '/guide/first-agent/m07-after.webp');
       assert.match(await after.locator('img[data-media-content]').getAttribute('alt'), /调整视觉风格/);
+
+      if (tool === 'workbuddy') {
+        const gaps = await page.evaluate(() => {
+          const gapAfterMedia = id => {
+            const fig = document.querySelector(`[data-agent-media="${id}"]`);
+            const cap = fig.querySelector('figcaption');
+            const next = fig.closest('.first-agent-choices').nextElementSibling;
+            return next.getBoundingClientRect().top - cap.getBoundingClientRect().bottom;
+          };
+          const compBefore = document.querySelector('[data-agent-media="M07-B"] figcaption').getBoundingClientRect();
+          const compAfter = document.querySelector('[data-agent-media="M07-A"]').getBoundingClientRect();
+          return {
+            m03Gap: gapAfterMedia('M03-W'),
+            m04Gap: gapAfterMedia('M04-W'),
+            comparisonGap: compAfter.top - compBefore.bottom,
+          };
+        });
+        assert.ok(gaps.m03Gap >= 8 && gaps.m03Gap <= 32, `${viewport.width}px workbuddy M03-W 下方留白过大 (${gaps.m03Gap}px)`);
+        assert.ok(gaps.m04Gap >= 12 && gaps.m04Gap <= 44, `${viewport.width}px workbuddy M04-W 下方留白过大 (${gaps.m04Gap}px)`);
+        if (viewport.width === 390) {
+          assert.ok(gaps.comparisonGap >= 12 && gaps.comparisonGap <= 28, `窄屏对比区 M07-B 与 M07-A 间距异常 (${gaps.comparisonGap}px)`);
+        }
+      }
     }
 
     if (viewport.width === 1440) {
@@ -3143,4 +3186,84 @@ test('首次 Agent 权限说明抽屉在桌面、触屏与回退路径下可访�
   await noJsPage.goto(origin + '/guide/first-agent/');
   assert.equal(await noJsPage.locator('[data-first-agent-drawer-open="first-agent-permission-drawer"]').isVisible(), false);
   assert.equal(await noJsPage.locator('.first-agent-permission-bar__link[href="https://zcode.z.ai/cn/docs/safety-confirm"]').isVisible(), true);
+});
+
+test('参考资料超过 2 条时默认折叠为下拉框并支持键盘与无 JS 展开，2 条以内直接展示', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+
+  // 1. 指南 2 条来源：直接展开展示
+  await page.goto(origin + '/guide/first-agent/');
+  await ready(page);
+  const firstAgentSources = page.locator('[data-page-sources]');
+  assert.equal(await firstAgentSources.getAttribute('data-page-sources-collapsible'), 'false');
+  assert.equal(await firstAgentSources.locator('[data-page-sources-details]').count(), 0);
+  assert.equal(await firstAgentSources.locator('.page-sources__link').count(), 2);
+  assert.equal(await firstAgentSources.locator('.page-sources__link').first().isVisible(), true);
+
+  // 2. 指南超过 2 条来源（8 条）：默认折叠，点击与 Enter 均可切换，浅/深色及窄屏无溢出
+  await page.goto(origin + '/guide/permissions-and-review/');
+  await ready(page);
+  const details = page.locator('[data-page-sources-details]');
+  const summary = details.locator('> summary');
+  const links = details.locator('.page-sources__link');
+  assert.equal(await details.evaluate(el => el.open), false, '超过 2 条参考资料时应默认折叠');
+  assert.equal(await links.count(), 8);
+  assert.equal(await links.first().isVisible(), false, '折叠时链接应隐藏');
+  assert.match(await summary.innerText(), /8 条/);
+
+  await summary.click();
+  assert.equal(await details.evaluate(el => el.open), true, '点击摘要应展开下拉框');
+  for (const link of await links.all()) {
+    assert.equal(await link.isVisible(), true, '展开后所有参考链接都应可见');
+  }
+
+  await summary.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await details.evaluate(el => el.open), false, '在摘要上按 Enter 应重新折叠');
+
+  for (const theme of ['light', 'dark']) {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await select(page, theme);
+    for (const width of [1440, 390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      for (const shouldOpen of [false, true]) {
+        const isOpen = await details.evaluate(el => el.open);
+        if (isOpen !== shouldOpen) await summary.click();
+        assert.equal(
+          await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+          true,
+          `${theme} ${width}px open=${shouldOpen} 不应横向溢出`,
+        );
+      }
+    }
+  }
+
+  // 3. 术语详情页：3 条默认折叠，1 条直接展示
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(origin + '/glossary/mcp/');
+  await ready(page);
+  const mcpDetails = page.locator('[data-page-sources-details]');
+  assert.equal(await mcpDetails.evaluate(el => el.open), false, '术语 3 条参考资料应默认折叠');
+  assert.equal(await mcpDetails.locator('.page-sources__link').count(), 3);
+  await mcpDetails.locator('> summary').click();
+  assert.equal(await mcpDetails.evaluate(el => el.open), true);
+  assert.equal(await mcpDetails.locator('.page-sources__link').nth(2).isVisible(), true);
+
+  await page.goto(origin + '/glossary/token/');
+  await ready(page);
+  const tokenSources = page.locator('[data-page-sources]');
+  assert.equal(await tokenSources.getAttribute('data-page-sources-collapsible'), 'false');
+  assert.equal(await tokenSources.locator('[data-page-sources-details]').count(), 0);
+  assert.equal(await tokenSources.locator('.page-sources__link').first().isVisible(), true);
+
+  // 4. 无 JS 环境仍可原生展开折叠
+  const noJsContext = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+  t.after(() => noJsContext.close());
+  const noJsPage = await noJsContext.newPage();
+  await noJsPage.goto(origin + '/guide/permissions-and-review/');
+  const noJsDetails = noJsPage.locator('[data-page-sources-details]');
+  assert.equal(await noJsDetails.evaluate(el => el.open), false);
+  await noJsDetails.locator('> summary').click();
+  assert.equal(await noJsDetails.evaluate(el => el.open), true);
+  assert.equal(await noJsDetails.locator('.page-sources__link').first().isVisible(), true);
 });

@@ -435,6 +435,15 @@ test('术语来源展示真实链接，并保留未人工核校提示', async ()
       for (const url of urls) {
         assert.ok(html.includes('href="' + url.replace(/&/g, '&amp;') + '"'), slug + ' 未显示来源链接：' + url);
       }
+      if (urls.length > 2) {
+        assert.ok(html.includes('data-page-sources-collapsible="true"'), slug + ' 超过 2 条来源应渲染可折叠容器');
+        assert.match(html, /<details class="page-sources__details"(?=[\s>])/, slug + ' 超过 2 条来源应使用原生 details 下拉框');
+        assert.doesNotMatch(html, /<details class="page-sources__details"[^>]*\bopen\b/, slug + ' 超过 2 条来源应默认折叠');
+        assert.ok(html.includes(`${urls.length} 条`), slug + ' 折叠摘要应显示来源数量');
+      } else {
+        assert.ok(html.includes('data-page-sources-collapsible="false"'), slug + ' 不超过 2 条来源不应启用折叠');
+        assert.equal(html.includes('data-page-sources-details'), false, slug + ' 不超过 2 条来源不应渲染下拉框');
+      }
     } else {
       assert.doesNotMatch(html, /aria-label="延伸阅读"/, slug + ' 不应显示空来源区');
     }
@@ -460,6 +469,15 @@ test('作品详情保留维护入口，指南按需展示参考来源', async ()
     const html = await read('guide/' + slug + '/index.html');
     if (fields.sources?.length) {
       assert.match(html, /参考来源/, slug + ' 有 sources 但页面缺少参考来源区');
+      if (fields.sources.length > 2) {
+        assert.ok(html.includes('data-page-sources-collapsible="true"'), slug + ' 超过 2 条来源应渲染可折叠容器');
+        assert.match(html, /<details class="page-sources__details"(?=[\s>])/, slug + ' 超过 2 条来源应使用原生 details 下拉框');
+        assert.doesNotMatch(html, /<details class="page-sources__details"[^>]*\bopen\b/, slug + ' 超过 2 条来源应默认折叠');
+        assert.ok(html.includes(`${fields.sources.length} 条`), slug + ' 折叠摘要应显示来源数量');
+      } else {
+        assert.ok(html.includes('data-page-sources-collapsible="false"'), slug + ' 不超过 2 条来源不应启用折叠');
+        assert.equal(html.includes('data-page-sources-details'), false, slug + ' 不超过 2 条来源不应渲染下拉框');
+      }
     } else {
       assert.doesNotMatch(html, /class="page-sources"/, slug + ' 不应渲染空的参考来源区');
     }
@@ -1233,6 +1251,12 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
         );
       }
     }
+    const figcaption = figure.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/)?.[1] ?? '';
+    assert.ok(figcaption.includes('class="first-agent-media__label"'), `素材 ${id} 缺少图注语义标签`);
+    assert.ok(figcaption.includes(item.label), `素材 ${id} 图注未显示标签 ${item.label}`);
+    assert.ok(figcaption.includes(item.description), `素材 ${id} 图注未包含说明文案`);
+    assert.equal(figcaption.includes('first-agent-media__id'), false, `素材 ${id} 图注不应渲染内部编号类`);
+    assert.equal(figcaption.includes(id), false, `素材 ${id} 图注不应暴露内部编号`);
   }
   const search = JSON.parse(await read('search-index.json'));
   assert.equal(search.filter(item => item.href.startsWith('/guide/first-agent/#')).length, 7);

@@ -1,0 +1,80 @@
+---
+import Icon from './Icon.astro';
+
+export interface PageSourceItem {
+  title: string;
+  url: string;
+}
+
+interface Props {
+  sources: PageSourceItem[];
+  heading?: string;
+  as?: 'div' | 'section';
+  ariaLabel?: string;
+  class?: string;
+  collapseAfter?: number;
+}
+
+const {
+  sources,
+  heading = '参考来源',
+  as = 'div',
+  ariaLabel,
+  class: className,
+  collapseAfter = 2,
+} = Astro.props;
+
+const Tag = as;
+const collapsible = sources.length > collapseAfter;
+---
+
+{sources.length > 0 && (
+  <Tag
+    class:list={['page-sources', className]}
+    aria-label={ariaLabel}
+    data-page-sources
+    data-page-sources-collapsible={collapsible ? 'true' : 'false'}
+  >
+    {collapsible ? (
+      <details class="page-sources__details" data-page-sources-details>
+        <summary class="page-sources__summary">
+          <span class="page-sources__summary-main">
+            <span class="page-sources__title">{heading}</span>
+            <span class="page-sources__count">{sources.length} 条</span>
+          </span>
+          <span class="page-sources__summary-action" aria-hidden="true">
+            <span class="page-sources__action-open">展开查看</span>
+            <span class="page-sources__action-close">收起</span>
+            <Icon name="chevron-down" size={15} class="page-sources__chevron" />
+          </span>
+        </summary>
+        <div class="page-sources__body">
+          <ul class="page-sources__list">
+            {sources.map((source) => (
+              <li class="page-sources__item">
+                <a class="page-sources__link" href={source.url} target="_blank" rel="noopener noreferrer">
+                  <span>{source.title}</span>
+                  <Icon name="arrow-up-right" size={13} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
+    ) : (
+      <>
+        <p class="page-sources__title">{heading}</p>
+        <ul class="page-sources__list">
+          {sources.map((source) => (
+            <li class="page-sources__item">
+              <a class="page-sources__link" href={source.url} target="_blank" rel="noopener noreferrer">
+                <span>{source.title}</span>
+                <Icon name="arrow-up-right" size={13} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </Tag>
+)}

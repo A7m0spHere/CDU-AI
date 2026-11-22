@@ -4,43 +4,53 @@ import { closeSync, existsSync, openSync, readSync } from 'node:fs';
 export const firstAgentMedia = {
   M01: {
     file: 'm01-workbuddy-workbench.webp', status: '已集成',
-    description: 'WorkBuddy 工作台，左侧有「新建任务」入口。',
+    label: 'WorkBuddy 工作台',
+    description: '左侧栏顶部是「新建任务」入口，中央输入框下方可选择分组/目录，右下角可切换模型。',
   },
   M02: {
     file: 'm02-zcode-workspace.webp', status: '已集成',
-    description: 'ZCode 首页，输入框上方可选择项目，右下角可切换模型。',
+    label: 'ZCode 工作台',
+    description: '输入框上方可选择项目工作区，左下角可查看或切换权限模式，右下角可选择模型。',
   },
   'M03-W': {
     file: 'm03-w-workbuddy-directory.webp', status: '已集成',
-    description: 'WorkBuddy 选择 CDU-介绍网站 文件夹作为工作目录。',
+    label: '选择工作目录',
+    description: '点击输入框左下角的分组入口，通过「选择本地文件夹」选中「CDU-介绍网站」作为本次任务的工作目录。',
   },
   'M03-Z': {
     file: 'm03-z-zcode-project.webp', status: '已集成',
-    description: 'ZCode 打开 CDU-介绍网站 文件夹作为项目工作区。',
+    label: '打开项目工作区',
+    description: '点击输入框上方的项目下拉菜单，选择「CDU-介绍网站」作为当前项目工作区。',
   },
   'M04-W': {
     file: 'm04-w-workbuddy-development.webp', status: '已集成',
-    description: 'WorkBuddy 收到网页任务后，开始查找成都大学官网资料。',
+    label: '任务执行中',
+    description: '收到要求后，WorkBuddy 会按步骤推进，先访问成都大学官网核实学校信息，再编写网页文件。',
   },
   'M04-Z': {
     file: 'm04-z-zcode-development.webp', status: '已集成',
-    description: 'ZCode 收到网页任务后，界面显示「正在思考」和「工作中」（截于旧版界面，左下角显示为「自主模式」；首次练习仍请按正文保持默认「变更前确认」）。',
+    label: '任务执行中',
+    description: '收到要求后，ZCode 会实时显示「正在思考」和「工作中」状态（截于旧版界面，左下角显示为「自主模式」；首次练习请按正文保持默认「变更前确认」）。',
   },
   M05: {
     file: 'm05-cdu-html-file.webp', status: '已集成',
-    description: '文件资源管理器中显示 CDU-介绍网站 文件夹内的 CDU.html。',
+    label: '查看生成文件',
+    description: '在「CDU-介绍网站」文件夹中可以看到生成的 CDU.html，双击即可用系统默认浏览器打开。',
   },
   M06: {
     file: 'm06-cdu-browser.webp', status: '已集成',
-    description: '浏览器打开 CDU.html，展示实际生成的成都大学介绍网页。',
+    label: '浏览器预览效果',
+    description: '浏览器直接打开本地 CDU.html 的实际效果，包含顶部导航、学校简介与数据概览等板块。',
   },
   'M07-B': {
     file: 'm06-cdu-browser.webp', status: '已集成',
-    description: '第一次生成的网页。',
+    label: '修改前',
+    description: '初次生成的版本，顶部为亮橙色渐变导航栏，整体偏暖色调。',
   },
   'M07-A': {
     file: 'm07-after.webp', status: '已集成',
-    description: '使用「调整视觉风格」提示词修改后的网页，保持与修改前相同的视口和页面位置。',
+    label: '修改后',
+    description: '使用「调整视觉风格」提示词优化后的同位置效果，导航栏改为深灰质感，主视觉配色与层次更简洁现代，原有内容保持不变。',
   },
 };
 

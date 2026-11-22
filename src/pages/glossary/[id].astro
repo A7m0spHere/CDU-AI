@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import PageSources from '../../components/PageSources.astro';
 import ArticleToc from '../../components/ArticleToc.astro';
 import ContentStatus from '../../components/ContentStatus.astro';
 import { glossaryCategories, glossaryCategoryName } from '../../data/glossary';
@@ -224,21 +225,13 @@ const jsonLd = {
           </section>
         )}
 
-        {sources.length > 0 && (
-          <section class="page-sources term-sources" aria-label="延伸阅读">
-            <p>延伸阅读 · 权威出处</p>
-            <ul>
-              {sources.map((source) => (
-                <li>
-                  <a href={source.url} target="_blank" rel="noopener noreferrer">
-                    {source.title}
-                    <Icon name="arrow-up-right" size={13} />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        <PageSources
+          sources={sources}
+          heading="延伸阅读 · 权威出处"
+          as="section"
+          ariaLabel="延伸阅读"
+          class="term-sources"
+        />
 
         <nav class="wiki-pager term-pager" aria-label="同分类术语">
           {previous ? (

@@ -10,6 +10,8 @@ function mediaFigure(id, mediaEntries, fallbackMedia) {
   const dims = ready
     ? (media.width && media.height ? { width: media.width, height: media.height } : null)
     : (fallbackMedia?.width && fallbackMedia?.height ? { width: fallbackMedia.width, height: fallbackMedia.height } : null);
+  const captionLabel = media.label || id;
+  const altText = media.label ? `${media.label}：${media.description}` : media.description;
   const placeholder = element('div', {
     className: ['first-agent-media__placeholder'], hidden: ready, 'data-media-placeholder': '',
   }, [
@@ -21,20 +23,23 @@ function mediaFigure(id, mediaEntries, fallbackMedia) {
     content.unshift(element('img', {
       src: `/guide/first-agent/${media.file}`,
       ...(dims ? { width: dims.width, height: dims.height } : {}),
-      'data-media-content': '', loading: 'lazy', alt: media.description,
+      'data-media-content': '', loading: 'lazy', alt: altText,
     }));
   }
-  const stageProperties = {
-    className: ['first-agent-media__stage'],
-    ...(dims ? {
-      style: `--media-width: ${dims.width}px; --media-ratio: ${Number((dims.width / dims.height).toFixed(4))}; --media-aspect: ${dims.width} / ${dims.height};`,
-    } : {}),
-  };
+  const figureStyle = dims
+    ? `--media-width: ${dims.width}px; --media-ratio: ${Number((dims.width / dims.height).toFixed(4))}; --media-aspect: ${dims.width} / ${dims.height};`
+    : undefined;
   return element('figure', {
-    className: ['first-agent-media'], 'data-agent-media': id, 'data-media-state': ready ? 'ready' : 'pending',
+    className: ['first-agent-media'],
+    'data-agent-media': id,
+    'data-media-state': ready ? 'ready' : 'pending',
+    ...(figureStyle ? { style: figureStyle } : {}),
   }, [
-    element('div', stageProperties, content),
-    element('figcaption', {}, [element('span', { className: ['first-agent-media__id'] }, [text(id)]), text(` ${media.description}`)]),
+    element('div', { className: ['first-agent-media__stage'] }, content),
+    element('figcaption', { className: ['first-agent-media__caption'] }, [
+      element('span', { className: ['first-agent-media__label'] }, [text(captionLabel)]),
+      element('span', { className: ['first-agent-media__desc'] }, [text(media.description)]),
+    ]),
   ]);
 }
 
