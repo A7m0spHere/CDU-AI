@@ -2914,3 +2914,118 @@ test('光效颜色跟随当前主题强调色 --brand-rgb 变化', async t => {
     '森林主题应同步更新 --brand-rgb',
   );
 });
+
+test('首屏内联脚本在客户端模块未加载前独立恢复主题与光效并安全处理存储异常', async t => {
+  const openBootPage = async (initFn) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    t.after(() => context.close());
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.route('**/_astro/*.js', route => route.abort());
+    await page.addInitScript(initFn);
+    await page.goto(origin + '/guide/', { waitUntil: 'domcontentloaded' });
+    assert.deepEqual(errors, [], '首屏脚本不应抛出异常');
+    return page;
+  };
+
+  // 1. 预设主题与独立光效开关在无客户端 JS 时即生效
+  const presetPage = await openBootPage(() => {
+    localStorage.setItem('cdu-ai-theme', 'preset-forest');
+    localStorage.setItem('cdu-ai-glow', 'on');
+    localStorage.setItem('cdu-ai-trail', 'on');
+  });
+  const presetState = await presetPage.evaluate(() => {
+    const root = document.documentElement;
+    return {
+      theme: root.dataset.theme,
+      glow: root.dataset.glow,
+      trail: root.dataset.trail,
+      bg: getComputedStyle(root).getPropertyValue('--bg').trim(),
+      clientHydrated: document.querySelector('[data-theme-select="light"]') !== null,
+    };
+  });
+  assert.equal(presetState.clientHydrated, false, '测试应确认客户端主题脚本未执行');
+  assert.equal(presetState.theme, 'dark');
+  assert.equal(presetState.glow, 'on');
+  assert.equal(presetState.trail, 'on');
+  assert.equal(presetState.bg, '#0e1712');
+
+  // 2. 自定义主题与背景标记由首屏脚本直接写入
+  const customPage = await openBootPage(() => {
+    localStorage.setItem('cdu-ai-theme', 'custom-boot-check');
+    localStorage.setItem('cdu-ai-custom-themes', JSON.stringify([{
+      id: 'custom-boot-check',
+      params: { base: 'dark' },
+      vars: { '--bg': '#123456', '--page-bg-image': 'url("https://example.com/bg.webp")' },
+    }]));
+  });
+  const customState = await customPage.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    imageBg: document.documentElement.dataset.imageBg,
+    bg: document.documentElement.style.getPropertyValue('--bg'),
+  }));
+  assert.equal(customState.theme, 'dark');
+  assert.equal(customState.imageBg, 'true');
+  assert.equal(customState.bg, '#123456');
+
+  // 3. localStorage 读取抛错时安全回退默认状态
+  const fallbackPage = await openBootPage(() => {
+    Object.defineProperty(Storage.prototype, 'getItem', {
+      configurable: true,
+      value: () => { throw new DOMException('blocked', 'SecurityError'); },
+    });
+  });
+  const fallbackState = await fallbackPage.evaluate(() => ({
+    theme: document.documentElement.dataset.theme,
+    glow: document.documentElement.dataset.glow,
+    trail: document.documentElement.dataset.trail,
+  }));
+  assert.deepEqual(fallbackState, { theme: 'light', glow: 'off', trail: 'off' });
+});
+
+test('首次 Agent 权限说明抽屉在桌面与手机可开关且无 JS 保留官方入口', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/first-agent/');
+  await ready(page);
+
+  const trigger = page.locator('[data-first-agent-drawer-open="first-agent-permission-drawer"]');
+  const drawer = page.locator('#first-agent-permission-drawer');
+
+  // 桌面端打开、内容核对与点击遮罩关闭
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  assert.equal(await trigger.isVisible(), true);
+  await trigger.click();
+  await drawer.waitFor({ state: 'visible' });
+  assert.equal(await drawer.evaluate(el => el.open && el.matches(':modal')), true);
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
+  for (const label of ['变更前确认', '自动编辑', '计划模式', '完全访问']) {
+    assert.match(await drawer.innerText(), new RegExp(label));
+  }
+  const docLink = drawer.locator('a[href="https://zcode.z.ai/cn/docs/safety-confirm"]');
+  assert.equal(await docLink.isVisible(), true);
+  assert.equal(await docLink.getAttribute('target'), '_blank');
+  assert.equal(await docLink.getAttribute('rel'), 'noopener noreferrer');
+
+  await page.mouse.click(10, 200);
+  await drawer.waitFor({ state: 'hidden' });
+  assert.equal(await drawer.evaluate(el => el.open), false);
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+
+  // 手机端（390px）打开不溢出且支持 Escape 关闭
+  await page.setViewportSize({ width: 390, height: 844 });
+  await trigger.click();
+  await drawer.waitFor({ state: 'visible' });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.keyboard.press('Escape');
+  await drawer.waitFor({ state: 'hidden' });
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+
+  // 无 JS 环境下隐藏抽屉按钮，直达 ZCode 官方文档链接保持可见
+  const noJsContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, javaScriptEnabled: false });
+  t.after(() => noJsContext.close());
+  const noJsPage = await noJsContext.newPage();
+  await noJsPage.goto(origin + '/guide/first-agent/');
+  assert.equal(await noJsPage.locator('[data-first-agent-drawer-open="first-agent-permission-drawer"]').isVisible(), false);
+  assert.equal(await noJsPage.locator('.first-agent-permission-bar__link[href="https://zcode.z.ai/cn/docs/safety-confirm"]').isVisible(), true);
+});

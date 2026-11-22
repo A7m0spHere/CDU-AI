@@ -102,7 +102,7 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 正文详情通过 Astro 的 `render(entry)` 获取小节标题和锚点，交给共享的 [`ArticleToc.astro`](../src/components/ArticleToc.astro) 生成「本页目录」（桌面端右侧目录与手机端「本页小节」抽屉）。布局和显示条件由 `reading.css` 管理，见[设计系统](DESIGN-SYSTEM.md#3-信息密度与布局)。目录与站内搜索共用 Astro 生成的锚点，各自选择要收录的标题。
 
-frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合法时 `astro build` 直接失败。
+frontmatter 的字段定义与默认值集中在 [`src/lib/content-rules.mjs`](../src/lib/content-rules.mjs)，[`src/content.config.ts`](../src/content.config.ts) 负责注册集合与跨字段一致性校验；字段不合法时 `astro build` 与 `npm run check:content` 都会直接失败。
 
 ### 结构化数据
 

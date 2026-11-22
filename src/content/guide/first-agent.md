@@ -11,12 +11,16 @@ aiAssistant: "GPT"
 updated: "2026-11-22"
 tools: ["WorkBuddy", "ZCode"]
 tags: ["入门", "Agent", "网页", "实践"]
-sources: []
+sources:
+  - title: "DeepSeek Harness（DSH）官网"
+    url: "https://deepseek.com/harness/"
+  - title: "ZCode · 安全操作确认"
+    url: "https://zcode.z.ai/cn/docs/safety-confirm"
 basis: "teaching-example"
 aiUsage: "assisted"
 reviewed: "2026-11-22"
 reviewedBy: "A7m"
-reviewNote: "2026-11-22 中性化工具表述与额度提示，A7m 确认正文、自主模式与全部实操截图复核通过；工具额度与安装步骤以官方最新说明为准。"
+reviewNote: "2026-11-22 中性化工具表述并补充 DSH 与 ZCode 权限说明来源及抽屉指引，A7m 确认正文与实操截图复核通过；工具额度与安装步骤以官方最新说明为准。"
 ---
 
 在这篇教程中，你不需要掌握编程，也不需要提前理解复杂的技术原理。我们会选择一个 Agent 工具，完成安装，然后让它亲自在你的电脑上制作一个介绍成都大学的网页。
@@ -145,7 +149,9 @@ ZCode 则可以打开这个目录作为项目工作区。
 
 发送后，你可能会看到 Agent 分析需求、创建文件和编写网页代码。
 
-如果出现文件写入或命令执行权限请求，请先查看具体操作内容，再决定是否批准。也可以开启自主模式（zcode）减少授权的操作。
+如果出现文件写入或命令执行权限请求，请先查看具体操作内容，再决定是否批准。初次练习建议先沿用 ZCode 默认的「变更前确认」模式；如需了解四档权限模式与安全确认详情，可打开下方说明抽屉或查阅 [ZCode 安全操作确认文档](https://zcode.z.ai/cn/docs/safety-confirm)。
+
+<!-- first-agent:permission-guide -->
 
 <!-- first-agent:choices -->
 <!-- first-agent:tool workbuddy -->

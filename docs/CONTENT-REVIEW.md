@@ -247,7 +247,7 @@ reviewNote: "正文步骤已调整，等待重新审核"
 
 | 指南 | 修订与审核方式 | 未覆盖范围 |
 | --- | --- | --- |
-| [第一次使用 Agent](../src/content/guide/first-agent.md) | 中性化工具比较与额度说明，A7m 确认现行正文、自主模式演示与全部实操截图复核通过 | 未在目标环境重新逐一实机安装；工具额度与安装步骤以官方最新说明为准 |
+| [第一次使用 Agent](../src/content/guide/first-agent.md) | 中性化工具比较与额度说明，补充 DSH 与 ZCode 安全确认来源及权限说明抽屉，A7m 确认现行正文与全部实操截图复核通过 | 未在目标环境重新逐一实机安装；工具额度与安装步骤以官方最新说明为准 |
 | [提示词撰写思路](../src/content/guide/task-description.md) | AI 辅助初审，更新 OpenAI 官方指南链接并收窄表述边界，A7m 确认复核通过 | 未逐一实测不同模型对示例提示词的执行成功率 |
-| [权限与结果检查](../src/content/guide/permissions-and-review.md) | AI 辅助初审，修正 Git 分支存档前提与 `.gitignore` 边界并补充 Git 官方来源，A7m 确认复核通过 | 未覆盖所有操作系统与工具版本的具体权限行为 |
+| [权限与结果检查](../src/content/guide/permissions-and-review.md) | AI 辅助初审，修正 Git 分支存档、`.gitignore` 与历史敏感数据检查说明并补充 Git / GitHub 官方来源，A7m 确认复核通过 | 未覆盖所有操作系统与工具版本的具体权限行为 |
 | [资料检索](../src/content/guide/research-and-sources.md) | AI 辅助初审并抽查成都大学官网公开入口，A7m 按教学练习范围确认复核通过 | 未覆盖需登录访问的课程材料，未做多模型检索对照 |

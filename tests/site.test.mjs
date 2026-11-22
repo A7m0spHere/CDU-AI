@@ -968,6 +968,12 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /class="tool-mark__fallback"[^>]*data-fallback hidden/, '有 Logo 时首字母兜底必须默认隐藏');
   assert.match(html, /data-mono="true"/, '单色标志需要 data-mono 钩子做深色反色');
 
+  const gammaCard = html.match(/<article\b[^>]*data-tool-id="gamma"[\s\S]*?<\/article>/)?.[0];
+  assert.ok(gammaCard, '工具页应渲染 Gamma 卡片');
+  assert.match(gammaCard, /src="\/tool-logos\/gamma\.svg"/, 'Gamma 卡片应使用官方 SVG 图标');
+  assert.match(gammaCard, /class="tool-mark__fallback"[^>]*data-fallback hidden/, 'Gamma 有图标时首字母兜底应隐藏');
+  assert.doesNotMatch(gammaCard, /data-mono=/, 'Gamma 彩色图标不应开启深色反色');
+
   // 能力标签保留在卡片数据与搜索文本中，工具页不再渲染独立能力筛选栏
   assert.doesNotMatch(html, /data-filter-cap=/, '工具页不应再渲染能力筛选按钮');
   assert.match(html, /data-capabilities=/, '卡片缺少能力标签数据属性');
@@ -1097,6 +1103,10 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
   assert.match(html, /CDU-介绍网站/);
   assert.match(html, /名为 CDU\.html 的文件/);
   assert.match(html, /成都大学官方网站 \(https:\/\/www\.cdu\.edu\.cn\/\)/);
+  assert.match(html, /id="first-agent-permission-drawer"/);
+  assert.match(html, /data-first-agent-drawer-open="first-agent-permission-drawer"/);
+  assert.ok(html.includes('https://zcode.z.ai/cn/docs/safety-confirm'));
+  assert.ok(html.includes('https://deepseek.com/harness/'));
   assert.equal((html.match(/data-copy-card=/g) ?? []).length, 4);
   const media = [...html.matchAll(/data-agent-media="([^"]+)"/g)].map(match => match[1]).sort();
   assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04-W', 'M04-Z', 'M05', 'M06', 'M07-A', 'M07-B'].sort());

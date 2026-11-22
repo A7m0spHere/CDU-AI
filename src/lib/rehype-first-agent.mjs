@@ -85,6 +85,26 @@ function toolPicker() {
   ]);
 }
 
+function permissionGuide() {
+  return element('div', { className: ['first-agent-permission-bar'] }, [
+    element('button', {
+      type: 'button',
+      className: ['first-agent-drawer-trigger'],
+      'data-first-agent-drawer-open': 'first-agent-permission-drawer',
+      ariaHaspopup: 'dialog',
+      ariaControls: 'first-agent-permission-drawer',
+      ariaExpanded: 'false',
+      hidden: true,
+    }, [text('展开 ZCode 权限模式与安全确认说明')]),
+    element('a', {
+      className: ['first-agent-permission-bar__link'],
+      href: 'https://zcode.z.ai/cn/docs/safety-confirm',
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    }, [text('查看 ZCode 官方安全操作确认文档')]),
+  ]);
+}
+
 /** 仅处理本篇的明确标记。普通文章直接返回原始树。 */
 export default function rehypeFirstAgent({ media = resolveFirstAgentMedia() } = {}) {
   return (tree, file) => {
@@ -108,6 +128,9 @@ export default function rehypeFirstAgent({ media = resolveFirstAgentMedia() } = 
       switch (command) {
         case 'selector':
           append(toolPicker());
+          break;
+        case 'permission-guide':
+          append(permissionGuide());
           break;
         case 'choices': {
           const group = element('div', { className: ['first-agent-choices'], 'data-agent-choices': '' });

@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { checkReviewFields } from '../scripts/check-content.mjs';
+import { checkReviewFields, validateCollection } from '../scripts/check-content.mjs';
 import { checkDocumentation } from '../scripts/check-docs.mjs';
+import { CONTENT_TYPES } from '../src/lib/content-rules.mjs';
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), 'cdu-docs-'));
@@ -51,6 +52,7 @@ test('审校人、亲测环境和贡献者代称的长度按去掉首尾空白�
   const fields = {
     reviewed: '2026-10-21',
     reviewedBy: ' ' + '审'.repeat(40) + ' ',
+    reviewNote: ' ' + '注'.repeat(200) + ' ',
     basis: 'first-hand',
     testedOn: '2026-10-21',
     testedEnvironment: ' ' + '测'.repeat(120) + ' ',
@@ -62,13 +64,105 @@ test('审校人、亲测环境和贡献者代称的长度按去掉首尾空白�
 
   for (const [key, value, expected] of [
     ['reviewedBy', '审'.repeat(41), /reviewedBy.*40/],
+    ['reviewNote', '   ', /reviewNote/],
+    ['reviewNote', '注'.repeat(201), /reviewNote.*200/],
     ['testedEnvironment', '测'.repeat(121), /testedEnvironment.*120/],
     ['contributors', ['贡'.repeat(41)], /contributors.*40/],
+    ['contributors', ['A7m', ' A7m '], /contributors.*重复/],
   ]) {
     const fieldErrors = [];
     checkReviewFields({ ...fields, [key]: value }, 'sample.md', fieldErrors);
     assert.equal(fieldErrors.length, 1, key);
     assert.match(fieldErrors[0].message, expected);
+  }
+});
+
+test('三类集合省略默认字段时 Zod 与 CLI 内容检查判定一致', async t => {
+  const root = await fixture(t);
+  const context = { toolNames: [], glossaryCategoryIds: ['llm'] };
+  const samples = {
+    guide: {
+      frontmatter: [
+        'title: "示例指南"',
+        'summary: "摘要"',
+        'stage: "start"',
+        'order: 1',
+        'outcome: "结果"',
+        'forWho: "新生"',
+        'updated: "2026-11-22"',
+      ],
+      data: {
+        title: '示例指南',
+        summary: '摘要',
+        stage: 'start',
+        order: 1,
+        outcome: '结果',
+        forWho: '新生',
+        updated: '2026-11-22',
+      },
+      requiredKey: 'outcome',
+    },
+    works: {
+      frontmatter: [
+        'title: "示例作品"',
+        'summary: "摘要"',
+        'category: "校园生活"',
+        'format: "网页"',
+        'prompt: "做一个网页"',
+        'effort: "30 分钟"',
+        'order: 1',
+        'updated: "2026-11-22"',
+      ],
+      data: {
+        title: '示例作品',
+        summary: '摘要',
+        category: '校园生活',
+        format: '网页',
+        prompt: '做一个网页',
+        effort: '30 分钟',
+        order: 1,
+        updated: '2026-11-22',
+      },
+      requiredKey: 'effort',
+    },
+    glossary: {
+      frontmatter: [
+        'term: "示例术语"',
+        'en: "Sample Term"',
+        'category: "llm"',
+        'definition: "定义"',
+        'example: "例子"',
+        'order: 1',
+        'updated: "2026-11-22"',
+      ],
+      data: {
+        term: '示例术语',
+        en: 'Sample Term',
+        category: 'llm',
+        definition: '定义',
+        example: '例子',
+        order: 1,
+        updated: '2026-11-22',
+      },
+      requiredKey: 'definition',
+    },
+  };
+
+  for (const [collection, sample] of Object.entries(samples)) {
+    const dir = path.join(root, collection);
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, 'sample.md'), `---\n${sample.frontmatter.join('\n')}\n---\n\n正文内容。\n`);
+    assert.equal(CONTENT_TYPES[collection].schema.safeParse(sample.data).success, true, `${collection} Zod 应允许省略默认字段`);
+    const validRes = await validateCollection({ collection, dir, context });
+    assert.deepEqual(validRes.errors, [], `${collection} CLI 检查应允许省略默认字段`);
+
+    const missingData = { ...sample.data };
+    delete missingData[sample.requiredKey];
+    assert.equal(CONTENT_TYPES[collection].schema.safeParse(missingData).success, false, `${collection} Zod 应拦截缺失必填字段`);
+    const missingFrontmatter = sample.frontmatter.filter((line) => !line.startsWith(`${sample.requiredKey}:`));
+    await writeFile(path.join(dir, 'sample.md'), `---\n${missingFrontmatter.join('\n')}\n---\n\n正文内容。\n`);
+    const invalidRes = await validateCollection({ collection, dir, context });
+    assert.ok(invalidRes.errors.some((e) => e.message.includes(`缺少必填字段 ${sample.requiredKey}`)), `${collection} CLI 检查应拦截缺失必填字段`);
   }
 });
 

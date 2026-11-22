@@ -26,11 +26,13 @@ sources:
     url: "https://git-scm.com/docs/git-branch"
   - title: "Git · gitignore"
     url: "https://git-scm.com/docs/gitignore"
+  - title: "GitHub Docs · Removing sensitive data from a repository"
+    url: "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository"
 basis: "teaching-example"
 aiUsage: "drafted"
 reviewed: "2026-11-22"
 reviewedBy: "A7m"
-reviewNote: "2026-11-22 修正 Git 分支存档与 .gitignore 边界说明并补全官方文档来源，AI 辅助初审后由 A7m 确认复核通过；未覆盖所有系统与工具版本的具体权限行为。"
+reviewNote: "2026-11-22 修正 Git 分支存档、.gitignore 与历史敏感数据清理说明并补全官方来源，AI 初审后由 A7m 确认复核通过；未覆盖所有系统与工具版本的具体权限行为。"
 ---
 
 在上一篇[提示词撰写思路](/guide/task-description/)里，我们聊过怎么把需求写清楚。但光在提示词里嘱咐一句“不要乱删文件”，其实只是一层口头提醒，而不是铁门锁。
@@ -105,7 +107,7 @@ Git 是一套本地[版本控制](/glossary/version-control/)工具。入门时�
 
 顺带提一下 **GitHub**：如果说 Git 管的是你电脑本地的[仓库](/glossary/repository/)和历史存档，GitHub 就是把这些仓库托管到云端、方便备份和多人协作的平台。做团队项目时，大家常把改动推到各自的远程分支，发起 [Pull Request](/glossary/pull-request/) 互相检查过代码，再[合并（Merge）](/glossary/merge/)进主分支——CDU AI 这个网站本身的日常维护就是这样协作的。
 
-不过，把项目同步到 GitHub 前多留一个心眼：**如果仓库是公开的，推送前一定要检查待提交的文件列表，配合 `.gitignore` 屏蔽 `.env` 密钥文件、本地数据备份和个人隐私材料**，避免让 Agent 顺手生成的配置或敏感文件一起传到公开网络上。同时要记住，**`.gitignore` 只对未跟踪文件生效，对已经被 Git 跟踪入库的文件无效**；如果敏感文件此前已经提交过，需要额外将它移出版本跟踪并更换已暴露的密钥。
+不过，把项目同步到 GitHub 前多留一个心眼：**如果仓库是公开的，推送前一定要检查待提交的文件列表，配合 `.gitignore` 屏蔽 `.env` 密钥文件、本地数据备份和个人隐私材料**，避免让 Agent 顺手生成的配置或敏感文件一起传到公开网络上。同时要记住，**`.gitignore` 只对未跟踪文件生效，对已经被 Git 跟踪入库的文件无效**；把敏感文件从工作区删掉或移出版本跟踪也**只会改变之后的快照，不会清除旧提交历史中已经保留的内容**。因此，如果敏感文件此前提交过，推送前必须先检查待推送的提交历史，确认敏感内容已经清除再推送；若已经推送到公开仓库，应**第一时间撤销或轮换已暴露的密钥/凭证**，再按需参考 [GitHub 敏感数据移除指南](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository) 处理历史中仍可访问的数据。
 
 ## 任务做完别急着收工：结果检查清单
 
