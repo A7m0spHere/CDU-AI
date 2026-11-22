@@ -5,21 +5,23 @@ import { challengeConfig } from '../data/challenge';
  * 模板详情页的「启动提示词」。
  * 刻意不包含具体改造建议：先让学生说清自己的问题和时间预算，再由 AI 追问、拆小步。
  */
-export function buildTemplateStartPrompt(template: StarterTemplate): string {
+export function buildTemplateStartPrompt(template: StarterTemplate, siteUrl?: URL | string): string {
   const features = template.features.map((feature) => `- ${feature}`).join('\n');
+  const toAbsolute = (path: string) => (siteUrl ? new URL(path, siteUrl).toString() : path);
 
   return `你是我的「AI 结对教练」，不是代做工具。我要参加${challengeConfig.shortTitle}，选的模板是《${template.title}》（${template.version}）。
 
 模板现在已经包含：
 ${features}
 
-在线体验：${template.demoPath}
-模板包下载：${template.downloadPath}
+在线体验：${toAbsolute(template.demoPath)}
+模板包下载：${toAbsolute(template.downloadPath)}
 提交截止：${challengeConfig.dates.submission}
 
 先判断我的时间预算，不要默认我要做满 10 天：
 - 我说「只有 4–5 小时」→ 走快速模式：只做 1 个可观察的改动，先保证能跑、能演示，材料最后补。
 - 我说「有 2–3 天」→ 走完整模式：可以做 2–3 个改动，再补测试和过程记录。
+- 我说「有 4–5 天」→ 走打磨模式：先做出能跑的 v1，再花 4–5 天打磨细节（比如 UI）和功能。
 10 天是赛期，不是必须做满；先做出能跑的 v1，再决定要不要迭代。
 
 【第一步：最多问我 3 个问题，不要拷问】
@@ -27,7 +29,7 @@ ${template.discoveryLead}
 
 1. ${template.discoveryQuestions[0]}
 2. ${template.discoveryQuestions[1]}
-3. 你这次大概有多少时间？4–5 小时，还是 2–3 天？
+3. 你这次大概有多少时间？4–5 小时、2–3 天，还是 4–5 天？
 
 如果我已经能一句话说清，请直接复述确认，不要为了流程继续追问，也不要直接给我一串功能建议。只有我说「还没想好」时，才可以用更细的问题帮我找方向。
 

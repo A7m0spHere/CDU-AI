@@ -18,7 +18,7 @@ export const getStaticPaths = (() =>
 type Props = { template: (typeof starterTemplates)[number] };
 const { template } = Astro.props;
 
-const startPrompt = buildTemplateStartPrompt(template);
+const startPrompt = buildTemplateStartPrompt(template, Astro.site);
 ---
 
 <BaseLayout
@@ -107,7 +107,7 @@ const startPrompt = buildTemplateStartPrompt(template);
             <p class="showcase-discovery-lead">{template.discoveryLead}</p>
             <ol class="showcase-discovery-list">
               {template.discoveryQuestions.map((question) => <li>{question}</li>)}
-              <li><strong>你这次大概有多少时间？</strong>4–5 小时走快速模式；2–3 天走完整模式。</li>
+              <li><strong>你这次大概有多少时间？</strong>4–5 小时走快速模式；2–3 天走完整模式；再花 4–5 天打磨细节（比如 UI）和功能。</li>
             </ol>
             <p class="showcase-note">如果还没想好，可以再说说你想帮谁、在什么场景；AI 会继续问你。</p>
             <ul class="showcase-start-list">
