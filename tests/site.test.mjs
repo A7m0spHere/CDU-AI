@@ -548,7 +548,7 @@ test('赛事要求按届次归档，当前规则与归档版本分开', async ()
   const archiveIndex = await read('events/archive/index.html');
   assert.match(archiveIndex, /活动归档/);
   assert.match(archiveIndex, /2026-ai-challenge/);
-  assert.match(archiveIndex, /规则更新 2026-11-21/);
+  assert.match(archiveIndex, /规则更新 2026-11-22/);
 
   const archivedRules = await read('events/archive/2026-ai-challenge/index.html');
   assert.match(archivedRules, /赛事要求归档/);
