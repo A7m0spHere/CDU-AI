@@ -62,7 +62,10 @@
 | Gamma / Canva AI / 万相 Wan / 海螺 AI | [gamma.app](https://gamma.app/) / [canva.com](https://www.canva.com/canva-ai/) / [wan.video](https://wan.video/) / [hailuoai.video](https://hailuoai.video/) | 演示文稿、设计与视频创作；即梦（[jimeng.jianying.com](https://jimeng.jianying.com/)）、可灵（[kling.ai](https://kling.ai/)）、Runway（[runway.com](https://runway.com/)）与万相按主用途归类并在简介保留多模态创作能力 |
 | 沉浸式翻译 / 通义听悟 / Consensus / MinerU | [immersivetranslate.com](https://immersivetranslate.com/zh-Hans/) / [tingwu.aliyun.com](https://tingwu.aliyun.com/) / [consensus.app](https://consensus.app/) / [mineru.net](https://mineru.net/)（[仓库](https://github.com/opendatalab/MinerU)） | 对照阅读、录音转写、论文检索与结构化文档解析；MinerU 依据官网范围独立归入 `ocr` |
 | WPS AI / Notion AI / Zotero / Obsidian | [x.wps.cn](https://x.wps.cn/)（[功能介绍](https://plus.wps.cn/blog/p109234.html)） / [notion.com](https://www.notion.com/zh-cn/product/ai) / [zotero.org](https://www.zotero.org/)（[仓库](https://github.com/zotero/zotero)） / [obsidian.md](https://obsidian.md/) | 办公文档归 AIGC；知识库与文献管理归搜索科研。Zotero 使用 AGPL-3.0；Obsidian 依据[许可说明](https://obsidian.md/license)不标开源，Zotero 联动需[社区插件](https://community.obsidian.md/plugins/obsidian-zotero-desktop-connector) |
-| RAGFlow / Browser Use / CrewAI / llama.cpp | [ragflow.io](https://ragflow.io/) / [browser-use.com](https://browser-use.com/) / [crewai.com](https://crewai.com/) / [llama.app](https://llama.app/) | 开源项目（Apache-2.0 / MIT）；llama.cpp 保留引擎定位并说明 `llama.app` 同时提供桌面应用 |
+| RAGFlow | [官网](https://ragflow.io/) / [源码仓库](https://github.com/infiniflow/ragflow) | 本批核对为 Apache-2.0 |
+| Browser Use | [官网](https://browser-use.com/) / [源码仓库](https://github.com/browser-use/browser-use) | 本批核对为 MIT |
+| CrewAI | [官网](https://crewai.com/) / [源码仓库](https://github.com/crewAIInc/crewAI) | 本批核对为 MIT |
+| llama.cpp | [官网](https://llama.app/) / [源码仓库](https://github.com/ggml-org/llama.cpp) | 本批核对为 MIT。条目介绍推理引擎，官网同时提供桌面应用 |
 
 ### 2.2 API 与开发平台
 

@@ -116,8 +116,21 @@ tags: ["AI 素养", "安全"]
 
 - `selector`：生成默认选中 WorkBuddy 的工具单选切换控件；
 - `choices` / `tool workbuddy` / `tool zcode` / `endchoices`：按所选工具切换安装、工作目录和任务截图；
-- `copy task` / `revision`：将紧随的引用块转为可复制的任务/修改卡片（派生纯文本并保留 Markdown 链接实际 URL）；
 - `media <编号>` / `comparison`：读取统一配置渲染截图或 M07-B / M07-A 并排对比。
+
+`copy task` 后直接放一个 Markdown 引用块。修改卡片用 `revisions` 和 `endrevisions` 包成一组，每个 `revision <编号>` 后先放标题段落，再放提示词引用块。卡片展示与复制共用同一份纯文本，保留 Markdown 链接的实际 URL。
+
+```markdown
+<!-- first-agent:revisions -->
+
+<!-- first-agent:revision visual -->
+
+**调整视觉风格**
+
+> 请优化配色和排版，保留已有内容。
+
+<!-- first-agent:endrevisions -->
+```
 
 ## 4. 作品示例 frontmatter
 
@@ -151,7 +164,7 @@ status: "example" # M0 只能是 example
 
 ## 5. 术语表
 
-在 `src/content/glossary/` 新建 Markdown，一个词一篇；分类在 [`src/data/glossary.ts`](../src/data/glossary.ts) 的 `glossaryCategories` 中维护。页面左侧按两层分支树组织，默认停在「AI 基础与使用」主分支，延伸分支点击分支头后展开（两个分支头均可折叠）：
+在 `src/content/glossary/` 新建 Markdown，一个词一篇。分类在 [`src/data/glossary.ts`](../src/data/glossary.ts) 的 `glossaryCategories` 中维护。页面默认筛选「AI 基础与使用」。桌面端初始展示两个分支的子分类，可用分支头旁的箭头分别折叠。手机端只显示当前分支的子分类，点分支名即可切换。
 
 ```text
 [AI] AI 基础与使用
@@ -162,8 +175,11 @@ status: "example" # M0 只能是 example
   ├ 安全与隐私 (safety)      · 能传什么、生成内容能不能直接用
   └ 用量与计费 (cost)        · 订阅、试用、按量计费与接口用量限制
       ╰─→ [vibecoding] Vibe Coding（延伸分支：只解释概念，不写操作命令教程）
-              ├ Vibe Coding (vibecoding) · 界面与前端 (frontend) · 后端与部署 (backend)
-              └ 需求与产品 (product) · 调试与测试 (testing) · Git 与 GitHub (git)
+              ├ 界面与前端 (frontend)
+              ├ 后端与部署 (backend)
+              ├ 需求与产品 (product)
+              ├ 调试与测试 (testing)
+              └ Git 与 GitHub (git)
 ```
 
 frontmatter：
