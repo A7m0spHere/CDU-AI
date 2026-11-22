@@ -45,3 +45,15 @@ test('审校字段示例复用内容校验：资料整理不能填写亲测字�
   await writeFile(file, '```yaml\nitems: [\n```');
   assert.match((await checkDocumentation(root)).errors[0].message, /YAML 示例无效/);
 });
+
+test('指南首页的站内路由交给构建检查，不误判成仓库文件路径', async t => {
+  const root = await fixture(t);
+  const guideDir = path.join(root, 'src/content/guide');
+  await mkdir(guideDir, { recursive: true });
+  await writeFile(path.join(guideDir, '_HOME.md'), '[上下文窗口](/glossary/context-window/)\n[术语列表](/glossary/)');
+  await writeFile(path.join(root, 'README.md'), '[不存在的仓库目标](/not-found.md)');
+  const result = await checkDocumentation(root);
+  assert.equal(result.errors.length, 1);
+  assert.equal(result.errors[0].file, 'README.md');
+  assert.match(result.errors[0].message, /本地目标不存在/);
+});

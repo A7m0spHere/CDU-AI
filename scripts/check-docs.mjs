@@ -95,7 +95,10 @@ export async function checkDocumentation(root) {
     });
 
     for (const { node, url } of links) {
-      // 外部地址不发网络请求；站点正文外链另由内容检查器和构建检查。
+      // _HOME.md 会作为站点正文渲染：以 / 开头的站内路由由构建后的 check-links 负责验证，
+      // 不能误按仓库根目录的真实文件路径检查（如 /glossary/token/）。
+      if (file === path.join(root, 'src/content/guide/_HOME.md') && url?.startsWith('/') && !url.startsWith('//')) continue;
+      // 外部地址不发网络请求；站点正文外链另由内容检查器和构建检查.
       if (!url || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url) || url.startsWith('//')) continue;
       localLinks++;
       try {
