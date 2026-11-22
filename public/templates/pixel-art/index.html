@@ -1,0 +1,1662 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="一个可本地运行的像素画板网页模板：像素网格、铅笔 / 橡皮 / 填充 / 取色、调色板、镜像、撤销重做、自动保存与透明 PNG 导出。">
+  <meta name="theme-color" content="#f2eee4" id="themeColor">
+  <title>像素画板 · 涂鸦工作台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23272117'/%3E%3Crect x='12' y='12' width='18' height='18' fill='%23e4572e'/%3E%3Crect x='34' y='12' width='18' height='18' fill='%23f2b134'/%3E%3Crect x='12' y='34' width='18' height='18' fill='%234cc9f0'/%3E%3Crect x='34' y='34' width='18' height='18' fill='%232a9d8f'/%3E%3C/svg%3E">
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('cdu-pixel-art-v1');
+        var saved = raw ? JSON.parse(raw) : null;
+        document.documentElement.dataset.theme = saved && saved.theme === 'dark' ? 'dark' : 'light';
+      } catch (error) {}
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f2eee4;
+      --bg-dot: rgba(53, 43, 31, .10);
+      --glow: rgba(228, 87, 46, .10);
+      --panel: #fffdf7;
+      --panel-soft: #f7f1e5;
+      --ink: #272117;
+      --ink-soft: #4b4032;
+      --muted: #796c5b;
+      --faint: #a29583;
+      --line: #ded3c1;
+      --border: #2b241a;
+      --accent: #e4572e;
+      --accent-ink: #fff9f2;
+      --accent-soft: #fbe8df;
+      --teal: #2a9d8f;
+      --warn: #b7791f;
+      --danger: #c0392b;
+      --danger-soft: #fdeceb;
+      --shadow-color: rgba(43, 36, 26, .16);
+      --shadow: 5px 5px 0 var(--shadow-color);
+      --check-a: #eee6d7;
+      --check-b: #f8f2e6;
+      --grid-line: rgba(43, 36, 26, .15);
+      --toast-bg: #272117;
+      --toast-ink: #fffdf7;
+      --radius: 16px;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #141210;
+      --bg-dot: rgba(244, 236, 224, .07);
+      --glow: rgba(255, 122, 77, .10);
+      --panel: #1d1916;
+      --panel-soft: #26211b;
+      --ink: #f4ecdf;
+      --ink-soft: #d9cfc0;
+      --muted: #ac9e8c;
+      --faint: #7d7160;
+      --line: #3b342b;
+      --border: #4a4034;
+      --accent: #ff7a4d;
+      --accent-ink: #21120b;
+      --accent-soft: rgba(255, 122, 77, .14);
+      --teal: #4ecdc4;
+      --warn: #f2b134;
+      --danger: #ff7b72;
+      --danger-soft: rgba(255, 123, 114, .12);
+      --shadow-color: rgba(0, 0, 0, .5);
+      --shadow: 5px 5px 0 var(--shadow-color);
+      --check-a: #211d19;
+      --check-b: #191613;
+      --grid-line: rgba(244, 236, 224, .13);
+      --toast-bg: #f4ecdf;
+      --toast-ink: #1d1916;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image: radial-gradient(var(--bg-dot) 1.1px, transparent 1.1px);
+      background-size: 18px 18px;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(880px 500px at 12% -8%, var(--glow), transparent 65%),
+        radial-gradient(640px 420px at 100% 0%, rgba(76, 201, 240, .07), transparent 60%);
+    }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .42; }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    ::selection { background: var(--accent-soft); }
+
+    .sprite {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+    .icon {
+      width: 18px;
+      height: 18px;
+      flex: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    kbd {
+      display: inline-block;
+      padding: 3px 5px;
+      border: 1px solid var(--line);
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9px;
+      line-height: 1;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1240px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 22px 0 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .brand__mark {
+      width: 44px;
+      height: 44px;
+      flex: none;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      padding: 7px;
+      background: var(--ink);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 3px 3px 0 var(--shadow-color);
+    }
+    .brand__mark i {
+      display: block;
+      background: var(--c);
+      border-radius: 1.5px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .brand h1 span { color: var(--accent); }
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .topbar__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: none;
+    }
+    .save-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .save-state__dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+    .save-state[data-state="saving"] .save-state__dot {
+      background: var(--warn);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    .save-state[data-state="error"] {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .save-state[data-state="error"] .save-state__dot { background: var(--danger); animation: none; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .25; }
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--border);
+      border-radius: 11px;
+      background: var(--panel);
+      box-shadow: 3px 3px 0 var(--shadow-color);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .icon-button:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+    .icon-button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow-color); }
+    .icon-button .icon { width: 19px; height: 19px; }
+    [data-theme="light"] .icon--moon { display: none; }
+    [data-theme="dark"] .icon--sun { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 15px;
+      border: 2px solid var(--border);
+      border-radius: 11px;
+      background: var(--panel);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 3px 3px 0 var(--shadow-color);
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--shadow-color); }
+    .btn--primary { background: var(--accent); color: var(--accent-ink); }
+    .btn--block { width: 100%; margin-top: 12px; }
+    .btn--danger { color: var(--danger); }
+    .btn--danger:hover { background: var(--danger-soft); }
+    .btn .icon { width: 15px; height: 15px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 94px minmax(0, 1fr) 306px;
+      gap: 16px;
+      align-items: stretch;
+      flex: 1;
+    }
+    .panel {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .tool-rail {
+      align-self: start;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tool-rail__group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tool-rail__divider {
+      height: 1px;
+      margin: 4px 6px;
+      background: var(--line);
+    }
+    .tool {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 9px 4px 7px;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+      transition: background .12s ease, color .12s ease, border-color .12s ease;
+    }
+    .tool .icon { width: 20px; height: 20px; }
+    .tool kbd { margin-top: 1px; padding: 2px 4px; font-size: 8.5px; }
+    .tool:hover { background: var(--panel-soft); color: var(--ink); }
+    .tool.is-active {
+      background: var(--accent-soft);
+      border-color: var(--border);
+      color: var(--ink);
+    }
+    .tool.is-active kbd { border-color: var(--border); color: var(--ink); }
+    .tool:disabled:hover { background: transparent; }
+
+    .board-card {
+      padding: 16px 18px 12px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .board-card__head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--line);
+    }
+    .eyebrow {
+      margin: 0;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .board-card__title h2 {
+      margin: 3px 0 0;
+      font-size: 19px;
+      letter-spacing: .01em;
+    }
+    .board-card__badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      white-space: nowrap;
+    }
+    .mini-check {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background-image:
+        linear-gradient(45deg, var(--check-a) 25%, transparent 25%, transparent 75%, var(--check-a) 75%),
+        linear-gradient(45deg, var(--check-a) 25%, var(--check-b) 25%, var(--check-b) 75%, var(--check-a) 75%);
+      background-size: 8px 8px;
+      background-position: 0 0, 4px 4px;
+    }
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 0 10px;
+      min-height: 0;
+    }
+    .canvas-stage {
+      position: relative;
+      width: min(100%, 620px);
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel-soft);
+      box-shadow: 0 0 0 5px var(--panel-soft), 0 0 0 6px var(--line);
+      touch-action: none;
+      cursor: crosshair;
+      user-select: none;
+    }
+    #pixelCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    }
+    .hover-cell {
+      position: absolute;
+      width: 6.25%;
+      height: 6.25%;
+      border: 2px solid var(--accent);
+      background: rgba(228, 87, 46, .22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .06s linear;
+    }
+    .hover-cell.is-outline {
+      border-style: dashed;
+      background: transparent;
+    }
+    .canvas-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 12px 0 0;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 10px;
+      text-align: center;
+    }
+    .canvas-hint .icon { width: 14px; height: 14px; }
+    .board-card__foot {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+    .foot-item {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+    .foot-item strong {
+      color: var(--ink-soft);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .foot-item--right { margin-left: auto; }
+
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+    .panel--pad { padding: 14px 16px 16px; }
+    .panel__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+    }
+    .panel__head h2 { margin: 2px 0 0; font-size: 15px; }
+    .color-chip {
+      width: 34px;
+      height: 34px;
+      flex: none;
+      border: 2px solid var(--border);
+      border-radius: 9px;
+      background: var(--accent);
+      box-shadow: inset 0 0 0 3px var(--panel), 3px 3px 0 var(--shadow-color);
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .swatch {
+      position: relative;
+      aspect-ratio: 1;
+      padding: 0;
+      border: 2px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      transition: transform .1s ease, border-color .1s ease;
+    }
+    .swatch::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 5px;
+      background: var(--c);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .16), inset 0 2px 0 rgba(255, 255, 255, .14);
+    }
+    .swatch:hover { transform: translateY(-2px); }
+    .swatch[aria-pressed="true"] {
+      border-color: var(--border);
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+    .custom-color {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+    }
+    .custom-color__label { color: var(--muted); font-size: 11px; }
+    .custom-color__control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 3px 8px 3px 3px;
+      border: 2px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel-soft);
+    }
+    .custom-color__control:focus-within { border-color: var(--border); }
+    input[type="color"] {
+      width: 30px;
+      height: 26px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 5px; }
+    input[type="color"]::-moz-color-swatch { border: 0; border-radius: 5px; }
+    .custom-color code {
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 10px;
+    }
+
+    .field { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .field__label { color: var(--muted); font-size: 11px; }
+    .segmented {
+      width: 150px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      padding: 3px;
+      border: 2px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel-soft);
+    }
+    .segmented button {
+      padding: 5px 0;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+    .segmented button:hover { color: var(--ink); }
+    .segmented button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+    .switch-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .switch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 9px;
+      border: 2px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 11px;
+      text-align: left;
+    }
+    .switch .icon { width: 15px; height: 15px; }
+    .switch__state { margin-left: auto; font-family: var(--mono); font-size: 9px; }
+    .switch[aria-pressed="true"] {
+      border-color: var(--border);
+      background: var(--accent-soft);
+      color: var(--ink);
+    }
+
+    .panel--keys { display: flex; flex-direction: column; flex: 1; }
+    .keys { display: grid; gap: 8px; margin: 0; }
+    .keys > div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .keys dt { display: flex; gap: 3px; }
+    .keys dd {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10px;
+      text-align: right;
+    }
+    .panel__tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      color: var(--faint);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+    .panel__tip .icon { flex: none; width: 14px; height: 14px; margin-top: 1px; color: var(--warn); }
+    .panel__tip p { margin: 0; }
+
+    .foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 2px;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .02em;
+    }
+    .foot__mark { color: var(--muted); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 30;
+      max-width: calc(100% - 32px);
+      padding: 10px 16px;
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      background: var(--toast-bg);
+      color: var(--toast-ink);
+      box-shadow: 4px 4px 0 var(--shadow-color);
+      font-size: 12px;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 14px);
+      transition: transform .18s ease, opacity .18s ease;
+    }
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "board" "rail" "side";
+      }
+      .board-card { grid-area: board; }
+      .tool-rail {
+        grid-area: rail;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+      }
+      .tool-rail__group {
+        flex-direction: row;
+        flex: 1;
+      }
+      .tool-rail__divider { width: 1px; height: 28px; margin: 0 4px; }
+      .tool {
+        flex: 1;
+        flex-direction: row;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 10px;
+      }
+      .tool kbd { margin-top: 0; }
+      .side {
+        grid-area: side;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+      }
+      .panel--keys { grid-column: span 2; flex: none; }
+      .panel--keys .panel__tip { margin-top: 14px; }
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        width: calc(100% - 24px);
+        padding: 14px 0 14px;
+        gap: 14px;
+      }
+      .topbar { flex-wrap: wrap; gap: 10px; }
+      .brand__mark { width: 38px; height: 38px; padding: 6px; border-radius: 10px; }
+      .brand h1 { font-size: 22px; }
+      .brand p { font-size: 8px; }
+      .save-state { display: none; }
+      .topbar__actions { margin-left: auto; }
+      .btn { padding: 9px 12px; }
+      .workspace { display: flex; flex-direction: column; gap: 14px; }
+      .board-card { padding: 12px 12px 10px; }
+      .board-card__head { flex-direction: column; align-items: flex-start; gap: 7px; }
+      .board-card__badges { justify-content: flex-start; }
+      .canvas-area { padding: 12px 0 8px; }
+      .canvas-stage { width: 100%; }
+      .canvas-hint { margin-top: 10px; font-size: 9px; line-height: 1.4; }
+      .board-card__foot { flex-wrap: wrap; gap: 8px 14px; }
+      .foot-item--right { display: none; }
+      .tool-rail {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 2px;
+        padding: 6px;
+      }
+      .tool-rail__group { display: contents; }
+      .tool-rail__divider { display: none; }
+      .tool {
+        flex-direction: column;
+        gap: 3px;
+        padding: 8px 2px 7px;
+        font-size: 10px;
+      }
+      .tool kbd { display: none; }
+      .side { display: flex; }
+      .panel--keys { display: flex; }
+      .panel--keys .panel__tip { margin-top: auto; }
+      .foot { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .swatches { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-pencil" viewBox="0 0 24 24">
+      <path d="M4 20h4l10.6-10.6a2.1 2.1 0 0 0-3-3L5 17v3Z"/>
+      <path d="m13.6 5.4 3 3"/>
+    </symbol>
+    <symbol id="i-eraser" viewBox="0 0 24 24">
+      <path d="m7 17-3-3a2.2 2.2 0 0 1 0-3.1l6.6-6.6a2.2 2.2 0 0 1 3.1 0l3.4 3.4a2.2 2.2 0 0 1 0 3.1L10.5 17H7Z"/>
+      <path d="m9.5 7.5 7 7"/>
+      <path d="M7 21h13"/>
+    </symbol>
+    <symbol id="i-fill" viewBox="0 0 24 24">
+      <path d="M4.5 10.5 10 5l7 7-5.5 5.5a2 2 0 0 1-2.8 0L4.5 13.3a2 2 0 0 1 0-2.8Z"/>
+      <path d="m8 7 7 7"/>
+      <path d="M20 14c1.2 1.6 2 2.8 2 3.7a2 2 0 1 1-4 0c0-.9.8-2.1 2-3.7Z"/>
+    </symbol>
+    <symbol id="i-picker" viewBox="0 0 24 24">
+      <path d="M19.8 3.2a2.4 2.4 0 0 0-3.4 0L13 6.6l4.4 4.4 3.4-3.4a2.4 2.4 0 0 0 0-3.4Z"/>
+      <path d="m13.4 7.4-8.1 8.1V20h4.5l8.1-8.1"/>
+    </symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24">
+      <path d="M9 14 4 9l5-5"/>
+      <path d="M4 9h10a6 6 0 0 1 0 12h-3"/>
+    </symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24">
+      <path d="m15 14 5-5-5-5"/>
+      <path d="M20 9H10a6 6 0 0 0 0 12h3"/>
+    </symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24">
+      <rect x="4" y="4" width="16" height="16" rx="2"/>
+      <path d="M4 10h16M4 15h16M10 4v16M15 4v16"/>
+    </symbol>
+    <symbol id="i-mirror" viewBox="0 0 24 24">
+      <path d="M12 3v18"/>
+      <path d="m9 6-4.5 4.5L9 15V6Z"/>
+      <path d="m15 6 4.5 4.5L15 15V6Z"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M4 7h16"/>
+      <path d="M9 7V5h6v2"/>
+      <path d="m6 7 1 13h10l1-13"/>
+      <path d="M10 11v5M14 11v5"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <path d="M12 4v10"/>
+      <path d="m7 9 5 5 5-5"/>
+      <path d="M5 20h14"/>
+    </symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+    </symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24">
+      <path d="M20 13.5A8 8 0 1 1 10.5 4 6.5 6.5 0 0 0 20 13.5Z"/>
+    </symbol>
+    <symbol id="i-tip" viewBox="0 0 24 24">
+      <path d="M9 18h6"/>
+      <path d="M10 21h4"/>
+      <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/>
+    </symbol>
+    <symbol id="i-cursor" viewBox="0 0 24 24">
+      <path d="m5 3 6 17 2.2-6.8L20 11 5 3Z"/>
+    </symbol>
+  </svg>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">
+          <i style="--c:#e4572e"></i><i style="--c:#f2b134"></i><i style="--c:#f7f4ea"></i>
+          <i style="--c:#f4a3b6"></i><i style="--c:#2a9d8f"></i><i style="--c:#4cc9f0"></i>
+          <i style="--c:#a78bfa"></i><i style="--c:#f7f4ea"></i><i style="--c:#e4572e"></i>
+        </span>
+        <div>
+          <h1>像素画板<span aria-hidden="true">.</span></h1>
+          <p>PIXEL PAD · 涂鸦工作台 · v1.0</p>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <span class="save-state" id="saveState" data-state="saved">
+          <span class="save-state__dot" aria-hidden="true"></span>
+          <span id="saveText">已自动保存</span>
+        </span>
+        <button class="icon-button" id="themeButton" type="button" aria-label="切换为深色主题" title="切换主题">
+          <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"></use></svg>
+          <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"></use></svg>
+        </button>
+        <button class="btn btn--primary" id="exportButton" type="button" title="导出透明背景的 PNG">
+          <svg class="icon" aria-hidden="true"><use href="#i-download"></use></svg>
+          导出 PNG
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="tool-rail panel" aria-label="工具与历史">
+        <div class="tool-rail__group" role="group" aria-label="绘图工具">
+          <button class="tool is-active" type="button" data-tool="pencil" aria-pressed="true" aria-keyshortcuts="B" title="铅笔（B）">
+            <svg class="icon" aria-hidden="true"><use href="#i-pencil"></use></svg>
+            <span>铅笔</span>
+            <kbd>B</kbd>
+          </button>
+          <button class="tool" type="button" data-tool="eraser" aria-pressed="false" aria-keyshortcuts="E" title="橡皮（E）">
+            <svg class="icon" aria-hidden="true"><use href="#i-eraser"></use></svg>
+            <span>橡皮</span>
+            <kbd>E</kbd>
+          </button>
+          <button class="tool" type="button" data-tool="fill" aria-pressed="false" aria-keyshortcuts="G" title="填充（G）">
+            <svg class="icon" aria-hidden="true"><use href="#i-fill"></use></svg>
+            <span>填充</span>
+            <kbd>G</kbd>
+          </button>
+          <button class="tool" type="button" data-tool="picker" aria-pressed="false" aria-keyshortcuts="I" title="取色（I）">
+            <svg class="icon" aria-hidden="true"><use href="#i-picker"></use></svg>
+            <span>取色</span>
+            <kbd>I</kbd>
+          </button>
+        </div>
+        <div class="tool-rail__divider" aria-hidden="true"></div>
+        <div class="tool-rail__group" role="group" aria-label="撤销与重做">
+          <button class="tool" id="undoButton" type="button" disabled aria-keyshortcuts="Control+Z" title="撤销（Ctrl + Z）">
+            <svg class="icon" aria-hidden="true"><use href="#i-undo"></use></svg>
+            <span>撤销</span>
+            <kbd>Ctrl Z</kbd>
+          </button>
+          <button class="tool" id="redoButton" type="button" disabled aria-keyshortcuts="Control+Shift+Z" title="重做（Ctrl + Shift + Z）">
+            <svg class="icon" aria-hidden="true"><use href="#i-redo"></use></svg>
+            <span>重做</span>
+            <kbd>⇧Z</kbd>
+          </button>
+        </div>
+      </aside>
+
+      <section class="board-card panel" aria-labelledby="boardTitle">
+        <div class="board-card__head">
+          <div class="board-card__title">
+            <p class="eyebrow">CANVAS / <span id="sizeLabel">16 × 16</span></p>
+            <h2 id="boardTitle">画布</h2>
+          </div>
+          <div class="board-card__badges">
+            <span class="badge"><span class="mini-check" aria-hidden="true"></span>透明背景</span>
+            <span class="badge" id="fillBadge">0 / 256 像素</span>
+          </div>
+        </div>
+
+        <div class="canvas-area">
+          <div class="canvas-stage" id="canvasStage">
+            <canvas id="pixelCanvas" width="512" height="512" aria-label="像素画布，16 × 16。使用鼠标或手指绘制。"></canvas>
+            <div class="grid-overlay" id="gridOverlay" aria-hidden="true"></div>
+            <div class="hover-cell" id="hoverCell" aria-hidden="true"></div>
+          </div>
+          <p class="canvas-hint">
+            <svg class="icon" aria-hidden="true"><use href="#i-cursor"></use></svg>
+            按住拖动连续绘制；透明格子不会被导出背景填充
+          </p>
+        </div>
+
+        <div class="board-card__foot">
+          <div class="foot-item"><span>坐标</span><strong id="coordsValue">--, --</strong></div>
+          <div class="foot-item"><span>颜色</span><strong id="currentHex">#E4572E</strong></div>
+          <div class="foot-item"><span>工具</span><strong id="toolValue">铅笔</strong></div>
+          <div class="foot-item foot-item--right"><span>快捷键</span><strong>B / E / G / I</strong></div>
+        </div>
+      </section>
+
+      <div class="side">
+        <section class="panel panel--pad" aria-labelledby="paletteTitle">
+          <div class="panel__head">
+            <div>
+              <p class="eyebrow">PALETTE / 01</p>
+              <h2 id="paletteTitle">调色盘</h2>
+            </div>
+            <span class="color-chip" id="colorChip" aria-hidden="true"></span>
+          </div>
+          <div class="swatches" id="swatches" role="group" aria-label="预设颜色"></div>
+          <div class="custom-color">
+            <label class="custom-color__label" for="colorInput">自定义颜色</label>
+            <div class="custom-color__control">
+              <input type="color" id="colorInput" value="#e4572e" aria-label="自定义颜色">
+              <code id="customHex">#E4572E</code>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel panel--pad" aria-labelledby="setupTitle">
+          <div class="panel__head">
+            <div>
+              <p class="eyebrow">SETUP / 02</p>
+              <h2 id="setupTitle">画布设置</h2>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field__label" id="sizeGroupLabel">画布尺寸</span>
+            <div class="segmented" id="sizeGroup" role="group" aria-labelledby="sizeGroupLabel">
+              <button type="button" data-size="16" aria-pressed="true">16</button>
+              <button type="button" data-size="24" aria-pressed="false">24</button>
+              <button type="button" data-size="32" aria-pressed="false">32</button>
+            </div>
+          </div>
+          <div class="switch-row">
+            <button class="switch" id="gridButton" type="button" aria-pressed="true" title="显示或隐藏像素网格">
+              <svg class="icon" aria-hidden="true"><use href="#i-grid"></use></svg>
+              <span>网格</span>
+              <span class="switch__state">开</span>
+            </button>
+            <button class="switch" id="mirrorButton" type="button" aria-pressed="false" title="左右镜像绘制">
+              <svg class="icon" aria-hidden="true"><use href="#i-mirror"></use></svg>
+              <span>镜像</span>
+              <span class="switch__state">关</span>
+            </button>
+          </div>
+          <button class="btn btn--danger btn--block" id="clearButton" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#i-trash"></use></svg>
+            清空画布
+          </button>
+        </section>
+
+        <section class="panel panel--pad panel--keys" aria-labelledby="keysTitle">
+          <div class="panel__head">
+            <div>
+              <p class="eyebrow">SHORTCUTS / 03</p>
+              <h2 id="keysTitle">快捷键</h2>
+            </div>
+          </div>
+          <dl class="keys">
+            <div><dt><kbd>B</kbd><kbd>E</kbd><kbd>G</kbd><kbd>I</kbd></dt><dd>铅笔 / 橡皮 / 填充 / 取色</dd></div>
+            <div><dt><kbd>Ctrl</kbd><kbd>Z</kbd></dt><dd>撤销</dd></div>
+            <div><dt><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>Z</kbd></dt><dd>重做</dd></div>
+            <div><dt><kbd>拖拽</kbd></dt><dd>连续绘制 / 擦除</dd></div>
+          </dl>
+          <div class="panel__tip">
+            <svg class="icon" aria-hidden="true"><use href="#i-tip"></use></svg>
+            <p>画完点右上角「导出 PNG」，会得到保留透明背景的图片：16 × 16 画布导出 512 × 512，32 × 32 导出 1024 × 1024。</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <span>所有内容只保存在本机浏览器 · 不上传、不联网</span>
+      <span class="foot__mark">成都大学 · AI 创作挑战赛 新手模板</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var STORAGE_KEY = 'cdu-pixel-art-v1';
+      var SIZE_OPTIONS = [16, 24, 32];
+      var DEFAULT_SIZE = 16;
+      var DEFAULT_COLOR = '#e4572e';
+      var UNDO_LIMIT = 60;
+      var EXPORT_SCALE = 32;
+      var CELL = 32;
+      var TOOL_NAMES = { pencil: '铅笔', eraser: '橡皮', fill: '填充', picker: '取色' };
+      var HEX_RE = /^#[0-9a-f]{6}$/i;
+
+      var PALETTE = [
+        '#22201d', '#f7f4ea', '#f2b134', '#e9894a',
+        '#e4572e', '#c92a2a', '#f4a3b6', '#a78bfa',
+        '#5b5bd6', '#4cc9f0', '#3a86ff', '#2a9d8f',
+        '#51cf66', '#2b8a3e', '#8d6e63', '#9aa7c2'
+      ];
+      var SAMPLE_COLORS = { o: '#22201d', w: '#f7f4ea', e: '#22201d', p: '#f4a3b6' };
+      var SAMPLE_ART = [
+        '................',
+        '......oooo......',
+        '....oowwwwoo....',
+        '...owwwwwwwwo...',
+        '..owwwwwwwwwwo..',
+        '..owweewweewwo..',
+        '..owweewweewwo..',
+        '..owwwwwwwwwwo..',
+        '..owwppwwppwwo..',
+        '..owwwwwwwwwwo..',
+        '..owwwwoowwwwo..',
+        '..owwwwwwwwwwo..',
+        '..owwoowwoowwo..',
+        '..oooooooooooo..',
+        '................',
+        '................'
+      ];
+
+      var els = {
+        canvas: document.getElementById('pixelCanvas'),
+        stage: document.getElementById('canvasStage'),
+        gridOverlay: document.getElementById('gridOverlay'),
+        hover: document.getElementById('hoverCell'),
+        sizeLabel: document.getElementById('sizeLabel'),
+        fillBadge: document.getElementById('fillBadge'),
+        coordsValue: document.getElementById('coordsValue'),
+        currentHex: document.getElementById('currentHex'),
+        toolValue: document.getElementById('toolValue'),
+        saveState: document.getElementById('saveState'),
+        saveText: document.getElementById('saveText'),
+        themeButton: document.getElementById('themeButton'),
+        exportButton: document.getElementById('exportButton'),
+        swatches: document.getElementById('swatches'),
+        colorChip: document.getElementById('colorChip'),
+        colorInput: document.getElementById('colorInput'),
+        customHex: document.getElementById('customHex'),
+        gridButton: document.getElementById('gridButton'),
+        mirrorButton: document.getElementById('mirrorButton'),
+        clearButton: document.getElementById('clearButton'),
+        undoButton: document.getElementById('undoButton'),
+        redoButton: document.getElementById('redoButton'),
+        toast: document.getElementById('toast')
+      };
+      var themeMeta = document.getElementById('themeColor');
+      var ctx = els.canvas.getContext('2d');
+
+      var size = DEFAULT_SIZE;
+      var pixels = [];
+      var currentColor = DEFAULT_COLOR;
+      var tool = 'pencil';
+      var showGrid = true;
+      var mirror = false;
+      var theme = 'light';
+      var storageOk = true;
+
+      var drawing = false;
+      var activePointerId = null;
+      var strokeSnapshotted = false;
+      var strokeChanged = false;
+      var lastCell = null;
+      var hoverPosition = null;
+
+      var historyPast = [];
+      var historyFuture = [];
+      var saveTimer = 0;
+      var toastTimer = 0;
+
+      function normalizeColor(value) {
+        return typeof value === 'string' && HEX_RE.test(value) ? value.toLowerCase() : null;
+      }
+
+      function makeSample(square) {
+        var cells = new Array(square * square).fill(null);
+        if (square !== 16) return cells;
+        SAMPLE_ART.forEach(function (row, y) {
+          for (var x = 0; x < 16; x += 1) {
+            var color = SAMPLE_COLORS[row.charAt(x)];
+            if (color) cells[y * 16 + x] = color;
+          }
+        });
+        return cells;
+      }
+
+      function readSaved() {
+        var raw = null;
+        try {
+          raw = localStorage.getItem(STORAGE_KEY);
+        } catch (error) {
+          storageOk = false;
+          return null;
+        }
+        if (!raw) return null;
+        try {
+          var data = JSON.parse(raw);
+          return data && typeof data === 'object' ? data : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function loadState() {
+        var saved = readSaved();
+        var savedSize = saved ? Number(saved.size) : NaN;
+        size = SIZE_OPTIONS.indexOf(savedSize) !== -1 ? savedSize : DEFAULT_SIZE;
+
+        var savedPixels = saved && Array.isArray(saved.pixels) ? saved.pixels : null;
+        if (savedPixels && savedPixels.length === size * size) {
+          pixels = savedPixels.map(normalizeColor);
+        } else if (saved) {
+          pixels = new Array(size * size).fill(null);
+        } else {
+          pixels = makeSample(size);
+        }
+
+        currentColor = normalizeColor(saved && saved.color) || DEFAULT_COLOR;
+        tool = saved && Object.prototype.hasOwnProperty.call(TOOL_NAMES, saved.tool) ? saved.tool : 'pencil';
+        showGrid = saved && typeof saved.showGrid === 'boolean' ? saved.showGrid : true;
+        mirror = !!(saved && saved.mirror);
+        theme = saved && saved.theme === 'dark' ? 'dark' : 'light';
+      }
+
+      function buildPalette() {
+        var fragment = document.createDocumentFragment();
+        PALETTE.forEach(function (color) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'swatch';
+          button.style.setProperty('--c', color);
+          button.dataset.color = color;
+          button.title = color.toUpperCase();
+          button.setAttribute('aria-label', '颜色 ' + color.toUpperCase());
+          button.setAttribute('aria-pressed', 'false');
+          button.addEventListener('click', function () {
+            setColor(color);
+            setTool('pencil');
+          });
+          fragment.append(button);
+        });
+        els.swatches.append(fragment);
+      }
+
+      function setColor(value) {
+        var normalized = normalizeColor(value) || DEFAULT_COLOR;
+        currentColor = normalized;
+        if (els.colorInput.value.toLowerCase() !== normalized) els.colorInput.value = normalized;
+        els.customHex.textContent = normalized.toUpperCase();
+        els.currentHex.textContent = normalized.toUpperCase();
+        els.colorChip.style.background = normalized;
+        Array.prototype.forEach.call(els.swatches.querySelectorAll('.swatch'), function (button) {
+          button.setAttribute('aria-pressed', String(button.dataset.color === normalized));
+        });
+        updateHoverVisual();
+      }
+
+      function setTool(next) {
+        if (!Object.prototype.hasOwnProperty.call(TOOL_NAMES, next)) return;
+        tool = next;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'), function (button) {
+          var active = button.dataset.tool === tool;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        els.toolValue.textContent = TOOL_NAMES[tool];
+        els.canvas.setAttribute('aria-label', '像素画布，' + size + ' × ' + size + '，当前工具：' + TOOL_NAMES[tool] + '。使用鼠标或手指绘制。');
+        updateHoverVisual();
+      }
+
+      function applyTheme(next, persist) {
+        theme = next;
+        document.documentElement.dataset.theme = next;
+        if (themeMeta) themeMeta.setAttribute('content', next === 'dark' ? '#141210' : '#f2eee4');
+        els.themeButton.setAttribute('aria-label', next === 'dark' ? '切换为浅色主题' : '切换为深色主题');
+        if (persist) scheduleSave();
+      }
+
+      function syncControls() {
+        var step = 100 / size;
+        els.sizeLabel.textContent = size + ' × ' + size;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-size]'), function (button) {
+          button.setAttribute('aria-pressed', String(Number(button.dataset.size) === size));
+        });
+        els.gridButton.setAttribute('aria-pressed', String(showGrid));
+        els.gridButton.querySelector('.switch__state').textContent = showGrid ? '开' : '关';
+        els.mirrorButton.setAttribute('aria-pressed', String(mirror));
+        els.mirrorButton.querySelector('.switch__state').textContent = mirror ? '开' : '关';
+        els.gridOverlay.hidden = !showGrid;
+        els.gridOverlay.style.backgroundSize = step + '% ' + step + '%';
+        els.hover.style.width = step + '%';
+        els.hover.style.height = step + '%';
+      }
+
+      function render() {
+        var dimension = size * CELL;
+        if (els.canvas.width !== dimension) {
+          els.canvas.width = dimension;
+          els.canvas.height = dimension;
+        }
+        ctx.imageSmoothingEnabled = false;
+        var dark = document.documentElement.dataset.theme === 'dark';
+        var checkA = dark ? '#211d19' : '#eee6d7';
+        var checkB = dark ? '#191613' : '#f8f2e6';
+        for (var y = 0; y < size; y += 1) {
+          for (var x = 0; x < size; x += 1) {
+            var color = pixels[y * size + x];
+            ctx.fillStyle = color || ((x + y) % 2 === 0 ? checkA : checkB);
+            ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+          }
+        }
+        updateStats();
+      }
+
+      function updateStats() {
+        var filled = 0;
+        for (var i = 0; i < pixels.length; i += 1) if (pixels[i]) filled += 1;
+        els.fillBadge.textContent = filled + ' / ' + size * size + ' 像素';
+      }
+
+      function updateHistoryButtons() {
+        els.undoButton.disabled = historyPast.length === 0;
+        els.redoButton.disabled = historyFuture.length === 0;
+      }
+
+      function pushHistory() {
+        historyPast.push({ size: size, pixels: pixels.slice() });
+        if (historyPast.length > UNDO_LIMIT) historyPast.shift();
+        historyFuture = [];
+        updateHistoryButtons();
+      }
+
+      function restoreSnapshot(snapshot) {
+        size = snapshot.size;
+        pixels = snapshot.pixels.slice();
+        syncControls();
+        setTool(tool);
+        render();
+        clearHover();
+        updateHistoryButtons();
+        scheduleSave();
+      }
+
+      function undo() {
+        if (!historyPast.length) return;
+        var current = { size: size, pixels: pixels.slice() };
+        var previous = historyPast.pop();
+        historyFuture.push(current);
+        restoreSnapshot(previous);
+      }
+
+      function redo() {
+        if (!historyFuture.length) return;
+        var current = { size: size, pixels: pixels.slice() };
+        var next = historyFuture.pop();
+        historyPast.push(current);
+        restoreSnapshot(next);
+      }
+
+      function clearHover() {
+        hoverPosition = null;
+        els.hover.style.opacity = '0';
+        els.coordsValue.textContent = '--, --';
+      }
+
+      function updateHoverVisual() {
+        if (!hoverPosition) return;
+        var outline = tool === 'eraser' || tool === 'picker';
+        els.hover.classList.toggle('is-outline', outline);
+        els.hover.style.background = outline ? 'transparent' : currentColor + '55';
+      }
+
+      function setHover(cell) {
+        hoverPosition = cell;
+        var step = 100 / size;
+        els.hover.style.left = cell.x * step + '%';
+        els.hover.style.top = cell.y * step + '%';
+        els.hover.style.opacity = '1';
+        els.coordsValue.textContent = String(cell.x + 1).padStart(2, '0') + ', ' + String(cell.y + 1).padStart(2, '0');
+        updateHoverVisual();
+      }
+
+      function cellAtEvent(event) {
+        var rect = els.canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        var x = Math.floor(((event.clientX - rect.left) / rect.width) * size);
+        var y = Math.floor(((event.clientY - rect.top) / rect.height) * size);
+        if (x < 0 || y < 0 || x >= size || y >= size) return null;
+        return { x: x, y: y };
+      }
+
+      function lineBetween(from, to) {
+        var points = [];
+        var x0 = from.x;
+        var y0 = from.y;
+        var x1 = to.x;
+        var y1 = to.y;
+        var dx = Math.abs(x1 - x0);
+        var sx = x0 < x1 ? 1 : -1;
+        var dy = -Math.abs(y1 - y0);
+        var sy = y0 < y1 ? 1 : -1;
+        var error = dx + dy;
+        while (true) {
+          points.push({ x: x0, y: y0 });
+          if (x0 === x1 && y0 === y1) break;
+          var twice = 2 * error;
+          if (twice >= dy) { error += dy; x0 += sx; }
+          if (twice <= dx) { error += dx; y0 += sy; }
+        }
+        return points;
+      }
+
+      function paintCell(x, y) {
+        var value = tool === 'eraser' ? null : currentColor;
+        var targets = [[x, y]];
+        if (mirror) targets.push([size - 1 - x, y]);
+        var changed = false;
+        var i;
+        for (i = 0; i < targets.length; i += 1) {
+          var index = targets[i][1] * size + targets[i][0];
+          if (pixels[index] !== value) changed = true;
+        }
+        if (!changed) return false;
+        if (!strokeSnapshotted) {
+          pushHistory();
+          strokeSnapshotted = true;
+        }
+        for (i = 0; i < targets.length; i += 1) {
+          pixels[targets[i][1] * size + targets[i][0]] = value;
+        }
+        return true;
+      }
+
+      function floodFill(start) {
+        var target = pixels[start.y * size + start.x];
+        if (target === currentColor) return;
+        pushHistory();
+        var stack = [[start.x, start.y]];
+        while (stack.length) {
+          var point = stack.pop();
+          var x = point[0];
+          var y = point[1];
+          if (x < 0 || y < 0 || x >= size || y >= size) continue;
+          var index = y * size + x;
+          if (pixels[index] !== target) continue;
+          pixels[index] = currentColor;
+          stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+        }
+        render();
+        scheduleSave();
+      }
+
+      function pickColor(cell) {
+        var color = pixels[cell.y * size + cell.x];
+        if (!color) {
+          showToast('这里是透明像素，没有颜色可以拾取');
+          return;
+        }
+        setColor(color);
+        setTool('pencil');
+        showToast('已取色 ' + color.toUpperCase());
+      }
+
+      function setSize(next) {
+        if (next === size || SIZE_OPTIONS.indexOf(next) === -1) return;
+        pushHistory();
+        var nextPixels = new Array(next * next).fill(null);
+        var keep = Math.min(size, next);
+        for (var y = 0; y < keep; y += 1) {
+          for (var x = 0; x < keep; x += 1) {
+            nextPixels[y * next + x] = pixels[y * size + x];
+          }
+        }
+        var previous = size;
+        size = next;
+        pixels = nextPixels;
+        syncControls();
+        setTool(tool);
+        render();
+        clearHover();
+        scheduleSave();
+        showToast(next > previous
+          ? '画布已扩展为 ' + next + ' × ' + next + '，原内容保留在左上角'
+          : '画布已缩小为 ' + next + ' × ' + next + '，超出部分可撤销找回');
+      }
+
+      function toggleGrid() {
+        showGrid = !showGrid;
+        syncControls();
+        scheduleSave();
+      }
+
+      function toggleMirror() {
+        mirror = !mirror;
+        syncControls();
+        scheduleSave();
+      }
+
+      function clearCanvas() {
+        var hasContent = false;
+        for (var i = 0; i < pixels.length; i += 1) {
+          if (pixels[i]) { hasContent = true; break; }
+        }
+        if (!hasContent) {
+          showToast('画布已经是空的');
+          return;
+        }
+        pushHistory();
+        pixels.fill(null);
+        render();
+        scheduleSave();
+        showToast('画布已清空，按 Ctrl + Z 可以恢复');
+      }
+
+      function exportPng() {
+        var output = document.createElement('canvas');
+        output.width = size * EXPORT_SCALE;
+        output.height = size * EXPORT_SCALE;
+        var outputCtx = output.getContext('2d');
+        for (var y = 0; y < size; y += 1) {
+          for (var x = 0; x < size; x += 1) {
+            var color = pixels[y * size + x];
+            if (!color) continue;
+            outputCtx.fillStyle = color;
+            outputCtx.fillRect(x * EXPORT_SCALE, y * EXPORT_SCALE, EXPORT_SCALE, EXPORT_SCALE);
+          }
+        }
+        output.toBlob(function (blob) {
+          if (!blob) {
+            showToast('导出失败，请换一个浏览器再试');
+            return;
+          }
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement('a');
+          link.href = url;
+          link.download = 'pixel-art-' + size + 'x' + size + '.png';
+          document.body.append(link);
+          link.click();
+          link.remove();
+          window.setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+          showToast('已导出 ' + output.width + ' × ' + output.height + ' 透明 PNG');
+        }, 'image/png');
+      }
+
+      function setSaveState(state) {
+        els.saveState.dataset.state = state;
+        els.saveText.textContent = state === 'saving' ? '保存中…' : state === 'error' ? '无法本地保存' : '已自动保存';
+      }
+
+      function scheduleSave() {
+        if (!storageOk) {
+          setSaveState('error');
+          return;
+        }
+        setSaveState('saving');
+        window.clearTimeout(saveTimer);
+        saveTimer = window.setTimeout(saveNow, 250);
+      }
+
+      function saveNow() {
+        if (!storageOk) {
+          setSaveState('error');
+          return;
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            version: 1,
+            size: size,
+            pixels: pixels,
+            color: currentColor,
+            tool: tool,
+            theme: theme,
+            showGrid: showGrid,
+            mirror: mirror
+          }));
+          setSaveState('saved');
+        } catch (error) {
+          storageOk = false;
+          setSaveState('error');
+          showToast('本地保存不可用，可能是隐私模式或浏览器限制');
+        }
+      }
+
+      function showToast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add('is-visible');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+          els.toast.classList.remove('is-visible');
+        }, 2400);
+      }
+
+      function finishStroke(event) {
+        if (!drawing) return;
+        if (event && activePointerId !== null && event.pointerId !== activePointerId) return;
+        drawing = false;
+        activePointerId = null;
+        lastCell = null;
+        strokeChanged = false;
+        strokeSnapshotted = false;
+      }
+
+      function bindEvents() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-tool]'), function (button) {
+          button.addEventListener('click', function () { setTool(button.dataset.tool); });
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-size]'), function (button) {
+          button.addEventListener('click', function () { setSize(Number(button.dataset.size)); });
+        });
+
+        els.undoButton.addEventListener('click', undo);
+        els.redoButton.addEventListener('click', redo);
+        els.gridButton.addEventListener('click', toggleGrid);
+        els.mirrorButton.addEventListener('click', toggleMirror);
+        els.clearButton.addEventListener('click', clearCanvas);
+        els.exportButton.addEventListener('click', exportPng);
+
+        els.themeButton.addEventListener('click', function () {
+          var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+          applyTheme(next, true);
+          render();
+        });
+
+        els.colorInput.addEventListener('input', function (event) {
+          setColor(event.target.value);
+          setTool('pencil');
+        });
+
+        els.canvas.addEventListener('pointerdown', function (event) {
+          if (event.pointerType === 'mouse' && event.button !== 0) return;
+          if (drawing) return;
+          var cell = cellAtEvent(event);
+          if (!cell) return;
+          event.preventDefault();
+          try { els.canvas.setPointerCapture(event.pointerId); } catch (error) {}
+          setHover(cell);
+          if (tool === 'picker') {
+            pickColor(cell);
+            return;
+          }
+          if (tool === 'fill') {
+            floodFill(cell);
+            return;
+          }
+          drawing = true;
+          activePointerId = event.pointerId;
+          strokeSnapshotted = false;
+          strokeChanged = false;
+          lastCell = cell;
+          if (paintCell(cell.x, cell.y)) {
+            strokeChanged = true;
+            render();
+            scheduleSave();
+          }
+        });
+
+        els.canvas.addEventListener('pointermove', function (event) {
+          if (drawing && activePointerId !== null && event.pointerId !== activePointerId) return;
+          var cell = cellAtEvent(event);
+          if (!cell) {
+            if (!drawing) clearHover();
+            return;
+          }
+          setHover(cell);
+          if (!drawing) return;
+          var points = lastCell ? lineBetween(lastCell, cell) : [];
+          var changed = false;
+          for (var i = 0; i < points.length; i += 1) {
+            if (paintCell(points[i].x, points[i].y)) changed = true;
+          }
+          lastCell = cell;
+          if (changed) {
+            strokeChanged = true;
+            render();
+            scheduleSave();
+          }
+        });
+
+        els.canvas.addEventListener('pointerup', finishStroke);
+        els.canvas.addEventListener('pointercancel', finishStroke);
+        els.canvas.addEventListener('pointerleave', function () {
+          if (!drawing) clearHover();
+        });
+
+        document.addEventListener('keydown', function (event) {
+          var target = event.target;
+          if (target && target.closest && target.closest('input, textarea, select, [contenteditable="true"]')) return;
+          var key = event.key.toLowerCase();
+          var command = event.ctrlKey || event.metaKey;
+          if (command && key === 'z') {
+            event.preventDefault();
+            if (event.shiftKey) redo(); else undo();
+            return;
+          }
+          if (command && key === 'y') {
+            event.preventDefault();
+            redo();
+            return;
+          }
+          if (command || event.altKey) return;
+          var tools = { b: 'pencil', e: 'eraser', g: 'fill', i: 'picker' };
+          if (tools[key]) {
+            event.preventDefault();
+            setTool(tools[key]);
+          }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) {
+            window.clearTimeout(saveTimer);
+            saveNow();
+          }
+        });
+        window.addEventListener('pagehide', saveNow);
+        window.addEventListener('resize', clearHover);
+      }
+
+      buildPalette();
+      bindEvents();
+      loadState();
+      applyTheme(theme, false);
+      setColor(currentColor);
+      setTool(tool);
+      syncControls();
+      updateHistoryButtons();
+      render();
+      saveNow();
+    })();
+  </script>
+</body>
+</html>

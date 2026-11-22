@@ -1,0 +1,2012 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="一个可本地运行的 MBTI 人格偏好测试模板，28 道二选一，支持结果解释与本地历史记录。">
+  <title>MBTI 人格小测试</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235a4fd0'/%3E%3Crect x='13' y='13' width='16' height='16' rx='4' fill='%23fff' opacity='.95'/%3E%3Crect x='35' y='13' width='16' height='16' rx='4' fill='%23fff' opacity='.7'/%3E%3Crect x='13' y='35' width='16' height='16' rx='4' fill='%23fff' opacity='.7'/%3E%3Crect x='35' y='35' width='16' height='16' rx='4' fill='%23f0a27c'/%3E%3C/svg%3E">
+  <script>
+    try {
+      const saved = JSON.parse(localStorage.getItem('cdu-mbti-v1') || '{}');
+      if (saved.theme === 'dark') document.documentElement.dataset.theme = 'dark';
+    } catch (error) {}
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f1f9;
+      --bg-soft: #ece8f6;
+      --card: #ffffff;
+      --card-soft: #f8f6fd;
+      --text: #211f2e;
+      --muted: #6f6a82;
+      --faint: #9d97ad;
+      --border: #e6e1f0;
+      --border-strong: #d7d1e8;
+      --accent: #5a4fd0;
+      --accent-dark: #463cb0;
+      --accent-soft: #ece9ff;
+      --accent-2: #d96a4c;
+      --green: #2f8f7d;
+      --danger: #b23b3b;
+      --mark-gradient: linear-gradient(135deg, #5a4fd0, #c85f42);
+      --shadow: 0 18px 45px rgba(45, 36, 80, .08);
+      --shadow-soft: 0 8px 24px rgba(45, 36, 80, .06);
+      --radius: 24px;
+      --dim-ei: #d08a3f;
+      --dim-ei-ink: #94561a;
+      --dim-sn: #3f9c8a;
+      --dim-sn-ink: #207063;
+      --dim-tf: #6b74dc;
+      --dim-tf-ink: #434aa6;
+      --dim-jp: #c06d94;
+      --dim-jp-ink: #8c3f61;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #14121c;
+      --bg-soft: #1b1826;
+      --card: #1f1c2b;
+      --card-soft: #262233;
+      --text: #f0edf7;
+      --muted: #b1aac2;
+      --faint: #857e97;
+      --border: #322d42;
+      --border-strong: #453e59;
+      --accent: #9b8cff;
+      --accent-dark: #b5a9ff;
+      --accent-soft: #2c2547;
+      --accent-2: #ef8a6c;
+      --green: #6cc0ad;
+      --danger: #e07a7a;
+      --mark-gradient: linear-gradient(135deg, #6c5df0, #c05a3f);
+      --shadow: 0 18px 45px rgba(0, 0, 0, .35);
+      --shadow-soft: 0 8px 24px rgba(0, 0, 0, .25);
+      --dim-ei: #e9a45f;
+      --dim-ei-ink: #f0b679;
+      --dim-sn: #57c0ae;
+      --dim-sn-ink: #78d2c2;
+      --dim-tf: #8f98f0;
+      --dim-tf-ink: #aab1ff;
+      --dim-jp: #e58cb2;
+      --dim-jp-ink: #f0a7c6;
+    }
+
+    [data-axis="EI"] { --dim: var(--dim-ei); --dim-ink: var(--dim-ei-ink); }
+    [data-axis="SN"] { --dim: var(--dim-sn); --dim-ink: var(--dim-sn-ink); }
+    [data-axis="TF"] { --dim: var(--dim-tf); --dim-ink: var(--dim-tf-ink); }
+    [data-axis="JP"] { --dim: var(--dim-jp); --dim-ink: var(--dim-jp-ink); }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1000px 560px at 6% -8%, rgba(90, 79, 208, .14), transparent 60%),
+        radial-gradient(900px 520px at 102% 4%, rgba(217, 106, 76, .12), transparent 55%),
+        var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    [data-theme="dark"] body {
+      background:
+        radial-gradient(1000px 560px at 6% -8%, rgba(124, 108, 240, .16), transparent 60%),
+        radial-gradient(900px 520px at 102% 4%, rgba(224, 122, 92, .10), transparent 55%),
+        var(--bg);
+    }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    [hidden] { display: none !important; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .app {
+      width: min(1040px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: var(--mark-gradient);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(90, 79, 208, .25);
+      flex: 0 0 auto;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 25px);
+      letter-spacing: -.02em;
+    }
+    .brand p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
+    .save-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .save-chip .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(47, 143, 125, .14);
+    }
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+    }
+    .icon-btn:hover { border-color: var(--border-strong); color: var(--text); }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .icon-moon { display: none; }
+    [data-theme="dark"] .icon-sun { display: none; }
+    [data-theme="dark"] .icon-moon { display: block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px;
+      min-width: 0;
+    }
+    .card-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .card-head h2, .card-head h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.01em;
+    }
+    .card-head > span {
+      color: var(--faint);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .view:not([hidden]) > * {
+      animation: fadeUp .45s cubic-bezier(.22, .8, .3, 1) both;
+    }
+    .view:not([hidden]) > *:nth-child(2) { animation-delay: .05s; }
+    .view:not([hidden]) > *:nth-child(3) { animation-delay: .1s; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 32px;
+      padding: 40px;
+      overflow: hidden;
+      background:
+        radial-gradient(520px 320px at 108% -20%, rgba(217, 106, 76, .14), transparent 70%),
+        radial-gradient(520px 360px at -8% 112%, rgba(90, 79, 208, .12), transparent 70%),
+        var(--card);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -110px;
+      bottom: -150px;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(90, 79, 208, .16), transparent 68%);
+      pointer-events: none;
+    }
+    .hero-copy { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+    .eyebrow .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(28px, 4.2vw, 42px);
+      line-height: 1.16;
+      letter-spacing: -.035em;
+    }
+    .hero h2 span {
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .lede {
+      margin: 16px 0 0;
+      max-width: 46ch;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.75;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .hero-note {
+      margin: 16px 0 0;
+      color: var(--faint);
+      font-size: 12px;
+    }
+    .hero-art {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .art-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .art-tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 106px;
+      padding: 15px 16px 13px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, .04), transparent 60%),
+        var(--card-soft);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+    .art-tile::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: var(--dim);
+    }
+    .art-letters {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      color: var(--dim-ink);
+    }
+    .art-letters em {
+      margin: 0 4px;
+      color: var(--faint);
+      font-style: normal;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    .art-label { color: var(--muted); font-size: 12px; }
+    .art-caption {
+      margin: 0;
+      text-align: center;
+      color: var(--faint);
+      font-size: 12px;
+      letter-spacing: .02em;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 18px;
+      border: 1px solid var(--border-strong);
+      border-radius: 13px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+      text-decoration: none;
+    }
+    .btn:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+    .btn:active { transform: translateY(1px); }
+    .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+    .btn[disabled]:hover { border-color: var(--border-strong); background: var(--card); color: var(--text); }
+    .btn-primary {
+      border-color: transparent;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(90, 79, 208, .26);
+    }
+    .btn-primary:hover {
+      border-color: transparent;
+      background: var(--accent-dark);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(90, 79, 208, .32);
+    }
+    [data-theme="dark"] .btn-primary { color: #14111d; }
+    [data-theme="dark"] .btn-primary:hover { color: #14111d; }
+    .btn-lg { min-height: 48px; padding: 12px 22px; border-radius: 15px; font-size: 15px; }
+    .btn-ghost { border-color: transparent; background: transparent; color: var(--muted); }
+    .btn-ghost:hover { background: var(--card-soft); color: var(--text); border-color: transparent; }
+    .link-btn {
+      align-self: flex-start;
+      padding: 2px 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .link-btn:hover { color: var(--text); }
+    .link-danger { color: var(--danger); }
+    .link-danger:hover { color: var(--danger); }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      gap: 20px;
+      margin-top: 20px;
+      align-items: start;
+    }
+    .dim-list { display: grid; }
+    .dim-row {
+      display: grid;
+      grid-template-columns: 168px minmax(0, 1fr);
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+    }
+    .dim-row:first-child { border-top: 0; padding-top: 2px; }
+    .dim-row:last-child { padding-bottom: 2px; }
+    .dim-pair {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .dim-pair b {
+      color: var(--dim-ink);
+      font-family: var(--mono);
+      font-size: 16px;
+    }
+    .dim-pair i { color: var(--faint); font-style: normal; }
+    .dim-row p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    .history-card { display: flex; flex-direction: column; gap: 10px; }
+    .history-list { display: grid; gap: 8px; }
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: var(--card);
+      color: var(--text);
+      text-align: left;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+    .history-item:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+    .history-item.is-latest {
+      background: var(--card-soft);
+      border-color: var(--border-strong);
+    }
+    .history-main { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .history-type {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--accent-dark);
+      flex: 0 0 auto;
+    }
+    .history-name { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .history-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--faint);
+      font-size: 11.5px;
+      flex: 0 0 auto;
+    }
+    .history-meta .tag {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 10.5px;
+    }
+    .history-arrow { color: var(--faint); font-size: 14px; }
+    .history-card .link-btn { margin-top: 2px; }
+    .empty {
+      margin: 0;
+      padding: 22px 16px;
+      border: 1px dashed var(--border-strong);
+      border-radius: 15px;
+      color: var(--faint);
+      font-size: 12.5px;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    .privacy {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 20px;
+      padding: 18px 22px;
+      border-style: dashed;
+      box-shadow: none;
+      background: transparent;
+    }
+    .privacy strong { display: block; margin-bottom: 4px; font-size: 13px; }
+    .privacy p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+    .privacy .link-btn { flex: 0 0 auto; margin-top: 2px; }
+
+    .quiz-card {
+      width: min(760px, 100%);
+      margin: 0 auto;
+      padding: 30px 34px 26px;
+    }
+    .quiz-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .quiz-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .quiz-meta > span:first-child { color: var(--muted); font-size: 12.5px; }
+    .dim-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--card-soft);
+      color: var(--dim-ink, var(--muted));
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .dim-chip::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--dim, var(--accent));
+    }
+    .progress {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--card-soft);
+      overflow: hidden;
+    }
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .28s cubic-bezier(.22, .8, .3, 1);
+    }
+    .question-wrap { padding-top: 28px; }
+    .question-wrap.swap { animation: qIn .28s ease both; }
+    @keyframes qIn {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .question-kicker {
+      margin: 0 0 10px;
+      color: var(--faint);
+      font-size: 12px;
+      letter-spacing: .02em;
+    }
+    .question-wrap h2 {
+      margin: 0 0 24px;
+      font-size: clamp(21px, 3vw, 27px);
+      line-height: 1.5;
+      letter-spacing: -.015em;
+      outline: none;
+    }
+    .option-list { display: grid; gap: 12px; }
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      width: 100%;
+      padding: 17px 18px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: var(--card);
+      text-align: left;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+    .option:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
+    }
+    .option-key {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .option-text { padding-top: 4px; font-size: 15px; line-height: 1.6; }
+    .option.is-selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+    .option.is-selected .option-key {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+    [data-theme="dark"] .option.is-selected .option-key { color: #14111d; }
+    .quiz-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .quiz-hint { color: var(--faint); font-size: 12px; text-align: right; line-height: 1.6; }
+
+    .result-hero {
+      position: relative;
+      padding: 40px 32px 32px;
+      text-align: center;
+      overflow: hidden;
+      background:
+        radial-gradient(560px 300px at 50% -20%, rgba(90, 79, 208, .12), transparent 70%),
+        var(--card);
+    }
+    .result-hero .eyebrow { margin-bottom: 20px; }
+    .type-code {
+      display: flex;
+      justify-content: center;
+      gap: clamp(8px, 1.4vw, 14px);
+      margin-bottom: 8px;
+    }
+    .type-letter {
+      display: grid;
+      place-items: center;
+      width: clamp(58px, 8vw, 82px);
+      height: clamp(66px, 9vw, 94px);
+      border-radius: 19px;
+      background: linear-gradient(160deg, var(--dim), var(--dim-ink));
+      color: #fff;
+      font-family: var(--mono);
+      font-size: clamp(30px, 4.6vw, 42px);
+      font-weight: 700;
+      box-shadow: 0 14px 30px rgba(45, 36, 80, .18), inset 0 1px 0 rgba(255, 255, 255, .28);
+      animation: tilePop .5s cubic-bezier(.22, .9, .3, 1.18) both;
+    }
+    [data-theme="dark"] .type-letter { color: #17131f; }
+    @keyframes tilePop {
+      from { opacity: 0; transform: translateY(12px) scale(.92); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .result-hero h2 {
+      margin: 12px 0 6px;
+      font-size: clamp(24px, 3.6vw, 32px);
+      letter-spacing: -.025em;
+      outline: none;
+    }
+    .type-tagline {
+      margin: 0 auto;
+      color: var(--accent-dark);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .type-summary {
+      margin: 14px auto 0;
+      max-width: 58ch;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .tag-row span {
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card-soft);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .archived-note {
+      display: inline-block;
+      margin: 18px 0 0;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 12px;
+    }
+    .result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .dimensions-card { margin-top: 20px; }
+    .dim-bar {
+      display: grid;
+      gap: 9px;
+      padding: 20px 0;
+      border-top: 1px solid var(--border);
+    }
+    .dim-bar:first-child { border-top: 0; padding-top: 2px; }
+    .dim-bar:last-child { padding-bottom: 2px; }
+    .dim-bar-labels {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .dim-side {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .dim-side b {
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+    .dim-side em {
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: var(--card-soft);
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 11.5px;
+      font-style: normal;
+    }
+    .dim-side.is-dominant { color: var(--text); }
+    .dim-side.is-dominant b { color: var(--dim-ink); }
+    .dim-side.is-dominant em { background: var(--dim); color: #fff; }
+    [data-theme="dark"] .dim-side.is-dominant em { color: #17131f; }
+    .dim-side.is-right { justify-content: flex-end; }
+    .dim-track {
+      position: relative;
+      display: flex;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--card-soft);
+      overflow: hidden;
+    }
+    .dim-seg-left { background: var(--dim); }
+    .dim-seg-right { flex: 1; background: var(--dim); }
+    .dim-seg-left.is-minor, .dim-seg-right.is-minor { background: var(--dim-ink); opacity: .22; }
+    .dim-track::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--card);
+      opacity: .75;
+    }
+    .dim-note {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+    .dim-note strong { color: var(--dim-ink); margin-right: 2px; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .result-grid h3 {
+      margin: 0 0 14px;
+      font-size: 15.5px;
+      letter-spacing: -.01em;
+    }
+    .point-list { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
+    .point-list li {
+      position: relative;
+      padding-left: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .point-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .62em;
+      width: 6px;
+      height: 6px;
+      border-radius: 2px;
+      background: var(--accent);
+      opacity: .55;
+    }
+    .result-disclaimer {
+      margin: 22px auto 0;
+      max-width: 68ch;
+      color: var(--faint);
+      font-size: 12px;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    .page-foot {
+      margin-top: 30px;
+      text-align: center;
+      color: var(--faint);
+      font-size: 11.5px;
+      line-height: 1.8;
+    }
+    .page-foot p { margin: 2px 0; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 50;
+      max-width: min(420px, calc(100% - 40px));
+      padding: 11px 18px;
+      border-radius: 999px;
+      background: #211f2e;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+      opacity: 0;
+      transform: translate(-50%, 12px);
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+      box-shadow: 0 12px 30px rgba(20, 16, 35, .25);
+    }
+    .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+    [data-theme="dark"] .toast { background: #f0edf7; color: #17131f; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 32px 30px; }
+      .hero-art { max-width: 420px; }
+      .intro-grid { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .app { width: calc(100% - 28px); padding-top: 20px; }
+      .topbar { flex-wrap: wrap; align-items: flex-start; }
+      .save-chip { display: none; }
+      .brand-mark { width: 42px; height: 42px; border-radius: 13px; font-size: 14px; }
+      .brand p { overflow-wrap: anywhere; }
+      .card { padding: 20px; border-radius: 20px; }
+      .hero { padding: 26px 20px; gap: 24px; }
+      .hero h2 { font-size: 27px; }
+      .art-tile { min-height: 92px; padding: 13px 14px 11px; }
+      .art-letters { font-size: 21px; }
+      .dim-row { grid-template-columns: 1fr; gap: 6px; padding: 12px 0; }
+      .privacy { flex-direction: column; gap: 12px; }
+      .quiz-card { padding: 22px 18px 20px; }
+      .question-wrap { padding-top: 22px; }
+      .question-wrap h2 { margin-bottom: 18px; }
+      .option { padding: 14px; gap: 12px; border-radius: 15px; }
+      .option-text { font-size: 14px; }
+      .option-key { width: 28px; height: 28px; border-radius: 9px; }
+      .quiz-nav { flex-direction: column; align-items: stretch; gap: 10px; }
+      .quiz-hint { text-align: center; }
+      .quiz-nav .btn { width: 100%; }
+      .result-hero { padding: 30px 18px 26px; }
+      .result-actions .btn { flex: 1 1 auto; min-width: 120px; }
+      .result-actions .btn-ghost { flex-basis: 100%; }
+      .dim-side { font-size: 11.5px; gap: 4px; }
+      .dim-side b { font-size: 13px; }
+      .dim-side em { font-size: 10.5px; padding: 1px 6px; }
+      .history-name { display: none; }
+      .history-meta .tag { display: none; }
+      .privacy .link-btn { align-self: flex-start; }
+    }
+    @media (max-width: 420px) {
+      .hero-actions { width: 100%; }
+      .hero-actions .btn { width: 100%; }
+      .type-code { gap: 6px; }
+      .type-letter { width: 52px; height: 60px; border-radius: 15px; font-size: 28px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">16</div>
+        <div>
+          <h1>MBTI 人格小测试</h1>
+          <p id="brandSub">看清自己的偏好，不必给自己贴标签</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="save-chip"><span class="dot" aria-hidden="true"></span>仅保存在本机</span>
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="切换为深色模式">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view" id="viewIntro" aria-labelledby="introTitle">
+        <div class="hero card">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="dot" aria-hidden="true"></span>MBTI 简化版 · 28 道题 · 约 6 分钟</p>
+            <h2 id="introTitle" tabindex="-1">用 28 道二选一，<br>看清你的<span>人格偏好</span></h2>
+            <p class="lede">四个维度、十六种组合。凭第一反应选择更接近你的做法，没有对错，也不用想太久。</p>
+            <div class="hero-actions">
+              <button id="startBtn" class="btn btn-primary btn-lg" type="button">开始测试</button>
+              <button id="resumeBtn" class="btn btn-lg" type="button" hidden>继续上次</button>
+            </div>
+            <p class="hero-note">不需要登录 · 不上传服务器 · 随时可以退出</p>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-grid">
+              <div class="art-tile" data-axis="EI">
+                <span class="art-letters">E<em>/</em>I</span>
+                <span class="art-label">能量来源</span>
+              </div>
+              <div class="art-tile" data-axis="SN">
+                <span class="art-letters">S<em>/</em>N</span>
+                <span class="art-label">信息偏好</span>
+              </div>
+              <div class="art-tile" data-axis="TF">
+                <span class="art-letters">T<em>/</em>F</span>
+                <span class="art-label">决策方式</span>
+              </div>
+              <div class="art-tile" data-axis="JP">
+                <span class="art-letters">J<em>/</em>P</span>
+                <span class="art-label">生活节奏</span>
+              </div>
+            </div>
+            <p class="art-caption">4 个维度 · 16 种类型组合</p>
+          </div>
+        </div>
+
+        <div class="intro-grid">
+          <section class="card" aria-labelledby="dimsTitle">
+            <div class="card-head">
+              <h2 id="dimsTitle">四个维度</h2>
+              <span>每题二选一 · 每维 7 题</span>
+            </div>
+            <div class="dim-list">
+              <div class="dim-row" data-axis="EI">
+                <div class="dim-pair"><b>E</b><span>外向</span><i>/</i><b>I</b><span>内向</span></div>
+                <p>能量从哪里来：与人互动，还是独处充电。</p>
+              </div>
+              <div class="dim-row" data-axis="SN">
+                <div class="dim-pair"><b>S</b><span>实感</span><i>/</i><b>N</b><span>直觉</span></div>
+                <p>更信具体事实，还是更关注可能性与联系。</p>
+              </div>
+              <div class="dim-row" data-axis="TF">
+                <div class="dim-pair"><b>T</b><span>思考</span><i>/</i><b>F</b><span>情感</span></div>
+                <p>做决定先看逻辑，还是先看人的感受。</p>
+              </div>
+              <div class="dim-row" data-axis="JP">
+                <div class="dim-pair"><b>J</b><span>判断</span><i>/</i><b>P</b><span>知觉</span></div>
+                <p>更喜欢计划确定，还是保留弹性随机调整。</p>
+              </div>
+            </div>
+          </section>
+
+          <aside class="card history-card" aria-labelledby="historyTitle">
+            <div class="card-head">
+              <h2 id="historyTitle">历史记录</h2>
+              <span id="historyCount"></span>
+            </div>
+            <div id="historyList" class="history-list"></div>
+            <p id="historyEmpty" class="empty">还没有记录。<br>完成一次测试后，结果会保存在这里。</p>
+            <button id="clearHistoryBtn" class="link-btn link-danger" type="button" hidden>清空历史记录</button>
+          </aside>
+        </div>
+
+        <section class="privacy card" aria-label="关于测试">
+          <div class="privacy-text">
+            <strong>关于这个测试</strong>
+            <p>题目参考常见的人格偏好维度编写，共 28 道二选一。计分方式为每个维度统计两端选择次数并换算百分比；每维 7 题，不会出现平票。结果仅供自我了解与娱乐，不构成心理诊断。</p>
+          </div>
+          <button id="clearAllBtn" class="link-btn link-danger" type="button" hidden>清空全部数据</button>
+        </section>
+      </section>
+
+      <section class="view" id="viewQuiz" aria-labelledby="questionText" hidden>
+        <div class="quiz-card card" id="quizCard">
+          <div class="quiz-top">
+            <div class="quiz-meta">
+              <span id="quizStep">第 1 题 / 28</span>
+              <span id="quizDim" class="dim-chip" data-axis="EI">E / I · 能量来源</span>
+            </div>
+            <button id="quitBtn" class="link-btn" type="button">保存并退出</button>
+          </div>
+          <div class="progress" id="progressTrack" role="progressbar" aria-label="答题进度" aria-valuemin="0" aria-valuemax="28" aria-valuenow="0">
+            <span id="progressFill"></span>
+          </div>
+          <div class="question-wrap" id="questionWrap">
+            <p class="question-kicker">在两种做法里，选更接近你的那个</p>
+            <h2 id="questionText" tabindex="-1" aria-live="polite" aria-atomic="true"></h2>
+            <div class="option-list" role="group" aria-labelledby="questionText">
+              <button class="option" type="button" data-choice="a">
+                <span class="option-key" aria-hidden="true">A</span>
+                <span class="option-text"></span>
+              </button>
+              <button class="option" type="button" data-choice="b">
+                <span class="option-key" aria-hidden="true">B</span>
+                <span class="option-text"></span>
+              </button>
+            </div>
+            <div class="quiz-nav">
+              <button id="prevBtn" class="btn btn-ghost" type="button">← 上一题</button>
+              <span id="quizAnswered" class="quiz-hint">已答 0 / 28 · 键盘 1 / 2 选择</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="viewResult" hidden aria-labelledby="typeName">
+        <section class="result-hero card">
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span>你的偏好类型</p>
+          <div class="type-code" id="typeCode" aria-hidden="true"></div>
+          <h2 id="typeName" tabindex="-1">—</h2>
+          <p class="type-tagline" id="typeTagline"></p>
+          <p class="type-summary" id="typeSummary"></p>
+          <div class="tag-row" id="typeTraits"></div>
+          <p class="archived-note" id="archivedNote" hidden>这是历史记录，重新测试可以看到最新结果。</p>
+          <div class="result-actions">
+            <button id="copyBtn" class="btn btn-primary" type="button">复制结果</button>
+            <button id="retakeBtn" class="btn" type="button">再测一次</button>
+            <button id="homeBtn" class="btn btn-ghost" type="button">返回首页</button>
+          </div>
+        </section>
+
+        <section class="card dimensions-card" aria-labelledby="barsTitle">
+          <div class="card-head">
+            <h2 id="barsTitle">四个维度</h2>
+            <span>越靠近一端，偏好越明显</span>
+          </div>
+          <div id="dimensionBars"></div>
+        </section>
+
+        <div class="result-grid">
+          <section class="card" aria-labelledby="strengthsTitle">
+            <h3 id="strengthsTitle">你的优势</h3>
+            <ul id="strengthsList" class="point-list"></ul>
+          </section>
+          <section class="card" aria-labelledby="watchTitle">
+            <h3 id="watchTitle">可能需要注意</h3>
+            <ul id="watchList" class="point-list"></ul>
+          </section>
+          <section class="card" aria-labelledby="scenesTitle">
+            <h3 id="scenesTitle">适合的场景</h3>
+            <ul id="scenesList" class="point-list"></ul>
+          </section>
+        </div>
+
+        <p class="result-disclaimer">结果仅供自我了解与娱乐参考，不是心理诊断，也不等同于官方 MBTI 测评。你可以在任何时候重新测试。</p>
+      </section>
+    </main>
+
+    <footer class="page-foot">
+      <p>成都大学第八届网络创新大赛 · AI 创作挑战赛 新手模板</p>
+      <p>数据只保存在本机浏览器 · 不上传服务器</p>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'cdu-mbti-v1';
+      const MAX_RESULTS = 20;
+
+      const AXIS_ORDER = ['EI', 'SN', 'TF', 'JP'];
+      const AXES = {
+        EI: {
+          left: 'E', right: 'I', leftName: '外向', rightName: '内向', label: '能量来源',
+          noteLeft: '和人互动能给你充电，讨论往往让你想得更快。',
+          noteRight: '独处能帮你恢复精力，你更习惯先想清楚再表达。',
+        },
+        SN: {
+          left: 'S', right: 'N', leftName: '实感', rightName: '直觉', label: '信息偏好',
+          noteLeft: '你相信具体信息和实际经验，喜欢先做能落地的部分。',
+          noteRight: '你对可能性和整体图景更敏感，喜欢把散落的点连成线。',
+        },
+        TF: {
+          left: 'T', right: 'F', leftName: '思考', rightName: '情感', label: '决策方式',
+          noteLeft: '你习惯先看逻辑和事实，做决定时更重一致性和效率。',
+          noteRight: '你会自然考虑人的感受和关系，希望决定对大家都友好。',
+        },
+        JP: {
+          left: 'J', right: 'P', leftName: '判断', rightName: '知觉', label: '生活节奏',
+          noteLeft: '计划和确定感让你安心，你更喜欢把事情收个尾。',
+          noteRight: '保留弹性让你自在，你更愿意根据现场情况调整。',
+        },
+      };
+
+      const QUESTIONS = [
+        { id: 'EI1', axis: 'EI', prompt: '连着上完三节课，中间有十分钟空档。你更想：',
+          a: { text: '找人聊两句，换换脑子', pole: 'E' },
+          b: { text: '自己待一会儿，安静一下', pole: 'I' } },
+        { id: 'EI2', axis: 'EI', prompt: '小组第一次开会讨论作业。你更习惯：',
+          a: { text: '先把想法说出来，边聊边理清', pole: 'E' },
+          b: { text: '先听大家说，想清楚再补充', pole: 'I' } },
+        { id: 'EI3', axis: 'EI', prompt: '社团活动结束后，大家提议一起去吃夜宵。你更可能：',
+          a: { text: '跟着去，顺便多认识几个人', pole: 'E' },
+          b: { text: '看情况，更想早点回去休息', pole: 'I' } },
+        { id: 'EI4', axis: 'EI', prompt: '认识新同学时，你通常：',
+          a: { text: '主动介绍自己，顺势聊起来', pole: 'E' },
+          b: { text: '等对方先开口，或从共同话题慢慢熟', pole: 'I' } },
+        { id: 'EI5', axis: 'EI', prompt: '在宿舍待了一整天没怎么说话，你的感觉更接近：',
+          a: { text: '有点闷，想找人说说话', pole: 'E' },
+          b: { text: '挺自在，正好做自己的事', pole: 'I' } },
+        { id: 'EI6', axis: 'EI', prompt: '复习周你更想用哪种方式：',
+          a: { text: '约同学一起自习，互相讲讲题', pole: 'E' },
+          b: { text: '自己安排好节奏，偶尔问一下', pole: 'I' } },
+        { id: 'EI7', axis: 'EI', prompt: '一场讲座结束后，你更愿意：',
+          a: { text: '留下来和讲者、同学交流几句', pole: 'E' },
+          b: { text: '直接回去，把内容自己消化一下', pole: 'I' } },
+
+        { id: 'SN1', axis: 'SN', prompt: '拿到一个新的课程项目，你更先注意：',
+          a: { text: '具体要求、截止时间和评分标准', pole: 'S' },
+          b: { text: '这个项目可能做成什么样、有没有新玩法', pole: 'N' } },
+        { id: 'SN2', axis: 'SN', prompt: '复习一门课时，你更容易记住：',
+          a: { text: '具体的例题、步骤和关键词', pole: 'S' },
+          b: { text: '整体框架、背后的逻辑和联系', pole: 'N' } },
+        { id: 'SN3', axis: 'SN', prompt: '朋友说「想做个校园小程序」，你第一反应是：',
+          a: { text: '现在能做什么功能、怎么落地', pole: 'S' },
+          b: { text: '它还能延伸出哪些可能性', pole: 'N' } },
+        { id: 'SN4', axis: 'SN', prompt: '看一部电影时，你更容易被什么吸引：',
+          a: { text: '扎实的细节和真实的场景', pole: 'S' },
+          b: { text: '隐喻、设定和开放式的解读', pole: 'N' } },
+        { id: 'SN5', axis: 'SN', prompt: '写实验报告时，你更在意：',
+          a: { text: '数据、步骤和结论是否准确完整', pole: 'S' },
+          b: { text: '现象之间有没有新的解释角度', pole: 'N' } },
+        { id: 'SN6', axis: 'SN', prompt: '学一个新软件，你更倾向：',
+          a: { text: '跟着教程一步步操作，先跑通', pole: 'S' },
+          b: { text: '先摸清整体结构，再自己试', pole: 'N' } },
+        { id: 'SN7', axis: 'SN', prompt: '别人讲一个计划时，你更常追问：',
+          a: { text: '具体什么时候做、谁来做、怎么做', pole: 'S' },
+          b: { text: '为什么做、最后想达成什么', pole: 'N' } },
+
+        { id: 'TF1', axis: 'TF', prompt: '组员交来的部分有明显问题，你会：',
+          a: { text: '直接指出问题，先保证作业质量', pole: 'T' },
+          b: { text: '先肯定他做的部分，再说怎么改', pole: 'F' } },
+        { id: 'TF2', axis: 'TF', prompt: '朋友向你吐槽今天很糟，你更先：',
+          a: { text: '帮他分析问题出在哪、下一步怎么办', pole: 'T' },
+          b: { text: '听他说完，先让他情绪缓下来', pole: 'F' } },
+        { id: 'TF3', axis: 'TF', prompt: '社团要在两个方案里选一个，你更看重：',
+          a: { text: '哪个效率高、风险小', pole: 'T' },
+          b: { text: '哪个大家更能接受、氛围更好', pole: 'F' } },
+        { id: 'TF4', axis: 'TF', prompt: '听到一句很直接的批评，你的第一反应更接近：',
+          a: { text: '这句话有没有道理，有道理就改', pole: 'T' },
+          b: { text: '先感到不太舒服，需要一点时间消化', pole: 'F' } },
+        { id: 'TF5', axis: 'TF', prompt: '小组分工时，你更倾向：',
+          a: { text: '按能力和时间分配，谁合适谁上', pole: 'T' },
+          b: { text: '问问每个人想做什么，尽量照顾意愿', pole: 'F' } },
+        { id: 'TF6', axis: 'TF', prompt: '看一条争议新闻，你先关注：',
+          a: { text: '事实是什么、逻辑站不站得住', pole: 'T' },
+          b: { text: '当事人会受什么影响、大家怎么感受', pole: 'F' } },
+        { id: 'TF7', axis: 'TF', prompt: '必须拒绝别人的请求时，你更可能：',
+          a: { text: '直接说明做不到，并给出替代方案', pole: 'T' },
+          b: { text: '先照顾对方感受，把话说得委婉一些', pole: 'F' } },
+
+        { id: 'JP1', axis: 'JP', prompt: '面对一周后的考试，你更习惯：',
+          a: { text: '提前列好每天复习什么', pole: 'J' },
+          b: { text: '根据状态随时调整，最后几天冲刺', pole: 'P' } },
+        { id: 'JP2', axis: 'JP', prompt: '出门旅行，你更愿意：',
+          a: { text: '提前定好路线和住的地方，心里有数', pole: 'J' },
+          b: { text: '定个大方向，到了再看情况', pole: 'P' } },
+        { id: 'JP3', axis: 'JP', prompt: '小组作业截止日期在两周后，你通常：',
+          a: { text: '早点拆好任务，按节点推进', pole: 'J' },
+          b: { text: '先攒着灵感，临近截止集中做', pole: 'P' } },
+        { id: 'JP4', axis: 'JP', prompt: '你的桌面和文件夹通常是：',
+          a: { text: '分类清楚，找东西很快', pole: 'J' },
+          b: { text: '看起来有点乱，但自己知道在哪', pole: 'P' } },
+        { id: 'JP5', axis: 'JP', prompt: '原定的计划突然取消，空出一整个下午，你会：',
+          a: { text: '很快安排点别的事，把时间用起来', pole: 'J' },
+          b: { text: '挺开心，想到什么做什么', pole: 'P' } },
+        { id: 'JP6', axis: 'JP', prompt: '面对一个还不确定的选择，你更舒服的状态是：',
+          a: { text: '尽快定下来，不想一直悬着', pole: 'J' },
+          b: { text: '多留几个选项，到时候再定', pole: 'P' } },
+        { id: 'JP7', axis: 'JP', prompt: '准备一次课堂展示，你更像：',
+          a: { text: '提前把稿子和流程过几遍', pole: 'J' },
+          b: { text: '准备好素材，现场再组织语言', pole: 'P' } },
+      ];
+
+      const TYPES = {
+        ISTJ: {
+          name: '物流师', tagline: '把每一件事做扎实',
+          summary: '你可靠、重视秩序与事实，答应的事会认真做到。面对问题时，你习惯用已验证的方法一步步解决，而不是凭一时感觉。',
+          traits: ['可靠', '有条理', '务实'],
+          strengths: ['执行稳定，细节不容易出错', '对承诺负责，是团队里的定心丸', '擅长把混乱的流程整理成清单'],
+          watchouts: ['变化来得太快时，需要一点适应时间', '表达关心时容易显得过于就事论事'],
+          scenes: ['项目排期与质量管理', '数据核对与归档', '需要长期稳定投入的角色'],
+        },
+        ISFJ: {
+          name: '守卫者', tagline: '安静地把大家照顾好',
+          summary: '你温和细致，记得别人的需要，也愿意默默把事做好。你重视熟悉的人和稳定的节奏，习惯用行动而不是口号表达在意。',
+          traits: ['体贴', '细致', '有责任感'],
+          strengths: ['能照顾到团队容易忽略的细节', '对身边的人有耐心', '把承诺看得重，交付质量稳定'],
+          watchouts: ['不太擅长拒绝，容易把压力留给自己', '遇到冲突时倾向先退一步'],
+          scenes: ['班级或社团的日常运营', '需要耐心与陪伴的支持角色', '流程细、要求稳的工作'],
+        },
+        INFJ: {
+          name: '提倡者', tagline: '在安静里坚持自己相信的事',
+          summary: '你安静但有主见，常在心里描绘事情更深的意义。你希望做的事和在意的人能彼此连接，也愿意为长远的价值慢慢投入。',
+          traits: ['有洞察', '理想主义', '专注'],
+          strengths: ['能理解别人没说出口的部分', '对长期目标有坚持', '善于把复杂感受整理成清晰方向'],
+          watchouts: ['容易对自己和他人期待过高', '想得太多时，行动会慢半拍'],
+          scenes: ['需要洞察和表达价值的项目', '一对一的深度沟通', '长期主义的创造性工作'],
+        },
+        INTJ: {
+          name: '建筑师', tagline: '用长期视角搭好自己的系统',
+          summary: '你喜欢先建好整体框架，再按自己的标准把细节落地。你更相信长期有效的方案，而不是一时热闹，也愿意为独立的空间付出代价。',
+          traits: ['独立', '策略性', '标准高'],
+          strengths: ['能快速看出现有做法的漏洞', '制定计划时考虑周全', '学习和改进的速度快'],
+          watchouts: ['对低效和含糊的容忍度不高', '容易低估沟通与情绪成本'],
+          scenes: ['系统设计与规划', '需要深度钻研的课题', '自主空间大的项目'],
+        },
+        ISTP: {
+          name: '鉴赏家', tagline: '先动手，把它弄明白',
+          summary: '你冷静、动手能力强，遇到问题喜欢直接拆开看看。你不爱空谈，更信任实际试出来的结果，在突发状况里反而更稳。',
+          traits: ['冷静', '实干', '灵活'],
+          strengths: ['突发状况下反应快', '动手和排障能力强', '不容易被规则和情绪牵着走'],
+          watchouts: ['长期计划容易一拖再拖', '不太主动表达想法，别人可能猜不到你在想什么'],
+          scenes: ['设备调试与现场排障', '需要快速试验的技术任务', '自由度高的实操项目'],
+        },
+        ISFP: {
+          name: '探险家', tagline: '把感受过成自己的作品',
+          summary: '你温和、随性，对当下真实的感受很敏锐。你更愿意用作品和行动表达自己，而不是长篇解释，也尊重每个人自己的节奏。',
+          traits: ['温柔', '审美敏锐', '随和'],
+          strengths: ['能捕捉细微的氛围和美感', '尊重每个人的节奏', '做出来的东西有自己的风格'],
+          watchouts: ['遇到强冲突时容易先回避', '长期目标需要外部节点帮忙推进'],
+          scenes: ['视觉或内容创作', '需要共情和体验感的工作', '节奏弹性较大的协作'],
+        },
+        INFP: {
+          name: '调停者', tagline: '忠于内心相信的价值',
+          summary: '你内心有一套自己的价值坐标，安静但认真。你在意做的事是否真诚，也愿意理解不同的人，一旦认同目标就会持续投入。',
+          traits: ['真诚', '想象丰富', '共情'],
+          strengths: ['对人有耐心，能接住别人的情绪', '有创作和表达的潜力', '一旦认同目标就会投入'],
+          watchouts: ['现实条件不理想时容易内耗', '对批评比较敏感，容易先否定自己'],
+          scenes: ['文字或内容创作', '需要价值认同的项目', '一对一的倾听与支持'],
+        },
+        INTP: {
+          name: '逻辑学家', tagline: '把问题想透比答案更重要',
+          summary: '你好奇心强，喜欢琢磨事情背后的原理。你更享受把问题想透的过程，而不是急着交作业，讨论时也愿意推翻自己原有的想法。',
+          traits: ['好奇', '分析力强', '独立'],
+          strengths: ['能发现别人忽略的逻辑漏洞', '学新知识快', '讨论时不怕推翻原有想法'],
+          watchouts: ['容易想得多、动手少', '对流程和截止日期不够敏感'],
+          scenes: ['研究型课题', '算法与逻辑设计', '允许自由探索的学习任务'],
+        },
+        ESTP: {
+          name: '企业家', tagline: '现场就是你的主场',
+          summary: '你反应快、行动派，喜欢在有挑战的现场解决问题。你不太怕试错，更相信边做边调整，也常常是房间里第一个站出来的人。',
+          traits: ['果断', '行动力强', '现场感好'],
+          strengths: ['压力下依然能推进', '敢于开口和争取资源', '能把气氛带动起来'],
+          watchouts: ['容易低估长期后果', '对重复和细致的收尾工作耐心有限'],
+          scenes: ['活动执行与现场协调', '需要快速决策的任务', '竞争性强的项目'],
+        },
+        ESFP: {
+          name: '表演者', tagline: '把当下过成热闹的样子',
+          summary: '你热情、活在当下，喜欢让周围的人开心。你在真实互动和体验里状态最好，也很容易发现现场里别人需要什么。',
+          traits: ['热情', '感染力强', '好奇体验'],
+          strengths: ['能快速拉近距离', '把沉闷的场合变轻松', '对现场需求反应灵敏'],
+          watchouts: ['长期规划容易排到明天', '情绪上来时决定可能偏冲动'],
+          scenes: ['活动主持与宣传', '面向人的服务与沟通', '需要即时创意和表现力的任务'],
+        },
+        ENFP: {
+          name: '竞选者', tagline: '让想法和人彼此点亮',
+          summary: '你点子多、热情来得快，喜欢把人和想法连接在一起。你对新鲜的可能性有天然的兴趣，也愿意真诚地了解身边的人。',
+          traits: ['有活力', '想象力强', '真诚'],
+          strengths: ['能点燃团队气氛', '善于发现每个人的闪光点', '对新领域上手快'],
+          watchouts: ['兴奋过后容易失去后续动力', '同时开太多坑，收尾压力大'],
+          scenes: ['创意策划与发起', '需要连接人的协作', '变化多、需要新点子的项目'],
+        },
+        ENTP: {
+          name: '辩论家', tagline: '总想看看还有没有更好的解法',
+          summary: '你脑子转得快，喜欢挑战默认答案。你不是为了抬杠，而是想看看有没有更好的解法，也享受在讨论里把问题越辩越清楚。',
+          traits: ['机敏', '爱探索', '善于思辨'],
+          strengths: ['能快速拆解复杂问题', '面对变化不慌', '能提出让人眼前一亮的方案'],
+          watchouts: ['容易为了讨论而讨论', '对执行和收尾兴趣不大'],
+          scenes: ['方案设计与提案', '需要创新的竞赛项目', '变化频繁的探索型任务'],
+        },
+        ESTJ: {
+          name: '总经理', tagline: '把混乱变成清晰的清单',
+          summary: '你目标清楚、执行力强，习惯把人和事安排得井井有条。你相信规则和方法能带来稳定结果，也愿意为结果承担责任。',
+          traits: ['有条理', '果断', '责任感强'],
+          strengths: ['能把计划推进到底', '分配任务清楚', '在混乱中快速建立秩序'],
+          watchouts: ['对不符合标准的方式容忍度低', '容易忽视别人的情绪反馈'],
+          scenes: ['项目统筹与推进', '班级或社团管理', '标准明确、目标量化的任务'],
+        },
+        ESFJ: {
+          name: '执政官', tagline: '让每个人都感到被照顾',
+          summary: '你热心又细心，重视关系和集体氛围。你愿意为身边的人多做一步，也希望大家都被照顾到，常常是团队里的黏合剂。',
+          traits: ['亲和', '负责', '重视和谐'],
+          strengths: ['能及时察觉团队氛围', '把琐碎事务安排妥当', '值得信赖，愿意兑现承诺'],
+          watchouts: ['容易过度在意别人的评价', '不太擅长拒绝额外的请求'],
+          scenes: ['班级或社团联络与组织', '需要服务意识的工作', '团队氛围与文化建设'],
+        },
+        ENFJ: {
+          name: '主人公', tagline: '带着大家一起往前走',
+          summary: '你有感染力，也愿意为别人的成长投入。你常能说出让大家朝同一方向走的话，也真心希望身边的人变得更好。',
+          traits: ['有感染力', '共情', '有目标感'],
+          strengths: ['能调动团队积极性', '理解每个人的动机', '把长远愿景讲清楚'],
+          watchouts: ['容易把别人的事揽到自己身上', '忽略自己的疲惫和边界'],
+          scenes: ['团队带领与培训', '公共表达与倡议', '需要凝聚力的合作项目'],
+        },
+        ENTJ: {
+          name: '指挥官', tagline: '把目标变成可以执行的路线',
+          summary: '你目标导向、敢于拍板，习惯把局面往前推。你擅长发现低效，并把它变成可以执行的计划，也愿意承担决定带来的结果。',
+          traits: ['有魄力', '战略思维', '高标准'],
+          strengths: ['能快速做决定并承担结果', '资源整合能力强', '把复杂目标拆成路线图'],
+          watchouts: ['节奏快时容易给身边人压力', '对情绪表达耐心不足'],
+          scenes: ['项目负责人', '竞赛与创业型团队', '需要快速推进和决策的场合'],
+        },
+      };
+
+      const VIEW_SUBS = {
+        intro: '看清自己的偏好，不必给自己贴标签',
+        quiz: '凭第一反应选，没有对错',
+        result: '结果仅供自我了解与娱乐参考',
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => [...document.querySelectorAll(selector)];
+      const pad = (value) => String(value).padStart(2, '0');
+      const uid = () => Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+      function formatDateTime(timestamp) {
+        const date = new Date(timestamp);
+        return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日 ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      }
+
+      function formatShortDate(timestamp) {
+        const date = new Date(timestamp);
+        return `${date.getMonth() + 1} 月 ${date.getDate()} 日 ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      }
+
+      function computeCounts(answers) {
+        const counts = {};
+        for (const axis of AXIS_ORDER) {
+          counts[axis] = { left: 0, right: 0 };
+        }
+        for (const question of QUESTIONS) {
+          const pole = answers[question.id];
+          const axis = AXES[question.axis];
+          if (pole === axis.left) counts[question.axis].left += 1;
+          else if (pole === axis.right) counts[question.axis].right += 1;
+        }
+        return counts;
+      }
+
+      function typeFromCounts(counts) {
+        return AXIS_ORDER.map((axis) => {
+          const axisCounts = counts[axis] || { left: 0, right: 0 };
+          return axisCounts.left >= axisCounts.right ? AXES[axis].left : AXES[axis].right;
+        }).join('');
+      }
+
+      function normalizeSession(raw) {
+        if (!raw || typeof raw !== 'object' || !raw.answers || typeof raw.answers !== 'object') return null;
+        const answers = {};
+        for (const question of QUESTIONS) {
+          const pole = raw.answers[question.id];
+          const { left, right } = AXES[question.axis];
+          if (pole === left || pole === right) answers[question.id] = pole;
+        }
+        const answered = Object.keys(answers).length;
+        if (!answered) return null;
+        return {
+          answers,
+          index: clamp(parseInt(raw.index, 10) || 0, 0, QUESTIONS.length - 1),
+          startedAt: Number(raw.startedAt) || Date.now(),
+        };
+      }
+
+      function normalizeResult(raw) {
+        if (!raw || typeof raw !== 'object' || !/^[EI][SN][TF][JP]$/.test(raw.type || '')) return null;
+        const counts = {};
+        for (const axis of AXIS_ORDER) {
+          const source = raw.counts && raw.counts[axis];
+          counts[axis] = {
+            left: clamp(parseInt(source && source.left, 10) || 0, 0, 7),
+            right: clamp(parseInt(source && source.right, 10) || 0, 0, 7),
+          };
+        }
+        return {
+          id: String(raw.id || uid()),
+          type: typeFromCounts(counts),
+          counts,
+          answeredAt: Number(raw.answeredAt) || Date.now(),
+        };
+      }
+
+      function loadState() {
+        const fallback = { theme: 'light', session: null, results: [] };
+        let parsed;
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return fallback;
+          parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== 'object') return fallback;
+        } catch (error) {
+          return fallback;
+        }
+        const results = Array.isArray(parsed.results)
+          ? parsed.results.map(normalizeResult).filter(Boolean).slice(0, MAX_RESULTS)
+          : [];
+        return {
+          theme: parsed.theme === 'dark' ? 'dark' : 'light',
+          session: normalizeSession(parsed.session),
+          results,
+        };
+      }
+
+      const els = {
+        brandSub: $('#brandSub'),
+        themeToggle: $('#themeToggle'),
+        viewIntro: $('#viewIntro'),
+        startBtn: $('#startBtn'),
+        resumeBtn: $('#resumeBtn'),
+        historyList: $('#historyList'),
+        historyEmpty: $('#historyEmpty'),
+        historyCount: $('#historyCount'),
+        clearHistoryBtn: $('#clearHistoryBtn'),
+        clearAllBtn: $('#clearAllBtn'),
+        viewQuiz: $('#viewQuiz'),
+        quizCard: $('#quizCard'),
+        quizStep: $('#quizStep'),
+        quizDim: $('#quizDim'),
+        quitBtn: $('#quitBtn'),
+        progressTrack: $('#progressTrack'),
+        progressFill: $('#progressFill'),
+        questionWrap: $('#questionWrap'),
+        questionText: $('#questionText'),
+        options: $$('.option'),
+        prevBtn: $('#prevBtn'),
+        quizAnswered: $('#quizAnswered'),
+        viewResult: $('#viewResult'),
+        typeCode: $('#typeCode'),
+        typeName: $('#typeName'),
+        typeTagline: $('#typeTagline'),
+        typeSummary: $('#typeSummary'),
+        typeTraits: $('#typeTraits'),
+        archivedNote: $('#archivedNote'),
+        copyBtn: $('#copyBtn'),
+        retakeBtn: $('#retakeBtn'),
+        homeBtn: $('#homeBtn'),
+        dimensionBars: $('#dimensionBars'),
+        strengthsList: $('#strengthsList'),
+        watchList: $('#watchList'),
+        scenesList: $('#scenesList'),
+        toast: $('#toast'),
+      };
+
+      let state = loadState();
+      let view = 'intro';
+      let quizIndex = 0;
+      let activeResult = null;
+      let activeArchived = false;
+      let isAdvancing = false;
+      let advanceTimer = null;
+      let advanceToken = 0;
+      let toastTimer = null;
+
+      function answeredCount() {
+        if (!state.session) return 0;
+        return QUESTIONS.reduce((sum, question) => sum + (state.session.answers[question.id] ? 1 : 0), 0);
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {}
+      }
+
+      function applyTheme() {
+        document.documentElement.dataset.theme = state.theme === 'dark' ? 'dark' : 'light';
+        els.themeToggle.setAttribute('aria-label', state.theme === 'dark' ? '切换为浅色模式' : '切换为深色模式');
+      }
+
+      function toggleTheme() {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        applyTheme();
+        persist();
+      }
+
+      function showToast(message, duration = 2400) {
+        els.toast.textContent = message;
+        els.toast.classList.add('is-visible');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => {
+          els.toast.classList.remove('is-visible');
+        }, duration);
+      }
+
+      function cancelAdvance() {
+        isAdvancing = false;
+        advanceToken += 1;
+        if (advanceTimer) {
+          window.clearTimeout(advanceTimer);
+          advanceTimer = null;
+        }
+      }
+
+      function showView(name, options = {}) {
+        const { initial = false } = options;
+        view = name;
+        els.viewIntro.hidden = name !== 'intro';
+        els.viewQuiz.hidden = name !== 'quiz';
+        els.viewResult.hidden = name !== 'result';
+        els.brandSub.textContent = VIEW_SUBS[name];
+        if (initial) return;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const target = name === 'quiz' ? els.questionText : name === 'result' ? els.typeName : $('#introTitle');
+        window.requestAnimationFrame(() => target.focus({ preventScroll: true }));
+      }
+
+      function renderHistory() {
+        els.historyList.textContent = '';
+        const results = state.results;
+        els.historyEmpty.hidden = results.length > 0;
+        els.clearHistoryBtn.hidden = results.length === 0;
+        els.historyCount.textContent = results.length === 0
+          ? ''
+          : results.length > 5 ? `共 ${results.length} 次 · 显示最近 5 次` : `共 ${results.length} 次`;
+
+        results.slice(0, 5).forEach((result, index) => {
+          const info = TYPES[result.type];
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'history-item' + (index === 0 ? ' is-latest' : '');
+          button.setAttribute('aria-label', `查看 ${formatDateTime(result.answeredAt)} 的结果：${result.type}`);
+
+          const main = document.createElement('span');
+          main.className = 'history-main';
+          const typeEl = document.createElement('span');
+          typeEl.className = 'history-type';
+          typeEl.textContent = result.type;
+          const nameEl = document.createElement('span');
+          nameEl.className = 'history-name';
+          nameEl.textContent = info ? info.name : '';
+          main.append(typeEl, nameEl);
+
+          const meta = document.createElement('span');
+          meta.className = 'history-meta';
+          if (index === 0) {
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.textContent = '最近一次';
+            meta.append(tag);
+          }
+          const dateEl = document.createElement('span');
+          dateEl.textContent = formatShortDate(result.answeredAt);
+          meta.append(dateEl);
+
+          const arrow = document.createElement('span');
+          arrow.className = 'history-arrow';
+          arrow.setAttribute('aria-hidden', 'true');
+          arrow.textContent = '→';
+
+          button.append(main, meta, arrow);
+          button.addEventListener('click', () => openResult(result, true));
+          els.historyList.append(button);
+        });
+      }
+
+      function renderIntro() {
+        const answered = answeredCount();
+        const resumable = Boolean(state.session && answered > 0 && answered < QUESTIONS.length);
+        els.resumeBtn.hidden = !resumable;
+        els.clearAllBtn.hidden = !(state.results.length > 0 || answered > 0);
+        if (resumable) {
+          els.resumeBtn.textContent = `继续上次（${answered} / ${QUESTIONS.length}）`;
+          els.startBtn.textContent = '重新开始';
+        } else {
+          els.startBtn.textContent = '开始测试';
+        }
+        renderHistory();
+      }
+
+      function renderQuiz() {
+        const question = QUESTIONS[quizIndex];
+        const axis = AXES[question.axis];
+        const answers = state.session ? state.session.answers : {};
+
+        els.quizStep.textContent = `第 ${quizIndex + 1} 题 / ${QUESTIONS.length}`;
+        els.quizDim.dataset.axis = question.axis;
+        els.quizDim.textContent = `${axis.left} / ${axis.right} · ${axis.label}`;
+        els.questionText.textContent = question.prompt;
+
+        for (const button of els.options) {
+          const option = button.dataset.choice === 'a' ? question.a : question.b;
+          button.querySelector('.option-text').textContent = option.text;
+          const selected = answers[question.id] === option.pole;
+          button.classList.toggle('is-selected', selected);
+          button.setAttribute('aria-pressed', String(selected));
+        }
+
+        const answered = answeredCount();
+        els.quizAnswered.textContent = `已答 ${answered} / ${QUESTIONS.length} · 键盘 1 / 2 选择`;
+        els.progressTrack.setAttribute('aria-valuemax', String(QUESTIONS.length));
+        els.progressTrack.setAttribute('aria-valuenow', String(answered));
+        els.progressFill.style.width = `${(answered / QUESTIONS.length) * 100}%`;
+        els.prevBtn.disabled = quizIndex === 0;
+      }
+
+      function animateQuestion() {
+        els.questionWrap.classList.remove('swap');
+        void els.questionWrap.offsetWidth;
+        els.questionWrap.classList.add('swap');
+      }
+
+      function renderResult() {
+        if (!activeResult) return;
+        const info = TYPES[activeResult.type];
+        const type = activeResult.type;
+
+        els.typeCode.textContent = '';
+        type.split('').forEach((letter, index) => {
+          const tile = document.createElement('span');
+          tile.className = 'type-letter';
+          tile.textContent = letter;
+          tile.dataset.axis = AXIS_ORDER[index];
+          tile.style.animationDelay = `${index * 70}ms`;
+          els.typeCode.append(tile);
+        });
+
+        els.typeName.textContent = `${info.name}（${type}）`;
+        els.typeTagline.textContent = info.tagline;
+        els.typeSummary.textContent = info.summary;
+        els.archivedNote.hidden = !activeArchived;
+
+        els.typeTraits.textContent = '';
+        for (const trait of info.traits) {
+          const tag = document.createElement('span');
+          tag.textContent = trait;
+          els.typeTraits.append(tag);
+        }
+
+        renderBars();
+        fillList(els.strengthsList, info.strengths);
+        fillList(els.watchList, info.watchouts);
+        fillList(els.scenesList, info.scenes);
+      }
+
+      function renderBars() {
+        els.dimensionBars.textContent = '';
+        for (const axis of AXIS_ORDER) {
+          const config = AXES[axis];
+          const counts = activeResult.counts[axis] || { left: 0, right: 0 };
+          const total = counts.left + counts.right || 1;
+          const leftPct = Math.round((counts.left / total) * 100);
+          const rightPct = 100 - leftPct;
+          const rightDominant = counts.right > counts.left;
+          const dominantName = rightDominant ? config.rightName : config.leftName;
+          const dominantNote = rightDominant ? config.noteRight : config.noteLeft;
+
+          const row = document.createElement('div');
+          row.className = 'dim-bar';
+          row.dataset.axis = axis;
+
+          const labels = document.createElement('div');
+          labels.className = 'dim-bar-labels';
+
+          const leftSide = document.createElement('span');
+          leftSide.className = 'dim-side' + (rightDominant ? '' : ' is-dominant');
+          const leftLetter = document.createElement('b');
+          leftLetter.textContent = config.left;
+          const leftName = document.createElement('span');
+          leftName.textContent = config.leftName;
+          const leftPctEl = document.createElement('em');
+          leftPctEl.textContent = `${leftPct}%`;
+          leftSide.append(leftLetter, leftName, leftPctEl);
+
+          const rightSide = document.createElement('span');
+          rightSide.className = 'dim-side is-right' + (rightDominant ? ' is-dominant' : '');
+          const rightPctEl = document.createElement('em');
+          rightPctEl.textContent = `${rightPct}%`;
+          const rightName = document.createElement('span');
+          rightName.textContent = config.rightName;
+          const rightLetter = document.createElement('b');
+          rightLetter.textContent = config.right;
+          rightSide.append(rightPctEl, rightName, rightLetter);
+
+          labels.append(leftSide, rightSide);
+
+          const track = document.createElement('div');
+          track.className = 'dim-track';
+          track.setAttribute('role', 'img');
+          track.setAttribute('aria-label', `${config.left} ${leftPct}%，${config.right} ${rightPct}%`);
+          const leftSeg = document.createElement('span');
+          leftSeg.className = 'dim-seg-left' + (rightDominant ? ' is-minor' : '');
+          leftSeg.style.width = `${leftPct}%`;
+          const rightSeg = document.createElement('span');
+          rightSeg.className = 'dim-seg-right' + (rightDominant ? '' : ' is-minor');
+          track.append(leftSeg, rightSeg);
+
+          const note = document.createElement('p');
+          note.className = 'dim-note';
+          const strong = document.createElement('strong');
+          strong.textContent = `更偏向${dominantName}`;
+          note.append(strong, document.createTextNode(` · ${dominantNote}`));
+
+          row.append(labels, track, note);
+          els.dimensionBars.append(row);
+        }
+      }
+
+      function fillList(list, items) {
+        list.textContent = '';
+        for (const item of items) {
+          const li = document.createElement('li');
+          li.textContent = item;
+          list.append(li);
+        }
+      }
+
+      function openResult(result, archived) {
+        activeResult = result;
+        activeArchived = archived;
+        renderResult();
+        showView('result');
+      }
+
+      function startNewTest() {
+        cancelAdvance();
+        if (state.session && answeredCount() > 0) {
+          if (!window.confirm('开始新的测试会清空当前进度，历史结果会保留。确定继续？')) return;
+        }
+        state.session = { answers: {}, index: 0, startedAt: Date.now() };
+        quizIndex = 0;
+        persist();
+        renderQuiz();
+        showView('quiz');
+        animateQuestion();
+      }
+
+      function resumeTest() {
+        if (!state.session) return;
+        const answered = answeredCount();
+        if (answered >= QUESTIONS.length) {
+          finalizeCompleteSession();
+          return;
+        }
+        quizIndex = clamp(parseInt(state.session.index, 10) || 0, 0, QUESTIONS.length - 1);
+        renderQuiz();
+        showView('quiz');
+        animateQuestion();
+      }
+
+      function chooseOption(choice) {
+        if (view !== 'quiz' || !state.session || isAdvancing) return;
+        const question = QUESTIONS[quizIndex];
+        const option = choice === 'a' ? question.a : question.b;
+        state.session.answers[question.id] = option.pole;
+        state.session.index = quizIndex;
+        persist();
+        renderQuiz();
+
+        if (quizIndex >= QUESTIONS.length - 1) {
+          finishQuiz();
+          return;
+        }
+
+        isAdvancing = true;
+        const token = ++advanceToken;
+        advanceTimer = window.setTimeout(() => {
+          advanceTimer = null;
+          if (token !== advanceToken) return;
+          isAdvancing = false;
+          quizIndex += 1;
+          state.session.index = quizIndex;
+          persist();
+          renderQuiz();
+          animateQuestion();
+        }, 180);
+      }
+
+      function goPrev() {
+        if (view !== 'quiz' || quizIndex <= 0) return;
+        cancelAdvance();
+        quizIndex -= 1;
+        if (state.session) {
+          state.session.index = quizIndex;
+          persist();
+        }
+        renderQuiz();
+        animateQuestion();
+      }
+
+      function quitQuiz() {
+        if (view !== 'quiz') return;
+        cancelAdvance();
+        const answered = answeredCount();
+        if (!answered) state.session = null;
+        persist();
+        renderIntro();
+        showView('intro');
+        showToast(answered ? '进度已保存，下次可以继续' : '已退出测试');
+      }
+
+      function finishQuiz() {
+        if (!state.session) return;
+        cancelAdvance();
+        const counts = computeCounts(state.session.answers);
+        const type = typeFromCounts(counts);
+        const result = { id: uid(), type, counts, answeredAt: Date.now() };
+        state.results.unshift(result);
+        state.results = state.results.slice(0, MAX_RESULTS);
+        state.session = null;
+        persist();
+        renderIntro();
+        openResult(result, false);
+        showToast(`完成！你的类型是 ${type} · ${TYPES[type].name}`);
+      }
+
+      function finalizeCompleteSession() {
+        if (!state.session) return;
+        const counts = computeCounts(state.session.answers);
+        const type = typeFromCounts(counts);
+        state.results.unshift({ id: uid(), type, counts, answeredAt: Date.now() });
+        state.results = state.results.slice(0, MAX_RESULTS);
+        state.session = null;
+        persist();
+        renderIntro();
+        showToast('上次已经答完，结果已保存');
+      }
+
+      function clearHistory() {
+        if (!state.results.length) return;
+        if (!window.confirm(`清空 ${state.results.length} 条历史结果？此操作不可撤销。`)) return;
+        state.results = [];
+        persist();
+        renderIntro();
+        showToast('历史记录已清空');
+      }
+
+      function clearAllData() {
+        const hasData = state.results.length > 0 || (state.session && answeredCount() > 0);
+        if (!hasData) {
+          showToast('没有可清空的数据');
+          return;
+        }
+        if (!window.confirm('清空全部历史记录和答题进度？主题设置会保留。此操作不可撤销。')) return;
+        cancelAdvance();
+        const theme = state.theme;
+        state = { theme, session: null, results: [] };
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {}
+        persist();
+        renderIntro();
+        showToast('已清空全部数据');
+      }
+
+      function copyText(text) {
+        const fallback = () => {
+          if (fallbackCopy(text)) showToast('结果已复制');
+          else showToast('复制失败，请手动选择结果文本');
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(
+            () => showToast('结果已复制'),
+            fallback
+          );
+        } else {
+          fallback();
+        }
+      }
+
+      function fallbackCopy(text) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.top = '-1000px';
+        area.style.opacity = '0';
+        document.body.append(area);
+        area.select();
+        area.setSelectionRange(0, area.value.length);
+        let ok = false;
+        try {
+          ok = document.execCommand('copy');
+        } catch (error) {
+          ok = false;
+        }
+        area.remove();
+        return ok;
+      }
+
+      function copyResult() {
+        if (!activeResult) return;
+        const info = TYPES[activeResult.type];
+        const dimensions = AXIS_ORDER.map((axis) => {
+          const counts = activeResult.counts[axis];
+          const total = counts.left + counts.right || 1;
+          const leftPct = Math.round((counts.left / total) * 100);
+          return `${AXES[axis].left} ${leftPct}% / ${AXES[axis].right} ${100 - leftPct}%`;
+        }).join(' · ');
+        const text = `我的 MBTI 人格偏好：${activeResult.type} · ${info.name}\n${dimensions}\n—— 来自「MBTI 人格小测试」模板（结果仅供娱乐参考）`;
+        copyText(text);
+      }
+
+      function handleKeydown(event) {
+        if (view !== 'quiz' || event.ctrlKey || event.metaKey || event.altKey) return;
+        const target = event.target;
+        const tag = target ? target.tagName : '';
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || (target && target.isContentEditable)) return;
+        const key = event.key.toLowerCase();
+        if (key === '1' || key === 'a') {
+          event.preventDefault();
+          chooseOption('a');
+        } else if (key === '2' || key === 'b') {
+          event.preventDefault();
+          chooseOption('b');
+        } else if (event.key === 'ArrowLeft' || event.key === 'Backspace') {
+          event.preventDefault();
+          goPrev();
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          quitQuiz();
+        }
+      }
+
+      function bindEvents() {
+        els.startBtn.addEventListener('click', startNewTest);
+        els.resumeBtn.addEventListener('click', resumeTest);
+        els.themeToggle.addEventListener('click', toggleTheme);
+        els.clearHistoryBtn.addEventListener('click', clearHistory);
+        els.clearAllBtn.addEventListener('click', clearAllData);
+        els.quitBtn.addEventListener('click', quitQuiz);
+        els.prevBtn.addEventListener('click', goPrev);
+        for (const button of els.options) {
+          button.addEventListener('click', () => chooseOption(button.dataset.choice));
+        }
+        els.copyBtn.addEventListener('click', copyResult);
+        els.retakeBtn.addEventListener('click', startNewTest);
+        els.homeBtn.addEventListener('click', () => {
+          renderIntro();
+          showView('intro');
+        });
+
+        document.addEventListener('keydown', handleKeydown);
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) persist();
+        });
+        window.addEventListener('beforeunload', persist);
+      }
+
+      function init() {
+        applyTheme();
+        bindEvents();
+        if (state.session && answeredCount() >= QUESTIONS.length) {
+          finalizeCompleteSession();
+        } else {
+          renderIntro();
+        }
+        showView('intro', { initial: true });
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

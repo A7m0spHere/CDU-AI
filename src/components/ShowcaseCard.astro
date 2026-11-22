@@ -1,0 +1,74 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  summary: string;
+  cover?: string;
+  coverAlt?: string;
+  badge: string;
+  badgeTone?: 'brand' | 'sky' | 'example';
+  meta?: string[];
+  tags?: string[];
+  href: string;
+  ctaLabel: string;
+}
+
+const {
+  title,
+  summary,
+  cover,
+  coverAlt,
+  badge,
+  badgeTone = 'brand',
+  meta = [],
+  tags = [],
+  href,
+  ctaLabel,
+} = Astro.props;
+---
+
+<a class="showcase-card card card--lift" href={href} aria-label={`${ctaLabel}：${title}`}>
+  <div class="showcase-card__art">
+    {cover ? (
+      <img
+        class="showcase-card__img"
+        src={cover}
+        alt={coverAlt ?? title}
+        width="720"
+        height="450"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <div class="showcase-card__placeholder" aria-hidden="true"><Icon name="image" size={28} /></div>
+    )}
+    <span class:list={['badge', `badge--${badgeTone}`, 'showcase-card__badge']}>{badge}</span>
+  </div>
+
+  <div class="showcase-card__body">
+    {meta.length > 0 && (
+      <div class="showcase-card__meta">
+        {meta.map((item, index) => (
+          <Fragment>
+            {index > 0 && <span class="meta-divider" aria-hidden="true"></span>}
+            <span>{item}</span>
+          </Fragment>
+        ))}
+      </div>
+    )}
+    <h3>{title}</h3>
+    <p class="showcase-card__summary">{summary}</p>
+    {tags.length > 0 && (
+      <ul class="tag-list" aria-label="标签">
+        {tags.map((tag) => <li class="tag">{tag}</li>)}
+      </ul>
+    )}
+    <div class="showcase-card__foot">
+      <span class="showcase-card__cta">
+        {ctaLabel}
+        <Icon name="arrow-right" size={15} />
+      </span>
+    </div>
+  </div>
+</a>

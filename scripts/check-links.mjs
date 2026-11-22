@@ -67,7 +67,7 @@ for (const file of htmlFiles) {
   const hrefs = [...html.matchAll(/\bhref="([^"]+)"/g)].map((match) => match[1]);
 
   for (const raw of hrefs) {
-    if (!raw || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('javascript:')) continue;
+    if (!raw || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('javascript:') || raw.startsWith('data:') || raw.startsWith('blob:')) continue;
     if (raw.startsWith('#')) {
       if (raw.length > 1) {
         const ids = await getIds(file);

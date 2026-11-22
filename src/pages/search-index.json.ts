@@ -8,6 +8,7 @@ import { getToolSectionLabels } from '../lib/tool-catalog.mjs';
 import { glossaryCategoryName } from '../data/glossary';
 import { guideHome } from '../data/guide-nav';
 import { challengeConfig, ruleSections } from '../data/challenge';
+import { challengeWorks, safeWorkUrl, starterTemplates } from '../data/showcase';
 
 interface SearchItem {
   type: '指南' | '章节' | '工具' | '作品' | '术语' | '页面';
@@ -87,11 +88,27 @@ export const GET: APIRoute = async () => {
     },
     {
       type: '页面',
-      title: '作品广场',
-      description: '策划示例，不是真实学生投稿。',
+      title: '作品广场 · 活动广场',
+      description: 'AI 创作挑战赛活动广场：本次活动模板在线体验；参赛作品以 Sites 外链展示。',
       href: '/works/',
-      keywords: '作品 作品广场 示例 灵感 提示词',
+      keywords: '作品 作品广场 活动广场 模板 新手模板 参赛作品 展示 Sites 番茄钟 MBTI 俄罗斯方块 坦克大战 像素画板 策划示例',
     },
+    ...starterTemplates.map((template) => ({
+      type: '页面' as const,
+      title: `${template.title} · 本次活动模板`,
+      description: template.summary,
+      href: `/works/template/${template.slug}/`,
+      keywords: `本次活动模板 模板 ${template.title} ${template.tags.join(' ')} 在线体验`,
+    })),
+    ...challengeWorks
+      .filter((work) => work.consent && safeWorkUrl(work.siteUrl))
+      .map((work) => ({
+        type: '页面' as const,
+        title: `${work.title} · 参赛作品`,
+        description: `${work.summary} 作者：${work.author}，组别：${work.group}。`,
+        href: `/works/project/${work.slug}/`,
+        keywords: `参赛作品 ${work.group} ${work.author} ${work.tags.join(' ')}`,
+      })),
     {
       type: '页面',
       title: '社区',
@@ -112,6 +129,13 @@ export const GET: APIRoute = async () => {
       description: '组队规则、提交材料、反抄袭、两组评分表与奖项设置。',
       href: '/events/rules/',
       keywords: '赛事细则 规则 新手组 进阶组 反作弊 反抄袭 评分表 线上评审 Demo Day 新人奖 创意奖 综测',
+    },
+    {
+      type: '页面',
+      title: '活动归档',
+      description: '往届 AI 创作挑战赛的赛事要求、评分表与奖项规则归档。',
+      href: '/events/archive/',
+      keywords: '活动 归档 往届 历史 规则 赛事要求 评分表 奖项 2026',
     },
     {
       type: '章节',

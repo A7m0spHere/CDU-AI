@@ -13,6 +13,7 @@ import {
   awardRows,
   resolveExternalUrl,
 } from '../../data/challenge';
+import { starterTemplates } from '../../data/showcase';
 
 const registration = challengeConfig.registration;
 const registrationUrl = resolveExternalUrl(registration.url);
@@ -226,6 +227,19 @@ const sections = [
           查看作品与材料细则
           <Icon name="arrow-right" size={15} />
         </a>
+
+        <div class="challenge-showcase-entry">
+          <div>
+            <p class="eyebrow">模板在线体验</p>
+            <h3>{starterTemplates.length} 个新手模板，先跑通再改造</h3>
+            <p>不用先下载：在活动广场直接打开模板体验计时、测试和小游戏；作品提交后也会在这里展示。</p>
+            <p>推荐零基础的新手小白：如果暂时没有想法，可以在模板上二次开发；有自己的想法，当然也可以不使用模板。</p>
+          </div>
+          <a class="btn btn--primary btn--sm" href="/works/">
+            进入活动广场
+            <Icon name="arrow-right" size={15} />
+          </a>
+        </div>
       </section>
 
       <section class="challenge-section" id="submit" aria-labelledby="submit-heading">
@@ -238,6 +252,10 @@ const sections = [
         <ul class="challenge-deliverables">
           {finalDeliverables.map((item) => <li>{item}</li>)}
         </ul>
+        <a class="link-arrow challenge-detail-link" href="/events/archive/">
+          查看活动要求归档
+          <Icon name="arrow-right" size={15} />
+        </a>
       </section>
 
       <section class="challenge-section" id="awards" aria-labelledby="awards-heading">
