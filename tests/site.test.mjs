@@ -259,6 +259,22 @@ test('学习指南首页与章节保持统一的简约阅读结构', async () =>
   }
 });
 
+test('指南翻页只指向已发布正文，规划中的占位页不参与连续阅读', async () => {
+  const published = new Set(guideSlugs);
+  for (const slug of registeredGuideSlugs) {
+    const html = await read('guide/' + slug + '/index.html');
+    const pager = html.match(/<nav class="guide-pager"[\s\S]*?<\/nav>/)?.[0] ?? '';
+    for (const match of pager.matchAll(/href="\/guide\/([^/]+)\/"/g)) {
+      assert.ok(published.has(match[1]), slug + ' 的章节翻页不应指向尚未完成的 ' + match[1]);
+    }
+  }
+  const home = await read('guide/index.html');
+  const pager = home.match(/<nav class="guide-pager"[\s\S]*?<\/nav>/)?.[0] ?? '';
+  for (const match of pager.matchAll(/href="\/guide\/([^/]+)\/"/g)) {
+    assert.ok(published.has(match[1]), '欢迎页不应指向占位章节 ' + match[1]);
+  }
+});
+
 test('术语表结构与详情链接存在', async () => {
   const glossary = await read('glossary/index.html');
   assert.match(glossary, /AI 术语表/);

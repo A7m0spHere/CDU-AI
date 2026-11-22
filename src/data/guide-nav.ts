@@ -136,18 +136,21 @@ export interface GuideChapter {
   title: string;
   href: string;
   optional?: boolean;
+  /** 只有实际存在 Markdown 正文时才参与连续翻页 */
+  published: boolean;
 }
 
 /** 首页与登记章节共用一条阅读路径；资源区的独立页面不参与章节翻页。 */
 export function getGuideChapters(modules: { id: string; data: { title: string } }[]): GuideChapter[] {
   const titles = new Map(modules.map((entry) => [entry.id.replace(/\.md$/, ''), entry.data.title]));
   return [
-    { id: '', title: guideHome.title, href: guideHome.href },
+    { id: '', title: guideHome.title, href: guideHome.href, published: true },
     ...guideNavGroups.flatMap((group) => group.items.flatMap((item) => item.slug ? [{
       id: item.slug,
       title: titles.get(item.slug) ?? item.label,
       href: `/guide/${item.slug}/`,
       optional: item.optional,
+      published: titles.has(item.slug),
     }] : [])),
   ];
 }

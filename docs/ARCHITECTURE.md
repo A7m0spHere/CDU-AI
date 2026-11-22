@@ -98,7 +98,7 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 正文配图保存在 `src/assets/guide/`，Markdown 用相对路径引用；构建时由 Astro 图片管线输出到 `_astro/`，SVG 原样复制，页面保留 `width` / `height` 属性用于预留比例，样式统一按原始比例缩放。
 
-指南的 `stage` 决定学习阶段，`order` 是指南集合内全局唯一的正整数，用于集合排序；`src/data/guide-nav.ts` 决定六个目录分组与章节阅读顺序。共享 `GuidePager.astro` 按目录连接首页和所有登记的章节，首尾只显示实际存在的方向，资源入口不参与章节翻页。已登记但尚无 Markdown 的章节生成可访问的占位路由，标注正文待补充，不计入正式文章与搜索索引；补上同名 Markdown 后自动显示正文。新增指南需要同时创建 Markdown 并登记 slug，不在新阶段重置 `order`。
+指南的 `stage` 决定学习阶段，`order` 是指南集合内全局唯一的正整数，用于集合排序；`src/data/guide-nav.ts` 决定六个目录分组与章节阅读顺序。共享 `GuidePager.astro` 按目录连接欢迎页和已发布正文，跳过仅登记 slug 的占位章节；规划条目仍保留侧边栏入口和可访问的占位路由，资源入口不参与章节翻页。已登记但尚无 Markdown 的章节生成可访问的占位路由，标注正文待补充，不计入正式文章与搜索索引；补上同名 Markdown 后自动显示正文。新增指南需要同时创建 Markdown 并登记 slug，不在新阶段重置 `order`。
 
 正文详情通过 Astro 的 `render(entry)` 获取小节标题和锚点，交给共享的 [`ArticleToc.astro`](../src/components/ArticleToc.astro) 生成「本页目录」（桌面端右侧目录与手机端「本页小节」抽屉）。布局和显示条件由 `reading.css` 管理，见[设计系统](DESIGN-SYSTEM.md#3-信息密度与布局)。目录与站内搜索共用 Astro 生成的锚点，各自选择要收录的标题。
 
