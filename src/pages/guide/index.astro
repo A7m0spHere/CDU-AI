@@ -11,6 +11,7 @@ import '../../styles/notion.css';
 
 const updated = getGuideHomeUpdated();
 const author = typeof frontmatter.author === 'string' ? frontmatter.author.trim() : undefined;
+const aiAssistant = typeof frontmatter.aiAssistant === 'string' ? frontmatter.aiAssistant.trim() : undefined;
 ---
 
 <BaseLayout title={guideHome.title} description={guideHome.description}>
@@ -32,6 +33,7 @@ const author = typeof frontmatter.author === 'string' ? frontmatter.author.trim(
               headingId="欢迎来到-cdu-ai"
               pageHref={guideHome.href}
               author={author}
+              aiAssistant={aiAssistant}
               updated={updated}
             />
             <div class="prose wiki-prose notion-prose guide-reading-prose guide-home-prose" data-guide-home-content>

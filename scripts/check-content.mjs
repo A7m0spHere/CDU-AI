@@ -58,6 +58,7 @@ const CONTENT_TYPES = {
       'outcome',
       'forWho',
       'author',
+      'aiAssistant',
       'updated',
       'sources',
       'tools',
@@ -488,8 +489,11 @@ export async function validateCollection({ collection, dir, context }) {
     checkCommonFields(data, label(file), errors);
 
     if (collection === 'guide') {
-      if (data.author !== undefined && (typeof data.author !== 'string' || !data.author.trim() || data.author.trim().length > 80)) {
-        errors.push({ file: label(file), message: 'author 须为 1 至 80 字的公开署名' });
+      for (const [field, description] of [['author', '公开署名'], ['aiAssistant', 'AI 协作名称']]) {
+        const value = data[field];
+        if (value !== undefined && (typeof value !== 'string' || !value.trim() || value.trim().length > 80)) {
+          errors.push({ file: label(file), message: `${field} 须为 1 至 80 字的${description}` });
+        }
       }
       if (data.stage !== undefined && !CONTENT_TYPES.guide.stages.includes(data.stage)) {
         errors.push({ file: label(file), message: `stage 只能是 start / make / share（当前：${data.stage}）` });

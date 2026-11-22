@@ -63,6 +63,7 @@ level: "零基础"
 outcome: "读完后你能做到的一件具体小事。"
 forWho: "最适合哪类同学，避免写给所有人。"
 author: "作者的公开署名" # 可选，支持笔名，展示于标题旁
+aiAssistant: "GPT" # 可选，参与写作的 AI 名称，展示于标题旁
 updated: "2026-10-18" # 必填，ISO 日期；页面显示“最后更新”
 sources: # 可选；有外部依据时填写，必须可打开
   - title: "Anthropic · Prompt engineering overview"
@@ -325,7 +326,7 @@ Hugging Face、魔搭社区、Kaggle 和飞桨 AI Studio 等入口归入「模�
 
 ## 8. 内容状态与审校
 
-术语和作品详情页底部展示「内容状态」：初稿（尚未审核）/ 已审核无误 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审核负责人与日期、贡献者。指南文章标题旁展示 `updated` 与已填写的 `author`，审校信息保留在 frontmatter 和 GitHub 记录中。欢迎页在 `_HOME.md` 中维护 `author`，构建时由 [`guide-home-date.mjs`](../src/lib/guide-home-date.mjs) 读取该文件最近一次 Git 提交日期。浅克隆或没有 Git 历史的源码包使用模块中记录的备用日期。
+术语和作品详情页底部展示「内容状态」：初稿（尚未审核）/ 已审核无误 / 待更新，并显示内容依据（亲测 / 资料整理 / 教学示例）、AI 参与程度、审核负责人与日期、贡献者。指南标题旁展示更新时间，以及已填写的作者 `author` 和 AI 协作名称 `aiAssistant`。`aiUsage` 记录 AI 的参与程度，审校信息保留在 frontmatter 和 GitHub 记录中。欢迎页在 `_HOME.md` 中维护作者和 AI 协作名称，构建时由 [`guide-home-date.mjs`](../src/lib/guide-home-date.mjs) 读取该文件最近一次 Git 提交日期。浅克隆或没有 Git 历史的源码包使用模块中记录的备用日期。
 
 - 字段定义、状态推导规则、审校清单与生命周期流程见 [`docs/CONTENT-REVIEW.md`](CONTENT-REVIEW.md)。
 - 默认值保守：不写 `reviewed` 就按初稿处理；不写 `basis` 就按教学示例；不写 `aiUsage` 就按 AI 辅助起草。

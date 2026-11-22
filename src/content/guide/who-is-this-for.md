@@ -7,6 +7,7 @@ level: "零基础"
 outcome: "判断这份指南是否适合自己，并找到一个感兴趣的学习起点。"
 forWho: "想把 AI 用到学习、生活和个人创作中的同学，不要求编程基础。"
 author: "A7m0spHere"
+aiAssistant: "GPT"
 updated: "2026-11-15"
 tools: []
 tags: ["入门", "学习路线"]

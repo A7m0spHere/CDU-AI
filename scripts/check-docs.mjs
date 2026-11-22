@@ -38,6 +38,8 @@ async function markdownFiles(dir, recursive = true) {
 
 export async function checkDocumentation(root) {
   root = path.resolve(root);
+  const guideHome = path.join(root, 'src/content/guide/_HOME.md');
+  const publicDir = path.join(root, 'public');
   const files = [
     ...await markdownFiles(root, false),
     ...await markdownFiles(path.join(root, 'docs')),
@@ -73,11 +75,19 @@ export async function checkDocumentation(root) {
   for (const file of files) {
     const { tree } = await document(file);
     const links = [];
+    const linkReferences = new Set();
+    const imageReferences = new Set();
     const report = (node, message) => errors.push({ file: label(file), line: node.position?.start.line ?? 1, message });
     visit(tree, node => {
-      if (['link', 'image', 'definition'].includes(node.type)) links.push({ node, url: node.url });
+      if (node.type === 'linkReference') linkReferences.add(node.identifier);
+      if (node.type === 'imageReference') imageReferences.add(node.identifier);
+      if (['link', 'image', 'definition'].includes(node.type)) {
+        links.push({ node, url: node.url, isHref: node.type === 'link' });
+      }
       if (node.type === 'html') {
-        for (const match of node.value.matchAll(/\b(?:href|src)=["']([^"']+)["']/g)) links.push({ node, url: match[1] });
+        for (const [, attribute, , url] of node.value.matchAll(/\b(href|src)\s*=\s*(["'])([^"']+)\2/g)) {
+          links.push({ node, url, isHref: attribute === 'href' });
+        }
       }
       if (node.type !== 'code' || !['yaml', 'yml'].includes(node.lang)) return;
       try {
@@ -94,12 +104,16 @@ export async function checkDocumentation(root) {
       }
     });
 
-    for (const { node, url } of links) {
-      // _HOME.md 会作为站点正文渲染：以 / 开头的站内路由由构建后的 check-links 负责验证，
-      // 不能误按仓库根目录的真实文件路径检查（如 /glossary/token/）。
-      if (file === path.join(root, 'src/content/guide/_HOME.md') && url?.startsWith('/') && !url.startsWith('//')) continue;
-      // 外部地址不发网络请求；站点正文外链另由内容检查器和构建检查.
+    for (const { node, url, isHref } of links) {
+      // 外部地址不发网络请求。
       if (!url || /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url) || url.startsWith('//')) continue;
+      const isGuideHomeSitePath = file === guideHome && url.startsWith('/');
+      // 构建链接检查只覆盖 href，欢迎页的根路径图片等资源仍须检查 public 中的文件。
+      if (isGuideHomeSitePath) {
+        const isLinkDefinition = node.type === 'definition'
+          && linkReferences.has(node.identifier) && !imageReferences.has(node.identifier);
+        if (isHref || isLinkDefinition) continue;
+      }
       localLinks++;
       try {
         const hashAt = url.indexOf('#');
@@ -107,7 +121,7 @@ export async function checkDocumentation(root) {
         const hash = hashAt < 0 ? '' : decodeURIComponent(url.slice(hashAt + 1));
         const decoded = decodeURIComponent(pathname);
         const target = !decoded ? file : decoded.startsWith('/')
-          ? path.resolve(root, '.' + decoded)
+          ? path.resolve(isGuideHomeSitePath ? publicDir : root, '.' + decoded)
           : path.resolve(path.dirname(file), decoded);
         if (!existsSync(target)) report(node, '本地目标不存在：' + url);
         else if (hash && target.endsWith('.md') && !(await document(target)).anchors.has(hash)) {

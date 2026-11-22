@@ -7,6 +7,7 @@ level: "零基础"
 outcome: "能找到信息的原始出处，并区分来源支持的事实与 AI 的推测。"
 forWho: "用 AI 查课程、校园通知或论文资料，想知道如何快速核对信息的同学。"
 author: "A7m0spHere"
+aiAssistant: "GPT"
 updated: "2026-11-22"
 tools: []
 tags: ["资料检索", "核验", "AI 素养"]
