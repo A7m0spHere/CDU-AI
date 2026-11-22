@@ -51,7 +51,7 @@
 
 给栏目改名、换顺序或移动文章时，编辑 `guide-nav.ts`。如果增删分组，还需同步移动目录的分组数提示和站点测试中的分组预期。
 
-入门路径先读《从 Chat AI 到 Agent》，再进入《第一次使用 Agent》。后者引导读者选择 WorkBuddy 或 ZCode，通过官方链接完成安装和基础配置，在独立目录制作、打开和修改一个网页，再亲自检查结果。文章正文使用 Markdown，工具切换、提示词卡片和媒体占位的维护方式见[素材清单](first-agent-media-checklist.md)。《提示词撰写思路》和《权限与结果检查》再深入讲解使用方法。场景文章围绕实际需求、操作和结果检查组织；综合案例则侧重多步骤协作、测试与迭代，不重复首次安装教学。进阶内容应在入门概念之上深入，避免重复基础解释。
+入门路径先读《从 Chat AI 到 Agent》，再进入《第一次使用 Agent》。后者引导读者选择 WorkBuddy 或 ZCode，通过官方链接完成安装和基础配置，在独立目录制作、打开和修改一个网页，再亲自检查结果。文章正文使用 Markdown，工具切换、提示词卡片和媒体占位的维护方式见[《第一次使用 Agent》素材与交互维护](#第一次使用-agent素材与交互维护)。《提示词撰写思路》和《权限与结果检查》再深入讲解使用方法。场景文章围绕实际需求、操作和结果检查组织；综合案例则侧重多步骤协作、测试与迭代，不重复首次安装教学。进阶内容应在入门概念之上深入，避免重复基础解释。
 
 ```yaml
 ---
@@ -94,6 +94,45 @@ tags: ["AI 素养", "安全"]
 | `make` | 动手做出东西 | 找需求、用工具、验证结果、完成一个成果 |
 | `share` | 整理与分享 | 记录过程、表达作品、复盘与进阶 |
 
+### 《第一次使用 Agent》素材与交互维护
+
+[`first-agent.md`](../src/content/guide/first-agent.md) 的 10 处实操与修改前后对比截图均已集成（使用 WebP，资源路径位于 [`public/guide/first-agent/`](../public/guide/first-agent/)，文末注记“文中演示网页由 GLM-5.3-Flash 制作”）：
+
+| 编号 | 文件名 | 章节 | 截图内容 | 分辨率 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| M01 | `m01-workbuddy-workbench.webp` | 02 | WorkBuddy 工作台和「新建任务」入口 | 1492×993 | 已集成 |
+| M02 | `m02-zcode-workspace.webp` | 02 | ZCode 首页的项目选择和模型入口 | 1326×996 | 已集成 |
+| M03-W | `m03-w-workbuddy-directory.webp` | 03 | WorkBuddy 选择 `CDU-介绍网站` 工作目录（已脱敏） | 1092×530 | 已集成 |
+| M03-Z | `m03-z-zcode-project.webp` | 03 | ZCode 打开 `CDU-介绍网站` 项目工作区（已脱敏） | 953×952 | 已集成 |
+| M04-W | `m04-w-workbuddy-development.webp` | 04 | WorkBuddy 收到任务后开始查找成都大学官网资料 | 1071×932 | 已集成 |
+| M04-Z | `m04-z-zcode-development.webp` | 04 | ZCode 收到任务后显示「正在思考」和「工作中」 | 977×961 | 已集成 |
+| M05 | `m05-cdu-html-file.webp` | 05 | 文件管理器显示练习文件夹中的 `CDU.html` | 846×237 | 已集成 |
+| M06 | `m06-cdu-browser.webp` | 05 | 浏览器实际打开生成的成都大学介绍网页 | 1878×1067 | 已集成 |
+| M07-B | `m06-cdu-browser.webp` | 06 | 第一次生成的网页（复用 M06） | 与 M06 一致 | 已集成 |
+| M07-A | `m07-after.webp` | 06 | 使用「调整视觉风格」提示词修改后的网页（同视口） | 1877×1063 | 已集成 |
+
+补充或替换截图时：将图片放入 `public/guide/first-agent/`，更新 [`first-agent-media.mjs`](../src/data/first-agent-media.mjs) 的 `file`、`description` 和 `status`（“待截图 / 已截图 / 已集成”）。设为“已集成”且文件存在时，构建期 `resolveFirstAgentMedia()` 会读取图片真实宽高按原比例渲染；缺失或加载失败时显示虚线占位。修改或增删素材后需重新构建（`npm run dev` 下需重启开发服务器刷新缓存），再运行 `npm run verify`。
+
+正文由 [`rehype-first-agent.mjs`](../src/lib/rehype-first-agent.mjs) 将专用的 `first-agent:*` 注释转为交互教学组件（无 JS 时仍完整展示两个工具的说明及提示词）：
+
+- `selector`：生成默认选中 WorkBuddy 的工具单选切换控件；
+- `choices` / `tool workbuddy` / `tool zcode` / `endchoices`：按所选工具切换安装、工作目录和任务截图；
+- `media <编号>` / `comparison`：读取统一配置渲染截图或 M07-B / M07-A 并排对比。
+
+`copy task` 后直接放一个 Markdown 引用块。修改卡片用 `revisions` 和 `endrevisions` 包成一组，每个 `revision <编号>` 后先放标题段落，再放提示词引用块。卡片展示与复制共用同一份纯文本，保留 Markdown 链接的实际 URL。
+
+```markdown
+<!-- first-agent:revisions -->
+
+<!-- first-agent:revision visual -->
+
+**调整视觉风格**
+
+> 请优化配色和排版，保留已有内容。
+
+<!-- first-agent:endrevisions -->
+```
+
 ## 4. 作品示例 frontmatter
 
 文件放在 `src/content/works/`。M0 **所有条目必须是策划示例**：
@@ -126,7 +165,23 @@ status: "example" # M0 只能是 example
 
 ## 5. 术语表
 
-在 `src/content/glossary/` 新建 Markdown，一个词一篇；分类在 `src/data/glossary.ts` 的 `glossaryCategories` 中维护。
+在 `src/content/glossary/` 新建 Markdown，一个词一篇。分类在 [`src/data/glossary.ts`](../src/data/glossary.ts) 的 `glossaryCategories` 中维护。页面默认筛选「AI 基础与使用」。桌面端初始展示两个分支的子分类，可用分支头旁的箭头分别折叠。手机端只显示当前分支的子分类，点分支名即可切换。
+
+```text
+[AI] AI 基础与使用
+  ├ 模型基础 (basics)        · 模型能力、训练、开放方式与上下文和输出限制
+  ├ 提示词与输出 (prompt)    · 描述任务、提供示例与约定输出格式
+  ├ 工具与接入 (tools)       · AI 产品、API 与本地运行等接入方式
+  ├ Agent 与自动化 (agents)  · 从一问一答到多步自动执行
+  ├ 安全与隐私 (safety)      · 能传什么、生成内容能不能直接用
+  └ 用量与计费 (cost)        · 订阅、试用、按量计费与接口用量限制
+      ╰─→ [vibecoding] Vibe Coding（延伸分支：只解释概念，不写操作命令教程）
+              ├ 界面与前端 (frontend)
+              ├ 后端与部署 (backend)
+              ├ 需求与产品 (product)
+              ├ 调试与测试 (testing)
+              └ Git 与 GitHub (git)
+```
 
 frontmatter：
 
@@ -154,7 +209,7 @@ frontmatter：
 | `quiz` | 最多 3 题；每题 2–4 个选项，且恰好一个 `correct: true`；可用 `explain` 解释答案 |
 | `agentPrompt` | 可复制给 Agent 的提示词，最多 600 字 |
 
-基础模板见 [`术语模板`](../src/content/glossary/_TEMPLATE.md)，可选交互字段的 schema 约束见 [`src/content.config.ts`](../src/content.config.ts)；不写可选区块时页面不渲染。分类与选题批次见 [术语库规划](GLOSSARY-PLAN.md)。
+基础模板见 [`术语模板`](../src/content/glossary/_TEMPLATE.md)，可选交互字段的 schema 约束见 [`src/content.config.ts`](../src/content.config.ts)；不写可选区块时页面不渲染。首批词条的分批审核结论见[术语词条审核记录](records/glossary-review.md)。
 
 两类词条的正文写作要求（极简维基体例）：
 
@@ -180,15 +235,13 @@ frontmatter：
 - 正文 Markdown 里的链接同一规则：危险协议在渲染阶段直接去掉 `href`（文字保留），外链自动加 `target="_blank"` 与 `rel="noopener noreferrer"`。
 - 站内链接写 `/guide/`、`#anchor` 这类相对路径即可，不要写完整域名。
 
-改动后运行 `npm run verify`（包含 `npm run check:content` 文件级检查与完整构建测试），检查术语条目、筛选、详情页和搜索索引是否正常生成。
+改动后运行 `npm run verify`（包含 `npm run check:content` 文件级检查与完整构建测试），检查术语条目、筛选、详情页和搜索索引是否正常生成。复核周期建议：工具与价格类 3–6 个月，基础概念 12 个月，发现错误随时置 `needsUpdate: true`。
 
 ## 6. 工具数据
 
 工具目录只由维护者审核后入库（不开放自动发布、不迁移 Markdown），条目数据在 [`src/data/tools.ts`](../src/data/tools.ts)，字段由 [`src/data/types.ts`](../src/data/types.ts) 的 `Tool` 约束。页内分区和折叠规则集中在 [`src/data/tool-sections.mjs`](../src/data/tool-sections.mjs)，视图生成与分区校验复用 [`src/lib/tool-catalog.mjs`](../src/lib/tool-catalog.mjs)。新增工具时同步所属栏目的分区规则，页面、筛选计数、首页推荐和搜索索引从数据推导。
 
-2026-10-24 的 Agent 补充、社区项目维护状态与仓库迁移依据见 [AGENT-CATALOG-REVIEW.md](AGENT-CATALOG-REVIEW.md)。
-
-书签增补、工具页缺项补充的取舍、重复入口与新旧域名核对见 [工具目录增补记录](TOOL-CATALOG-REVIEW.md)。新增条目优先成熟生态与明确使用场景，同类只保留少量代表。
+各批次 Agent、通用工具与 API 平台的核对依据、更名映射、许可边界及暂缓收录原因见[工具目录核对与取舍记录](records/tool-catalog-review.md)。新增条目优先成熟生态与明确使用场景，同类只保留少量代表。
 
 **对话工具分组**：「语言模型与对话」按 `toolSections['llm-chat']` 的顺序展示国内工具、海外工具、开源项目。条目的 `catalogGroup` 分别填写 `domestic`、`overseas`、`open-source`；不能仅因关联模型有开放权重就给在线产品添加开源能力标签。开源客户端与项目不分地区，没有匹配结果的分组自动隐藏。
 

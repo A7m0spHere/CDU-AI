@@ -13,20 +13,16 @@
 | 核对来源、记录内容审核或真实经验 | [内容可信度与审校](CONTENT-REVIEW.md) |
 | 新增、更新或核对工具条目 | [工具条目规范](CONTENT-GUIDE.md#6-工具数据) |
 | 替换工具图标、追溯来源 | [工具图标来源与处理](TOOL-LOGOS.md) |
-| 查看 Agent 收录、旧名和仓库迁移依据 | [Agent 目录核对记录](AGENT-CATALOG-REVIEW.md) |
-| 查看书签增补、去重与暂缓收录依据 | [工具目录增补记录](TOOL-CATALOG-REVIEW.md) |
+| 查看工具收录、旧名迁移、去重与暂缓收录依据 | [工具目录核对与取舍记录](records/tool-catalog-review.md) |
 | 调整栏目、内容模型、构建或部署 | [架构说明](ARCHITECTURE.md) |
 | 修改主题参数、编辑器、存储或导入导出 | [主题系统开发说明](modules/theme.md) |
 | 修改工具分组、分类视图、筛选或手机端网格与抽屉 | [工具目录开发说明](modules/tool-catalog.md) |
 | 修改搜索索引、匹配、弹层或失败重试 | [站内搜索开发说明](modules/search.md) |
-| 调整视觉、组件与交互 | [设计系统](DESIGN-SYSTEM.md)；旧方案依据见 [设计评审记录](DESIGN-REVIEW.md) |
+| 调整视觉、组件与交互 | [设计系统](DESIGN-SYSTEM.md)；旧方案依据见[设计评审记录](records/design-review.md) |
 | 查看官方教程嵌入方案的终止决策 | [嵌入式教程 NO-GO 决策](decisions/embedded-docs-no-go.md) |
-| 补充或替换《第一次使用 Agent》的截图、维护文中交互 | [素材与组件维护清单](first-agent-media-checklist.md) |
-| 参与术语库规划与分类治理 | [术语库规划](GLOSSARY-PLAN.md) |
-| 查看术语词条 P0 审核范围与结论 | [2026-10-31 术语审核记录](GLOSSARY-REVIEW-20261031.md) |
-| 查看术语词条 P1 审核范围、取舍与依据 | [2026-11-01 术语审核记录](GLOSSARY-REVIEW-20261101.md) |
-| 查看术语词条 P2 AI 初审结果与待二审项 | [2026-11-01 P2 初审记录](GLOSSARY-REVIEW-P2-20261101.md) |
-| 查看术语选题清单与分批切法 | [术语选题清单](GLOSSARY-TERMS.md) |
+| 补充或替换《第一次使用 Agent》的截图、维护文中交互 | [《第一次使用 Agent》素材与交互维护](CONTENT-GUIDE.md#第一次使用-agent素材与交互维护) |
+| 查看术语两层分类体系与写作规范 | [术语表规范](CONTENT-GUIDE.md#5-术语表) |
+| 查看术语词条 P0 / P1 / P2 审核范围、取舍与依据 | [术语词条审核记录](records/glossary-review.md) |
 | 排查缓存、检查文档或管理仓库设置 | [维护者操作说明](MAINTAINING.md) |
 | 补充或修改贡献记录、项目参考来源 | [贡献与致谢](../CONTRIBUTORS.md) |
 
@@ -64,8 +60,7 @@
 | 当前模块实现 | [主题](modules/theme.md)、[工具目录](modules/tool-catalog.md)、[搜索](modules/search.md) | 文件职责、数据流、关键行为、常见修改与测试对应关系 |
 | 现行操作说明 | [维护说明](MAINTAINING.md) | 命令、环境、检查边界与排障；其中仓库设置快照仅表示当日状态 |
 | 素材来源 | [主题素材](THEME-ASSETS.md)、[工具图标](TOOL-LOGOS.md) | 来源、署名、授权与处理方式，不推导为项目统一许可 |
-| 规划 | [术语库规划](GLOSSARY-PLAN.md)、[选题清单](GLOSSARY-TERMS.md) | 分类目标、候选选题与分批安排，不表示文章或审核已完成 |
-| 历史记录 | [设计评审](DESIGN-REVIEW.md)、[Agent 核对](AGENT-CATALOG-REVIEW.md)、[工具增补](TOOL-CATALOG-REVIEW.md)、各批次术语审校记录 | 保留带日期的依据、范围与结论；当前状态仍需结合源码核实 |
+| 历史记录 | [设计评审](records/design-review.md)、[工具目录核对](records/tool-catalog-review.md)、[术语审校记录](records/glossary-review.md)、[嵌入式教程 NO-GO 决策](decisions/embedded-docs-no-go.md) | 保留带日期的依据、范围与结论；当前状态仍需结合源码核实 |
 
 ### 代码变更时同步哪里
 
@@ -99,5 +94,3 @@ PR 按[贡献流程](../CONTRIBUTING.md#7-审稿与合并维护者检查清单)�
 | README 界面预览 | [`home.png`](screenshots/home.png) 与 [`home-scenarios.png`](screenshots/home-scenarios.png) 采集于 2026-10-27，[`home-explore.png`](screenshots/home-explore.png) 采集于 2026-11-12，[`tools.png`](screenshots/tools.png) 采集于 2026-11-20，[`events-hero.png`](screenshots/events-hero.png) 采集于 2026-11-21，均为本地生产构建截图 |
 
 代码使用 [MIT License](../LICENSE)。角色插画由维护者提供，复用请先联系维护组；第三方工具品牌图标的出处与使用说明见 [TOOL-LOGOS.md](TOOL-LOGOS.md)。主题图片、像素贴图与字体按 [THEME-ASSETS.md](THEME-ASSETS.md) 中记录的来源、署名及各自许可使用，其中奶鲸为维护者确认的 AI 创作图，鲸鱼娘沿用上游标注的 CC BY-NC-SA 4.0。
-
-`docs/screenshots/` 中其他截图保留为历史版式资料，不用来说明当前内容数量或完成状态。
