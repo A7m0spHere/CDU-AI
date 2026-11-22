@@ -28,6 +28,9 @@ sources:
     url: "https://git-scm.com/docs/gitignore"
 basis: "teaching-example"
 aiUsage: "drafted"
+reviewed: "2026-11-22"
+reviewedBy: "A7m"
+reviewNote: "2026-11-22 修正 Git 分支存档与 .gitignore 边界说明并补全官方文档来源，AI 辅助初审后由 A7m 确认复核通过；未覆盖所有系统与工具版本的具体权限行为。"
 ---
 
 在上一篇[提示词撰写思路](/guide/task-description/)里，我们聊过怎么把需求写清楚。但光在提示词里嘱咐一句“不要乱删文件”，其实只是一层口头提醒，而不是铁门锁。

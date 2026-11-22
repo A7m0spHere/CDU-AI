@@ -22,6 +22,9 @@ sources:
     url: "https://www.promptingguide.ai/zh"
 basis: "teaching-example"
 aiUsage: "drafted"
+reviewed: "2026-11-22"
+reviewedBy: "A7m"
+reviewNote: "2026-11-22 更新 OpenAI 官方指南链接与表述边界，AI 辅助初审后由 A7m 确认复核通过；未逐一实测各模型对示例提示词的执行成功率。"
 ---
 
 在上一篇[第一次使用 Agent](/guide/first-agent/) 中，你已经照着示例让 Agent 做了一个介绍成都大学的网页。
