@@ -48,6 +48,7 @@ const sources = entry?.data.sources ?? [];
               pageHref={chapter.href}
               planned={!entry}
               author={entry?.data.author}
+              aiAssistant={entry?.data.aiAssistant}
               updated={entry?.data.updated}
             />
             <div class:list={['prose wiki-prose notion-prose guide-reading-prose', { 'first-agent-tutorial': slug === 'first-agent' }]} data-first-agent={slug === 'first-agent' ? '' : undefined}>

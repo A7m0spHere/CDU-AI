@@ -45,3 +45,44 @@ test('审校字段示例复用内容校验：资料整理不能填写亲测字�
   await writeFile(file, '```yaml\nitems: [\n```');
   assert.match((await checkDocumentation(root)).errors[0].message, /YAML 示例无效/);
 });
+
+test('指南首页的站内路由交给构建检查，不误判成仓库文件路径', async t => {
+  const root = await fixture(t);
+  const guideDir = path.join(root, 'src/content/guide');
+  await mkdir(guideDir, { recursive: true });
+  await writeFile(path.join(guideDir, '_HOME.md'), [
+    '[上下文窗口](/glossary/context-window/)',
+    '[术语列表][glossary]',
+    '<a href="/glossary/token/">Token</a>',
+    '[glossary]: /glossary/',
+  ].join('\n\n'));
+  await writeFile(path.join(root, 'README.md'), '[不存在的仓库目标](/not-found.md)');
+  const result = await checkDocumentation(root);
+  assert.equal(result.errors.length, 1);
+  assert.equal(result.errors[0].file, 'README.md');
+  assert.match(result.errors[0].message, /本地目标不存在/);
+});
+
+test('指南首页检查根路径图片，包括同时用于链接和图片的引用', async t => {
+  const root = await fixture(t);
+  const guideDir = path.join(root, 'src/content/guide');
+  const publicDir = path.join(root, 'public');
+  await mkdir(guideDir, { recursive: true });
+  await mkdir(publicDir);
+  await writeFile(path.join(publicDir, 'valid.webp'), 'fixture');
+  await writeFile(path.join(guideDir, '_HOME.md'), [
+    '![已有图片](/valid.webp)',
+    '![缺失的 Markdown 图片](/missing-markdown.webp)',
+    "<img src='/missing-html.webp' alt='缺失的 HTML 图片'>",
+    '[打开原图][shared]',
+    '![缺失的引用式图片][shared]',
+    '[shared]: /missing-reference.webp',
+  ].join('\n\n'));
+
+  const result = await checkDocumentation(root);
+  assert.deepEqual(result.errors.map(({ message }) => message), [
+    '本地目标不存在：/missing-markdown.webp',
+    '本地目标不存在：/missing-html.webp',
+    '本地目标不存在：/missing-reference.webp',
+  ]);
+});

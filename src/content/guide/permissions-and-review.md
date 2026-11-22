@@ -7,6 +7,7 @@ level: "零基础"
 outcome: "能为 Agent 划定最小工作范围与授权边界，在开发项目时用 Git 做好存档与改动审查，并独立完成成果验收。"
 forWho: "准备让 Agent 操作本地文件夹或协助开发小项目的同学。"
 author: "A7m0spHere"
+aiAssistant: "Gemini"
 updated: "2026-11-21"
 tools: []
 tags: ["入门", "Agent", "权限", "文件安全", "Git", "结果检查"]

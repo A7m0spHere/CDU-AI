@@ -8,10 +8,11 @@ interface Props {
   pageHref: string;
   planned?: boolean;
   author?: string;
+  aiAssistant?: string;
   updated?: string;
 }
 
-const { title, headingId = 'guide-title', pageHref, planned = false, author, updated } = Astro.props;
+const { title, headingId = 'guide-title', pageHref, planned = false, author, aiAssistant, updated } = Astro.props;
 const templateParams = new URLSearchParams({
   template: 'doc-correction.yml',
   title: `[文档编辑] ${title}`,
@@ -23,9 +24,10 @@ const templateUrl = `${repository.url}/issues/new?${templateParams}`;
 <header class="guide-heading">
   <h1 id={headingId}>{title}</h1>
   <div class="guide-heading__tools">
-    {(author || updated) && (
+    {(author || aiAssistant || updated) && (
       <div class="guide-heading__meta">
         {author && <span>作者 <span class="guide-heading__author">{author}</span></span>}
+        {aiAssistant && <span>AI <span class="guide-heading__ai">{aiAssistant}</span></span>}
         {updated && <span>最后更新 <time datetime={updated}>{updated}</time></span>}
       </div>
     )}
@@ -80,6 +82,7 @@ const templateUrl = `${repository.url}/issues/new?${templateParams}`;
   }
 
   .guide-heading__author,
+  .guide-heading__ai,
   .guide-heading__meta time {
     color: var(--notion-ink-soft);
   }

@@ -8,9 +8,10 @@ interface Props {
 }
 
 const { currentId = '' } = Astro.props;
-const chapters = getGuideChapters(await getCollection('guide'));
+// 占位章节仍在目录里，但连续阅读只跳转到有正文的文章。
+const chapters = getGuideChapters(await getCollection('guide')).filter((chapter) => chapter.published);
 const index = chapters.findIndex((chapter) => chapter.id === currentId);
-const previous = chapters.slice(0, index).findLast((chapter) => !chapter.optional);
+const previous = index >= 0 ? chapters.slice(0, index).findLast((chapter) => !chapter.optional) : undefined;
 const next = index >= 0 ? chapters.slice(index + 1).find((chapter) => !chapter.optional) : undefined;
 const links = [
   { chapter: previous, direction: 'prev', label: previous?.id === '' ? '返回' : '上一章' },

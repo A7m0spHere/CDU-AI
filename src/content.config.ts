@@ -124,6 +124,7 @@ const guide = defineCollection({
       outcome: z.string(),
       forWho: z.string(),
       author: z.string().trim().min(1).max(80).optional(),
+      aiAssistant: z.string().trim().min(1).max(80).optional(),
       updated: isoDate,
       sources: z
         .array(
