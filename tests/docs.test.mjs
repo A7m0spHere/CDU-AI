@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { checkReviewFields } from '../scripts/check-content.mjs';
 import { checkDocumentation } from '../scripts/check-docs.mjs';
 
 async function fixture(t) {
@@ -44,6 +45,31 @@ test('审校字段示例复用内容校验：资料整理不能填写亲测字�
   assert.deepEqual((await checkDocumentation(root)).errors, []);
   await writeFile(file, '```yaml\nitems: [\n```');
   assert.match((await checkDocumentation(root)).errors[0].message, /YAML 示例无效/);
+});
+
+test('审校人、亲测环境和贡献者代称的长度按去掉首尾空白后计算', () => {
+  const fields = {
+    reviewed: '2026-10-21',
+    reviewedBy: ' ' + '审'.repeat(40) + ' ',
+    basis: 'first-hand',
+    testedOn: '2026-10-21',
+    testedEnvironment: ' ' + '测'.repeat(120) + ' ',
+    contributors: [' ' + '贡'.repeat(40) + ' '],
+  };
+  const errors = [];
+  checkReviewFields(fields, 'sample.md', errors);
+  assert.deepEqual(errors, []);
+
+  for (const [key, value, expected] of [
+    ['reviewedBy', '审'.repeat(41), /reviewedBy.*40/],
+    ['testedEnvironment', '测'.repeat(121), /testedEnvironment.*120/],
+    ['contributors', ['贡'.repeat(41)], /contributors.*40/],
+  ]) {
+    const fieldErrors = [];
+    checkReviewFields({ ...fields, [key]: value }, 'sample.md', fieldErrors);
+    assert.equal(fieldErrors.length, 1, key);
+    assert.match(fieldErrors[0].message, expected);
+  }
 });
 
 test('指南首页的站内路由交给构建检查，不误判成仓库文件路径', async t => {

@@ -19,95 +19,20 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
+import {
+  AI_USAGE_VALUES,
+  CONTENT_TYPES,
+  GUIDE_STAGES,
+  ISO_DATE_RE,
+  REVIEW_BASIS_VALUES,
+  REVIEW_LIMITS,
+  WORK_CATEGORIES,
+  WORK_STATUSES,
+} from '../src/lib/content-rules.mjs';
 import { isSafeExternalUrl } from '../src/lib/url-guard.mjs';
 import { validateCatalogSections } from '../src/lib/tool-catalog.mjs';
 
-const isoDateRe = /^\d{4}-\d{2}-\d{2}$/;
 const slugFileRe = /^[a-z0-9][a-z0-9-]*\.md$/;
-
-/** 指南 / 作品 / 术语共用的内容状态字段，定义见 docs/CONTENT-REVIEW.md。 */
-const REVIEW_FIELDS = [
-  'reviewed',
-  'reviewedBy',
-  'needsUpdate',
-  'reviewNote',
-  'basis',
-  'aiUsage',
-  'testedOn',
-  'testedEnvironment',
-  'contributors',
-];
-
-/**
- * 已知字段清单「必须与 src/content.config.ts 的 schema 保持一致」。
- *
- * 为什么还要单独列一遍：Zod 默认会剥掉 schema 里没声明的字段而不报错，
- * 所以从 schema 删除的字段（例如已废弃的 duration）写回来时构建照样通过，
- * 数据却被静默丢弃。这里显式列出允许的字段，写错字段名或用旧字段会在
- * npm run check:content 直接失败。
- */
-const CONTENT_TYPES = {
-  guide: {
-    required: ['title', 'summary', 'stage', 'order', 'outcome', 'forWho', 'updated'],
-    known: [
-      'title',
-      'summary',
-      'stage',
-      'order',
-      'level',
-      'outcome',
-      'forWho',
-      'author',
-      'aiAssistant',
-      'updated',
-      'sources',
-      'tools',
-      'tags',
-      ...REVIEW_FIELDS,
-    ],
-    stages: ['start', 'make', 'share'],
-  },
-  works: {
-    required: ['title', 'summary', 'category', 'format', 'prompt', 'effort', 'order', 'updated'],
-    known: [
-      'title',
-      'summary',
-      'category',
-      'format',
-      'tools',
-      'tags',
-      'prompt',
-      'effort',
-      'level',
-      'order',
-      'updated',
-      'status',
-      ...REVIEW_FIELDS,
-    ],
-    categories: ['校园生活', '学习效率', '创意表达', '跨专业实验'],
-    statuses: ['example', 'community'],
-  },
-  glossary: {
-    required: ['term', 'en', 'category', 'definition', 'example', 'order', 'updated'],
-    known: [
-      'term',
-      'en',
-      'category',
-      'aliases',
-      'definition',
-      'example',
-      'youMaySay',
-      'scenario',
-      'quiz',
-      'agentPrompt',
-      'order',
-      'related',
-      'updated',
-      'sources',
-      ...REVIEW_FIELDS,
-    ],
-  },
-};
 
 function parseFrontmatter(raw) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -130,7 +55,7 @@ function checkDateString(data, key, file, errors, { required = false } = {}) {
     if (required) errors.push({ file, message: `缺少必填字段 ${key}` });
     return;
   }
-  if (!isNonEmptyString(value) || !isoDateRe.test(value)) {
+  if (!isNonEmptyString(value) || !ISO_DATE_RE.test(value)) {
     errors.push({ file, message: `${key} 必须是 YYYY-MM-DD 格式的字符串（当前：${String(value)}）` });
   }
 }
@@ -177,6 +102,8 @@ export function checkReviewFields(data, file, errors) {
   if (data.reviewedBy !== undefined) {
     if (!isNonEmptyString(data.reviewedBy)) {
       errors.push({ file, message: 'reviewedBy 必须是非空字符串（可用笔名）' });
+    } else if (data.reviewedBy.trim().length > REVIEW_LIMITS.reviewedByMax) {
+      errors.push({ file, message: `reviewedBy 不能超过 ${REVIEW_LIMITS.reviewedByMax} 字` });
     }
     if (!data.reviewed) {
       errors.push({ file, message: '填写 reviewedBy 时必须同时填写 reviewed（审核日期）' });
@@ -195,14 +122,16 @@ export function checkReviewFields(data, file, errors) {
   }
   if (data.reviewNote !== undefined) {
     if (!isNonEmptyString(data.reviewNote)) errors.push({ file, message: 'reviewNote 不能为空' });
-    else if (data.reviewNote.length > 200) errors.push({ file, message: 'reviewNote 不能超过 200 字' });
+    else if (data.reviewNote.trim().length > REVIEW_LIMITS.reviewNoteMax) {
+      errors.push({ file, message: `reviewNote 不能超过 ${REVIEW_LIMITS.reviewNoteMax} 字` });
+    }
   }
 
-  if (data.basis !== undefined && !['first-hand', 'desk-research', 'teaching-example'].includes(data.basis)) {
-    errors.push({ file, message: `basis 只能是 first-hand / desk-research / teaching-example（当前：${data.basis}）` });
+  if (data.basis !== undefined && !REVIEW_BASIS_VALUES.includes(data.basis)) {
+    errors.push({ file, message: `basis 只能是 ${REVIEW_BASIS_VALUES.join(' / ')}（当前：${data.basis}）` });
   }
-  if (data.aiUsage !== undefined && !['none', 'assisted', 'drafted'].includes(data.aiUsage)) {
-    errors.push({ file, message: `aiUsage 只能是 none / assisted / drafted（当前：${data.aiUsage}）` });
+  if (data.aiUsage !== undefined && !AI_USAGE_VALUES.includes(data.aiUsage)) {
+    errors.push({ file, message: `aiUsage 只能是 ${AI_USAGE_VALUES.join(' / ')}（当前：${data.aiUsage}）` });
   }
 
   if (data.basis === 'first-hand') {
@@ -213,12 +142,21 @@ export function checkReviewFields(data, file, errors) {
   } else if (data.testedOn !== undefined || data.testedEnvironment !== undefined) {
     errors.push({ file, message: '只有 basis 为 first-hand 的内容才允许填写 testedOn / testedEnvironment' });
   }
+  if (typeof data.testedEnvironment === 'string' && data.testedEnvironment.trim().length > REVIEW_LIMITS.testedEnvironmentMax) {
+    errors.push({ file, message: `testedEnvironment 不能超过 ${REVIEW_LIMITS.testedEnvironmentMax} 字` });
+  }
 
   if (data.contributors !== undefined) {
     checkStringArray(data, 'contributors', file, errors);
     if (Array.isArray(data.contributors)) {
-      if (data.contributors.length > 5) errors.push({ file, message: 'contributors 最多 5 个代称' });
-      if (new Set(data.contributors).size !== data.contributors.length) {
+      if (data.contributors.length > REVIEW_LIMITS.contributorsMax) {
+        errors.push({ file, message: `contributors 最多 ${REVIEW_LIMITS.contributorsMax} 个代称` });
+      }
+      const names = data.contributors.map(name => typeof name === 'string' ? name.trim() : name);
+      if (names.some(name => typeof name === 'string' && name.length > REVIEW_LIMITS.contributorNameMax)) {
+        errors.push({ file, message: `contributors 中的单个代称不能超过 ${REVIEW_LIMITS.contributorNameMax} 字` });
+      }
+      if (new Set(names).size !== names.length) {
         errors.push({ file, message: 'contributors 中有重复的贡献者' });
       }
     }
@@ -357,7 +295,7 @@ export function validateTools({ source, root, toolNames = [] } = {}) {
     if (!isAigc && tool.aigcSection) push(label + ' 填写 aigcSection 时必须属于 AIGC 分类');
     if (tool.tier && !tiers.includes(tool.tier)) push(label + ' 的 tier 不合法：' + tool.tier);
     if (tool.basis && !bases.includes(tool.basis)) push(label + ' 的 basis 不合法：' + tool.basis);
-    if (tool.verifiedOn && !isoDateRe.test(tool.verifiedOn)) push(label + ' 的 verifiedOn 必须是 YYYY-MM-DD');
+    if (tool.verifiedOn && !ISO_DATE_RE.test(tool.verifiedOn)) push(label + ' 的 verifiedOn 必须是 YYYY-MM-DD');
 
     if (tool.url && !isSafeExternalUrl(tool.url)) {
       push(label + ' 的 url 只允许 http(s) 外链：' + tool.url);
@@ -495,8 +433,8 @@ export async function validateCollection({ collection, dir, context }) {
           errors.push({ file: label(file), message: `${field} 须为 1 至 80 字的${description}` });
         }
       }
-      if (data.stage !== undefined && !CONTENT_TYPES.guide.stages.includes(data.stage)) {
-        errors.push({ file: label(file), message: `stage 只能是 start / make / share（当前：${data.stage}）` });
+      if (data.stage !== undefined && !GUIDE_STAGES.includes(data.stage)) {
+        errors.push({ file: label(file), message: `stage 只能是 ${GUIDE_STAGES.join(' / ')}（当前：${data.stage}）` });
       }
       if (!checkPositiveInteger(data.order)) {
         errors.push({ file: label(file), message: 'order 必须是大于 0 的整数' });
@@ -511,11 +449,11 @@ export async function validateCollection({ collection, dir, context }) {
     }
 
     if (collection === 'works') {
-      if (data.category !== undefined && !CONTENT_TYPES.works.categories.includes(data.category)) {
+      if (data.category !== undefined && !WORK_CATEGORIES.includes(data.category)) {
         errors.push({ file: label(file), message: `category 不合法（当前：${data.category}）` });
       }
-      if (data.status !== undefined && !CONTENT_TYPES.works.statuses.includes(data.status)) {
-        errors.push({ file: label(file), message: `status 只能是 example / community（当前：${data.status}）` });
+      if (data.status !== undefined && !WORK_STATUSES.includes(data.status)) {
+        errors.push({ file: label(file), message: `status 只能是 ${WORK_STATUSES.join(' / ')}（当前：${data.status}）` });
       }
       if (!checkPositiveInteger(data.order)) {
         errors.push({ file: label(file), message: 'order 必须是大于 0 的整数' });

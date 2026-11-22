@@ -14,8 +14,7 @@
  * 改完立刻广播 cdu:glow-change / cdu:trail-change，各驱动器据此收尾或继续。
  */
 
-const STORAGE_KEY = 'cdu-ai-glow';
-const TRAIL_KEY = 'cdu-ai-trail';
+import { GLOW_STORAGE_KEY, TRAIL_STORAGE_KEY } from '../lib/theme-core';
 
 /** 开关变化时在 document 上广播，detail.enabled 是新的状态 */
 export const GLOW_CHANGE = 'cdu:glow-change';
@@ -40,7 +39,7 @@ function applyTrail(enabled: boolean): void {
 export function setGlowEnabled(enabled: boolean): void {
   apply(enabled);
   try {
-    localStorage.setItem(STORAGE_KEY, enabled ? 'on' : 'off');
+    localStorage.setItem(GLOW_STORAGE_KEY, enabled ? 'on' : 'off');
   } catch {
     /* 隐私模式下写不进去就只影响本次会话 */
   }
@@ -50,7 +49,7 @@ export function setGlowEnabled(enabled: boolean): void {
 export function setTrailEnabled(enabled: boolean): void {
   applyTrail(enabled);
   try {
-    localStorage.setItem(TRAIL_KEY, enabled ? 'on' : 'off');
+    localStorage.setItem(TRAIL_STORAGE_KEY, enabled ? 'on' : 'off');
   } catch {
     /* 同上 */
   }
@@ -62,8 +61,8 @@ export function initGlowPref(): void {
   let saved: string | null = null;
   let savedTrail: string | null = null;
   try {
-    saved = localStorage.getItem(STORAGE_KEY);
-    savedTrail = localStorage.getItem(TRAIL_KEY);
+    saved = localStorage.getItem(GLOW_STORAGE_KEY);
+    savedTrail = localStorage.getItem(TRAIL_STORAGE_KEY);
   } catch {
     saved = null;
     savedTrail = null;

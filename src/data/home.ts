@@ -1,18 +1,3 @@
-export const guideTips = [
-  {
-    title: '一次读一个模块',
-    text: '一次读一篇，遇到具体问题时再回来查。',
-  },
-  {
-    title: '带着真实问题',
-    text: '选一个本周要处理的任务，边做边看。',
-  },
-  {
-    title: '保留过程',
-    text: '记下提示词、错误和验证方式。',
-  },
-];
-
 export const contributionPaths = [
   {
     title: '写一篇学习指南',
