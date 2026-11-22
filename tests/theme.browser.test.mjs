@@ -1133,10 +1133,13 @@ test('正文目录只在符合指针和宽度条件的桌面端显示', async t 
   assert.equal(await touch.locator('.wiki-toc').isVisible(), false);
 
   await page.setViewportSize({ width: 1440, height: 1000 });
-  for (const route of ['/guide/', '/guide/research-and-sources/', '/glossary/', '/works/']) {
+  for (const route of ['/guide/', '/glossary/', '/works/']) {
     await page.goto(origin + route);
     assert.equal(await toc.count(), 0, route + ' 不应渲染空目录');
   }
+  // 「资料检索」已从规划占位页变为正式正文，应渲染目录。
+  await page.goto(origin + '/guide/research-and-sources/');
+  assert.equal(await toc.count(), 1, '已发布的资料检索指南应显示正文目录');
 });
 
 test('指南样式中代码底色、文字和注释色实际生效，切回内置主题恢复高亮', async t => {
