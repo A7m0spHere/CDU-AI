@@ -102,7 +102,7 @@ M0 的目标是交付一个**设计完整、结构清晰、可运行、可持续
 
 正文详情通过 Astro 的 `render(entry)` 获取小节标题和锚点，交给共享的 [`ArticleToc.astro`](../src/components/ArticleToc.astro) 生成「本页目录」（桌面端右侧目录与手机端「本页小节」抽屉）。布局和显示条件由 `reading.css` 管理，见[设计系统](DESIGN-SYSTEM.md#3-信息密度与布局)。目录与站内搜索共用 Astro 生成的锚点，各自选择要收录的标题。
 
-frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合法时 `astro build` 直接失败。
+frontmatter 的字段定义、默认值与审校跨字段规则集中在 [`src/lib/content-rules.mjs`](../src/lib/content-rules.mjs)，[`src/content.config.ts`](../src/content.config.ts) 负责注册集合并在构建期应用 schema 校验；两者分工互补：`astro build` 通过 Zod 严格校验字段类型、枚举与长度/跨字段约束，`npm run check:content` 复用同一份字段清单补充检查未知字段（防止拼错或废弃字段被 Zod 静默丢弃）、审校字段规范以及工具/术语跨文件引用，任一环节不合法都会直接失败。
 
 ### 结构化数据
 
@@ -188,7 +188,7 @@ frontmatter 由 `src/content.config.ts` 中的 Zod schema 校验；字段不合�
 
 ## 10. 已知限制
 
-- 社区功能在 M0 关闭，没有真实作品、活动排期与社区帖子；这是刻意选择，不是数据缺失。
+- M0 阶段社区功能暂不开放，作品广场暂为空。活动页已发布第八届 AI 创作挑战赛赛程，报名通过腾讯文档办理。站内暂未提供报名与评论系统。
 - 全局搜索使用构建时静态索引，不做中文分词、相关度学习或跨站搜索；来源、章节门槛、排序和失败重试见[站内搜索开发说明](modules/search.md)。
 - 静态站点的内容更新需要重新构建；M1 可接入自动部署或轻量 CMS。
 - 外部工具链接可能随工具官网调整而变化，需要定期维护。

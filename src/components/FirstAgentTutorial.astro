@@ -1,6 +1,147 @@
 ---
+import Icon from './Icon.astro';
 import '../styles/first-agent.css';
+
+const permissionModes = [
+  {
+    name: '变更前确认',
+    badge: '默认 · 推荐首次练习',
+    badgeTone: 'brand',
+    summary: '每次修改文件或执行命令前都会先请求确认，适合关键代码、生产配置和第一次上手练习。',
+  },
+  {
+    name: '自动编辑',
+    badge: '常规迭代',
+    badgeTone: 'soft',
+    summary: '文件编辑自动执行，运行终端命令等操作仍会触发安全确认。',
+  },
+  {
+    name: '计划模式',
+    badge: '先规划后动手',
+    badgeTone: 'soft',
+    summary: '先由 Agent 制定完整方案，经你确认后再开始实际修改，适合重构、迁移与长任务。',
+  },
+  {
+    name: '完全访问',
+    badge: '高权限 · 谨慎开启',
+    badgeTone: 'warn',
+    summary: '尽量自动执行并减少确认，工具栏会持续显示风险提示；仅建议用于上下文完全可信的任务。',
+  },
+];
+
+const decisionOptions = [
+  {
+    name: '允许',
+    note: '仅授权当前这一次操作；请先核对命令、目标路径与预期影响，确认风险可接受后再点允许。',
+  },
+  {
+    name: '始终允许',
+    note: '授权当前及后续同类型操作（部分场景还会提供「允许本会话」「始终允许本项目」等细粒度选项），仅在安全高频任务中使用。',
+  },
+  {
+    name: '拒绝',
+    note: '禁止执行当前操作；当命令、路径、预期影响不对或暂无法确认安全性时选择。',
+  },
+  {
+    name: '始终拒绝',
+    note: '禁止当前及后续同类型操作，用于明确拦截不希望 Agent 执行的操作类型。',
+  },
+];
+
+const safetyReminders = [
+  '批准前先看清界面展示的具体命令、目标路径和文件名，不要直接连续放行。',
+  '权限请求与计划审批会一直等待人工决策，不会因超时自动执行（普通选择题提问默认有 5 分钟倒计时，点击面板或「停止计时」即可暂停，也可在设置中关闭）。',
+  '如果需要跨项目隔离、Git 存档检查与敏感信息防护方案，可继续阅读站内的「权限与结果检查」章节。',
+];
 ---
+
+<dialog
+  id="first-agent-permission-drawer"
+  class="first-agent-drawer"
+  aria-labelledby="first-agent-permission-drawer-title"
+  {...({ closedby: 'any' } as Record<string, string>)}
+>
+  <div class="first-agent-drawer__panel">
+    <header class="first-agent-drawer__head">
+      <div>
+        <p class="first-agent-drawer__eyebrow">ZCode 安全操作确认速览</p>
+        <h2 id="first-agent-permission-drawer-title">四档权限模式与确认选项说明</h2>
+      </div>
+      <button
+        type="button"
+        class="first-agent-drawer__close"
+        data-first-agent-drawer-close
+        aria-label="关闭 ZCode 权限说明抽屉"
+        autofocus
+      >
+        <Icon name="close" size={18} />
+      </button>
+    </header>
+
+    <div class="first-agent-drawer__body" tabindex="0">
+      <section class="first-agent-drawer__group" aria-labelledby="fa-modes-title">
+        <div class="first-agent-drawer__group-head">
+          <h3 id="fa-modes-title">四档执行模式</h3>
+          <span class="first-agent-drawer__shortcut"><code>Shift + Tab</code> 循环切换</span>
+        </div>
+        <p class="first-agent-drawer__hint">
+          模式选择器位于 ZCode 输入框附近。初次练习建议保持默认的「变更前确认」，等熟悉流程后再按任务风险调整。
+        </p>
+        <div class="first-agent-drawer__list">
+          {permissionModes.map((mode) => (
+            <article class:list={['first-agent-drawer__item', { 'first-agent-drawer__item--warn': mode.badgeTone === 'warn' }]}>
+              <div class="first-agent-drawer__item-head">
+                <strong>{mode.name}</strong>
+                <span class:list={['first-agent-drawer__badge', `first-agent-drawer__badge--${mode.badgeTone}`]}>{mode.badge}</span>
+              </div>
+              <p>{mode.summary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="first-agent-drawer__group" aria-labelledby="fa-options-title">
+        <h3 id="fa-options-title">确认弹窗里的四个选项</h3>
+        <div class="first-agent-drawer__list">
+          {decisionOptions.map((option) => (
+            <article class="first-agent-drawer__item">
+              <div class="first-agent-drawer__item-head">
+                <strong>{option.name}</strong>
+              </div>
+              <p>{option.note}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="first-agent-drawer__group" aria-labelledby="fa-tips-title">
+        <h3 id="fa-tips-title">使用与边界提醒</h3>
+        <ul class="first-agent-drawer__notes">
+          {safetyReminders.map((tip) => (
+            <li>{tip}</li>
+          ))}
+        </ul>
+      </section>
+    </div>
+
+    <footer class="first-agent-drawer__foot">
+      <a
+        class="btn btn--primary"
+        href="https://zcode.z.ai/cn/docs/safety-confirm"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        前往 ZCode 官方详细文档
+        <Icon name="external-link" size={15} />
+      </a>
+      <a class="btn btn--soft" href="/guide/permissions-and-review/">
+        阅读「权限与结果检查」
+        <Icon name="arrow-right" size={15} />
+      </a>
+    </footer>
+  </div>
+</dialog>
+
 <script>
   import '../scripts/first-agent';
 </script>

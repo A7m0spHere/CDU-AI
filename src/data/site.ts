@@ -33,46 +33,6 @@ export const navItems: NavItem[] = [
   { label: '活动', href: '/events/', description: '成都大学第八届网络创新大赛——AI创作挑战赛' },
 ];
 
-export interface GuideStageMeta {
-  id: 'start' | 'make' | 'share';
-  index: string;
-  label: string;
-  title: string;
-  description: string;
-  icon: 'compass' | 'wrench' | 'spark';
-  tone: 'sage' | 'warm' | 'sky';
-}
-
-export const guideStages: GuideStageMeta[] = [
-  {
-    id: 'start',
-    index: '01',
-    label: '先建立判断',
-    title: '认识 AI 的能力和边界',
-    description: '了解 AI 擅长什么、会在哪里出错，以及隐私和学术诚信的底线。',
-    icon: 'compass',
-    tone: 'sage',
-  },
-  {
-    id: 'make',
-    index: '02',
-    label: '动手做出东西',
-    title: '用现成工具完成一个小任务',
-    description: '从真实需求出发做出一个可用成果，并检查结果是否可信。',
-    icon: 'wrench',
-    tone: 'warm',
-  },
-  {
-    id: 'share',
-    index: '03',
-    label: '整理与分享',
-    title: '记录过程，形成可分享的经验',
-    description: '整理问题、做法、提示词与局限，并复盘下一步。',
-    icon: 'spark',
-    tone: 'sky',
-  },
-];
-
 export const footerGroups = [
   {
     title: '探索',

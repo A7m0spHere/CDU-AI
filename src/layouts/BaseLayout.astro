@@ -7,7 +7,13 @@ import CursorGlow from '../components/CursorGlow.astro';
 import CursorTrail from '../components/CursorTrail.astro';
 import { site } from '../data/site';
 import { presetThemes } from '../data/themes';
-import { resolveThemeVars } from '../lib/theme-core';
+import {
+  CUSTOM_THEMES_STORAGE_KEY,
+  GLOW_STORAGE_KEY,
+  THEME_STORAGE_KEY,
+  TRAIL_STORAGE_KEY,
+  resolveThemeVars,
+} from '../lib/theme-core';
 import '../styles/global.css';
 import '../styles/cursor-glow.css';
 import '../styles/cursor-trail.css';
@@ -36,6 +42,12 @@ const bootPresets = presetThemes.map((preset) => ({
   base: preset.params.base,
   vars: resolveThemeVars(preset.params),
 }));
+const bootStorageKeys = {
+  theme: THEME_STORAGE_KEY,
+  customThemes: CUSTOM_THEMES_STORAGE_KEY,
+  glow: GLOW_STORAGE_KEY,
+  trail: TRAIL_STORAGE_KEY,
+};
 ---
 
 <!doctype html>
@@ -73,25 +85,25 @@ const bootPresets = presetThemes.map((preset) => ({
       </style>
     </noscript>
 
-    <script is:inline define:vars={{ bootPresets }}>
+    <script is:inline define:vars={{ bootPresets, bootStorageKeys }}>
       (() => {
         const root = document.documentElement;
         // 鼠标光效 / 光效拖尾默认关闭，仅在用户显式开启（存储值为 'on'）时首屏启用，避免刷新闪烁
         try {
-          root.dataset.glow = localStorage.getItem('cdu-ai-glow') === 'on' ? 'on' : 'off';
-          root.dataset.trail = localStorage.getItem('cdu-ai-trail') === 'on' ? 'on' : 'off';
+          root.dataset.glow = localStorage.getItem(bootStorageKeys.glow) === 'on' ? 'on' : 'off';
+          root.dataset.trail = localStorage.getItem(bootStorageKeys.trail) === 'on' ? 'on' : 'off';
         } catch {
           root.dataset.glow = 'off';
           root.dataset.trail = 'off';
         }
         try {
-          const saved = localStorage.getItem('cdu-ai-theme');
+          const saved = localStorage.getItem(bootStorageKeys.theme);
           let theme = null;
           if (saved && saved !== 'light' && saved !== 'dark') {
             if (saved.indexOf('preset-') === 0) {
               theme = bootPresets.find((item) => item.id === saved) || null;
             } else {
-              const list = JSON.parse(localStorage.getItem('cdu-ai-custom-themes') || '[]');
+              const list = JSON.parse(localStorage.getItem(bootStorageKeys.customThemes) || '[]');
               theme = Array.isArray(list)
                 ? list.find((item) => item && item.id === saved && item.params) || null
                 : null;

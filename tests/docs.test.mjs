@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { checkReviewFields, validateCollection } from '../scripts/check-content.mjs';
 import { checkDocumentation } from '../scripts/check-docs.mjs';
+import { CONTENT_TYPES, refineReview } from '../src/lib/content-rules.mjs';
 
 async function fixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), 'cdu-docs-'));
@@ -44,6 +46,165 @@ test('审校字段示例复用内容校验：资料整理不能填写亲测字�
   assert.deepEqual((await checkDocumentation(root)).errors, []);
   await writeFile(file, '```yaml\nitems: [\n```');
   assert.match((await checkDocumentation(root)).errors[0].message, /YAML 示例无效/);
+});
+
+test('审校人、亲测环境和贡献者代称的长度按去掉首尾空白后计算，并与 Zod 校验一致', () => {
+  const baseGuide = {
+    title: '示例指南',
+    summary: '摘要',
+    stage: 'start',
+    order: 1,
+    outcome: '结果',
+    forWho: '新生',
+    updated: '2026-11-22',
+  };
+  const guideSchema = CONTENT_TYPES.guide.schema.superRefine(refineReview);
+  const fields = {
+    reviewed: '2026-10-21',
+    reviewedBy: ' ' + '审'.repeat(40) + ' ',
+    reviewNote: ' ' + '注'.repeat(200) + ' ',
+    basis: 'first-hand',
+    testedOn: '2026-10-21',
+    testedEnvironment: ' ' + '测'.repeat(120) + ' ',
+    contributors: [' ' + '贡'.repeat(40) + ' '],
+  };
+  const errors = [];
+  checkReviewFields(fields, 'sample.md', errors);
+  assert.deepEqual(errors, []);
+  assert.equal(guideSchema.safeParse({ ...baseGuide, ...fields }).success, true, '有效边界样例应通过 Zod 校验');
+
+  for (const [key, value, expected] of [
+    ['reviewedBy', '审'.repeat(41), /reviewedBy.*40/],
+    ['reviewNote', '   ', /reviewNote/],
+    ['reviewNote', '注'.repeat(201), /reviewNote.*200/],
+    ['testedEnvironment', '测'.repeat(121), /testedEnvironment.*120/],
+    ['contributors', ['贡'.repeat(41)], /contributors.*40/],
+    ['contributors', ['A7m', ' A7m '], /contributors.*重复/],
+    ['contributors', ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'], /contributors.*5/],
+  ]) {
+    const candidate = { ...fields, [key]: value };
+    const fieldErrors = [];
+    checkReviewFields(candidate, 'sample.md', fieldErrors);
+    assert.equal(fieldErrors.length, 1, `CLI 应拦截 ${key}`);
+    assert.match(fieldErrors[0].message, expected);
+    assert.equal(guideSchema.safeParse({ ...baseGuide, ...candidate }).success, false, `Zod 应同步拦截 ${key}`);
+  }
+
+  for (const [label, candidate, expected] of [
+    ['只有 reviewedBy 缺少 reviewed', { ...fields, reviewed: undefined }, /reviewed/],
+    ['只有 reviewed 缺少 reviewedBy', { ...fields, reviewedBy: undefined }, /reviewedBy/],
+    ['非亲测内容填写 testedOn', { ...fields, basis: 'desk-research' }, /first-hand/],
+  ]) {
+    const crossErrors = [];
+    checkReviewFields(candidate, 'sample.md', crossErrors);
+    assert.ok(crossErrors.some((error) => expected.test(error.message)), `CLI 应拦截跨字段违规：${label}`);
+    assert.equal(guideSchema.safeParse({ ...baseGuide, ...candidate }).success, false, `Zod 应同步拦截跨字段违规：${label}`);
+  }
+});
+
+test('三类集合在省略默认字段、缺失必填字段、审校边界与未知字段下与 Zod 判定分工一致', async t => {
+  const root = await fixture(t);
+  const context = { toolNames: [], glossaryCategoryIds: ['llm'] };
+  const samples = {
+    guide: {
+      frontmatter: [
+        'title: "示例指南"',
+        'summary: "摘要"',
+        'stage: "start"',
+        'order: 1',
+        'outcome: "结果"',
+        'forWho: "新生"',
+        'updated: "2026-11-22"',
+      ],
+      data: {
+        title: '示例指南',
+        summary: '摘要',
+        stage: 'start',
+        order: 1,
+        outcome: '结果',
+        forWho: '新生',
+        updated: '2026-11-22',
+      },
+      requiredKey: 'outcome',
+    },
+    works: {
+      frontmatter: [
+        'title: "示例作品"',
+        'summary: "摘要"',
+        'category: "校园生活"',
+        'format: "网页"',
+        'prompt: "做一个网页"',
+        'effort: "30 分钟"',
+        'order: 1',
+        'updated: "2026-11-22"',
+      ],
+      data: {
+        title: '示例作品',
+        summary: '摘要',
+        category: '校园生活',
+        format: '网页',
+        prompt: '做一个网页',
+        effort: '30 分钟',
+        order: 1,
+        updated: '2026-11-22',
+      },
+      requiredKey: 'effort',
+    },
+    glossary: {
+      frontmatter: [
+        'term: "示例术语"',
+        'en: "Sample Term"',
+        'category: "llm"',
+        'definition: "定义"',
+        'example: "例子"',
+        'order: 1',
+        'updated: "2026-11-22"',
+      ],
+      data: {
+        term: '示例术语',
+        en: 'Sample Term',
+        category: 'llm',
+        definition: '定义',
+        example: '例子',
+        order: 1,
+        updated: '2026-11-22',
+      },
+      requiredKey: 'definition',
+    },
+  };
+
+  for (const [collection, sample] of Object.entries(samples)) {
+    const fullSchema = CONTENT_TYPES[collection].schema.superRefine(refineReview);
+    const dir = path.join(root, collection);
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, 'sample.md'), `---\n${sample.frontmatter.join('\n')}\n---\n\n正文内容。\n`);
+    assert.equal(fullSchema.safeParse(sample.data).success, true, `${collection} Zod 应允许省略默认字段`);
+    const validRes = await validateCollection({ collection, dir, context });
+    assert.deepEqual(validRes.errors, [], `${collection} CLI 检查应允许省略默认字段`);
+
+    const missingData = { ...sample.data };
+    delete missingData[sample.requiredKey];
+    assert.equal(fullSchema.safeParse(missingData).success, false, `${collection} Zod 应拦截缺失必填字段`);
+    const missingFrontmatter = sample.frontmatter.filter((line) => !line.startsWith(`${sample.requiredKey}:`));
+    await writeFile(path.join(dir, 'sample.md'), `---\n${missingFrontmatter.join('\n')}\n---\n\n正文内容。\n`);
+    const invalidRes = await validateCollection({ collection, dir, context });
+    assert.ok(invalidRes.errors.some((e) => e.message.includes(`缺少必填字段 ${sample.requiredKey}`)), `${collection} CLI 检查应拦截缺失必填字段`);
+
+    for (const edge of [
+      { label: '空白 reviewNote', patch: { reviewNote: '   ' }, yaml: 'reviewNote: "   "', cliMatch: /reviewNote/ },
+      { label: '超长 reviewNote', patch: { reviewNote: '注'.repeat(201) }, yaml: `reviewNote: "${'注'.repeat(201)}"`, cliMatch: /reviewNote.*200/ },
+      { label: '去空白后重复 contributors', patch: { contributors: ['A7m', ' A7m '] }, yaml: 'contributors:\n  - "A7m"\n  - " A7m "', cliMatch: /contributors.*重复/ },
+    ]) {
+      assert.equal(fullSchema.safeParse({ ...sample.data, ...edge.patch }).success, false, `${collection} Zod 应拦截${edge.label}`);
+      await writeFile(path.join(dir, 'sample.md'), `---\n${[...sample.frontmatter, edge.yaml].join('\n')}\n---\n\n正文内容。\n`);
+      const edgeRes = await validateCollection({ collection, dir, context });
+      assert.ok(edgeRes.errors.some((e) => edge.cliMatch.test(e.message)), `${collection} CLI 检查应拦截${edge.label}`);
+    }
+
+    await writeFile(path.join(dir, 'sample.md'), `---\n${[...sample.frontmatter, 'duration: 10'].join('\n')}\n---\n\n正文内容。\n`);
+    const unknownRes = await validateCollection({ collection, dir, context });
+    assert.ok(unknownRes.errors.some((e) => e.message.includes('未知字段 duration')), `${collection} CLI 检查应拦截未登记字段`);
+  }
 });
 
 test('指南首页的站内路由交给构建检查，不误判成仓库文件路径', async t => {

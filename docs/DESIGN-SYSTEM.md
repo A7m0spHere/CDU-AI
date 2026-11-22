@@ -207,7 +207,7 @@ src/styles/
 ├── pages.css         跨页面区块与响应式骨架
 ├── vibe.css          全站导航、紧凑排版与搜索
 ├── pages-v2.css      共享 PageHeader、元信息、空状态与过渡
-├── routes/           首页、工具、作品、活动、关于、社区与错误页的专属规则
+├── routes/           工具、作品、活动、关于、社区与错误页的专属规则
 ├── reading.css       共享阅读布局、指南导航、桌面页内目录与手机小节抽屉
 ├── theme-picker.css  色板菜单与可选光效开关
 ├── theme-editor.css  首次编辑或导入主题时加载的对话框与表单
@@ -225,7 +225,7 @@ src/styles/
 
 约定：
 
-- 通用组件先复用 `components.css`；已拆分的页面专属规则在 `routes/` 对应文件中维护，不再写入全站样式。`global.css` 保留令牌、基础、共享组件、导航、搜索、目录和阅读布局；`reading.css` 位于 vibe 与 pages-v2 之间，维持阅读页现有覆盖顺序。首页、指南、术语页继续使用 home-v2、notion 与 glossary 的局部样式。编辑器样式以 URL 资产在首次打开时加载，避免 Astro 把动态模块的普通 CSS 导入提升到全站。
+- 通用组件先复用 `components.css`。工具、作品、活动、关于、社区与错误页的专属规则在 `routes/` 对应文件中维护。`global.css` 保留令牌、基础、共享组件、导航、搜索、目录和阅读布局。`reading.css` 位于 vibe 与 pages-v2 之间，维持阅读页现有覆盖顺序。首页、指南、术语页分别使用 `home-v2.css`、`notion.css` 与 `glossary.css` 的局部样式。编辑器样式以 URL 资产在首次打开时加载，避免 Astro 把动态模块的普通 CSS 导入提升到全站。
 - 不引入 CSS 框架；类名采用 BEM 风格的短横线命名。
 - 深色主题只通过语义令牌切换。
 - 改动视觉后检查 1440 / 1024 / 390 / 320 四个宽度，并重跑 `npm run verify` 与 axe。

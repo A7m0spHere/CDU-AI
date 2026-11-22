@@ -127,7 +127,7 @@ OpenAI、Claude 与 Grok 平台复用已有官方品牌素材；其余图标从�
 | --- | --- | --- | --- | --- |
 | Cherry Studio | `/tool-logos/cherry-studio.webp` | https://cherryai.com/assets/favicon-BmbgeFTf.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | 腾讯元宝 | `/tool-logos/yuanbao.webp` | https://static.yuanbao.tencent.com/m/yuanbao-web/favicon_new@32.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
-| Gamma | 首字母 G | https://gamma.app/ | 官方图标资源本轮未成功获取，暂用首字母，不以来源不明的图片替代 | 不适用 |
+| Gamma | `/tool-logos/gamma.svg` | https://static.gamma.app/favicons/favicon.svg | 品牌官网图标（官方 SVG），仅用于识别该产品 | 否 |
 | Canva AI | `/tool-logos/canva.webp` | https://static.canva.com/domain-assets/canva/static/images/favicon-1.ico | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | 沉浸式翻译 | `/tool-logos/immersive-translate.webp` | https://immersivetranslate.com/_next/static/media/logo.761c1cd1.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |
 | 通义听悟 | `/tool-logos/tingwu.webp` | https://g.alicdn.com/idst-fe/mind-meeting-assistant2/0.0.189/favicon.png | 品牌官网图标，仅用于识别该产品或项目 | 否 |

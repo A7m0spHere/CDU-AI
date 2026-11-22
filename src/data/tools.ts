@@ -2368,6 +2368,11 @@ export const tools: Tool[] = [
     tier: '主流产品',
     verifiedOn: '2026-10-24',
     basis: 'official',
+    logo: {
+      src: '/tool-logos/gamma.svg',
+      source: 'https://static.gamma.app/favicons/favicon.svg',
+      license: '品牌官网图标（官方 SVG），仅用于识别该产品',
+    },
     tags: ['PPT', '演示', '排版', '课程汇报'],
     caution: '需要账号；生成、导出和品牌设置受方案限制，导出后应检查排版、数据与引用。',
   },

@@ -16,9 +16,13 @@ sources:
     url: "https://www.reddit.com/r/ClaudeCode/comments/1ul904x/my_claude_code_agents_kept_saying_done_all_tests/"
   - title: "V2EX 用户自述开放高权限后遭遇文件误删"
     url: "https://global.v2ex.com/t/1233011"
+  - title: "OpenAI · Why language models hallucinate"
+    url: "https://openai.com/index/why-language-models-hallucinate/"
 basis: "desk-research"
 aiUsage: "assisted"
-reviewNote: "2026-11-22 补充课程学术规范与来源核验入口，待维护者复核；原社区案例仍保留作为经验提醒。"
+reviewed: "2026-11-22"
+reviewedBy: "A7m"
+reviewNote: "2026-11-22 AI 初审并补入 OpenAI 幻觉研究来源，A7m 确认文中第一人称经历为本人撰写并复核通过；未独立复现社区案例，亦未核查具体课程的 AI 使用规定。"
 ---
 
 这一章主要聊聊平时使用 AI 时可能遇到的一些常见问题。内容都比较基础，感兴趣的话可以看看。

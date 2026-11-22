@@ -24,7 +24,7 @@ export const firstAgentMedia = {
   },
   'M04-Z': {
     file: 'm04-z-zcode-development.webp', status: '已集成',
-    description: 'ZCode 收到网页任务后，界面显示「正在思考」和「工作中」。',
+    description: 'ZCode 收到网页任务后，界面显示「正在思考」和「工作中」（截于旧版界面，左下角显示为「自主模式」；首次练习仍请按正文保持默认「变更前确认」）。',
   },
   M05: {
     file: 'm05-cdu-html-file.webp', status: '已集成',

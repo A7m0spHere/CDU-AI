@@ -82,6 +82,8 @@ export interface StoredTheme {
 
 export const THEME_STORAGE_KEY = 'cdu-ai-theme';
 export const CUSTOM_THEMES_STORAGE_KEY = 'cdu-ai-custom-themes';
+export const GLOW_STORAGE_KEY = 'cdu-ai-glow';
+export const TRAIL_STORAGE_KEY = 'cdu-ai-trail';
 
 export const MIN_GRADIENT_STOPS = 2;
 export const MAX_GRADIENT_STOPS = 5;

@@ -11,7 +11,7 @@
 | 作品广场 `works` | ✅ | 策划示例默认按「初稿 + 教学示例」展示 |
 | 工具目录 `tools` | 独立规则 | 继续维护 TypeScript 数据，由维护者核对后入库；使用 `verifiedOn` 与工具自身的 `basis`，不套用本文的 frontmatter，也不显示「亲测」「已审核无误」。见 [工具条目规范](CONTENT-GUIDE.md#6-工具数据) |
 | 社区 | — | 功能已关闭，页面仅提示暂不开放 |
-| 活动 | — | 使用「筹备中 / 暂无排期」状态字段，不套用本文审校状态 |
+| 活动 | — | 赛程、报名入口与细则由 [`src/data/challenge.ts`](../src/data/challenge.ts) 维护，不套用本文审校状态 |
 
 **总原则**：开发者可以使用 AI 初审、查证和辅助审核，并负责确认最终结论。「已审核无误」表示在记录的审核范围与日期下未发现问题，不表示完全由人工审核，也不保证内容永远正确；没有亲测，就不能写成「亲测」。
 
@@ -227,3 +227,27 @@ reviewNote: "正文步骤已调整，等待重新审核"
 - **新增指南**：[提示词撰写思路](../src/content/guide/task-description.md)（`/guide/task-description/`）、[权限与结果检查](../src/content/guide/permissions-and-review.md)（`/guide/permissions-and-review/`），字段均标注 `basis: "teaching-example"`、`aiUsage: "drafted"`。
 - **新增术语**：[沙盒](../src/content/glossary/sandbox.md)（`sandbox`）、[过度授权](../src/content/glossary/excessive-agency.md)（`excessive-agency`）、[Harness](../src/content/glossary/harness.md)（`harness`）、[Skill](../src/content/glossary/skill.md)（`skill`）与[生成式 AI](../src/content/glossary/generative-ai.md)（`generative-ai`），均保留为初稿状态。
 - **同日配图更新**：[第一次使用 Agent](../src/content/guide/first-agent.md) 的全部 10 处实操与修改前后对比截图已于同日补齐并按原比例自适应渲染（见[素材与交互维护说明](CONTENT-GUIDE.md#第一次使用-agent素材与交互维护)）；该篇先前的原文审阅记录范围不含本次新增截图。
+
+### 2026-11-22 资料检索
+
+- [资料检索：从 AI 回答找到原始依据](../src/content/guide/research-and-sources.md) 上线于 `/guide/research-and-sources/`，归入 `make` 阶段，集合顺序为 7。正文署名为 `A7m0spHere`，AI 协作标注为 `GPT`。
+- 文章以公开教学通知为检索练习，示范核对发布单位、日期和原文依据。正文链接到成都大学官网，`sources` 为空。元信息记录为 `basis: teaching-example`、`aiUsage: drafted`。
+- 以初稿入库。正文范围与示例待负责人核对后补签。
+
+### 2026-11-22 AI 使用常见问题复审签审
+
+- 内容为 `/guide/ai-faq/`（[源文件](../src/content/guide/ai-faq.md)）。本次补充 [OpenAI · Why language models hallucinate](https://openai.com/index/why-language-models-hallucinate/) 作为“AI 幻觉与概率预测”段一手依据；
+- 审核方式：AI 辅助初审并核对第一人称段落位置，由审核负责人 `A7m` 确认文中第一人称使用、解题与软件开发经历均为本人撰写并确认复核通过；
+- 结论：已审核无误（`reviewed: "2026-11-22"`、`reviewedBy: "A7m"`）；
+- 未覆盖范围：未独立复现所引 Reddit / V2EX 社区案例，亦未核查具体课程或赛事的 AI 使用细则。
+
+### 2026-11-22 其余四篇指南复审签审
+
+以下四篇指南在 AI 辅助初审与定点修订后，由审核负责人 `A7m` 于 `2026-11-22` 统一确认复核通过（`reviewed: "2026-11-22"`、`reviewedBy: "A7m"`），至此 M0 已上线 7 篇指南全部完成签审：
+
+| 指南 | 修订与审核方式 | 未覆盖范围 |
+| --- | --- | --- |
+| [第一次使用 Agent](../src/content/guide/first-agent.md) | 中性化工具比较与额度说明，补充 DSH 与 ZCode 安全确认来源及权限说明抽屉，A7m 确认现行正文与全部实操截图复核通过 | 未在目标环境重新逐一实机安装；工具额度与安装步骤以官方最新说明为准 |
+| [提示词撰写思路](../src/content/guide/task-description.md) | AI 辅助初审，更新 OpenAI 官方指南链接并收窄表述边界，A7m 确认复核通过 | 未逐一实测不同模型对示例提示词的执行成功率 |
+| [权限与结果检查](../src/content/guide/permissions-and-review.md) | AI 辅助初审，修正 Git 分支存档、`.gitignore` 与历史敏感数据检查说明并补充 Git / GitHub 官方来源，A7m 确认复核通过 | 未覆盖所有操作系统与工具版本的具体权限行为 |
+| [资料检索](../src/content/guide/research-and-sources.md) | AI 辅助初审并抽查成都大学官网公开入口，A7m 按教学练习范围确认复核通过 | 未覆盖需登录访问的课程材料，未做多模型检索对照 |

@@ -968,6 +968,12 @@ test('工具页展示官方 Logo、能力筛选与建议收录入口', async () 
   assert.match(html, /class="tool-mark__fallback"[^>]*data-fallback hidden/, '有 Logo 时首字母兜底必须默认隐藏');
   assert.match(html, /data-mono="true"/, '单色标志需要 data-mono 钩子做深色反色');
 
+  const gammaCard = html.match(/<article\b[^>]*data-tool-id="gamma"[\s\S]*?<\/article>/)?.[0];
+  assert.ok(gammaCard, '工具页应渲染 Gamma 卡片');
+  assert.match(gammaCard, /src="\/tool-logos\/gamma\.svg"/, 'Gamma 卡片应使用官方 SVG 图标');
+  assert.match(gammaCard, /class="tool-mark__fallback"[^>]*data-fallback hidden/, 'Gamma 有图标时首字母兜底应隐藏');
+  assert.doesNotMatch(gammaCard, /data-mono=/, 'Gamma 彩色图标不应开启深色反色');
+
   // 能力标签保留在卡片数据与搜索文本中，工具页不再渲染独立能力筛选栏
   assert.doesNotMatch(html, /data-filter-cap=/, '工具页不应再渲染能力筛选按钮');
   assert.match(html, /data-capabilities=/, '卡片缺少能力标签数据属性');
@@ -1092,11 +1098,26 @@ test('工具数据进入搜索索引：别名、技术类型与能力标签都�
 test('首次 Agent 教程保留原文与七章结构，组件在构建时生成且提示词只来自正文', async () => {
   const html = await read('guide/first-agent/index.html');
   assert.doesNotMatch(html, /【交互位置|【配图|<!--\s*first-agent:|<iframe\b/);
-  assert.match(html, /ZCode：目前国产最好的Agent/);
-  assert.match(html, /每天可以领取100的积分/);
+  assert.match(html, /ZCode：侧重项目与开发任务的国产 Agent/);
+  assert.match(html, /可用积分、领取条件和额度以官方说明及账号界面为准/);
   assert.match(html, /CDU-介绍网站/);
   assert.match(html, /名为 CDU\.html 的文件/);
   assert.match(html, /成都大学官方网站 \(https:\/\/www\.cdu\.edu\.cn\/\)/);
+  assert.match(html, /id="first-agent-permission-drawer"/);
+  assert.match(html, /class="first-agent-drawer__body"[^>]*tabindex="0"/);
+  assert.equal(html.includes('不确定安全影响时优先选这一项'), false);
+  assert.match(html, /data-first-agent-drawer-open="first-agent-permission-drawer"/);
+  const sourcesBlock = html.match(/<div\b[^>]*class="page-sources"[^>]*>[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.ok(sourcesBlock.includes('https://zcode.z.ai/cn/docs/safety-confirm'), '参考来源区应列出 ZCode 安全操作确认官方链接');
+  assert.ok(sourcesBlock.includes('https://deepseek.com/harness/'), '参考来源区应列出 DSH 官方链接');
+  const guideIndex = await read('guide/index.html');
+  const headHtml = guideIndex.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? '';
+  const bodyHtml = guideIndex.match(/<body\b[\s\S]*?<\/body>/)?.[0] ?? '';
+  const hasInlineBootScript = (sectionHtml) =>
+    [...sectionHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)]
+      .some(([, scriptBody]) => scriptBody.includes('cdu-ai-theme') && scriptBody.includes('cdu-ai-glow') && scriptBody.includes('cdu-ai-trail'));
+  assert.equal(hasInlineBootScript(headHtml), true, 'guide/index.html 的 <head> 应包含首屏主题与光效恢复脚本');
+  assert.equal(hasInlineBootScript(bodyHtml), false, '首屏恢复脚本不应滞后到 <body>');
   assert.equal((html.match(/data-copy-card=/g) ?? []).length, 4);
   const media = [...html.matchAll(/data-agent-media="([^"]+)"/g)].map(match => match[1]).sort();
   assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04-W', 'M04-Z', 'M05', 'M06', 'M07-A', 'M07-B'].sort());
@@ -1115,6 +1136,10 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
       assert.ok(!figure.includes('width="1600" height="900"'), `素材 ${id} 不应再硬编码 1600x900`);
       assert.ok(figure.includes(`--media-aspect: ${item.width} / ${item.height};`), `素材 ${id} 缺少真实比例变量`);
       assert.match(figure, /<img\b[^>]*alt="[^"]+"/);
+      if (id === 'M04-Z') {
+        assert.match(figure, /旧版界面/);
+        assert.match(figure, /变更前确认/);
+      }
     } else {
       assert.match(figure, /data-media-state="pending"/);
       assert.doesNotMatch(figure, /<img\b/);
