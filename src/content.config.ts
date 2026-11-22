@@ -1,59 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { glossaryCategoryIds } from './data/glossary';
-import { CONTENT_TYPES, REVIEW_FIELDS } from './lib/content-rules.mjs';
-
-type ReviewMeta = Pick<z.infer<typeof CONTENT_TYPES.guide.schema>, (typeof REVIEW_FIELDS)[number]>;
-
-/** 跨字段一致性校验：前端展示的每一条「已审校 / 亲测」都必须有对应依据。 */
-function refineReview(data: ReviewMeta, ctx: z.RefinementCtx) {
-  if (data.reviewedBy && !data.reviewed) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['reviewedBy'],
-      message: '填写 reviewedBy 时必须同时填写 reviewed（审核日期）',
-    });
-  }
-
-  if (data.reviewed && !data.reviewedBy) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['reviewedBy'],
-      message: '填写 reviewed 时必须同时填写 reviewedBy（审核负责人）',
-    });
-  }
-
-  if (data.basis === 'first-hand') {
-    if (!data.testedOn) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['testedOn'],
-        message: 'basis 为 first-hand（真实使用经验）时必须填写 testedOn（亲测日期）',
-      });
-    }
-    if (!data.testedEnvironment) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['testedEnvironment'],
-        message: 'basis 为 first-hand（真实使用经验）时必须填写 testedEnvironment（亲测环境）',
-      });
-    }
-  } else if (data.testedOn || data.testedEnvironment) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['testedOn'],
-      message: '只有 basis 为 first-hand 的内容才允许填写 testedOn / testedEnvironment',
-    });
-  }
-
-  if (new Set(data.contributors).size !== data.contributors.length) {
-    ctx.addIssue({
-      code: 'custom',
-      path: ['contributors'],
-      message: 'contributors 中有重复的贡献者',
-    });
-  }
-}
+import { CONTENT_TYPES, refineReview } from './lib/content-rules.mjs';
 
 /**
  * 学习指南：一篇 Markdown 就是一个模块。

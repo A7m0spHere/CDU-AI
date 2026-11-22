@@ -2937,7 +2937,14 @@ test('首屏内联脚本在客户端模块未加载前独立恢复主题与光�
   });
   const presetState = await presetPage.evaluate(() => {
     const root = document.documentElement;
+    const hasBootKeys = (scripts) =>
+      [...scripts].some((script) => {
+        const code = script.textContent ?? '';
+        return code.includes('cdu-ai-theme') && code.includes('cdu-ai-glow') && code.includes('cdu-ai-trail');
+      });
     return {
+      inHead: hasBootKeys(document.head.querySelectorAll('script')),
+      inBody: hasBootKeys(document.body.querySelectorAll('script')),
       theme: root.dataset.theme,
       glow: root.dataset.glow,
       trail: root.dataset.trail,
@@ -2945,6 +2952,8 @@ test('首屏内联脚本在客户端模块未加载前独立恢复主题与光�
       clientHydrated: document.querySelector('[data-theme-select="light"]') !== null,
     };
   });
+  assert.equal(presetState.inHead, true, '首屏恢复脚本必须内联于 <head>');
+  assert.equal(presetState.inBody, false, '首屏恢复脚本不应出现在 <body>');
   assert.equal(presetState.clientHydrated, false, '测试应确认客户端主题脚本未执行');
   assert.equal(presetState.theme, 'dark');
   assert.equal(presetState.glow, 'on');
@@ -2984,21 +2993,24 @@ test('首屏内联脚本在客户端模块未加载前独立恢复主题与光�
   assert.deepEqual(fallbackState, { theme: 'light', glow: 'off', trail: 'off' });
 });
 
-test('首次 Agent 权限说明抽屉在桌面与手机可开关且无 JS 保留官方入口', async t => {
+test('首次 Agent 权限说明抽屉在桌面、触屏与回退路径下可访问且拦截背景滚动', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   await page.goto(origin + '/guide/first-agent/');
   await ready(page);
 
   const trigger = page.locator('[data-first-agent-drawer-open="first-agent-permission-drawer"]');
   const drawer = page.locator('#first-agent-permission-drawer');
+  const closeBtn = drawer.locator('.first-agent-drawer__close');
+  const drawerBody = drawer.locator('.first-agent-drawer__body');
 
-  // 桌面端打开、内容核对与点击遮罩关闭
-  await page.setViewportSize({ width: 1440, height: 1000 });
+  // 1. 桌面端矮视口：验证键盘聚焦滚动、关闭按钮、returnValue 重置与焦点恢复
+  await page.setViewportSize({ width: 1440, height: 500 });
   assert.equal(await trigger.isVisible(), true);
   await trigger.click();
   await drawer.waitFor({ state: 'visible' });
   assert.equal(await drawer.evaluate(el => el.open && el.matches(':modal')), true);
   assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
+  assert.equal(await closeBtn.evaluate(el => document.activeElement === el), true, '打开抽屉后初始焦点应落在关闭按钮');
   for (const label of ['变更前确认', '自动编辑', '计划模式', '完全访问']) {
     assert.match(await drawer.innerText(), new RegExp(label));
   }
@@ -3007,21 +3019,124 @@ test('首次 Agent 权限说明抽屉在桌面与手机可开关且无 JS 保留
   assert.equal(await docLink.getAttribute('target'), '_blank');
   assert.equal(await docLink.getAttribute('rel'), 'noopener noreferrer');
 
-  await page.mouse.click(10, 200);
-  await drawer.waitFor({ state: 'hidden' });
-  assert.equal(await drawer.evaluate(el => el.open), false);
-  assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+  await page.keyboard.press('Tab');
+  assert.equal(await drawerBody.evaluate(el => document.activeElement === el), true, 'Tab 后焦点应进入可滚动抽屉正文');
+  const canScrollBody = await drawerBody.evaluate(el => el.scrollHeight > el.clientHeight);
+  assert.equal(canScrollBody, true, '矮视口下抽屉正文应产生可滚动溢出');
+  await page.keyboard.press('PageDown');
+  await page.waitForFunction(() => {
+    const body = document.querySelector('.first-agent-drawer__body');
+    return Boolean(body && body.scrollTop > 0);
+  });
+  const scrolledTop = await drawerBody.evaluate(el => el.scrollTop);
+  assert.ok(scrolledTop > 0, '键盘 PageDown 应能滚动抽屉正文');
 
-  // 手机端（390px）打开不溢出且支持 Escape 关闭
-  await page.setViewportSize({ width: 390, height: 844 });
+  await drawer.evaluate(el => { el.returnValue = 'stale'; });
+  await closeBtn.click();
+  await drawer.waitFor({ state: 'hidden' });
+  assert.deepEqual(
+    await drawer.evaluate(el => ({ open: el.open, returnValue: el.returnValue })),
+    { open: false, returnValue: '' },
+    '点击关闭按钮应关闭抽屉并清空 returnValue',
+  );
+  assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+  assert.equal(await trigger.evaluate(el => document.activeElement === el), true, '关闭抽屉后焦点应恢复到触发按钮');
+
+  // 2. 背景滚动隔离与桌面外点关闭
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await trigger.click();
   await drawer.waitFor({ state: 'visible' });
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  await page.keyboard.press('Escape');
+  const scrollBeforeWheel = await page.evaluate(() => window.scrollY);
+  assert.ok(scrollBeforeWheel > 0, '页面应处于可滚动位置以检验背景滚动隔离');
+  const scrollIsolation = await drawer.evaluate(el => ({
+    dialogOverscroll: getComputedStyle(el).overscrollBehavior,
+    backdropOverflow: getComputedStyle(el, '::backdrop').overflow,
+    backdropOverscroll: getComputedStyle(el, '::backdrop').overscrollBehavior,
+    htmlOverflowInline: document.documentElement.style.overflow,
+    bodyOverflowInline: document.body.style.overflow,
+  }));
+  assert.deepEqual(scrollIsolation, {
+    dialogOverscroll: 'contain',
+    backdropOverflow: 'hidden',
+    backdropOverscroll: 'contain',
+    htmlOverflowInline: '',
+    bodyOverflowInline: '',
+  });
+  await page.mouse.move(10, 200);
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(80);
+  const scrollDuringModal = await page.evaluate(() => window.scrollY);
+  assert.equal(scrollDuringModal, scrollBeforeWheel, '模态抽屉开启时在遮罩区滚轮不应滚动底层页面');
+
+  await page.mouse.click(10, 200);
   await drawer.waitFor({ state: 'hidden' });
   assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
 
-  // 无 JS 环境下隐藏抽屉按钮，直达 ZCode 官方文档链接保持可见
+  // 3. 不支持 closedBy 时的外点关闭 JS 回退分支（含指针 ID 配对与 pointercancel）
+  const fallbackContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
+  t.after(() => fallbackContext.close());
+  const fallbackPage = await fallbackContext.newPage();
+  const fallbackErrors = [];
+  fallbackPage.on('pageerror', error => fallbackErrors.push(error.message));
+  t.after(() => assert.deepEqual(fallbackErrors, [], '回退分支测试不应产生页面异常'));
+  await fallbackPage.addInitScript(() => {
+    delete HTMLDialogElement.prototype.closedBy;
+  });
+  await fallbackPage.goto(origin + '/guide/first-agent/');
+  await ready(fallbackPage);
+  const fbTrigger = fallbackPage.locator('[data-first-agent-drawer-open="first-agent-permission-drawer"]');
+  const fbDrawer = fallbackPage.locator('#first-agent-permission-drawer');
+  await fbDrawer.evaluate(el => el.removeAttribute('closedby'));
+  await fbTrigger.click();
+  await fbDrawer.waitFor({ state: 'visible' });
+
+  // 点击抽屉内部头部不应关闭
+  await fbDrawer.locator('.first-agent-drawer__head h2').click();
+  assert.equal(await fbDrawer.evaluate(el => el.open), true, '点击抽屉内部不应触发外点关闭');
+
+  // 外侧 pointerdown(pointerId=1) + 外侧 pointerup(pointerId=2) 不应关闭
+  await fbDrawer.evaluate(el => {
+    el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true, pointerId: 1, clientX: 10, clientY: 200, pointerType: 'mouse', button: 0 }));
+    el.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, isPrimary: true, pointerId: 2, clientX: 10, clientY: 200, pointerType: 'mouse', button: 0 }));
+  });
+  assert.equal(await fbDrawer.evaluate(el => el.open), true, '不同 pointerId 的松开不应关闭抽屉');
+
+  // 外侧 pointerdown(pointerId=3) + pointercancel(pointerId=3) + 外侧 pointerup(pointerId=3) 不应关闭
+  await fbDrawer.evaluate(el => {
+    el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true, pointerId: 3, clientX: 10, clientY: 200, pointerType: 'mouse', button: 0 }));
+    el.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, isPrimary: true, pointerId: 3, clientX: 10, clientY: 200, pointerType: 'mouse', button: 0 }));
+    el.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, isPrimary: true, pointerId: 3, clientX: 10, clientY: 200, pointerType: 'mouse', button: 0 }));
+  });
+  assert.equal(await fbDrawer.evaluate(el => el.open), true, 'pointercancel 后松开不应关闭抽屉');
+
+  // 从抽屉内部拖到外侧松开不应关闭
+  const headBox = await fbDrawer.locator('.first-agent-drawer__head').boundingBox();
+  await fallbackPage.mouse.move(headBox.x + 24, headBox.y + 24);
+  await fallbackPage.mouse.down();
+  await fallbackPage.mouse.move(10, 200);
+  await fallbackPage.mouse.up();
+  assert.equal(await fbDrawer.evaluate(el => el.open), true, '从抽屉内按下拖到外侧松开不应关闭');
+
+  // 正常点击遮罩外侧由 JS 回退关闭
+  await fallbackPage.mouse.click(10, 200);
+  await fbDrawer.waitFor({ state: 'hidden' });
+  assert.equal(await fbTrigger.getAttribute('aria-expanded'), 'false');
+
+  // 4. 手机端真实触屏上下文（390px + hasTouch）：tap 打开、无横向溢出、Escape 关闭并恢复焦点
+  const mobilePage = await setup(t, { viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: 'reduce' });
+  await mobilePage.goto(origin + '/guide/first-agent/');
+  await ready(mobilePage);
+  const mobileTrigger = mobilePage.locator('[data-first-agent-drawer-open="first-agent-permission-drawer"]');
+  const mobileDrawer = mobilePage.locator('#first-agent-permission-drawer');
+  await mobileTrigger.tap();
+  await mobileDrawer.waitFor({ state: 'visible' });
+  assert.equal(await mobilePage.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await mobilePage.keyboard.press('Escape');
+  await mobileDrawer.waitFor({ state: 'hidden' });
+  assert.equal(await mobileTrigger.getAttribute('aria-expanded'), 'false');
+  assert.equal(await mobileTrigger.evaluate(el => document.activeElement === el), true, '移动端 Escape 关闭后应恢复触发按钮焦点');
+
+  // 5. 无 JS 环境下隐藏抽屉按钮，直达 ZCode 官方文档链接保持可见
   const noJsContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, javaScriptEnabled: false });
   t.after(() => noJsContext.close());
   const noJsPage = await noJsContext.newPage();

@@ -64,6 +64,60 @@ const reviewFields = {
 export const REVIEW_FIELDS = /** @type {(keyof typeof reviewFields)[]} */ (Object.keys(reviewFields));
 
 /**
+ * 跨字段一致性校验：前端展示的每一条「已审校 / 亲测」都必须有对应依据。
+ * @param {Record<string, any>} data
+ * @param {z.RefinementCtx} ctx
+ */
+export function refineReview(data, ctx) {
+  if (data.reviewedBy && !data.reviewed) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['reviewedBy'],
+      message: '填写 reviewedBy 时必须同时填写 reviewed（审核日期）',
+    });
+  }
+
+  if (data.reviewed && !data.reviewedBy) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['reviewedBy'],
+      message: '填写 reviewed 时必须同时填写 reviewedBy（审核负责人）',
+    });
+  }
+
+  if (data.basis === 'first-hand') {
+    if (!data.testedOn) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['testedOn'],
+        message: 'basis 为 first-hand（真实使用经验）时必须填写 testedOn（亲测日期）',
+      });
+    }
+    if (!data.testedEnvironment) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['testedEnvironment'],
+        message: 'basis 为 first-hand（真实使用经验）时必须填写 testedEnvironment（亲测环境）',
+      });
+    }
+  } else if (data.testedOn || data.testedEnvironment) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['testedOn'],
+      message: '只有 basis 为 first-hand 的内容才允许填写 testedOn / testedEnvironment',
+    });
+  }
+
+  if (new Set(data.contributors).size !== data.contributors.length) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['contributors'],
+      message: 'contributors 中有重复的贡献者',
+    });
+  }
+}
+
+/**
  * 从同一份 Schema 推导字段清单，供 Node 检查器识别缺失字段和未知字段。
  * @template {z.ZodRawShape} Shape
  * @param {Shape} fields

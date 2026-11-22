@@ -1104,9 +1104,20 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
   assert.match(html, /名为 CDU\.html 的文件/);
   assert.match(html, /成都大学官方网站 \(https:\/\/www\.cdu\.edu\.cn\/\)/);
   assert.match(html, /id="first-agent-permission-drawer"/);
+  assert.match(html, /class="first-agent-drawer__body"[^>]*tabindex="0"/);
+  assert.equal(html.includes('不确定安全影响时优先选这一项'), false);
   assert.match(html, /data-first-agent-drawer-open="first-agent-permission-drawer"/);
-  assert.ok(html.includes('https://zcode.z.ai/cn/docs/safety-confirm'));
-  assert.ok(html.includes('https://deepseek.com/harness/'));
+  const sourcesBlock = html.match(/<div\b[^>]*class="page-sources"[^>]*>[\s\S]*?<\/div>/)?.[0] ?? '';
+  assert.ok(sourcesBlock.includes('https://zcode.z.ai/cn/docs/safety-confirm'), '参考来源区应列出 ZCode 安全操作确认官方链接');
+  assert.ok(sourcesBlock.includes('https://deepseek.com/harness/'), '参考来源区应列出 DSH 官方链接');
+  const guideIndex = await read('guide/index.html');
+  const headHtml = guideIndex.match(/<head>[\s\S]*?<\/head>/)?.[0] ?? '';
+  const bodyHtml = guideIndex.match(/<body\b[\s\S]*?<\/body>/)?.[0] ?? '';
+  const hasInlineBootScript = (sectionHtml) =>
+    [...sectionHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)]
+      .some(([, scriptBody]) => scriptBody.includes('cdu-ai-theme') && scriptBody.includes('cdu-ai-glow') && scriptBody.includes('cdu-ai-trail'));
+  assert.equal(hasInlineBootScript(headHtml), true, 'guide/index.html 的 <head> 应包含首屏主题与光效恢复脚本');
+  assert.equal(hasInlineBootScript(bodyHtml), false, '首屏恢复脚本不应滞后到 <body>');
   assert.equal((html.match(/data-copy-card=/g) ?? []).length, 4);
   const media = [...html.matchAll(/data-agent-media="([^"]+)"/g)].map(match => match[1]).sort();
   assert.deepEqual(media, ['M01', 'M02', 'M03-W', 'M03-Z', 'M04-W', 'M04-Z', 'M05', 'M06', 'M07-A', 'M07-B'].sort());
@@ -1125,6 +1136,10 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
       assert.ok(!figure.includes('width="1600" height="900"'), `素材 ${id} 不应再硬编码 1600x900`);
       assert.ok(figure.includes(`--media-aspect: ${item.width} / ${item.height};`), `素材 ${id} 缺少真实比例变量`);
       assert.match(figure, /<img\b[^>]*alt="[^"]+"/);
+      if (id === 'M04-Z') {
+        assert.match(figure, /旧版界面/);
+        assert.match(figure, /变更前确认/);
+      }
     } else {
       assert.match(figure, /data-media-state="pending"/);
       assert.doesNotMatch(figure, /<img\b/);

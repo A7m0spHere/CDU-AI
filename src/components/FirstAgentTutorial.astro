@@ -32,7 +32,7 @@ const permissionModes = [
 const decisionOptions = [
   {
     name: '允许',
-    note: '仅授权当前这一次操作；不确定安全影响时优先选这一项。',
+    note: '仅授权当前这一次操作；请先核对命令、目标路径与预期影响，确认风险可接受后再点允许。',
   },
   {
     name: '始终允许',
@@ -40,7 +40,7 @@ const decisionOptions = [
   },
   {
     name: '拒绝',
-    note: '禁止执行当前操作；当命令、路径或预期影响不对时选择。',
+    note: '禁止执行当前操作；当命令、路径、预期影响不对或暂无法确认安全性时选择。',
   },
   {
     name: '始终拒绝',
@@ -78,7 +78,7 @@ const safetyReminders = [
       </button>
     </header>
 
-    <div class="first-agent-drawer__body">
+    <div class="first-agent-drawer__body" tabindex="0">
       <section class="first-agent-drawer__group" aria-labelledby="fa-modes-title">
         <div class="first-agent-drawer__group-head">
           <h3 id="fa-modes-title">四档执行模式</h3>

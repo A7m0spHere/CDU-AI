@@ -55,6 +55,7 @@ function initPermissionDrawer(): void {
 
   if (!('closedBy' in HTMLDialogElement.prototype)) {
     const isOutside = (event: PointerEvent) => {
+      if (event.target !== dialog) return false;
       const rect = dialog.getBoundingClientRect();
       return (
         event.clientX < rect.left ||
@@ -64,15 +65,30 @@ function initPermissionDrawer(): void {
       );
     };
 
-    let pressedOutside = false;
+    let outsidePointerId: number | null = null;
     dialog.addEventListener('pointerdown', (event) => {
-      pressedOutside = isOutside(event);
+      if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) {
+        outsidePointerId = null;
+        return;
+      }
+      outsidePointerId = isOutside(event) ? event.pointerId : null;
     });
     dialog.addEventListener('pointerup', (event) => {
-      if (pressedOutside && isOutside(event)) {
+      const shouldClose = outsidePointerId === event.pointerId && isOutside(event);
+      if (outsidePointerId === event.pointerId) {
+        outsidePointerId = null;
+      }
+      if (shouldClose) {
         dialog.close();
       }
-      pressedOutside = false;
+    });
+    dialog.addEventListener('pointercancel', (event) => {
+      if (outsidePointerId === event.pointerId) {
+        outsidePointerId = null;
+      }
+    });
+    dialog.addEventListener('close', () => {
+      outsidePointerId = null;
     });
   }
 }
