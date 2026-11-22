@@ -12,7 +12,7 @@ tools: []
 tags: ["资料检索", "核验", "AI 素养"]
 sources: []
 basis: "teaching-example"
-aiUsage: "assisted"
+aiUsage: "drafted"
 reviewNote: "2026-11-22 新增的引导型练习，尚待维护者审校。"
 ---
 
