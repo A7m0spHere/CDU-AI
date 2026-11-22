@@ -24,7 +24,7 @@
 - **内容可信度机制**：内容状态与人工审校标注（#3 / PR #11）、GitHub 网页共建与审稿流程（#2 / PR #10）。
 - **视觉与交互**：设计系统与分阶段视觉升级（#5 / PR #14、#15、#17）、术语模块与分支树导航（PR #19、#20）、学习指南目录六分组（PR #25）、导航与关于页调整（PR #21）。
 - **安全与目录维护**：外链协议白名单三层拦截（#22 / PR #24）、工具目录改为维护者按需添加（#8 / PR #23）。
-- **文档**：[ARCHITECTURE](docs/ARCHITECTURE.md)、[CONTENT-GUIDE](docs/CONTENT-GUIDE.md)、[CONTENT-REVIEW](docs/CONTENT-REVIEW.md)、[DESIGN-SYSTEM](docs/DESIGN-SYSTEM.md)、[GLOSSARY-PLAN](docs/GLOSSARY-PLAN.md)、[CONTRIBUTING](CONTRIBUTING.md)、[CONTRIBUTORS](CONTRIBUTORS.md) 与 README 的持续维护。
+- **文档**：[ARCHITECTURE](docs/ARCHITECTURE.md)、[CONTENT-GUIDE](docs/CONTENT-GUIDE.md)、[CONTENT-REVIEW](docs/CONTENT-REVIEW.md)、[DESIGN-SYSTEM](docs/DESIGN-SYSTEM.md)、[CONTRIBUTING](CONTRIBUTING.md)、[CONTRIBUTORS](CONTRIBUTORS.md) 与 README 的持续维护。
 - **内容审校**：首条人工核校术语「AI 幻觉」的审校签字（`reviewed: 2026-10-21` / `reviewedBy: A7m`，见 [src/content/glossary/hallucination.md](src/content/glossary/hallucination.md)），以及后续术语复核与指南审阅确认。
 
 ### 阶段维护成果
@@ -38,7 +38,7 @@
 - **手机端浏览与阅读体验升级（2026-11-21）**：新增手机端底部拇指快捷栏（`MobileDock`）、首页显性搜索按钮、文章页「本页小节」抽屉、代码块一键复制与窄屏表格横滑包装，隐藏手机端首页看板娘与状态条、适配活动页手机端 ASCII 星球背景，并同步更新 12/6 Demo Day 安排。见 [PR #45](https://github.com/A7m0spHere/CDU-AI/pull/45)。
 - **第八届 AI 创作挑战赛页面融合与上线（2026-11-21）**：在保留 [PR #43](https://github.com/A7m0spHere/CDU-AI/pull/43) 上游赛制内容与原始提交署名的基础上，重构活动页线性赛程、桌面看板娘与 ASCII 星球背景、像素字体子集标题、赛事速览弹窗与赛道抽屉、移动端左拉抽拉片及 `/events/rules/` 完整细则页，并修复跳转焦点回落与浏览器回归时序。见 [PR #44](https://github.com/A7m0spHere/CDU-AI/pull/44)、[`ca9d8eb`](https://github.com/A7m0spHere/CDU-AI/commit/ca9d8eb)。
 - **移动端交互与大图灯箱（2026-11-20）**：优化手机术语表分支切换与单行横滑分类胶囊，为指南详情页加入全屏图片灯箱（双击缩放、防横滑误触与桌面拖动画布），精简工具页手机端筛选（移除独立能力筛选、能力标签并入关键词搜索），并修复主题编辑器、搜索与底部抽屉手势问题。见 [PR #42](https://github.com/A7m0spHere/CDU-AI/pull/42)。
-- **学习指南正文与交互（2026-11-01—2026-11-18）**：统一指南简约阅读排版，完善欢迎页与文档编辑 Issue 联动，补充《这份指南适合谁》《AI 使用常见问题》《从 Chat AI 到 Agent》（含流程图）与《第一次使用 Agent》（含工具切换、提示词复制与素材占位），调整 Agent 入门路径，记录嵌入式官方教程 NO-GO 决策与维护者上传正文审阅规则。见 [`2cbbe83`](https://github.com/A7m0spHere/CDU-AI/commit/2cbbe83)、[`7030f07`](https://github.com/A7m0spHere/CDU-AI/commit/7030f07)、[`2564ff4`](https://github.com/A7m0spHere/CDU-AI/commit/2564ff4)、[`8809e2b`](https://github.com/A7m0spHere/CDU-AI/commit/8809e2b)、[`4cbd91c`](https://github.com/A7m0spHere/CDU-AI/commit/4cbd91c) 及 [素材清单](docs/first-agent-media-checklist.md)。
+- **学习指南正文与交互（2026-11-01—2026-11-18）**：统一指南简约阅读排版，完善欢迎页与文档编辑 Issue 联动，补充《这份指南适合谁》《AI 使用常见问题》《从 Chat AI 到 Agent》（含流程图）与《第一次使用 Agent》（含工具切换、提示词复制与素材占位），调整 Agent 入门路径，记录嵌入式官方教程 NO-GO 决策与维护者上传正文审阅规则。见 [`2cbbe83`](https://github.com/A7m0spHere/CDU-AI/commit/2cbbe83)、[`7030f07`](https://github.com/A7m0spHere/CDU-AI/commit/7030f07)、[`2564ff4`](https://github.com/A7m0spHere/CDU-AI/commit/2564ff4)、[`8809e2b`](https://github.com/A7m0spHere/CDU-AI/commit/8809e2b)、[`4cbd91c`](https://github.com/A7m0spHere/CDU-AI/commit/4cbd91c) 及[素材与交互维护说明](docs/CONTENT-GUIDE.md#第一次使用-agent素材与交互维护)。
 - **首页探索区（2026-11-12—2026-11-13）**：探索区改为成都大学主图书馆纯线条 SVG，并实现三维坐标重投影的拖动旋转、键盘操作与入口开门联动。见 [`7d4e5d2`](https://github.com/A7m0spHere/CDU-AI/commit/7d4e5d2)、[PR #39](https://github.com/A7m0spHere/CDU-AI/pull/39)。
 - **阅读体验（2026-11-14—2026-11-15）**：调整纯文本代码块主题配色，为指南、术语和作品详情页新增桌面端右侧「本页目录」（`ArticleToc`）。见 [`6bacd9d`](https://github.com/A7m0spHere/CDU-AI/commit/6bacd9d)、[`caeb741`](https://github.com/A7m0spHere/CDU-AI/commit/caeb741)。
 - **工具目录演进（2026-11-15、2026-11-19）**：新增「Personal Agent · 个人助理」分区；将手机端工具目录升级为 App 图标网格与原生 `<dialog>` 底部详情抽屉，并补充浏览器回归测试。见 [`c45dc26`](https://github.com/A7m0spHere/CDU-AI/commit/c45dc26)、[PR #41](https://github.com/A7m0spHere/CDU-AI/pull/41)。
@@ -51,7 +51,7 @@
 - **指南入口（2026-10-26—2026-10-30）**：接入指南首页正文与配图，完善目录和章节双向导航，为待补充章节生成明确标注状态的可访问页面；占位页不计为已完成文章。见 [`38ad9ee`](https://github.com/A7m0spHere/CDU-AI/commit/38ad9ee4a4404b7245787fcf374e46a8449a3106)、[`2c81649`](https://github.com/A7m0spHere/CDU-AI/commit/2c8164927ec026dc7bdff1d9f1d96db22c1a1547)。
 - **首页展示（2026-10-27—2026-10-30）**：完成应用场景叠卡、主题适配的探索区和流动入口，处理键盘、减少动效与无 JS 路径，并调整为桌面双栏、窄屏上下布局。见 [PR #33](https://github.com/A7m0spHere/CDU-AI/pull/33)、[PR #34](https://github.com/A7m0spHere/CDU-AI/pull/34)。场景卡是概念展示，不代表本站接入了相应软件或任务执行能力。
 - **搜索与加载（2026-10-28）**：将指南首页章节纳入搜索，补齐输入法保护、匹配总数、失败重试和键盘路径；主题编辑器脚本与样式改为按需加载，并拆出页面专属样式。见 [`3b35060`](https://github.com/A7m0spHere/CDU-AI/commit/3b35060180c2babfa897bed3a19332f947503bbe)。
-- **术语审阅（2026-10-31—2026-11-01）**：组织词条复核、修订和来源整理，为 63 篇补充审核记录：24 篇由负责人确认，39 篇按负责人授权由 AI 独立初审；此前「AI 幻觉」的审核记录保留。见 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37) 及 [P0](docs/GLOSSARY-REVIEW-20261031.md)、[P1](docs/GLOSSARY-REVIEW-20261101.md)、[P2](docs/GLOSSARY-REVIEW-P2-20261101.md) 记录。审核范围与未覆盖项分别记录，不把授权 AI 初审写成人工逐篇终审。
+- **术语审阅（2026-10-31—2026-11-01）**：组织词条复核、修订和来源整理，为 63 篇补充审核记录：24 篇由负责人确认，39 篇按负责人授权由 AI 独立初审；此前「AI 幻觉」的审核记录保留。见 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37) 及[术语审核记录](docs/records/glossary-review.md)（[P0](docs/records/glossary-review.md#p0-词条审核记录2026-10-31)、[P1](docs/records/glossary-review.md#p1-词条审核记录2026-11-01)、[P2](docs/records/glossary-review.md#p2-词条初审与复核记录2026-11-01)）。审核范围与未覆盖项分别记录，不把授权 AI 初审写成人工逐篇终审。
 - **开发文档（2026-11-01）**：补齐主题、工具目录和搜索模块说明，整理文档职责、历史状态与代码变更对应的文档入口，在贡献流程和 PR 模板加入文档影响检查，并明确可访问性验收目标与扫描证据的区别。见 [Issue #36](https://github.com/A7m0spHere/CDU-AI/issues/36)、[`af85d4b`](https://github.com/A7m0spHere/CDU-AI/commit/af85d4bbb1e4f95f5e2037b13cb92cdd52338a81)、[`2098ed4`](https://github.com/A7m0spHere/CDU-AI/commit/2098ed47839b797e2afc5005f6c80577c32a7a0b)。
 
 ## 内容与结构贡献
@@ -60,7 +60,7 @@
 
 **[@FJHin](https://github.com/FJHin)**（git 署名 `Scenic`）— **[PR #1](https://github.com/A7m0spHere/CDU-AI/pull/1)**（2026-10-18）：把术语表从 `src/data/glossary.ts` 的数组迁移为 Markdown 内容集合，新增 `/glossary/[id]/` 详情页（一句话说清 / 打个比方 / 它是怎么运作的 / 你会碰到它的场景 / 常见误解），改造搜索索引与分类筛选，并补上内容层测试（49 个文件，+2255 / −411）。这批词条正文在 2026-10-20 的内容重建（#13）中清空重写，但内容集合、详情页与字段校验的结构沿用至今。
 
-**[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35)**（2026-10-30）：新增 63 条术语初稿（含场景拆解、选择题与 Agent 提示词）及 [术语选题清单](docs/GLOSSARY-TERMS.md)，使目录连同原有「AI 幻觉」示范达到 12 个分类、64 条词条。新增词条合并时标注为初稿，原有示范的审核记录保留；后续按[审校规范](docs/CONTENT-REVIEW.md)开展的复核与修订另记于 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37)，不改变本条的初稿贡献归属。
+**[@kdjdhe](https://github.com/kdjdhe)**（git 署名 `Super`）— **[PR #35](https://github.com/A7m0spHere/CDU-AI/pull/35)**（2026-10-30）：新增 63 条术语初稿（含场景拆解、选择题与 Agent 提示词）及当时的术语选题清单（分类体系见[内容维护规范](docs/CONTENT-GUIDE.md#5-术语表)），使目录连同原有「AI 幻觉」示范达到 12 个分类、64 条词条。新增词条合并时标注为初稿，原有示范的审核记录保留；后续按[审校规范](docs/CONTENT-REVIEW.md)开展的复核与修订另记于 [PR #37](https://github.com/A7m0spHere/CDU-AI/pull/37)，不改变本条的初稿贡献归属。
 
 ## 代码与交互
 
@@ -83,7 +83,7 @@
 | [WayToAGI](https://github.com/WayToAGI) | 按工具和使用场景组织目录入口的方式 |
 | [dsh-status-rotator](https://github.com/01Virex/dsh-status-rotator) | 按贡献类型分组、关联 PR、支持笔名与匿名的致谢记录方式；本文件按这一组织思路编写 |
 
-页面排版与动效参考的对应关系见 [设计评审记录](docs/DESIGN-REVIEW.md#3-参考与借鉴边界) 和 [设计系统](docs/DESIGN-SYSTEM.md)。第三方工具图标的出处与处理方式单独记录在 [TOOL-LOGOS.md](docs/TOOL-LOGOS.md)。
+页面排版与动效参考的对应关系见[设计评审记录](docs/records/design-review.md#3-参考与借鉴边界)和[设计系统](docs/DESIGN-SYSTEM.md)。第三方工具图标的出处与处理方式单独记录在 [TOOL-LOGOS.md](docs/TOOL-LOGOS.md)。
 
 ## 记录说明
 
