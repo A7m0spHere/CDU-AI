@@ -56,6 +56,18 @@ body:
       placeholder: |
         来源：文档标题与链接，标明对应小节
         核对记录（如有）：日期、版本或环境、实际看到的结果
+  - type: dropdown
+    id: ai-usage
+    attributes:
+      label: 这份建议的文字如何整理？
+      description: 如使用了 AI，请在上方「修改说明」中写明用途、AI 起草的部分及尚未核对的内容。
+      options:
+        - 未使用 AI 辅助
+        - 使用 AI 润色或梳理结构，内容已由我核对
+        - 使用 AI 起草较大篇幅，相关事实已由我逐条核对
+        - 其他用法或尚未核对完毕（请在修改说明中说明）
+    validations:
+      required: true
   - type: checkboxes
     id: confirm
     attributes:

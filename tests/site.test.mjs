@@ -1092,8 +1092,8 @@ test('工具数据进入搜索索引：别名、技术类型与能力标签都�
 test('首次 Agent 教程保留原文与七章结构，组件在构建时生成且提示词只来自正文', async () => {
   const html = await read('guide/first-agent/index.html');
   assert.doesNotMatch(html, /【交互位置|【配图|<!--\s*first-agent:|<iframe\b/);
-  assert.match(html, /ZCode：目前国产最好的Agent/);
-  assert.match(html, /每天可以领取100的积分/);
+  assert.match(html, /ZCode：侧重项目与开发任务的国产 Agent/);
+  assert.match(html, /可用积分、领取条件和额度以官方说明及账号界面为准/);
   assert.match(html, /CDU-介绍网站/);
   assert.match(html, /名为 CDU\.html 的文件/);
   assert.match(html, /成都大学官方网站 \(https:\/\/www\.cdu\.edu\.cn\/\)/);

@@ -8,12 +8,12 @@ outcome: "能写出一份包含目标、范围边界、验收标准和确认节�
 forWho: "已经跑通第一次 Agent 实践，准备把日常文件整理、资料汇总或小工具任务交给它的同学。"
 author: "A7m0spHere"
 aiAssistant: "Gemini"
-updated: "2026-11-21"
+updated: "2026-11-22"
 tools: []
 tags: ["入门", "Agent", "提示词", "任务描述"]
 sources:
   - title: "OpenAI · Prompt engineering"
-    url: "https://platform.openai.com/docs/guides/prompt-engineering"
+    url: "https://developers.openai.com/api/docs/guides/prompt-engineering"
   - title: "Anthropic · Prompt engineering overview"
     url: "https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview"
   - title: "Google Gemini · Prompt design strategies"
@@ -44,11 +44,11 @@ aiUsage: "drafted"
 - **哪些算“垃圾文件”？** 它可能把你留着备用的旧截图或草稿当成冗余文件处理掉；
 - **汇总文档写多细？** 它可能漏掉重要章节，或者为了把提纲凑完整，自行补写讲义里没有的内容。
 
-和普通聊天 AI 对话时，问得笼统，顶多得到一段泛泛的文字建议，换个问法重问就行；但交给 Agent 时，它会**带着这些未经确认的猜测直接操作文件**，一旦跑偏，返工和排查的成本会高很多。
+和普通聊天 AI 对话时，问得笼统，顶多得到一段泛泛的文字建议，换个问法重问就行；但交给具备文件或命令执行权限的 Agent 时，如果工具开启了自动执行或你直接放行了修改请求，它就可能**带着这些未经确认的猜测直接改动文件**，一旦跑偏，返工和排查的成本会高很多。
 
 ## 好用的任务描述，通常说清这四件事
 
-给 Agent 交代任务，不需要背诵复杂的长模板。动手前对照下面四个问题，把关键信息补全，就能避开大多数跑偏。
+给 Agent 交代任务，不需要背诵复杂的长模板。动手前对照下面四个问题把关键信息说清楚，并配合工具的确认环节，能明显减少方向理解偏差与返工。
 
 ### 1. 目标与输入：你要做什么，材料在哪里
 
@@ -113,8 +113,8 @@ Agent 很难自己判断“好不好看”“够不够用”，你需要把你�
 如果你想进一步系统学习怎么写[提示词](/glossary/prompt/)（比如怎么用[少样本示例](/glossary/few-shot/)约定格式、怎么用分隔符把指令和参考材料隔开、什么时候适合引导模型做[思维链](/glossary/chain-of-thought/)分步推导），可以参考下面这几份资料。它们写得比网上流传的“万能模板”更扎实，也更贴近当前主流模型的工作方式：
 
 - **[Prompt Engineering Guide（中文版）](https://www.promptingguide.ai/zh)**：开源社区整理的中文提示工程入门指南，从提示词基本要素讲到零样本/少样本提示、思维链等常用方法，适合想用中文系统补一遍基础概念的同学。
-- **[OpenAI · Prompt engineering](https://platform.openai.com/docs/guides/prompt-engineering)**（英文）：围绕六条核心策略展开，包括写清指令细节、提供参考资料、把复杂任务拆成子步骤、给模型留出推理步骤等，里面有不少可以直接对照改写的例子。
+- **[OpenAI · Prompt engineering](https://developers.openai.com/api/docs/guides/prompt-engineering)**（英文）：涵盖写清指令细节、提供参考上下文、把复杂任务拆成子步骤、使用少样本示例以及按模型特性调整提示词等做法，里面有不少可以直接对照改写的例子。
 - **[Anthropic · Prompt engineering overview](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)**（英文）：重点讲清为什么“直接、明确、少歧义”比玄学套话更有效，并介绍了用标签分隔上下文与指令、提供输入输出示例等实用做法。
 - **[Google Gemini · Prompt design strategies](https://ai.google.dev/gemini-api/docs/prompting-strategies)**（英文）：从角色、任务目标、上下文和输出约束四个角度梳理提示词结构，适合参考如何把长提示词写得层次分明、方便反复迭代修改。
 
-读这些资料时可以记住一个原则：**技巧是用来把你的真实需求说得更清楚的，而不是让你每次用 Agent 都硬套一整套格式。** 日常任务先交代清楚目标、边界、验收标准和确认节点，已经能解决大部分问题；遇到复杂或需要反复跑的任务，再从这些文档里挑一两条合用的方法来补强就够了。
+读这些资料时可以记住一个原则：**技巧是用来把你的真实需求说得更清楚的，而不是让你每次用 Agent 都硬套一整套格式。** 日常任务先交代清楚目标、边界、验收标准和确认节点，已经能理清常见任务的需求与执行边界；遇到复杂或需要反复跑的任务，再从这些文档里挑一两条合用的方法来补强就够了。

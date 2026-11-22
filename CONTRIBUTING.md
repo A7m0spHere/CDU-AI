@@ -20,7 +20,7 @@
 
 ## 2. 提交指南修改
 
-欢迎页和已发布指南的标题旁有「建议修改」，待补充章节的标题旁有「补充本页」。两个入口都直接打开「文档编辑」表单，并带入页面标题和路径。填写修改类型和原因、确认公开提交后即可发布，也可附上建议文字和参考依据。维护者会在 Issue 里讨论并处理建议。
+欢迎页和已发布指南的标题旁有「建议修改」，待补充章节的标题旁有「补充本页」。两个入口都直接打开「文档编辑」表单，并带入页面标题和路径。填写修改类型、原因和 AI 辅助情况，确认公开提交后即可发布，也可附上建议文字和参考依据。维护者会在 Issue 里讨论并处理建议。
 
 如果已经准备好具体改动，可以提交 Pull Request：
 
@@ -51,9 +51,9 @@ Issue 表单用于向维护者反馈、建议具体修改或分享经验：
 | 要改什么 | 文件 |
 | --- | --- |
 | 学习指南正文 | [`src/content/guide/`](src/content/guide/)，一篇 Markdown = 一个模块 |
-| 指南阶段名称、阶段说明 | [`src/data/site.ts`](src/data/site.ts) 中的 `guideStages` |
+| 指南侧栏分组名称与说明 | [`src/data/guide-nav.ts`](src/data/guide-nav.ts) 中 `guideNavGroups` 的 `label` 与 `description` |
 | 指南阶段与排序 | frontmatter 的 `stage` 决定阶段归属，`order` 用于集合排序；章节翻页按 `guide-nav.ts` 的目录顺序 |
-| 指南目录分组与规划条目 | [`src/data/guide-nav.ts`](src/data/guide-nav.ts)；新增指南必须登记对应 slug |
+| 指南目录条目与占位章节 | [`src/data/guide-nav.ts`](src/data/guide-nav.ts) 中各分组的 `items`；新增指南必须登记对应 slug |
 | 作品示例 | [`src/content/works/`](src/content/works/) |
 | AI 术语正文 | [`src/content/glossary/`](src/content/glossary/)，一个词一篇 Markdown（含白话详解） |
 | 术语分类 | [`src/data/glossary.ts`](src/data/glossary.ts) 中的 `glossaryCategories` |

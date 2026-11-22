@@ -77,6 +77,85 @@
 | OpenAI / Claude / Grok / Mistral Studio / Cohere 开发平台 | [OpenAI](https://developers.openai.com/api/reference/overview) / [Claude](https://platform.claude.com/docs/en/api/overview) / [Grok](https://docs.x.ai/overview) / [Mistral Studio](https://docs.mistral.ai/getting-started/platform-overview) / [Cohere](https://docs.cohere.com/) | 海外模型厂商开发平台 |
 | Tavily / fal.ai | [tavily.com](https://www.tavily.com/) / [fal.ai](https://fal.ai/) | 专用接口（Tavily 明确为搜索服务 API）；n8n 运营方归属依据[公司信息](https://n8n.io/imprint/)归海外 |
 
+### 2.3 存量条目元数据对齐补录（2026-11-22）
+
+按主栏目补录 33 条存量工具。§1–2 原已列出 77 条的核对依据，另有 31 条尚无明确条目记录，Qwen Chat 与 Dify 此前仅有产品区分、标签或许可说明，两者也在本节单列。合计覆盖当前目录的 110 条工具。
+
+以下 `url`、`githubUrl`、`verifiedOn` 与 `basis` 沿用数据源中的登记值。`—` 表示数据未填写 `githubUrl`。原核对范围限于官网、公开文档或仓库资料，未逐个开户、配置密钥或执行真实任务测试。2026-11-22 为台账补录日期，各条目的核对日期仍以表内记录为准。
+
+#### 语言模型与对话（8 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| ChatGPT (`chatgpt`) | <https://chatgpt.com/> | — | 2026-10-23 | `official` |
+| Claude (`claude`) | <https://claude.ai/> | — | 2026-10-23 | `official` |
+| Gemini (`gemini`) | <https://gemini.google.com/> | — | 2026-10-23 | `official` |
+| DeepSeek (`deepseek`) | <https://chat.deepseek.com/> | — | 2026-10-23 | `official` |
+| Kimi (`kimi`) | <https://www.kimi.com/> | — | 2026-10-23 | `official` |
+| Qwen Chat (`qwen-chat`) | <https://chat.qwen.ai/> | — | 2026-10-23 | `official` |
+| 豆包 (`doubao`) | <https://www.doubao.com/> | — | 2026-10-23 | `official` |
+| Z.ai (`zai`) | <https://chat.z.ai/> | — | 2026-10-23 | `official` |
+
+#### Agent 与 Harness（6 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| Codex (`codex`) | <https://openai.com/codex/> | <https://github.com/openai/codex> | 2026-10-23 | `official` |
+| Claude Code (`claude-code`) | <https://claude.com/product/claude-code> | <https://github.com/anthropics/claude-code> | 2026-10-24 | `official` |
+| Gemini CLI (`gemini-cli`) | <https://geminicli.com/> | <https://github.com/google-gemini/gemini-cli> | 2026-10-24 | `official` |
+| OpenCode (`opencode`) | <https://opencode.ai/> | <https://github.com/anomalyco/opencode> | 2026-10-23 | `official` |
+| Cursor (`cursor`) | <https://cursor.com/> | — | 2026-10-23 | `official` |
+| Cline (`cline`) | <https://cline.bot/> | <https://github.com/cline/cline> | 2026-10-23 | `official` |
+
+#### AIGC（2 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| Midjourney (`midjourney`) | <https://www.midjourney.com/> | — | 2026-10-24 | `official` |
+| ComfyUI (`comfyui`) | <https://comfy.org/> | <https://github.com/comfy-org/ComfyUI> | 2026-10-23 | `official` |
+
+#### 语音与音频（4 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| ElevenLabs (`elevenlabs`) | <https://elevenlabs.io/> | — | 2026-10-23 | `official` |
+| FunASR (`funasr`) | <https://www.funasr.com/> | <https://github.com/modelscope/FunASR> | 2026-10-23 | `official` |
+| Suno (`suno`) | <https://suno.com/> | — | 2026-10-23 | `official` |
+| Udio (`udio`) | <https://www.udio.com/> | — | 2026-10-23 | `official` |
+
+#### AI 搜索与科研（4 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| Perplexity (`perplexity`) | <https://www.perplexity.ai/> | — | 2026-10-23 | `official` |
+| NotebookLM (`notebooklm`) | <https://notebook.google.com/> | — | 2026-10-23 | `official` |
+| 秘塔 AI 搜索 (`metaso`) | <https://metaso.cn/> | — | 2026-10-23 | `official` |
+| Elicit (`elicit`) | <https://elicit.com/> | — | 2026-10-23 | `official` |
+
+#### 本地运行与部署（3 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| Ollama (`ollama`) | <https://ollama.com/> | <https://github.com/ollama/ollama> | 2026-10-23 | `official` |
+| LM Studio (`lmstudio`) | <https://lmstudio.ai/> | — | 2026-10-23 | `official` |
+| vLLM (`vllm`) | <https://vllm.ai/> | <https://github.com/vllm-project/vllm> | 2026-10-23 | `official` |
+
+#### 模型与数据社区（4 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| Hugging Face (`hugging-face`) | <https://huggingface.co/> | — | 2026-10-24 | `official` |
+| ModelScope 魔搭社区 (`modelscope`) | <https://modelscope.cn/> | — | 2026-10-24 | `official` |
+| Kaggle (`kaggle`) | <https://www.kaggle.com/> | — | 2026-10-24 | `official` |
+| 飞桨 AI Studio 星河社区 (`ai-studio`) | <https://aistudio.baidu.com/> | — | 2026-10-24 | `official` |
+
+#### API 与开发平台（2 条）
+
+| 工具 | 官方入口 `url` | 仓库 `githubUrl` | 核对日期 `verifiedOn` | 依据 `basis` |
+| --- | --- | --- | --- | --- |
+| Dify (`dify`) | <https://dify.ai/> | <https://github.com/langgenius/dify> | 2026-10-23 | `official` |
+| 扣子 Coze (`coze`) | <https://www.coze.cn/> | — | 2026-10-23 | `official` |
+
 ## 3. 名称迁移、去重与许可边界
 
 - **名称与仓库迁移**：

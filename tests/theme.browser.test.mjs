@@ -154,7 +154,7 @@ test('首次 Agent 工具选择联动三章并保持正文位置，键盘可切�
   for (const id of workbuddyMedia) await page.locator(`[data-agent-media="${id}"]`).waitFor({ state: 'hidden' });
   assert.equal(await page.locator('a[href="https://zcode.z.ai/cn/docs/configuration"]').isVisible(), true);
   assert.equal(await page.getByRole('heading', { name: 'WorkBuddy：适用于小白', exact: true }).isVisible(), true);
-  assert.equal(await page.getByRole('heading', { name: 'ZCode：目前国产最好的Agent', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('heading', { name: 'ZCode：侧重项目与开发任务的国产 Agent', exact: true }).isVisible(), true);
   const after = await page.locator('[data-first-agent] h2').last().evaluate(el => el.getBoundingClientRect().top + scrollY);
   assert.ok(Math.abs(after - before) < 1, '两种指导切换应保留后续正文位置');
   assert.ok(Math.abs(await page.evaluate(() => scrollY) - scrollBefore) < 2, '切换不应改变页面滚动位置');
