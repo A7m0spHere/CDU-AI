@@ -6,7 +6,7 @@ import SearchDialog from '../components/SearchDialog.astro';
 import CursorGlow from '../components/CursorGlow.astro';
 import CursorTrail from '../components/CursorTrail.astro';
 import { site } from '../data/site';
-import { presetThemes } from '../data/themes';
+import { presetThemes, EGG_THEME_ID, EGG_SCENE } from '../data/themes';
 import {
   CUSTOM_THEMES_STORAGE_KEY,
   GLOW_STORAGE_KEY,
@@ -41,6 +41,8 @@ const bootPresets = presetThemes.map((preset) => ({
   id: preset.id,
   base: preset.params.base,
   vars: resolveThemeVars(preset.params),
+  /* 彩蛋场景：由 egg-mascot.css 接管沉浸浮层（普通主题为空） */
+  scene: preset.id === EGG_THEME_ID ? EGG_SCENE : '',
 }));
 const bootStorageKeys = {
   theme: THEME_STORAGE_KEY,
@@ -97,7 +99,9 @@ const bootStorageKeys = {
           root.dataset.trail = 'off';
         }
         try {
-          const saved = localStorage.getItem(bootStorageKeys.theme);
+          let saved = localStorage.getItem(bootStorageKeys.theme);
+          /* 旧版对比变体合并为 preset-techne，留存的旧 id 做一次别名映射 */
+          if (saved === 'preset-techne-marquee') saved = 'preset-techne';
           let theme = null;
           if (saved && saved !== 'light' && saved !== 'dark') {
             if (saved.indexOf('preset-') === 0) {
@@ -114,11 +118,16 @@ const bootStorageKeys = {
             root.dataset.theme = base === 'dark' ? 'dark' : 'light';
             const vars = theme.vars || {};
             for (const key in vars) root.style.setProperty(key, vars[key]);
-            /* 沉浸背景标记：图片（含 url 层）或场景（--bg-scene） */
-            const scene = vars['--bg-scene'] || '';
+            /* 沉浸背景标记：图片（含 url 层）或场景（--bg-scene / 彩蛋场景） */
+            const scene = theme.scene || vars['--bg-scene'] || '';
             root.dataset.bgScene = scene;
+            /* 彩蛋主题暂无沉浸浮层，不开启图片背景模式 */
             root.dataset.imageBg =
-              String(vars['--page-bg-image'] || '').indexOf('url(') > -1 || scene ? 'true' : 'false';
+              scene === 'cdumascot'
+                ? 'false'
+                : String(vars['--page-bg-image'] || '').indexOf('url(') > -1 || scene
+                  ? 'true'
+                  : 'false';
             /* 用户导入的字体：尽早注册，减少字体闪烁 */
             const font = theme.params && theme.params.font;
             if (font && font.preset === 'custom' && font.name && font.src) {
@@ -156,6 +165,7 @@ const bootStorageKeys = {
     <script>
       import '../scripts/global';
       import '../scripts/motion';
+      import '../scripts/techne-punct';
     </script>
   </body>
 </html>

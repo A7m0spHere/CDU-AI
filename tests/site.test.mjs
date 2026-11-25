@@ -1265,6 +1265,25 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
   assert.equal(JSON.stringify(search).includes('<!-- first-agent:'), false);
 });
 
+test('标点表情只在运行时按主题注入，构建产物保留文字标点', async () => {
+  const html = await read('guide/ai-faq/index.html');
+  // 标点不参与构建期替换：页面上是文字句号，表情节点由 src/scripts/techne-punct.ts 在浏览器里生成
+  assert.equal(html.includes('sticker--punct'), false);
+  assert.match(html, /这是一个很经典的问题。/);
+
+  // 运行时脚本必须真的进了产物：在打好的 JS 里找得到它创建的类名
+  const assets = await readdir(path.join(dist, '_astro'));
+  let bundled = false;
+  for (const file of assets.filter((name) => name.endsWith('.js'))) {
+    const code = await readFile(path.join(dist, '_astro', file), 'utf8');
+    if (code.includes('punct__sticker')) {
+      bundled = true;
+      break;
+    }
+  }
+  assert.equal(bundled, true, '运行时标点脚本未打包进产物');
+});
+
 test('首次 Agent Markdown 扩展限定文件范围，已集成但缺失的素材继续显示占位', async () => {
   const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
   const { default: config } = await import('../astro.config.mjs');

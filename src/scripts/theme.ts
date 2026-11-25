@@ -3,7 +3,7 @@
  * - 圆形色板菜单：内置黑白 + 预设 + 自定义（新建 / 编辑 / 删除）
  * - 应用与持久化主题；编辑、导入和导出按需加载 theme-editor.ts
  */
-import { presetThemes } from '../data/themes';
+import { presetThemes, EGG_THEME_ID, EGG_SCENE } from '../data/themes';
 import {
   THEME_STORAGE_KEY, CUSTOM_THEMES_STORAGE_KEY,
   type StoredTheme, type ThemeParams, type FontConfig,
@@ -44,9 +44,16 @@ function loadCustomThemes(): StoredTheme[] {
   }
 }
 
+/* 旧版「小计姬」与「小计姬·胶片」两个对比变体已合并为 preset-techne，
+   浏览器里留存的旧 id 做一次别名映射，避免升级后掉回默认主题 */
+const LEGACY_THEME_IDS: Record<string, string> = {
+  'preset-techne-marquee': 'preset-techne',
+};
+
 function savedThemeId(): string | null {
   try {
-    return localStorage.getItem(THEME_STORAGE_KEY);
+    const id = localStorage.getItem(THEME_STORAGE_KEY);
+    return id ? (LEGACY_THEME_IDS[id] ?? id) : null;
   } catch {
     return null;
   }
@@ -113,7 +120,7 @@ if (picker && panel && trigger) {
     const hasImageLayer = (vars['--page-bg-image'] ?? '').includes('url(');
     root.dataset.imageBg = imageActive || hasImageLayer || scene ? 'true' : 'false';
     root.dataset.bgScene = scene;
-    if (scene === 'techne') ensureTechneCast();
+    if (scene === 'techne') ensureTechneStage();
     ensureFontLoaded(params.font);
     for (const [key, value] of Object.entries(vars)) {
       root.style.setProperty(key, value);
@@ -139,18 +146,30 @@ if (picker && panel && trigger) {
     }
   }
 
-  /* 小计姬场景的角色阵容容器：注入一次常驻，显隐由 data-bg-scene 的 CSS 控制 */
-  function ensureTechneCast(): void {
-    if (document.querySelector('.techne-cast')) return;
-    const cast = document.createElement('div');
-    cast.className = 'techne-cast';
-    cast.setAttribute('aria-hidden', 'true');
-    for (const role of ['smile', 'bubble', 'fixed', 'badge', 'peace', 'cash', 'stand-b']) {
-      const item = document.createElement('i');
-      item.className = `techne-cast__item techne-cast__item--${role}`;
-      cast.append(item);
+  /* 小计姬场景的装饰层容器：注入一次常驻，显隐由 data-bg-scene 的 CSS 控制。
+     - .techne-marquee：底边胶片带，两组相同贴纸无缝循环
+     主立绘由 body::before 承担（见 techne.css），不在此注入 */
+  function ensureTechneStage(): void {
+    if (document.querySelector('.techne-marquee')) return;
+    const marquee = document.createElement('div');
+    marquee.className = 'techne-marquee';
+    marquee.setAttribute('aria-hidden', 'true');
+    const track = document.createElement('div');
+    track.className = 'techne-marquee__track';
+    const roles = ['face', 'smile', 'bubble', 'fixed', 'badge', 'peace', 'cash', 'stand-b'];
+    for (let copy = 0; copy < 2; copy += 1) {
+      const group = document.createElement('div');
+      group.className = 'techne-marquee__group';
+      if (copy === 1) group.setAttribute('aria-hidden', 'true');
+      for (const role of roles) {
+        const sticker = document.createElement('i');
+        sticker.className = `techne-marquee__item techne-marquee__item--${role}`;
+        group.append(sticker);
+      }
+      track.append(group);
     }
-    document.body.append(cast);
+    marquee.append(track);
+    document.body.append(marquee);
   }
 
   function applyTheme(id: string | null, options: { persist?: boolean } = {}): void {
@@ -159,6 +178,11 @@ if (picker && panel && trigger) {
     const theme = id && id !== 'light' && id !== 'dark' ? findTheme(id) : null;
     if (theme) {
       applyVars(theme.params);
+      /* 彩蛋主题：仅打上场景标记（egg-mascot.css 负责白底配色）
+         立绘登场方式待定，暂不改动页面既有构图与人物 */
+      if (id === EGG_THEME_ID) {
+        root.dataset.bgScene = EGG_SCENE;
+      }
     } else {
       root.dataset.theme = id === 'light' || id === 'dark' ? id : systemTheme();
       root.dataset.imageBg = 'false';
@@ -299,14 +323,15 @@ if (picker && panel && trigger) {
         accent: preset.params.accent,
         active: activeThemeId === preset.id,
       });
+    /* 隐藏主题（彩蛋）不进菜单，仅能通过彩蛋入口激活 */
     lightHost.replaceChildren(
-      ...presetThemes.filter((item) => item.group === 'light').map(presetSwatch),
+      ...presetThemes.filter((item) => item.group === 'light' && !item.hidden).map(presetSwatch),
     );
     darkHost.replaceChildren(
-      ...presetThemes.filter((item) => item.group === 'dark').map(presetSwatch),
+      ...presetThemes.filter((item) => item.group === 'dark' && !item.hidden).map(presetSwatch),
     );
     featureHost.replaceChildren(
-      ...presetThemes.filter((item) => item.group === 'feature').map(presetSwatch),
+      ...presetThemes.filter((item) => item.group === 'feature' && !item.hidden).map(presetSwatch),
     );
 
     customHost.replaceChildren(
@@ -488,6 +513,56 @@ if (picker && panel && trigger) {
   }
 
   /* ---------------------------------------------------------
+     彩蛋：连续点击左上角徽标 3 次 → 激活成大吉祥物主题
+     --------------------------------------------------------- */
+
+  const EGG_CLICKS = 3;
+  const EGG_WINDOW = 900;
+
+  /** 解锁提示：短暂浮现后自动消失，不拦截任何交互 */
+  function showEggToast(): void {
+    document.querySelector('.egg-toast')?.remove();
+    const toast = document.createElement('div');
+    toast.className = 'egg-toast';
+    toast.setAttribute('role', 'status');
+    const mark = document.createElement('span');
+    mark.className = 'egg-toast__mark';
+    mark.textContent = '✦';
+    const text = document.createElement('span');
+    text.textContent = '彩蛋解锁：成大吉祥物';
+    toast.append(mark, text);
+    document.body.append(toast);
+    window.setTimeout(() => {
+      toast.classList.add('is-leaving');
+      window.setTimeout(() => toast.remove(), 380);
+    }, 2800);
+  }
+
+  function initEasterEgg(): void {
+    const brand = document.querySelector<HTMLAnchorElement>('[data-brand]');
+    if (!brand) return;
+    let clicks = 0;
+    let timer = 0;
+    brand.addEventListener('click', (event) => {
+      clicks += 1;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        clicks = 0;
+      }, EGG_WINDOW);
+      if (clicks >= EGG_CLICKS) {
+        event.preventDefault();
+        clicks = 0;
+        window.clearTimeout(timer);
+        applyTheme(EGG_THEME_ID);
+        showEggToast();
+        return;
+      }
+      /* 首页时徽标指向当前页：拦掉跳转，否则刷新会打断连点 */
+      if (window.location.pathname === '/') event.preventDefault();
+    });
+  }
+
+  /* ---------------------------------------------------------
      初始化
      --------------------------------------------------------- */
 
@@ -497,6 +572,7 @@ if (picker && panel && trigger) {
     }
   });
 
+  initEasterEgg();
   renderMenu();
   applyTheme(activeThemeId, { persist: false });
 }

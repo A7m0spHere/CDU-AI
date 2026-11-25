@@ -1,0 +1,86 @@
+/* =========================================================
+   小计姬正文表情（.sticker / .punct__sticker）
+   =========================================================
+   两条硬规则：
+
+   1. **默认不显示**：所有表情只在 `html[data-bg-scene='techne']`
+      （即「小计姬」主题）下登场。换到别的主题，页面回到纯文字。
+   2. **标点用双节点**：`src/scripts/techne-punct.ts` 把 `。` `？`
+      包成 `.punct` → 文字 `.punct__char` + 表情 `.punct__sticker`。
+      非小计姬主题显示文字标点，复制、搜索、读屏、打印拿到的都是正常标点。
+
+   短码表情（`:微笑:`）由 remark 插件在构建期生成，同样受第 1 条约束；
+   禁用 JS 时它是隐藏的 <img>，不会留下空位，也不打断句子。
+   ========================================================= */
+
+/* ---------- 标点容器 ---------- */
+
+.punct {
+  display: inline;
+}
+
+.punct__char {
+  display: inline;
+}
+
+/* 小计姬主题：文字标点让位给表情 */
+html[data-bg-scene='techne'] .punct__char {
+  display: none;
+}
+
+/* ---------- 表情基础 ---------- */
+
+img.sticker,
+img.punct__sticker {
+  display: none;
+}
+
+/* 正文容器自带的 `img { height: auto }`（.notion-prose / .prose）优先级更高，
+   带上 html[data-bg-scene] 前缀压过它，保证表情按字高缩放而不是按原图尺寸铺开 */
+html[data-bg-scene='techne'] img.sticker,
+html[data-bg-scene='techne'] img.punct__sticker {
+  display: inline-block;
+  width: auto;
+  height: 1.4em;
+  max-width: none;
+  margin: 0 0.14em;
+  vertical-align: -0.28em;
+  border: 0;
+  border-radius: 0.32em;
+  background: #ffffff;
+  /* 素材自带白底：加一圈极细描边，深色主题下也像贴纸而不是一块白斑 */
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--line-strong) 55%, transparent);
+  object-fit: cover;
+}
+
+/* 标点表情比手写短码略收一点，充当句读符号而不是插图；
+   每句都有，留白也要更窄，避免整段文字被撑散 */
+html[data-bg-scene='techne'] img.punct__sticker {
+  height: 1.3em;
+  margin: 0 0.1em;
+  vertical-align: -0.25em;
+}
+
+/* 钞票梗图是 2:1 横版，用同一显示高度，宽度自然撑开 */
+html[data-bg-scene='techne'] img.sticker[data-sticker='cash'] {
+  height: 1.1em;
+  margin-inline: 0.18em;
+}
+
+/* 标题里的表情跟着标题字号放大时，别把行高顶开 */
+html[data-bg-scene='techne'] :is(h1, h2, h3) img.sticker,
+html[data-bg-scene='techne'] :is(h1, h2, h3) img.punct__sticker {
+  height: 0.9em;
+}
+
+/* 打印不依赖主题状态：表情一律不出现，标点回到文字 */
+@media print {
+  img.sticker,
+  img.punct__sticker {
+    display: none !important;
+  }
+
+  .punct__char {
+    display: inline !important;
+  }
+}

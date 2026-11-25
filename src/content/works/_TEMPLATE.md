@@ -18,6 +18,8 @@ status: "example" # M0 只能是 example
 # reviewed / reviewedBy / needsUpdate / reviewNote / basis / aiUsage / contributors
 ---
 
+<!-- 「小计姬」主题下，正文里的中文句号和问号会显示成表情（其他主题是普通标点），正常写标点即可；需要指定别的表情时再写短码，例如 :比耶:。写法见 docs/CONTENT-GUIDE.md「正文表情」。 -->
+
 ## 它回应的问题
 
 ## 可以怎么做

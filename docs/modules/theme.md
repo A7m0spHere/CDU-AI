@@ -81,9 +81,37 @@
 | 修改 | 需要核对的入口 |
 | --- | --- |
 | 增加一个预设 | `themes.ts`；检查 ID、分组、参数、首屏恢复；新增素材同步素材记录 |
+| 调整彩蛋主题 | `themes.ts`（`hidden` 预设）、`theme.ts`（连点触发与场景标记）、`BaseLayout.astro`（首屏场景恢复）、`egg-mascot.css`（浮层与分页表现） |
 | 增加主题参数 | `ThemeParams` → 默认值/归一化/变量推导 → 编辑器模板与字段绑定 → 使用变量的样式；检查旧 JSON、存档与首屏缓存 |
 | 修改保存或导入 | 运行时持久化函数与 `ThemeEditorHost` → 编辑器错误路径；分别验证列表保存和当前 ID 恢复 |
 | 修改代码配色 | `theme-code-tokens.mjs`、`notion.css` 与通用代码块样式，检查纯文本块的表面与正文配色，以及语言高亮块的自定义覆盖和内置 Shiki 回退 |
+
+## 彩蛋主题
+
+`preset-egg-mascot`（成大吉祥物）是一条隐藏预设，不进入色板菜单，只能通过连续点击左上角徽标 3 次激活（900 ms 内计数，首页拦截跳转以免刷新打断）。解锁后写入正常存档，刷新由首屏脚本恢复，用户在选择器里切换任意主题即退出。
+
+- 隐藏标记：`PresetTheme.hidden`，`renderMenu` 过滤，`findTheme` 仍可命中。
+- 场景注入：`BaseLayout` 的 `bootPresets` 带 `scene` 字段，运行时在 `applyTheme` 里写 `data-bg-scene='cdumascot'`，样式由 `egg-mascot.css` 接管。
+- 底图处理：**直接使用维护者提供的原图**，不裁剪、不抠图、不做透明通道；主题页面底色取纯白 `#ffffff`，与素材白底同色。
+- 背景摆放：立绘铺在页面最底层当背景（`html` 的 `background-image` + `background-attachment: fixed`），水平垂直居中，滚动时位置不动；`--egg-veil` 控制白色薄纱浓淡（0 = 原图原样，1 = 完全看不见），当前取 0.62。尺寸由 `--egg-art-size` 控制，窄屏单独收窄。
+- 配色：只用红与白。`accent` 取校徽红 `#c8102e`，`--brand` 系列由它推导；默认的紫色 `--vibe`、青色 `--sky` 在场景内一并收敛为红色系，页面不再出现第三种色相。
+- 页面构图与人物：原来的看板娘、首页卡片结构保持原样，不隐藏、不替换。
+
+## 小计姬场景
+
+小计姬主题（`preset-techne`）的装饰层由 `techne.css` 合成，纪律是**坐标全部写死、不做漂浮动画**：
+
+- 主立绘：`body::before` 固定在视口右侧（`top: 12vh; right: 2vw`，中屏收窄）。竖屏（≤760 px）没有侧边留白，改为**固定在视口中央的底层水印**：`opacity: 0.34` + 轻羽化，位置不随滚动变化，人物退成纹理、正文保持可读。
+- 底边胶片带：`.techne-marquee` 页面底边磨砂胶片带，8 张贴纸两组按 `translateX(-50%)` 无缝循环（36 s 一圈），`prefers-reduced-motion` 时静止；`body` 垫高一条带子的高度避免遮挡页脚。竖屏下胶片带默认抬在手机底栏上方（`4.9rem + 安全区`），底栏向下阅读自动收起时（`data-dock-hidden='true'`，经 `:has()` 匹配）随之滑到页面底边，不留悬空空隙。装饰层位于内容背后且不接指针事件，因此没有悬停暂停。
+- 装饰容器由 `theme.ts` 的 `ensureTechneStage()` 注入一次常驻，显隐完全由 `data-bg-scene` 的 CSS 控制；场景标记经 `theme-core.ts` 的 `--bg-scene`（纹理 `techne`）推导，首屏恢复无需额外字段。
+
+## 图片背景下的文字描边
+
+任何主题只要背景图生效（`html[data-image-bg='true']`，包括特色预设与自定义主题的图片背景）或彩蛋场景生效（`html[data-bg-scene='cdumascot']`），`image-mode.css` 会给 `body` 挂上 `--art-text-outline`：八向双层实描边（内层 1 px 贴字、外层 1.5 px 加厚）+ 4 px 柔光。描边色取主题的 `--bg`，浅色主题自动得到白描边、深色主题得到深描边，与文字本身形成最大反差。
+
+三个旋钮都在同一条规则里：`--art-outline-ink` 换描边颜色（想要彩色描边可改成 `var(--accent)`，但正文会带色边）、`--art-outline-w` / `--art-outline-w2` 调两层厚度、`--art-outline-glow` 调柔光浓淡。实测把描边换成 `--ink` 或纯黑会让小号灰字糊成一团，正文场景不建议。
+
+自带实底或渐变字的元素要显式取消描边，否则描边会盖住裁切出来的文字渐变：`pre`、`code`、`.btn`、`.badge`、`.pill`、`.icon-button`、`.mobile-dock`、`.mobile-menu`、`.egg-toast`、`.home-hero__wordmark-cdu`、`.ascii-ai__fallback` 都在豁免列表里。新增大标题时若用了 `background-clip: text`，记得同步加进这份列表。
 
 ## 验证与排障
 
