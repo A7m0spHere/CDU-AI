@@ -17,6 +17,7 @@ export interface TimelinePhase {
   day: string;
   dateLabel: string;
   time: string;
+  endsAt: string;
   stage: string;
   summary: string;
 }
@@ -152,6 +153,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/21',
     dateLabel: '周六',
     time: '10:00',
+    endsAt: '2026-11-21T10:00:00+08:00',
     stage: '报名启动',
     summary: '腾讯文档报名表上线；可个人报名，也可按规则提交团队报名。',
   },
@@ -159,6 +161,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/23',
     dateLabel: '周一',
     time: '20:00',
+    endsAt: '2026-11-23T20:00:00+08:00',
     stage: '报名截止',
     summary: '腾讯文档报名表关闭，开始统一审核。',
   },
@@ -166,6 +169,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/23–11/24',
     dateLabel: '周一至周二',
     time: '晚间至次日上午',
+    endsAt: '2026-11-24T12:00:00+08:00',
     stage: '报名审核与组别确认',
     summary: '组委会核验资格、补正信息并确认组别，审核通过后加入比赛 QQ 群。',
   },
@@ -173,6 +177,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/24',
     dateLabel: '周二',
     time: '下午',
+    endsAt: '2026-11-24T18:00:00+08:00',
     stage: '开赛会（线下）',
     summary: '规则讲解、Agent 实操演示、选题指导与答疑。现场仅受理已报名者的信息补正、组别确认和结对登记。',
   },
@@ -180,6 +185,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/26',
     dateLabel: '周四',
     time: '20:00–20:30',
+    endsAt: '2026-11-26T20:30:00+08:00',
     stage: '线上答疑（第 1 次）',
     summary: '自愿参加；集中回答开发环境、模板改造与选题问题。',
   },
@@ -187,6 +193,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/28',
     dateLabel: '周六',
     time: '20:00 前',
+    endsAt: '2026-11-28T20:00:00+08:00',
     stage: '中期检查',
     summary: '提交当前可运行截图或 30 秒录屏 + 进度说明；团队须逐人单独说明。',
   },
@@ -194,6 +201,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '11/30–12/3',
     dateLabel: '周一至周四',
     time: '全天',
+    endsAt: '2026-12-03T23:59:59+08:00',
     stage: '自主开发',
     summary: '线上自由开发，按自己的节奏完善功能与测试。',
   },
@@ -201,6 +209,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '12/2',
     dateLabel: '周三',
     time: '20:00–20:30',
+    endsAt: '2026-12-02T20:30:00+08:00',
     stage: '线上答疑（第 2 次）',
     summary: '自愿参加；重点回答提交材料、部署上线与现场演示准备。',
   },
@@ -208,6 +217,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '12/4',
     dateLabel: '周五',
     time: '18:00',
+    endsAt: '2026-12-04T18:00:00+08:00',
     stage: '作品提交截止',
     summary: '提交作品访问方式、2 分钟录屏、1 页作品说明和与 AI 的聊天记录，团队另附分工表。',
   },
@@ -215,6 +225,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '12/4–12/5',
     dateLabel: '周五至周六',
     time: '线上',
+    endsAt: '2026-12-05T23:59:59+08:00',
     stage: '线上材料初评',
     summary: '材料评委在作品提交截止后线上审阅作品与材料，参赛者无需到场。',
   },
@@ -222,6 +233,7 @@ export const timelinePhases: TimelinePhase[] = [
     day: '12/6',
     dateLabel: '周日',
     time: '具体时间以群通知为准',
+    endsAt: '2026-12-06T23:59:59+08:00',
     stage: 'Demo Day、答辩和颁奖',
     summary: '现场评委进行 Demo 与答辩评审，随后公布成绩并颁奖。具体时间、地点与流程以选手群通知为准。',
   },
