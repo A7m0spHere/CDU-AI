@@ -9,7 +9,8 @@
 | 方块像素贴图 | [`mc-grass.svg`](../public/images/mc-grass.svg)、[`mc-dirt.svg`](../public/images/mc-dirt.svg)、[`mc-dirt-deep.svg`](../public/images/mc-dirt-deep.svg) | 本 PR 提交的 SVG 像素贴图，沿用仓库 MIT 许可 |
 | 鲸鱼娘 | [`whale-girl.png`](../public/images/whale-girl.png) | 来自 [fornarwhal / deepseek-whale-girl-icon](https://github.com/fornarwhal/deepseek-whale-girl-icon) 的 [`whale-girl-transparent.png`](https://github.com/fornarwhal/deepseek-whale-girl-icon/blob/main/whale-girl-transparent.png)，Git blob SHA `874139c1b15474f3188c4d4d565473683e8c17df` 一致；上游标注 CC BY-NC-SA 4.0，署名见下文 |
 | 奶鲸 | [`milk-whale.jpg`](../public/images/milk-whale.jpg) | AI 创作图，维护者于 2026-10-27 确认其创作来源；作为本项目主题素材使用，复用请联系维护组 |
-| 小计姬 | [`public/images/techne/`](../public/images/techne/) | 本 PR 提供的角色形象包，沿用现有角色插画的使用说明；复用请联系维护组 |
+| 小计姬 | [`public/images/techne/`](../public/images/techne/) | 本 PR 提供的角色形象包，沿用现有角色插画的使用说明；复用请联系维护组。正文表情为同一批插画缩放出的 96 px WebP（[`inline/`](../public/images/techne/inline/)），不改变原图；其中 `question.webp` 是在 `bubble.webp` 的空白气泡内叠加矢量问号合成，未改动人物。这些表情**只在「小计姬」主题下显示**，其他主题自动隐藏，不会出现在别的配色里 |
+| 成大吉祥物（彩蛋主题） | [`cdumascot.png`](../public/images/egg/cdumascot.png) | 成都大学官方吉祥物形象，由维护者于 2026-11-21 提供；**直接使用维护者提供的原图**，未做裁剪、抠图、透明化、扩图或调色，425×425 PNG（90 KiB） |
 
 ## 鲸鱼娘署名与使用说明
 

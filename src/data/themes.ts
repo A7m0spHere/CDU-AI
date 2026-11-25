@@ -16,14 +16,27 @@ export type PresetGroup = 'light' | 'dark' | 'feature';
 export interface PresetTheme {
   id: string;
   group: PresetGroup;
+  /** 隐藏主题：不在选择器菜单中展示，仅能通过彩蛋入口激活（如连点徽标） */
+  hidden?: boolean;
   params: ThemeParams;
 }
 
-function preset(id: string, group: PresetGroup, overrides: Partial<ThemeParams>): PresetTheme {
+/** 彩蛋主题标识：连续点击左上角徽标 3 次激活 */
+export const EGG_THEME_ID = 'preset-egg-mascot';
+/** 彩蛋场景标记：由 egg-mascot.css 据此挂载吉祥物浮层 */
+export const EGG_SCENE = 'cdumascot';
+
+function preset(
+  id: string,
+  group: PresetGroup,
+  overrides: Partial<ThemeParams>,
+  hidden = false,
+): PresetTheme {
   const base = defaultParams();
   return {
     id,
     group,
+    hidden,
     params: {
       ...base,
       ...overrides,
@@ -190,7 +203,9 @@ export const presetThemes: PresetTheme[] = [
     code: { bg: '#12224e', fg: '#e3ecff', muted: '#8fa3c8' },
   }),
   /* 小计姬（Techne-chan）：社区创作的 AI 学习助手拟人形象，浅蓝紫科技场景
-     立绘 / 贴纸由 techne.css 浮层合成（比例自适应 + 羽化 + 漂浮），素材来自用户提供的形象包 */
+     装饰层由 techne.css 合成：右侧固定主立绘（位置永不动，无漂浮）
+     + 页面底边一条匀速滚动的表情胶片带（减弱动效时静止）
+     素材来自用户提供的形象包 */
   preset('preset-techne', 'feature', {
     name: '小计姬',
     base: 'light',
@@ -207,4 +222,25 @@ export const presetThemes: PresetTheme[] = [
     radius: 8,
     code: { bg: '#141c33', fg: '#e3ecff', muted: '#8fa3c8' },
   }),
+
+  /* —— 彩蛋主题：不在菜单中展示，连点左上角徽标 3 次激活 —— */
+  /* 成大吉祥物：红与白。立绘沿用原图（白底不抠、不做透明处理），
+     作为固定背景居中铺在页面最底层；页面底色同为纯白，
+     素材记录见 docs/THEME-ASSETS.md */
+  preset(
+    EGG_THEME_ID,
+    'feature',
+    {
+      name: '成大吉祥物',
+      base: 'light',
+      bg: '#ffffff',
+      ink: '#241417',
+      muted: '#6f6266',
+      accent: '#c8102e',
+      pageGradient: { enabled: false, angle: 180, stops: ['#ffffff', '#ffffff'] },
+      radius: 7,
+      code: { bg: '#2a1015', fg: '#ffffff', muted: '#d8a7af' },
+    },
+    true,
+  ),
 ];

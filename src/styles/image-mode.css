@@ -43,6 +43,49 @@ html[data-image-bg='true'] .glossary-term:focus-within {
   backdrop-filter: blur(14px) saturate(1.1);
 }
 
+/* —— 正文描边：图片压住文字时，给文字加一圈底色描边 + 柔和光，
+   让文字在照片、插画、吉祥物水印上都能立刻分清边界。
+   描边色取主题底色（浅色主题=白、深色主题=深色），与文字本身形成最大反差；
+   想要彩色描边，把 --art-outline-ink 换成 var(--accent) 即可（正文会略花）。 */
+html[data-image-bg='true'],
+html[data-bg-scene='cdumascot'] {
+  --art-outline-ink: var(--bg);
+  --art-outline-glow: color-mix(in srgb, var(--art-outline-ink) 62%, transparent);
+  /* 双层实描边：内层贴字，外层加厚；两个宽度就是浓淡旋钮 */
+  --art-outline-w: 1px;
+  --art-outline-w2: 1.5px;
+  --art-text-outline:
+    0 var(--art-outline-w) 0 var(--art-outline-ink),
+    0 calc(var(--art-outline-w) * -1) 0 var(--art-outline-ink),
+    var(--art-outline-w) 0 0 var(--art-outline-ink),
+    calc(var(--art-outline-w) * -1) 0 0 var(--art-outline-ink),
+    var(--art-outline-w) var(--art-outline-w) 0 var(--art-outline-ink),
+    calc(var(--art-outline-w) * -1) calc(var(--art-outline-w) * -1) 0 var(--art-outline-ink),
+    var(--art-outline-w) calc(var(--art-outline-w) * -1) 0 var(--art-outline-ink),
+    calc(var(--art-outline-w) * -1) var(--art-outline-w) 0 var(--art-outline-ink),
+    0 var(--art-outline-w2) 0 var(--art-outline-ink),
+    0 calc(var(--art-outline-w2) * -1) 0 var(--art-outline-ink),
+    var(--art-outline-w2) 0 0 var(--art-outline-ink),
+    calc(var(--art-outline-w2) * -1) 0 0 var(--art-outline-ink),
+    var(--art-outline-w2) var(--art-outline-w2) 0 var(--art-outline-ink),
+    calc(var(--art-outline-w2) * -1) calc(var(--art-outline-w2) * -1) 0 var(--art-outline-ink),
+    var(--art-outline-w2) calc(var(--art-outline-w2) * -1) 0 var(--art-outline-ink),
+    calc(var(--art-outline-w2) * -1) var(--art-outline-w2) 0 var(--art-outline-ink),
+    0 0 4px var(--art-outline-glow);
+}
+
+/* 整页继承，图片背后的所有文字都带上描边 */
+html[data-image-bg='true'] body,
+html[data-bg-scene='cdumascot'] body {
+  text-shadow: var(--art-text-outline);
+}
+
+/* 自带实底、渐变字或代码体不描边，避免糊成一片 */
+html[data-image-bg='true'] :where(pre, code, kbd, samp, .btn, .badge, .pill, .icon-button, .mobile-dock, .mobile-menu, .egg-toast, .home-hero__wordmark-cdu, .ascii-ai__fallback),
+html[data-bg-scene='cdumascot'] :where(pre, code, kbd, samp, .btn, .badge, .pill, .icon-button, .mobile-dock, .mobile-menu, .egg-toast, .home-hero__wordmark-cdu, .ascii-ai__fallback) {
+  text-shadow: none;
+}
+
 /* —— 长文阅读面板：轻磨砂玻璃，正文可读且图片隐约透出 —— */
 html[data-image-bg='true'] .guide-paper,
 html[data-image-bg='true'] .wiki-table-wrap,

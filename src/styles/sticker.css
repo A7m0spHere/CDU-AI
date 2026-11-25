@@ -1,0 +1,70 @@
+/* =========================================================
+   小计姬正文表情（.sticker / .punct）
+   =========================================================
+   小计姬主题用背景图显示表情，原标点保留在内联文本流中。
+   短码表情由 remark 插件生成图片，默认隐藏。
+   ========================================================= */
+
+/* 保持内联排版，浏览器才能找到横跨普通文字和标点的完整句子。 */
+@media screen {
+  html[data-bg-scene='techne'] .punct {
+    color: transparent;
+    text-shadow: none;
+    background: var(--punct-image) center / contain no-repeat;
+    border-radius: 0.32em;
+    padding: 0.08em 0.25em;
+  }
+
+  html[data-bg-scene='techne'] :is(h1, h2, h3) .punct {
+    background-size: auto 0.9em;
+  }
+}
+
+@media (forced-colors: active) {
+  html[data-bg-scene='techne'] .punct {
+    color: inherit;
+    background: none;
+    padding: 0;
+  }
+}
+
+/* ---------- 表情基础 ---------- */
+
+img.sticker {
+  display: none;
+}
+
+/* 正文容器自带的 `img { height: auto }`（.notion-prose / .prose）优先级更高，
+   带上 html[data-bg-scene] 前缀压过它，保证表情按字高缩放而不是按原图尺寸铺开 */
+html[data-bg-scene='techne'] img.sticker {
+  display: inline-block;
+  width: auto;
+  height: 1.4em;
+  max-width: none;
+  margin: 0 0.14em;
+  vertical-align: -0.28em;
+  border: 0;
+  border-radius: 0.32em;
+  background: #ffffff;
+  /* 素材自带白底：加一圈极细描边，深色主题下也像贴纸而不是一块白斑 */
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--line-strong) 55%, transparent);
+  object-fit: cover;
+}
+
+/* 钞票梗图是 2:1 横版，用同一显示高度，宽度自然撑开 */
+html[data-bg-scene='techne'] img.sticker[data-sticker='cash'] {
+  height: 1.1em;
+  margin-inline: 0.18em;
+}
+
+/* 标题里的表情跟着标题字号放大时，别把行高顶开 */
+html[data-bg-scene='techne'] :is(h1, h2, h3) img.sticker {
+  height: 0.9em;
+}
+
+/* 打印不依赖主题状态：表情一律不出现，标点回到文字 */
+@media print {
+  img.sticker {
+    display: none !important;
+  }
+}

@@ -584,9 +584,9 @@ export function resolveThemeVars(params: ThemeParams): Record<string, string> {
   vars['--page-bg-pos'] = positions.length > 0 ? positions.join(', ') : 'center';
   vars['--page-bg-repeat'] = repeats.length > 0 ? repeats.join(', ') : 'no-repeat';
   vars['--page-bg-attach'] = attachments.length > 0 ? attachments.join(', ') : 'scroll';
-  /* 场景标记：techne.css 据此挂载立绘 / 贴纸浮层（无场景时为空） */
+  /* 场景标记：techne.css 据此挂载立绘 / 胶片带浮层（无场景时为空） */
   vars['--bg-scene'] =
-    params.pageGradient.enabled && params.pageGradient.texture === 'techne' && !imageActive
+    params.pageGradient.enabled && !imageActive && params.pageGradient.texture === 'techne'
       ? 'techne'
       : '';
 

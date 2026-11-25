@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import rehypeSafeLinks from './src/lib/rehype-safe-links.mjs';
 import rehypeTableWrap from './src/lib/rehype-table-wrap.mjs';
 import rehypeFirstAgent from './src/lib/rehype-first-agent.mjs';
+import remarkTechneStickers from './src/lib/remark-techne-stickers.mjs';
 import { resolveFirstAgentMedia } from './src/data/first-agent-media.mjs';
 import { themeCodeTokens } from './src/lib/theme-code-tokens.mjs';
 
@@ -28,6 +29,8 @@ export default defineConfig({
     format: 'directory',
   },
   markdown: {
+    // 正文短码 `:微笑:` → 内联表情图（src/data/techne-stickers.mjs 登记表）
+    remarkPlugins: [remarkTechneStickers],
     // 正文里的外链兜底（#22）：危险协议去掉 href，外链补 target/rel；宽表格补窄屏横滑容器
     rehypePlugins: [rehypeSafeLinks, rehypeTableWrap, [rehypeFirstAgent, { media: resolveFirstAgentMedia() }]],
     shikiConfig: {
