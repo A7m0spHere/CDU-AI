@@ -5,8 +5,8 @@
 
    - body::before 主立绘：固定在视口右侧（窄屏改为居中水印），
      multiply 混合 + 轻羽化融入背景，位置永不移动、无动画
-   - .techne-marquee 页面底边一条磨砂胶片带，两组相同贴纸
-     匀速无缝循环（translateX(-50%)），减弱动效时静止；
+   - .techne-marquee 页面底边一条磨砂胶片带，匀速循环一组贴纸的宽度，
+     其余贴纸覆盖视口，减弱动效时静止；
      body 垫高一条带子的高度，避免盖住页脚与正文
    - 场景底座（底色渐变）走主题变量管线
    - 沉浸规则（卡片磨砂、正文描边）由 image-mode.css 承担
@@ -70,9 +70,9 @@ html[data-bg-scene='techne'] .techne-marquee__track {
   animation: techne-scroll 36s linear infinite;
 }
 
-/* 两组内容等宽，-50% 位移恰好滚过一组 → 无缝循环 */
 html[data-bg-scene='techne'] .techne-marquee__group {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 18px;
   padding-inline: 9px;
@@ -131,7 +131,7 @@ html[data-bg-scene='techne'] .techne-marquee__item--stand-b {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(var(--techne-marquee-offset, 0px));
   }
 }
 

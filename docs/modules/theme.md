@@ -88,7 +88,7 @@
 
 ## 彩蛋主题
 
-`preset-egg-mascot`（成大吉祥物）是一条隐藏预设，不进入色板菜单，只能通过连续点击左上角徽标 3 次激活（900 ms 内计数，首页拦截跳转以免刷新打断）。解锁后写入正常存档，刷新由首屏脚本恢复，用户在选择器里切换任意主题即退出。
+`preset-egg-mascot`（成大吉祥物）是一条隐藏预设。在首页用主键连续点击左上角徽标 3 次即可激活，相邻两次点击的间隔不超过 900 ms。键盘激活和带修饰键点击保留链接的原生行为。解锁后写入主题存档，刷新由首屏脚本恢复，用户在选择器里切换任意主题即退出。
 
 - 隐藏标记：`PresetTheme.hidden`，`renderMenu` 过滤，`findTheme` 仍可命中。
 - 场景注入：`BaseLayout` 的 `bootPresets` 带 `scene` 字段，运行时在 `applyTheme` 里写 `data-bg-scene='cdumascot'`，样式由 `egg-mascot.css` 接管。
@@ -102,7 +102,7 @@
 小计姬主题（`preset-techne`）的装饰层由 `techne.css` 合成，纪律是**坐标全部写死、不做漂浮动画**：
 
 - 主立绘：`body::before` 固定在视口右侧（`top: 12vh; right: 2vw`，中屏收窄）。竖屏（≤760 px）没有侧边留白，改为**固定在视口中央的底层水印**：`opacity: 0.34` + 轻羽化，位置不随滚动变化，人物退成纹理、正文保持可读。
-- 底边胶片带：`.techne-marquee` 页面底边磨砂胶片带，8 张贴纸两组按 `translateX(-50%)` 无缝循环（36 s 一圈），`prefers-reduced-motion` 时静止；`body` 垫高一条带子的高度避免遮挡页脚。竖屏下胶片带默认抬在手机底栏上方（`4.9rem + 安全区`），底栏向下阅读自动收起时（`data-dock-hidden='true'`，经 `:has()` 匹配）随之滑到页面底边，不留悬空空隙。装饰层位于内容背后且不接指针事件，因此没有悬停暂停。
+- 底边胶片带：`.techne-marquee` 按当前宽度重复一组 8 张贴纸。每轮用 36 s 滚过一组，余下的贴纸覆盖视口。`prefers-reduced-motion` 时胶片带静止，`body` 垫高以免遮挡页脚。竖屏下胶片带默认在手机底栏上方（`4.9rem + 安全区`），底栏自动收起时随之滑到页面底边。
 - 装饰容器由 `theme.ts` 的 `ensureTechneStage()` 注入一次常驻，显隐完全由 `data-bg-scene` 的 CSS 控制；场景标记经 `theme-core.ts` 的 `--bg-scene`（纹理 `techne`）推导，首屏恢复无需额外字段。
 
 ## 图片背景下的文字描边
@@ -111,7 +111,7 @@
 
 三个旋钮都在同一条规则里：`--art-outline-ink` 换描边颜色（想要彩色描边可改成 `var(--accent)`，但正文会带色边）、`--art-outline-w` / `--art-outline-w2` 调两层厚度、`--art-outline-glow` 调柔光浓淡。实测把描边换成 `--ink` 或纯黑会让小号灰字糊成一团，正文场景不建议。
 
-自带实底或渐变字的元素要显式取消描边，否则描边会盖住裁切出来的文字渐变：`pre`、`code`、`.btn`、`.badge`、`.pill`、`.icon-button`、`.mobile-dock`、`.mobile-menu`、`.egg-toast`、`.home-hero__wordmark-cdu`、`.ascii-ai__fallback` 都在豁免列表里。新增大标题时若用了 `background-clip: text`，记得同步加进这份列表。
+自带实底或使用 `background-clip: text` 的元素可设 `text-shadow: none`。常见组件由 `image-mode.css` 集中处理，赛事名称在 `events.css` 的渐变文字规则中关闭描边。
 
 ## 验证与排障
 

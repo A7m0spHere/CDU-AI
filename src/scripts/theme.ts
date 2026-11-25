@@ -146,9 +146,7 @@ if (picker && panel && trigger) {
     }
   }
 
-  /* 小计姬场景的装饰层容器：注入一次常驻，显隐由 data-bg-scene 的 CSS 控制。
-     - .techne-marquee：底边胶片带，两组相同贴纸无缝循环
-     主立绘由 body::before 承担（见 techne.css），不在此注入 */
+  /* 胶片带常驻，显隐由 data-bg-scene 控制，主立绘由 CSS 绘制。 */
   function ensureTechneStage(): void {
     if (document.querySelector('.techne-marquee')) return;
     const marquee = document.createElement('div');
@@ -156,20 +154,30 @@ if (picker && panel && trigger) {
     marquee.setAttribute('aria-hidden', 'true');
     const track = document.createElement('div');
     track.className = 'techne-marquee__track';
+    const group = document.createElement('div');
+    group.className = 'techne-marquee__group';
     const roles = ['face', 'smile', 'bubble', 'fixed', 'badge', 'peace', 'cash', 'stand-b'];
-    for (let copy = 0; copy < 2; copy += 1) {
-      const group = document.createElement('div');
-      group.className = 'techne-marquee__group';
-      if (copy === 1) group.setAttribute('aria-hidden', 'true');
-      for (const role of roles) {
-        const sticker = document.createElement('i');
-        sticker.className = `techne-marquee__item techne-marquee__item--${role}`;
-        group.append(sticker);
-      }
-      track.append(group);
+    for (const role of roles) {
+      const sticker = document.createElement('i');
+      sticker.className = `techne-marquee__item techne-marquee__item--${role}`;
+      group.append(sticker);
     }
+    track.append(group);
     marquee.append(track);
     document.body.append(marquee);
+
+    const observer = new ResizeObserver(() => {
+      const groupWidth = group.getBoundingClientRect().width;
+      if (!groupWidth) return;
+      // 滚过一组贴纸以后，剩下的轨道仍须覆盖整条胶片带。
+      const copies = Math.ceil(marquee.clientWidth / groupWidth) + 1;
+      if (track.childElementCount !== copies) {
+        track.replaceChildren(group, ...Array.from({ length: copies - 1 }, () => group.cloneNode(true)));
+      }
+      track.style.setProperty('--techne-marquee-offset', `${-groupWidth}px`);
+    });
+    observer.observe(marquee);
+    observer.observe(group);
   }
 
   function applyTheme(id: string | null, options: { persist?: boolean } = {}): void {
@@ -544,21 +552,26 @@ if (picker && panel && trigger) {
     let clicks = 0;
     let timer = 0;
     brand.addEventListener('click', (event) => {
+      if (
+        window.location.pathname !== '/' ||
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.detail === 0 ||
+        event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
+      ) return;
+      // 首页普通点击留在当前页，避免刷新打断连点。
+      event.preventDefault();
       clicks += 1;
       window.clearTimeout(timer);
       timer = window.setTimeout(() => {
         clicks = 0;
       }, EGG_WINDOW);
       if (clicks >= EGG_CLICKS) {
-        event.preventDefault();
         clicks = 0;
         window.clearTimeout(timer);
         applyTheme(EGG_THEME_ID);
         showEggToast();
-        return;
       }
-      /* 首页时徽标指向当前页：拦掉跳转，否则刷新会打断连点 */
-      if (window.location.pathname === '/') event.preventDefault();
     });
   }
 

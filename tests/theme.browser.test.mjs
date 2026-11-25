@@ -115,6 +115,78 @@ async function rejectThemeWrites(page) {
   });
 }
 
+test('小计姬主题保留浏览器查找、选取和打印所需的原标点', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  await page.goto(origin + '/guide/ai-faq/');
+  await select(page, 'preset-techne');
+  const sentence = '这是一个很经典的问题。';
+  const paragraph = page.locator('.notion-prose p').filter({ hasText: sentence });
+  const punctuation = paragraph.locator('[data-punct="。"]');
+  assert.match(await punctuation.evaluate(el => getComputedStyle(el).backgroundImage), /smile\.webp/);
+  assert.equal(await page.evaluate(text => Reflect.get(window, 'find').call(window, text), sentence), true);
+  assert.equal(await paragraph.evaluate(el => {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const selection = getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return selection.toString();
+  }), sentence);
+  await page.emulateMedia({ media: 'print' });
+  assert.equal(await punctuation.evaluate(el => getComputedStyle(el).backgroundImage), 'none');
+});
+
+test('小计姬主题保留赛事渐变标题，胶片带整轮铺满视口', async t => {
+  const page = await setup(t, { reducedMotion: 'no-preference' });
+  await page.goto(origin + '/events/');
+  await select(page, 'preset-techne');
+  const title = page.locator('.challenge-title__name');
+  assert.equal(await title.evaluate(el => getComputedStyle(el).backgroundClip), 'text');
+  assert.equal(await title.evaluate(el => getComputedStyle(el).textShadow), 'none');
+  const marquee = page.locator('.techne-marquee');
+  for (const width of [320, 390, 1024, 1440, 2560]) {
+    await page.setViewportSize({ width, height: 844 });
+    const uncoveredWidth = await marquee.evaluate(async el => {
+      // 等待响应式样式和 ResizeObserver 一起完成更新。
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const track = el.querySelector('.techne-marquee__track');
+      const animation = track.getAnimations()[0];
+      animation.pause();
+      await animation.ready;
+      animation.currentTime = Number(animation.effect.getTiming().duration) - 1;
+      return el.getBoundingClientRect().right - track.getBoundingClientRect().right;
+    });
+    assert.ok(uncoveredWidth < 0.5, `${width} px 视口下胶片带末尾露出 ${uncoveredWidth} px`);
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  assert.equal(await marquee.locator('.techne-marquee__track').evaluate(el => getComputedStyle(el).animationName), 'none');
+});
+
+test('首页徽标支持新标签与键盘导航，普通三击仍可解锁彩蛋', async t => {
+  const page = await setup(t, { reducedMotion: 'reduce' });
+  // 避免 Chrome 的跨文档动效中止干扰原生链接行为检查。
+  await page.addStyleTag({ content: '@view-transition { navigation: none; }' });
+  const brand = page.locator('[data-brand]');
+  const [newTab] = await Promise.all([
+    page.context().waitForEvent('page', { timeout: 5000 }),
+    brand.click({ modifiers: ['ControlOrMeta'] }),
+  ]);
+  await newTab.waitForURL(origin + '/');
+  await newTab.close();
+
+  await Promise.all([
+    page.waitForEvent('framenavigated', { predicate: frame => frame === page.mainFrame(), timeout: 5000 }),
+    brand.press('Enter'),
+  ]);
+  await ready(page);
+
+  await brand.click({ clickCount: 3 });
+  await page.waitForSelector('html[data-bg-scene="cdumascot"]');
+  await page.reload();
+  await page.waitForSelector('html[data-bg-scene="cdumascot"]');
+  assert.equal(await page.locator('[data-theme-select="preset-egg-mascot"]').count(), 0);
+});
+
 test('指南入门路径在桌面和手机目录中衔接首次实践', async t => {
   const page = await setup(t, { reducedMotion: 'reduce' });
   await page.goto(origin + '/guide/chat-ai-to-agent/');

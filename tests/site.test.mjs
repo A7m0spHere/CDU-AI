@@ -1268,7 +1268,7 @@ test('首次 Agent 教程保留原文与七章结构，组件在构建时生成�
 test('标点表情只在运行时按主题注入，构建产物保留文字标点', async () => {
   const html = await read('guide/ai-faq/index.html');
   // 标点不参与构建期替换：页面上是文字句号，表情节点由 src/scripts/techne-punct.ts 在浏览器里生成
-  assert.equal(html.includes('sticker--punct'), false);
+  assert.equal(html.includes('data-punct='), false);
   assert.match(html, /这是一个很经典的问题。/);
 
   // 运行时脚本必须真的进了产物：在打好的 JS 里找得到它创建的类名
@@ -1276,7 +1276,7 @@ test('标点表情只在运行时按主题注入，构建产物保留文字标�
   let bundled = false;
   for (const file of assets.filter((name) => name.endsWith('.js'))) {
     const code = await readFile(path.join(dist, '_astro', file), 'utf8');
-    if (code.includes('punct__sticker')) {
+    if (code.includes('--punct-image')) {
       bundled = true;
       break;
     }

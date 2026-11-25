@@ -5,13 +5,8 @@
  * 1. 要覆盖整站——手写 Astro 页面、首页模块、卡片摘要都算，插件只能管 Markdown；
  * 2. 要跟着主题开关——构建期换掉的标点，用户切到别的主题也收不回来。
  *
- * 做法：把每个 `。` `？` 包成双节点
- *   <span class="punct" data-punct="。">
- *     <span class="punct__char">。</span>
- *     <img class="punct__sticker" …>
- *   </span>
- * 默认显示文字标点；`html[data-bg-scene='techne']` 时文字让位、表情登场。
- * 于是切主题只是一次 CSS 生效，既不用重扫 DOM，也不会闪一下再变。
+ * 将标点保留为内联文字，小计姬主题用 CSS 背景显示表情。
+ * 浏览器查找、复制和辅助技术仍然可以读取原标点。
  *
  * 边界：代码块、行内代码、表单控件、主题菜单与搜索弹层、装饰层都跳过——
  * 那里出现头像会干扰阅读或操作。新增内容（搜索结果是运行时渲染的）由
@@ -70,24 +65,8 @@ function makePunct(char: string): HTMLElement | null {
   const wrap = document.createElement('span');
   wrap.className = 'punct';
   wrap.dataset.punct = char;
-
-  const text = document.createElement('span');
-  text.className = 'punct__char';
-  text.textContent = char;
-
-  const img = document.createElement('img');
-  img.className = 'punct__sticker';
-  img.src = `${TECHNE_STICKER_DIR}${sticker.file}`;
-  // alt = 原标点：小计姬主题下读屏念「句号」「问号」，断句信息不丢
-  img.alt = char;
-  img.width = sticker.w;
-  img.height = sticker.h;
-  img.decoding = 'async';
-  img.dataset.sticker = key;
-  // 灯箱会收集 .notion-prose img，表情不能被包成「点击放大」按钮
-  img.dataset.noZoom = '';
-
-  wrap.append(text, img);
+  wrap.textContent = char;
+  wrap.style.setProperty('--punct-image', `url(${TECHNE_STICKER_DIR}${sticker.file})`);
   return wrap;
 }
 

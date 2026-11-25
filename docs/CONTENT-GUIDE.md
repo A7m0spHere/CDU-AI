@@ -35,10 +35,10 @@
 这是运行时全站行为，不只文章正文——首页模块、手写页面、卡片摘要都算。所以：
 
 - 写正文时**正常打标点**，不用为表情做任何事，也不要为了表情改标点。
-- 复制、站内搜索、打印拿到的都是正常标点，不影响检索与引用。
+- 复制、浏览器页内查找、站内搜索和打印都保留正常标点。
 - 代码块、行内代码、表单控件、主题菜单与搜索弹层里的标点不会被替换。
 
-映射表在 [`src/data/techne-stickers.mjs`](../src/data/techne-stickers.mjs) 的 `TECHNE_PUNCT_STICKERS`，由 [`src/scripts/techne-punct.ts`](../src/scripts/techne-punct.ts) 在浏览器里包成「文字 + 表情」双节点，[`src/styles/sticker.css`](../src/styles/sticker.css) 按主题切换。想关闭某个标点，把对应那行删掉即可。
+映射表在 [`src/data/techne-stickers.mjs`](../src/data/techne-stickers.mjs) 的 `TECHNE_PUNCT_STICKERS`。[`src/scripts/techne-punct.ts`](../src/scripts/techne-punct.ts) 保留内联标点文字并设置对应的表情地址，[`src/styles/sticker.css`](../src/styles/sticker.css) 按主题显示背景图。
 
 需要指定其他表情时，再写**短码**（构建时换成内联小图，等同 emoji，跟着字号缩放）：
 
@@ -63,7 +63,7 @@
 
 - **不要在句尾再手写 `:微笑:`**：句号已经会变成表情，两个表情会连在一起。短码留给句中、标题或需要指定具体表情的场合。
 - 短码表情同样只在小计姬主题显示；其他主题下它是隐藏的 `<img>`，不会留下空位。
-- 标点表情的 alt 写成原标点，读屏软件会念出「句号」「问号」，断句信息不丢；短码表情的 alt 写画面，因为它本身承载语气。
+- 读屏软件可以读取原标点。短码表情的 alt 描述画面。
 - 未登记的短码原样显示为文字，不会报错；行内代码、代码块里的冒号与标点都不会被替换。
 - 短码渲染由 [`src/lib/remark-techne-stickers.mjs`](../src/lib/remark-techne-stickers.mjs) 完成，样式在 [`src/styles/sticker.css`](../src/styles/sticker.css)。
 - 新增表情：把 **96 px 级别的 WebP** 放进 `public/images/techne/inline/`，在登记表补 `file` / `alt` / 真实像素 `w`、`h`（宽高用于未解码前占位，别写错），需要中文别名再补 `TECHNE_STICKER_ALIASES`。alt 要写清画面，读屏用户靠它理解语气。

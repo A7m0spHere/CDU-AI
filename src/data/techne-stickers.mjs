@@ -50,9 +50,8 @@ export function resolveSticker(name) {
 export const TECHNE_STICKER_DIR = '/images/techne/inline/';
 
 /**
- * 标点替换表：`src/scripts/techne-punct.ts` 在浏览器里把正文标点包成
- * 「文字 + 表情」双节点，默认显示文字，只有「小计姬」主题（`data-bg-scene='techne'`）
- * 才切成表情。因此它是全站生效的，且不依赖构建期。
+ * 标点表情映射：`src/scripts/techne-punct.ts` 为全站正文保留内联标点，
+ * 小计姬主题通过 CSS 背景图显示对应表情。
  * 想关闭某个标点，把它从下面的对象里删掉即可。
  */
 export const TECHNE_PUNCT_STICKERS = {
