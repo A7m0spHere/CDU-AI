@@ -427,6 +427,10 @@
   line-height: 1.45;
 }
 
+.challenge-linear-step.is-past .challenge-linear-step__day {
+  color: var(--faint);
+}
+
 .challenge-linear-step__tag {
   padding: 0.12rem 0.5rem;
   border-radius: var(--radius-pill);

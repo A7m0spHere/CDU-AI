@@ -130,18 +130,26 @@ const sections = [
         </div>
 
         <ol class="challenge-linear-timeline">
-          {timelinePhases.map((phase) => (
-            <li class="challenge-linear-step">
-              <div class="challenge-linear-step__time">
-                <span class="challenge-linear-step__day">{phase.time ? `${phase.day} · ${phase.time}` : phase.day}</span>
-                {phase.dateLabel && <span class="challenge-linear-step__tag">{phase.dateLabel}</span>}
-              </div>
-              <div class="challenge-linear-step__body">
-                <h3>{phase.stage}</h3>
-                <p>{phase.summary}</p>
-              </div>
-            </li>
-          ))}
+          {timelinePhases.map((phase) => {
+            const endsAtMs = Date.parse(phase.endsAt);
+            const isPast = !Number.isNaN(endsAtMs) && Date.now() >= endsAtMs;
+            return (
+              <li
+                class:list={['challenge-linear-step', { 'is-past': isPast }]}
+                data-timeline-step
+                data-ends-at={phase.endsAt}
+              >
+                <div class="challenge-linear-step__time">
+                  <span class="challenge-linear-step__day">{phase.time ? `${phase.day} · ${phase.time}` : phase.day}</span>
+                  {phase.dateLabel && <span class="challenge-linear-step__tag">{phase.dateLabel}</span>}
+                </div>
+                <div class="challenge-linear-step__body">
+                  <h3>{phase.stage}</h3>
+                  <p>{phase.summary}</p>
+                </div>
+              </li>
+            );
+          })}
         </ol>
       </section>
 
@@ -453,5 +461,25 @@ const sections = [
     };
 
     updateStatus();
+  }
+
+  const timelineSteps = Array.from(document.querySelectorAll<HTMLElement>('[data-timeline-step]'));
+  if (timelineSteps.length > 0) {
+    const updateTimelineSteps = () => {
+      const now = Date.now();
+      let nextChange = Infinity;
+      for (const step of timelineSteps) {
+        const endsAt = Date.parse(step.dataset.endsAt ?? '');
+        if (Number.isNaN(endsAt)) continue;
+        const isPast = now >= endsAt;
+        step.classList.toggle('is-past', isPast);
+        if (!isPast && endsAt < nextChange) nextChange = endsAt;
+      }
+      if (Number.isFinite(nextChange) && nextChange > now) {
+        window.setTimeout(updateTimelineSteps, Math.min(nextChange - now, 2_147_483_647));
+      }
+    };
+
+    updateTimelineSteps();
   }
 </script>
